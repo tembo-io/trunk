@@ -1,14 +1,13 @@
 use std::include_str;
 use std::path::Path;
-use tar::{Header};
+use tar::Header;
 use thiserror::Error;
-use hyper::body::Body;
 
-use bollard::Docker;
 use bollard::image::BuildImageOptions;
-use bollard::container::Config;
-use std::default::Default;
+use bollard::Docker;
+
 use bollard::models::BuildInfo;
+use std::default::Default;
 
 #[derive(Error, Debug)]
 pub enum PgxBuildError {
@@ -33,7 +32,7 @@ pub fn build_pgx(path: &Path, _output_path: &str) -> Result<(), PgxBuildError> {
     header.set_cksum();
     tar.append_data(&mut header, "Dockerfile", dockerfile.as_bytes())?;
 
-    let options = BuildImageOptions{
+    let options = BuildImageOptions {
         dockerfile: "Dockerfile",
         t: "temp",
         rm: true,
@@ -43,13 +42,15 @@ pub fn build_pgx(path: &Path, _output_path: &str) -> Result<(), PgxBuildError> {
     let docker = Docker::connect_with_local_defaults()?;
     let mut image_build_stream = docker.build_image(options, None, Some(tar.into_inner()?.into()));
 
-
     let runtime = tokio::runtime::Runtime::new().unwrap();
     let handle = runtime.handle();
-    handle.block_on( async {
+    handle.block_on(async {
         use futures_util::stream::StreamExt;
-        while let Some(Ok(BuildInfo { stream: Some(s), .. })) = image_build_stream.next().await {
-            print!("{}", s);
+        while let Some(Ok(BuildInfo {
+            stream: Some(s), ..
+        })) = image_build_stream.next().await
+        {
+            print!("{s}");
         }
     });
 
