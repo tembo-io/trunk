@@ -1,13 +1,9 @@
 pub mod build;
 pub mod install;
 pub mod publish;
-use clap::ValueEnum;
+mod pgx;
 
-#[derive(ValueEnum, Clone)]
-enum ResourceType {
-    Db,
-    Dbs,
-}
+use clap::ValueEnum;
 
 pub trait SubCommand {
     fn execute(&self);

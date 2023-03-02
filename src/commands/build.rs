@@ -2,11 +2,15 @@ use std::path::Path;
 use super::SubCommand;
 use clap::Args;
 use toml::Table;
+use crate::commands::pgx::build_pgx;
+
 
 #[derive(Args)]
 pub struct BuildCommand {
-    #[arg(long = "path", default_value = ".")]
+    #[arg(short = 'p', long = "path", default_value = ".")]
     path: String,
+    #[arg(short = 'o', long = "output-path", default_value = "./.trunk")]
+    output_path: String,
 }
 
 impl SubCommand for BuildCommand {
@@ -21,6 +25,7 @@ impl SubCommand for BuildCommand {
             let dependencies = cargo_toml.get("dependencies").unwrap().as_table().unwrap();
             if dependencies.contains_key("pgx") {
                 println!("Detected that we are building a pgx extension");
+                build_pgx(&path,  &self.output_path);
                 return;
             }
         }
