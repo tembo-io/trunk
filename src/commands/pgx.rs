@@ -2,11 +2,21 @@ use std::include_str;
 use std::path::Path;
 use tar::{Header};
 use thiserror::Error;
+use hyper::body::Body;
+
+use bollard::Docker;
+use bollard::image::BuildImageOptions;
+use bollard::container::Config;
+use std::default::Default;
+use bollard::models::BuildInfo;
 
 #[derive(Error, Debug)]
 pub enum PgxBuildError {
     #[error("IO Error: {0}")]
     IoError(#[from] std::io::Error),
+
+    #[error("Docker Error: {0}")]
+    DockerError(#[from] bollard::errors::Error),
 }
 
 pub fn build_pgx(path: &Path, _output_path: &str) -> Result<(), PgxBuildError> {
@@ -22,6 +32,26 @@ pub fn build_pgx(path: &Path, _output_path: &str) -> Result<(), PgxBuildError> {
     header.set_size(dockerfile.len() as u64);
     header.set_cksum();
     tar.append_data(&mut header, "Dockerfile", dockerfile.as_bytes())?;
-    println!("{:?}", tar.into_inner().unwrap());
+
+    let options = BuildImageOptions{
+        dockerfile: "Dockerfile",
+        t: "temp",
+        rm: true,
+        ..Default::default()
+    };
+
+    let docker = Docker::connect_with_local_defaults()?;
+    let mut image_build_stream = docker.build_image(options, None, Some(tar.into_inner()?.into()));
+
+
+    let runtime = tokio::runtime::Runtime::new().unwrap();
+    let handle = runtime.handle();
+    handle.block_on( async {
+        use futures_util::stream::StreamExt;
+        while let Some(Ok(BuildInfo { stream: Some(s), .. })) = image_build_stream.next().await {
+            print!("{}", s);
+        }
+    });
+
     Ok(())
 }
