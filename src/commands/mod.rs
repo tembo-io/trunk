@@ -1,7 +1,7 @@
 pub mod build;
 pub mod install;
-pub mod publish;
 mod pgx;
+pub mod publish;
 
 use clap::ValueEnum;
 

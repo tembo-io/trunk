@@ -1,9 +1,8 @@
-use std::path::Path;
 use super::SubCommand;
-use clap::Args;
-use toml::Table;
 use crate::commands::pgx::build_pgx;
-
+use clap::Args;
+use std::path::Path;
+use toml::Table;
 
 #[derive(Args)]
 pub struct BuildCommand {
@@ -18,11 +17,12 @@ impl SubCommand for BuildCommand {
         println!("Building from path {}", self.path);
         let path = Path::new(&self.path);
         if path.join("Cargo.toml").exists() {
-            let cargo_toml: Table = toml::from_str(&std::fs::read_to_string(path.join("Cargo.toml")).unwrap()).unwrap();
+            let cargo_toml: Table =
+                toml::from_str(&std::fs::read_to_string(path.join("Cargo.toml")).unwrap()).unwrap();
             let dependencies = cargo_toml.get("dependencies").unwrap().as_table().unwrap();
             if dependencies.contains_key("pgx") {
                 println!("Detected that we are building a pgx extension");
-                build_pgx(&path,  &self.output_path);
+                build_pgx(&path, &self.output_path);
                 return;
             }
         }
