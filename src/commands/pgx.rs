@@ -2,6 +2,7 @@ use bollard::container::{
     Config, CreateContainerOptions, DownloadFromContainerOptions, StartContainerOptions,
 };
 use bollard::models::HostConfig;
+use std::collections::HashMap;
 use std::default::Default;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -20,10 +21,12 @@ use bollard::Docker;
 
 use crate::sync_utils::{ByteStreamReceiver, ByteStreamSender};
 use bollard::models::BuildInfo;
+use futures_util::FutureExt;
 use hyper::Body;
 use tokio::sync::mpsc;
 use tokio::task;
 use tokio_stream::wrappers::ReceiverStream;
+use toml::Value;
 
 #[derive(Error, Debug)]
 pub enum PgxBuildError {
@@ -38,14 +41,56 @@ pub enum PgxBuildError {
 
     #[error("Internal sending error: {0}")]
     InternalSendingError(#[from] mpsc::error::SendError<Vec<u8>>),
+
+    #[error("Cargo manifest error: {0}")]
+    ManifestError(String),
 }
 
 pub async fn build_pgx(
     path: &Path,
     output_path: &str,
-    extension_name: &str,
-    extension_version: &str,
+    cargo_toml: toml::Table,
 ) -> Result<(), PgxBuildError> {
+    let cargo_package_info = cargo_toml
+        .get("package")
+        .into_iter()
+        .filter_map(Value::as_table)
+        .next()
+        .ok_or(PgxBuildError::ManifestError(
+            "Could not find package info in Cargo.toml".to_string(),
+        ))?;
+    let extension_name = cargo_package_info
+        .get("name")
+        .into_iter()
+        .filter_map(Value::as_str)
+        .next()
+        .ok_or(PgxBuildError::ManifestError(
+            "Could not find package name in Cargo.toml".to_string(),
+        ))?;
+    let extension_version = cargo_package_info
+        .get("version")
+        .into_iter()
+        .filter_map(Value::as_str)
+        .next()
+        .ok_or(PgxBuildError::ManifestError(
+            "Could not find package version in Cargo.toml".to_string(),
+        ))?;
+    let pgx_version = cargo_toml
+        .get("dependencies")
+        .into_iter()
+        .filter_map(Value::as_table)
+        .next()
+        .ok_or(PgxBuildError::ManifestError(
+            "Could not find dependencies info in Cargo.toml".to_string(),
+        ))?
+        .get("pgx")
+        .into_iter()
+        .filter_map(Value::as_str)
+        .next()
+        .ok_or(PgxBuildError::ManifestError(
+            "Could not find pgx dependency info in Cargo.toml".to_string(),
+        ))?;
+
     println!("Building pgx extension at path {}", &path.display());
     let dockerfile = include_str!("./pgx_builder/Dockerfile");
 
@@ -80,11 +125,17 @@ pub async fn build_pgx(
     image_name.push_str(&random_suffix);
     let image_name = image_name.as_str().to_owned();
 
+    let mut build_args = HashMap::new();
+    build_args.insert("EXTENSION_NAME", extension_name);
+    build_args.insert("EXTENSION_VERSION", extension_version);
+    build_args.insert("PGX_VERSION", pgx_version);
+
     // TODO: build args in the Dockerfile such as postgres version should be configurable
     let options = BuildImageOptions {
         dockerfile: "Dockerfile",
         t: &image_name.clone(),
         rm: true,
+        buildargs: build_args,
         ..Default::default()
     };
 
