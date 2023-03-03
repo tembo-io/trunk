@@ -4,10 +4,9 @@ use bollard::container::{
 use bollard::models::HostConfig;
 use std::default::Default;
 use std::fs::File;
-use std::io::{ErrorKind, Read, Write};
+use std::io::{Read, Write};
 use std::path::Path;
 use std::string::FromUtf8Error;
-use std::{cmp, io};
 use std::{fs, include_str};
 
 use futures_util::stream::StreamExt;
@@ -19,10 +18,10 @@ use thiserror::Error;
 use bollard::image::BuildImageOptions;
 use bollard::Docker;
 
+use crate::sync_utils::{ByteStreamReceiver, ByteStreamSender};
 use bollard::models::BuildInfo;
 use hyper::Body;
 use tokio::sync::mpsc;
-use tokio::sync::mpsc::error::TrySendError;
 use tokio::task;
 use tokio_stream::wrappers::ReceiverStream;
 
@@ -41,113 +40,6 @@ pub enum PgxBuildError {
     InternalSendingError(#[from] mpsc::error::SendError<Vec<u8>>),
 }
 
-/// Sends a byte stream in chunks to [tokio::mpsc] channel
-///
-/// It implements [std::io::Write] so it can be used in a sync task
-pub(crate) struct ByteStream {
-    sender: mpsc::Sender<Result<Vec<u8>, io::Error>>,
-    buffer: Vec<u8>,
-}
-
-impl ByteStream {
-    /// Creates a new ByteStream
-    pub(crate) fn new() -> (
-        mpsc::Receiver<Result<Vec<u8>, io::Error>>,
-        mpsc::Sender<Result<Vec<u8>, io::Error>>,
-        Self,
-    ) {
-        let (sender, receiver) = mpsc::channel(1);
-        let stream = Self {
-            sender: sender.clone(),
-            buffer: Vec::new(),
-        };
-        (receiver, sender, stream)
-    }
-}
-
-impl Drop for ByteStream {
-    fn drop(&mut self) {
-        let _ = self.flush();
-    }
-}
-
-const BUFFER_SIZE: usize = 8192;
-
-impl Write for ByteStream {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        self.buffer.extend_from_slice(buf);
-        if self.buffer.len() > BUFFER_SIZE {
-            self.flush()?;
-        }
-        Ok(buf.len())
-    }
-
-    fn flush(&mut self) -> std::io::Result<()> {
-        let mut message = std::mem::take(&mut self.buffer);
-        loop {
-            match self.sender.try_send(Ok(message)) {
-                // Success
-                Ok(()) => return Ok(()),
-                // Retry
-                Err(TrySendError::Full(Ok(msg))) => message = msg,
-                // We never send errors, so this is unreachable
-                Err(TrySendError::Full(Err(_))) => unreachable!(),
-                // No longer need to send anything
-                Err(TrySendError::Closed(_)) => {
-                    return Err(std::io::Error::from(ErrorKind::BrokenPipe))
-                }
-            }
-        }
-    }
-}
-
-struct ByteStreamReceiver {
-    receiver: mpsc::Receiver<Vec<u8>>,
-    buffer: Vec<u8>,
-}
-
-impl Read for ByteStreamReceiver {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        // Serve from the buffer first
-        let mut received_bytes = if !self.buffer.is_empty() {
-            std::mem::replace(&mut self.buffer, Vec::new())
-        } else {
-            // Otherwise, read from the receiver
-            match self.receiver.blocking_recv() {
-                None => return Ok(0),
-                Some(bytes) => {
-                    dbg!(bytes.len());
-                    bytes
-                }
-            }
-        };
-        // Combine existing buffer with the received bytes
-        // TODO: optimize for the first case (of serving the buffer)
-        let mut bytes = std::mem::replace(&mut self.buffer, Vec::new());
-        bytes.append(&mut received_bytes);
-
-        // Finding how much we can it into `buf`
-        let amt = cmp::min(buf.len(), bytes.len());
-        let (a, b) = bytes.split_at(amt);
-
-        // The remainder of the entire buffer goes back into the buffer
-        if b.len() > 0 {
-            self.buffer.extend_from_slice(b);
-        }
-
-        // First check if the amount of bytes we want to read is small:
-        // `copy_from_slice` will generally expand to a call to `memcpy`, and
-        // for a single byte the overhead is significant.
-        if amt == 1 {
-            buf[0] = a[0];
-        } else {
-            buf[..amt].copy_from_slice(a);
-        }
-
-        Ok(amt)
-    }
-}
-
 pub async fn build_pgx(
     path: &Path,
     output_path: &str,
@@ -157,7 +49,7 @@ pub async fn build_pgx(
     println!("Building pgx extension at path {}", &path.display());
     let dockerfile = include_str!("./pgx_builder/Dockerfile");
 
-    let (receiver, sender, stream) = ByteStream::new();
+    let (receiver, sender, stream) = ByteStreamSender::new();
     // Making path owned so we can send it to the tarring task below without having to worry
     // about the lifetime of the reference.
     let path = path.to_owned();
@@ -259,17 +151,13 @@ pub async fn build_pgx(
 
     let mut file_stream = docker.download_from_container(&container.id, options);
 
-    let (sender, receiver) = mpsc::channel::<Vec<u8>>(128);
+    let (sender, receiver) = ByteStreamReceiver::new();
     let pg_config_handle = task::spawn_blocking(move || {
         let mut pg_config_buffer = Vec::new();
-        let mut pg_config_archive = Archive::new(ByteStreamReceiver {
-            receiver,
-            buffer: Vec::new(),
-        });
+        let mut pg_config_archive = Archive::new(receiver);
         if let Ok(entries) = pg_config_archive.entries() {
             for entry in entries {
                 if let Ok(mut entry) = entry {
-                    dbg!(entry.path()?);
                     if entry.path()?.to_str() == Some(".pg_config") {
                         entry.read_to_end(&mut pg_config_buffer)?;
                         return Ok::<_, anyhow::Error>(Some(pg_config_buffer));
@@ -290,7 +178,6 @@ pub async fn build_pgx(
             }
         }
     }
-    dbg!();
     drop(sender);
     let pg_config = String::from_utf8(
         pg_config_handle
