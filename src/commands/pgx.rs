@@ -6,6 +6,7 @@ use std::path::Path;
 
 use futures_util::stream::StreamExt;
 
+use rand::Rng;
 use tar::Header;
 use thiserror::Error;
 
@@ -70,7 +71,7 @@ impl Write for ByteStream {
     }
 
     fn flush(&mut self) -> std::io::Result<()> {
-        let mut message = std::mem::replace(&mut self.buffer, Vec::new());
+        let mut message = std::mem::take(&mut self.buffer);
         loop {
             match self.sender.try_send(Ok(message)) {
                 // Success
@@ -111,12 +112,21 @@ pub async fn build_pgx(path: &Path, _output_path: &str) -> Result<(), PgxBuildEr
             Ok(()) => (),
             Err(err) => sender.try_send(Err(err)).map(|_| ()).unwrap_or_default(),
         }
-        ()
     });
+
+    let mut image_name = "pgx_builder_".to_string();
+
+    let random_suffix = {
+        let mut rng = rand::thread_rng();
+        rng.gen_range(0..1000000).to_string()
+    };
+
+    image_name.push_str(&random_suffix);
+    let image_name = image_name.as_str().to_owned();
 
     let options = BuildImageOptions {
         dockerfile: "Dockerfile",
-        t: "temp",
+        t: &image_name.clone(),
         rm: true,
         ..Default::default()
     };
