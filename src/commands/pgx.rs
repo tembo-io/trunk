@@ -194,93 +194,31 @@ pub async fn build_pgx(
         .start_container(&container.id, None::<StartContainerOptions<String>>)
         .await?;
 
-    let pg_config_file_path = "/app/.pg_config";
+    // output_path is the locally output path
+    fs::create_dir_all(output_path)?;
 
-    let options = Some(DownloadFromContainerOptions {
-        path: pg_config_file_path,
-    });
+    // output_dir is the path inside the image
+    // where we can find the files we want to download
+    let output_dir = format!("/app/trunk-output");
+
+    let options = Some(DownloadFromContainerOptions { path: output_dir });
 
     let mut file_stream = docker.download_from_container(&container.id, options);
 
-    let (sender, receiver) = ByteStreamReceiver::new();
-    let pg_config_handle = task::spawn_blocking(move || {
-        let mut pg_config_buffer = Vec::new();
-        let mut pg_config_archive = Archive::new(receiver);
-        if let Ok(entries) = pg_config_archive.entries() {
-            for entry in entries {
-                if let Ok(mut entry) = entry {
-                    if entry.path()?.to_str() == Some(".pg_config") {
-                        entry.read_to_end(&mut pg_config_buffer)?;
-                        return Ok::<_, anyhow::Error>(Some(pg_config_buffer));
-                    }
-                }
-            }
-        }
-        Ok(None)
-    });
+    let mut file = File::create(format!("{output_path}/result.tar"))?;
     while let Some(next) = file_stream.next().await {
         match next {
             Ok(bytes) => {
-                println!("sending {}", bytes.len());
-                sender.send(bytes.into()).await?;
+                file.write_all(&bytes).unwrap();
             }
             Err(err) => {
                 return Err(err)?;
             }
         }
     }
-    drop(sender);
-    let pg_config = String::from_utf8(
-        pg_config_handle
-            .await
-            .unwrap()
-            .unwrap_or_default()
-            .unwrap_or_default(),
-    )?;
-
-    println!("{}", pg_config);
-
-    // TODO: name what these what they are called in pg_config output
-    let lib_dir = format!("/app/target/release/{extension_name}-pg15/usr/lib/postgresql/15/lib/");
-    let extensions_dir =
-        format!("/app/target/release/{extension_name}-pg15/usr/share/postgresql/15/extension/");
-
-    let binary_file = format!("{extension_name}.so");
-    let control_file = format!("{extension_name}.control");
-    let sql_file = format!("{extension_name}--{extension_version}.sql");
-
-    let files_to_copy = vec![
-        (lib_dir, binary_file),
-        (extensions_dir.clone(), control_file),
-        (extensions_dir.clone(), sql_file),
-    ];
-
-    fs::create_dir_all(output_path)?;
-
-    for file in files_to_copy {
-        let file_dir = file.0;
-        let file_name = file.1;
-        let file_path = format!("{file_dir}{file_name}");
-
-        let options = Some(DownloadFromContainerOptions { path: file_path });
-
-        let mut file_stream = docker.download_from_container(&container.id, options);
-
-        let mut file = File::create(format!("{output_path}/{file_name}"))?;
-        while let Some(next) = file_stream.next().await {
-            match next {
-                Ok(bytes) => {
-                    file.write_all(&bytes).unwrap();
-                }
-                Err(err) => {
-                    return Err(err)?;
-                }
-            }
-        }
-    }
 
     // stop the container
-    // docker.stop_container(&container.id, None).await?;
+    docker.stop_container(&container.id, None).await?;
 
     Ok(())
 }

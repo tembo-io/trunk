@@ -85,10 +85,7 @@ impl Read for ByteStreamReceiver {
             // Otherwise, read from the receiver
             match self.receiver.blocking_recv() {
                 None => return Ok(0),
-                Some(bytes) => {
-                    dbg!(bytes.len());
-                    bytes
-                }
+                Some(bytes) => bytes,
             }
         };
         // Combine existing buffer with the received bytes
