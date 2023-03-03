@@ -1,8 +1,13 @@
+use bollard::container::{
+    Config, CreateContainerOptions, DownloadFromContainerOptions, StartContainerOptions,
+};
+use bollard::models::HostConfig;
 use std::default::Default;
-use std::include_str;
+use std::fs::File;
 use std::io;
 use std::io::{ErrorKind, Write};
 use std::path::Path;
+use std::{fs, include_str};
 
 use futures_util::stream::StreamExt;
 
@@ -89,7 +94,7 @@ impl Write for ByteStream {
     }
 }
 
-pub async fn build_pgx(path: &Path, _output_path: &str) -> Result<(), PgxBuildError> {
+pub async fn build_pgx(path: &Path, output_path: &str) -> Result<(), PgxBuildError> {
     println!("Building pgx extension at path {}", &path.display());
     let dockerfile = include_str!("./pgx_builder/Dockerfile");
 
@@ -124,6 +129,7 @@ pub async fn build_pgx(path: &Path, _output_path: &str) -> Result<(), PgxBuildEr
     image_name.push_str(&random_suffix);
     let image_name = image_name.as_str().to_owned();
 
+    // TODO: build args in the Dockerfile such as postgres version should be configurable
     let options = BuildImageOptions {
         dockerfile: "Dockerfile",
         t: &image_name.clone(),
@@ -159,6 +165,73 @@ pub async fn build_pgx(path: &Path, _output_path: &str) -> Result<(), PgxBuildEr
             Ok(_) => {}
             Err(err) => {
                 return Err(err)?;
+            }
+        }
+    }
+
+    let options = Some(CreateContainerOptions {
+        name: image_name.to_string(),
+        platform: None,
+    });
+
+    let host_config = HostConfig {
+        auto_remove: Some(true),
+        ..Default::default()
+    };
+
+    let config = Config {
+        image: Some(image_name.to_string()),
+        entrypoint: Some(vec!["sleep".to_string()]),
+        cmd: Some(vec!["300".to_string()]),
+        host_config: Some(host_config),
+        ..Default::default()
+    };
+
+    let container = docker.create_container(options, config).await?;
+    docker
+        .start_container(&container.id, None::<StartContainerOptions<String>>)
+        .await?;
+
+    // TODO: grab version and name from Cargo.toml
+    // TODO: grab information like paths from pg_config in the container
+    let extension_name = "pgmq";
+    let extension_version = "0.2.0-alpha.1";
+
+    // TODO: name what these what they are called in pg_config output
+    let lib_dir = format!("/app/target/release/{extension_name}-pg15/usr/lib/postgresql/15/lib/");
+    let extensions_dir =
+        format!("/app/target/release/{extension_name}-pg15/usr/share/postgresql/15/extension/");
+
+    let binary_file = format!("{extension_name}.so");
+    let control_file = format!("{extension_name}.control");
+    let sql_file = format!("{extension_name}--{extension_version}.sql");
+
+    let files_to_copy = vec![
+        (lib_dir, binary_file),
+        (extensions_dir.clone(), control_file),
+        (extensions_dir.clone(), sql_file),
+    ];
+
+    fs::create_dir_all(output_path)?;
+
+    for file in files_to_copy {
+        let file_dir = file.0;
+        let file_name = file.1;
+        let file_path = format!("{file_dir}{file_name}");
+
+        let options = Some(DownloadFromContainerOptions { path: file_path });
+
+        let mut file_stream = docker.download_from_container(&container.id, options);
+
+        let mut file = File::create(format!("{output_path}/{file_name}"))?;
+        while let Some(next) = file_stream.next().await {
+            match next {
+                Ok(bytes) => {
+                    file.write_all(&bytes).unwrap();
+                }
+                Err(err) => {
+                    return Err(err)?;
+                }
             }
         }
     }
