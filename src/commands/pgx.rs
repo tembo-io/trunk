@@ -94,7 +94,12 @@ impl Write for ByteStream {
     }
 }
 
-pub async fn build_pgx(path: &Path, output_path: &str) -> Result<(), PgxBuildError> {
+pub async fn build_pgx(
+    path: &Path,
+    output_path: &str,
+    extension_name: &str,
+    extension_version: &str,
+) -> Result<(), PgxBuildError> {
     println!("Building pgx extension at path {}", &path.display());
     let dockerfile = include_str!("./pgx_builder/Dockerfile");
 
@@ -191,11 +196,6 @@ pub async fn build_pgx(path: &Path, output_path: &str) -> Result<(), PgxBuildErr
     docker
         .start_container(&container.id, None::<StartContainerOptions<String>>)
         .await?;
-
-    // TODO: grab version and name from Cargo.toml
-    // TODO: grab information like paths from pg_config in the container
-    let extension_name = "pgmq";
-    let extension_version = "0.2.0-alpha.1";
 
     // TODO: name what these what they are called in pg_config output
     let lib_dir = format!("/app/target/release/{extension_name}-pg15/usr/lib/postgresql/15/lib/");

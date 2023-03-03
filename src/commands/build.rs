@@ -23,8 +23,26 @@ impl SubCommand for BuildCommand {
                 toml::from_str(&std::fs::read_to_string(path.join("Cargo.toml")).unwrap()).unwrap();
             let dependencies = cargo_toml.get("dependencies").unwrap().as_table().unwrap();
             if dependencies.contains_key("pgx") {
+                let extension_name = cargo_toml
+                    .get("package")
+                    .unwrap()
+                    .as_table()
+                    .unwrap()
+                    .get("name")
+                    .unwrap()
+                    .as_str()
+                    .unwrap();
+                let extension_version = cargo_toml
+                    .get("package")
+                    .unwrap()
+                    .as_table()
+                    .unwrap()
+                    .get("version")
+                    .unwrap()
+                    .as_str()
+                    .unwrap();
                 println!("Detected that we are building a pgx extension");
-                build_pgx(path, &self.output_path).await?;
+                build_pgx(path, &self.output_path, extension_name, extension_version).await?;
                 return Ok(());
             }
         }
