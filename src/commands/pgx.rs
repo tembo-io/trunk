@@ -4,15 +4,16 @@ use bollard::container::{
 use bollard::models::HostConfig;
 use std::default::Default;
 use std::fs::File;
-use std::io;
-use std::io::{ErrorKind, Write};
+use std::io::{ErrorKind, Read, Write};
 use std::path::Path;
+use std::string::FromUtf8Error;
+use std::{cmp, io};
 use std::{fs, include_str};
 
 use futures_util::stream::StreamExt;
 
 use rand::Rng;
-use tar::Header;
+use tar::{Archive, Header};
 use thiserror::Error;
 
 use bollard::image::BuildImageOptions;
@@ -32,6 +33,12 @@ pub enum PgxBuildError {
 
     #[error("Docker Error: {0}")]
     DockerError(#[from] bollard::errors::Error),
+
+    #[error("Error converting binary to utf8: {0}")]
+    FromUft8Error(#[from] FromUtf8Error),
+
+    #[error("Internal sending error: {0}")]
+    InternalSendingError(#[from] mpsc::error::SendError<Vec<u8>>),
 }
 
 /// Sends a byte stream in chunks to [tokio::mpsc] channel
@@ -91,6 +98,53 @@ impl Write for ByteStream {
                 }
             }
         }
+    }
+}
+
+struct ByteStreamReceiver {
+    receiver: mpsc::Receiver<Vec<u8>>,
+    buffer: Vec<u8>,
+}
+
+impl Read for ByteStreamReceiver {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        // Serve from the buffer first
+        let mut received_bytes = if !self.buffer.is_empty() {
+            std::mem::replace(&mut self.buffer, Vec::new())
+        } else {
+            // Otherwise, read from the receiver
+            match self.receiver.blocking_recv() {
+                None => return Ok(0),
+                Some(bytes) => {
+                    dbg!(bytes.len());
+                    bytes
+                }
+            }
+        };
+        // Combine existing buffer with the received bytes
+        // TODO: optimize for the first case (of serving the buffer)
+        let mut bytes = std::mem::replace(&mut self.buffer, Vec::new());
+        bytes.append(&mut received_bytes);
+
+        // Finding how much we can it into `buf`
+        let amt = cmp::min(buf.len(), bytes.len());
+        let (a, b) = bytes.split_at(amt);
+
+        // The remainder of the entire buffer goes back into the buffer
+        if b.len() > 0 {
+            self.buffer.extend_from_slice(b);
+        }
+
+        // First check if the amount of bytes we want to read is small:
+        // `copy_from_slice` will generally expand to a call to `memcpy`, and
+        // for a single byte the overhead is significant.
+        if amt == 1 {
+            buf[0] = a[0];
+        } else {
+            buf[..amt].copy_from_slice(a);
+        }
+
+        Ok(amt)
     }
 }
 
@@ -197,6 +251,57 @@ pub async fn build_pgx(
         .start_container(&container.id, None::<StartContainerOptions<String>>)
         .await?;
 
+    let pg_config_file_path = "/app/.pg_config";
+
+    let options = Some(DownloadFromContainerOptions {
+        path: pg_config_file_path,
+    });
+
+    let mut file_stream = docker.download_from_container(&container.id, options);
+
+    let (sender, receiver) = mpsc::channel::<Vec<u8>>(128);
+    let pg_config_handle = task::spawn_blocking(move || {
+        let mut pg_config_buffer = Vec::new();
+        let mut pg_config_archive = Archive::new(ByteStreamReceiver {
+            receiver,
+            buffer: Vec::new(),
+        });
+        if let Ok(entries) = pg_config_archive.entries() {
+            for entry in entries {
+                if let Ok(mut entry) = entry {
+                    dbg!(entry.path()?);
+                    if entry.path()?.to_str() == Some(".pg_config") {
+                        entry.read_to_end(&mut pg_config_buffer)?;
+                        return Ok::<_, anyhow::Error>(Some(pg_config_buffer));
+                    }
+                }
+            }
+        }
+        Ok(None)
+    });
+    while let Some(next) = file_stream.next().await {
+        match next {
+            Ok(bytes) => {
+                println!("sending {}", bytes.len());
+                sender.send(bytes.into()).await?;
+            }
+            Err(err) => {
+                return Err(err)?;
+            }
+        }
+    }
+    dbg!();
+    drop(sender);
+    let pg_config = String::from_utf8(
+        pg_config_handle
+            .await
+            .unwrap()
+            .unwrap_or_default()
+            .unwrap_or_default(),
+    )?;
+
+    println!("{}", pg_config);
+
     // TODO: name what these what they are called in pg_config output
     let lib_dir = format!("/app/target/release/{extension_name}-pg15/usr/lib/postgresql/15/lib/");
     let extensions_dir =
@@ -235,6 +340,9 @@ pub async fn build_pgx(
             }
         }
     }
+
+    // stop the container
+    // docker.stop_container(&container.id, None).await?;
 
     Ok(())
 }

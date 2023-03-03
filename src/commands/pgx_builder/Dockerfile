@@ -35,4 +35,8 @@ RUN cargo pgx init --pg${PGVERSION} /usr/bin/pg_config
 COPY --chown=postgres:postgres . /app
 WORKDIR /app
 
+# Save the output of .pg_config for reading
+RUN /usr/bin/pg_config > /app/.pg_config
+
 RUN cargo pgx package
+
