@@ -23,9 +23,6 @@ jobs:
         pgx_version:
           - "0.7.1"
           - "0.7.2"
-        platform:
-          - "linux/amd64"
-          - "linux/arm64"
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -48,8 +45,7 @@ jobs:
           docker_directory: ./images/pgx-builder
           publish_latest: false
           publish_calver: true
-          push: true
-          # push: ${{ steps.tags.outputs.push == "true" }}
+          push: ${{ steps.tags.outputs.push == "true" }}
           platform: ${{ matrix.platform }}
           tags: ${{ steps.tags.outputs.suffix }}
           calver_suffix: "-${{ steps.tags.outputs.suffix }}"
