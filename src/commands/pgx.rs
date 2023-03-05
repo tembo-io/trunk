@@ -2,6 +2,7 @@ use bollard::container::{
     Config, CreateContainerOptions, DownloadFromContainerOptions, StartContainerOptions,
 };
 use bollard::models::HostConfig;
+use semver::{Version, VersionReq};
 use std::collections::HashMap;
 use std::default::Default;
 use std::fs::File;
@@ -75,7 +76,7 @@ pub async fn build_pgx(
         .ok_or(PgxBuildError::ManifestError(
             "Could not find package version in Cargo.toml".to_string(),
         ))?;
-    let pgx_version = cargo_toml
+    let pgx_range = cargo_toml
         .get("dependencies")
         .into_iter()
         .filter_map(Value::as_table)
@@ -90,6 +91,32 @@ pub async fn build_pgx(
         .ok_or(PgxBuildError::ManifestError(
             "Could not find pgx dependency info in Cargo.toml".to_string(),
         ))?;
+
+    println!("Detected pgx version range {}", &pgx_range);
+    // If the version is a semver range, convert to a specific version
+    let pgx_semver = if let Ok(range) = VersionReq::parse(pgx_range) {
+        // The pgx version is a range, so we need to find the highest
+        // version that satisfies the range
+        let versions = ["0.7.2", "0.7.1"];
+        versions
+            .iter()
+            .filter_map(|&s| Version::parse(s).ok())
+            .filter(|v| range.matches(v))
+            .max()
+            .ok_or(PgxBuildError::ManifestError(format!(
+                "No supported version of pgx satisfies the range {}. \nSupported versions: {:?}",
+                pgx_range, versions
+            )))?
+    } else {
+        // The pgx version is already a specific version
+        Version::parse(pgx_range).map_err(|_| {
+            PgxBuildError::ManifestError(format!("Invalid pgx version string: {}", pgx_range))
+        })?
+    };
+
+    let pgx_version = pgx_semver.to_string();
+    let pgx_version = pgx_version.as_str();
+    println!("Using pgx version {}", pgx_version);
 
     println!("Building pgx extension at path {}", &path.display());
     let dockerfile = include_str!("./pgx_builder/Dockerfile");
