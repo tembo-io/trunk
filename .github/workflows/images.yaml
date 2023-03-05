@@ -36,13 +36,11 @@ jobs:
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_PASSWORD }}
       - name: Build and push
-        uses: docker/build-push-action@v4
-        with:
-          pull: true
-          push: true
-          tags: quay.io/coredb/pgx-builder:pg${{ matrix.pg_version }}-pgx${{ matrix.pgx_version }}
-          platforms: linux/amd64,linux/arm64
-          context: images/pgx-builder
-          build-args: |
-            PG_VERSION=${{ matrix.pg_version }}
-            PGX_VERSION=${{ matrix.pgx_version }}
+        run: |
+          set -xe
+          docker buildx build \
+            --build-arg PG_VERSION=${{ matrix.pg_version }} \
+            --build-arg PGX_VERSION=${{ matrix.pgx_version }} \
+            --platform linux/amd64,linux/arm64 \
+            --tag quay.io/coredb/pgx-builder:pg${{ matrix.pg_version }}-pgx${{ matrix.pgx_version }} \
+            --pull --push images/pgx-builder
