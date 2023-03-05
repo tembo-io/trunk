@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
     - '.github/workflows/images.yaml'
-    - '.github/actions/build-and-push-to-quay/**'
     - 'images/pgx-builder/**'
   push:
     branches:
