@@ -34,8 +34,16 @@ inputs:
     description: "Should we tag with 'latest'?"
     required: false
     default: false
+  publish_sha:
+    description: "Should we tag with a short git sha?"
+    required: false
+    default: false
   tags:
     description: "Whitespace-separated tags, not including the registry, for example 'v1' or 'v1 release-1.0'. There are also some default tags provided, please see the other options of this action."
+    required: false
+    default: ""
+  build_args:
+    description: "Build arguments to pass to the Docker build using --build-arg. Use the form arg_name=arg_value, and separate arguments with newlines."
     required: false
     default: ""
 outputs: {}
@@ -61,9 +69,11 @@ runs:
         if [ "${{ inputs.publish_latest }}" == "true" ]; then
           TAGS="$TAGS latest"
         fi
-        # Short Git hash
-        SHORT_SHA=$(git rev-parse --short HEAD)
-        TAGS="$TAGS ${SHORT_SHA}"
+        if [ "${{ inputs.publish_sha }}" == "true" ]; then
+          # Short Git hash
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TAGS="$TAGS ${SHORT_SHA}"
+        fi
         echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
     - name: Run pre-build hooks
       shell: bash
@@ -85,6 +95,7 @@ runs:
         archs: amd64, arm64
         containerfiles: |
           ${{ inputs.docker_directory }}/Dockerfile
+        build-args: ${{ inputs.build_args }}
     - name: Push To quay.io
       uses: redhat-actions/push-to-registry@v2
       if: ${{ inputs.push }}

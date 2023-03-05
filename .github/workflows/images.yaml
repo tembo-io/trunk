@@ -50,3 +50,6 @@ jobs:
           calver_suffix: "-${{ steps.tags.outputs.suffix }}"
           quay_user: ${{ secrets.QUAY_USER }}
           quay_password: ${{ secrets.QUAY_PASSWORD }}
+          build_args: |
+            PGX_VERSION=${{ matrix.pgx_version }}
+            PG_VERSION=${{ matrix.pg_version }}
