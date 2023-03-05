@@ -19,10 +19,8 @@ jobs:
       matrix:
         pg_version:
           - "15"
-          - "14"
         pgx_version:
           - "0.7.1"
-          - "0.7.2"
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
