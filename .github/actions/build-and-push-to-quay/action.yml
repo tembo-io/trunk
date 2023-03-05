@@ -86,7 +86,7 @@ runs:
           echo "no pre build hook detected"
         fi
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@v2
     - name: Buildah Action
       uses: redhat-actions/buildah-build@v2
       with:
