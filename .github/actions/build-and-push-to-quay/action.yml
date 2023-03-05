@@ -38,10 +38,6 @@ inputs:
     description: "Whitespace-separated tags, not including the registry, for example 'v1' or 'v1 release-1.0'. There are also some default tags provided, please see the other options of this action."
     required: false
     default: ""
-  platform:
-    description: 'What to use for the --platform flag on the image build'
-    required: false
-    default: 'linux/amd64'
 outputs: {}
 runs:
   using: "composite"
@@ -79,17 +75,16 @@ runs:
         else
           echo "no pre build hook detected"
         fi
-    - name: Build image and tag
-      shell: bash
-      run: |
-        set -xe
-        # Build the image
-        docker build --platform ${{ inputs.platform }} -t ${{ inputs.image_name }} ${{ inputs.docker_directory }}
-        # Tag with each tag in the comma-separate list
-        IFS=' ' read -ra TAG_ARRAY <<< "${{ steps.tags.outputs.TAGS }}"
-        for tag in "${TAG_ARRAY[@]}"; do
-          docker tag ${{ inputs.image_name }} ${{ inputs.image_name }}:$tag
-        done
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Buildah Action
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: ${{ inputs.image_name }}
+        tags: ${{ steps.tags.outputs.TAGS }}
+        archs: amd64, arm64
+        containerfiles: |
+          ${{ inputs.docker_directory }}/Dockerfile
     - name: Push To quay.io
       uses: redhat-actions/push-to-registry@v2
       if: ${{ inputs.push }}
