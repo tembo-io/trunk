@@ -45,7 +45,7 @@ jobs:
           docker_directory: ./images/pgx-builder
           publish_latest: false
           publish_calver: true
-          push: ${{ steps.tags.outputs.push == "true" }}
+          push: ${{ steps.tags.outputs.push == 'true' }}
           platform: ${{ matrix.platform }}
           tags: ${{ steps.tags.outputs.suffix }}
           calver_suffix: "-${{ steps.tags.outputs.suffix }}"
