@@ -1,10 +1,6 @@
 name: PGX builder images
 
 on:
-  pull_request:
-    paths:
-    - '.github/workflows/images.yaml'
-    - 'images/pgx-builder/**'
   push:
     branches:
       - 'main'
