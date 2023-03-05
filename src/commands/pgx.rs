@@ -47,6 +47,38 @@ pub enum PgxBuildError {
     ManifestError(String),
 }
 
+fn semver_from_range(pgx_range: &str) -> Result<String, PgxBuildError> {
+    let versions = ["0.7.2", "0.7.1"];
+
+    if versions.contains(&pgx_range) {
+        // If the input is already a specific version, return it as-is
+        return Ok(pgx_range.to_string());
+    }
+
+    // If the version is a semver range, convert to a specific version
+    let pgx_semver = if let Ok(range) = VersionReq::parse(pgx_range) {
+        // The pgx version is a range, so we need to find the highest
+        // version that satisfies the range
+        versions
+            .iter()
+            .filter_map(|&s| Version::parse(s).ok())
+            .filter(|v| range.matches(v))
+            .max()
+            .ok_or(PgxBuildError::ManifestError(format!(
+                "No supported version of pgx satisfies the range {}. \nSupported versions: {:?}",
+                pgx_range, versions
+            )))?
+    } else {
+        // The pgx version is already a specific version
+        Version::parse(pgx_range).map_err(|_| {
+            PgxBuildError::ManifestError(format!("Invalid pgx version string: {}", pgx_range))
+        })?
+    };
+
+    let pgx_version = pgx_semver.to_string();
+    Ok(pgx_version)
+}
+
 pub async fn build_pgx(
     path: &Path,
     output_path: &str,
@@ -93,29 +125,8 @@ pub async fn build_pgx(
         ))?;
 
     println!("Detected pgx version range {}", &pgx_range);
-    // If the version is a semver range, convert to a specific version
-    let pgx_semver = if let Ok(range) = VersionReq::parse(pgx_range) {
-        // The pgx version is a range, so we need to find the highest
-        // version that satisfies the range
-        let versions = ["0.7.2", "0.7.1"];
-        versions
-            .iter()
-            .filter_map(|&s| Version::parse(s).ok())
-            .filter(|v| range.matches(v))
-            .max()
-            .ok_or(PgxBuildError::ManifestError(format!(
-                "No supported version of pgx satisfies the range {}. \nSupported versions: {:?}",
-                pgx_range, versions
-            )))?
-    } else {
-        // The pgx version is already a specific version
-        Version::parse(pgx_range).map_err(|_| {
-            PgxBuildError::ManifestError(format!("Invalid pgx version string: {}", pgx_range))
-        })?
-    };
 
-    let pgx_version = pgx_semver.to_string();
-    let pgx_version = pgx_version.as_str();
+    let pgx_version = semver_from_range(pgx_range)?;
     println!("Using pgx version {}", pgx_version);
 
     println!("Building pgx extension at path {}", &path.display());
@@ -155,7 +166,7 @@ pub async fn build_pgx(
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", extension_name);
     build_args.insert("EXTENSION_VERSION", extension_version);
-    build_args.insert("PGX_VERSION", pgx_version);
+    build_args.insert("PGX_VERSION", &pgx_version.as_str());
 
     // TODO: build args in the Dockerfile such as postgres version should be configurable
     let options = BuildImageOptions {
@@ -248,4 +259,34 @@ pub async fn build_pgx(
     docker.stop_container(&container.id, None).await?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_semver_from_range_specific_version() {
+        // Test that a specific version string is returned as-is
+        let result = semver_from_range("0.7.1");
+        assert_eq!(result.unwrap(), "0.7.1");
+        let result = semver_from_range("0.7.2");
+        assert_eq!(result.unwrap(), "0.7.2");
+    }
+
+    #[test]
+    fn test_semver_from_range_specific_version_with_equals() {
+        // Test that a specific version string is returned as-is
+        let result = semver_from_range("=0.7.1");
+        assert_eq!(result.unwrap(), "0.7.1");
+        let result = semver_from_range("=0.7.2");
+        assert_eq!(result.unwrap(), "0.7.2");
+    }
+
+    #[test]
+    fn test_semver_from_range_semver_range() {
+        // Test that a semver range is converted to the highest matching version
+        let result = semver_from_range(">=0.7.1, <0.8.0");
+        assert_eq!(result.unwrap(), "0.7.2");
+    }
 }
