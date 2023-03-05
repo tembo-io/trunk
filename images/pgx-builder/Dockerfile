@@ -19,10 +19,10 @@ RUN apt-get update && \
 USER postgres
 
 # Install Rust
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
 ENV PATH="/var/lib/postgresql/.cargo/bin:${PATH}"
 
 # Install tcdi/pgx
 ARG PGX_VERSION=0.7.1
-RUN cargo install cargo-pgx --version "${PGX_VERSION}"
+RUN rm -rf ~/.cargo/registry/* && cargo +nightly install -Z sparse-registry cargo-pgx --version "${PGX_VERSION}"
 RUN cargo pgx init --pg${PGVERSION} /usr/bin/pg_config
