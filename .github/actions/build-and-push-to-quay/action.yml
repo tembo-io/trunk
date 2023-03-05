@@ -93,6 +93,8 @@ runs:
         image: ${{ inputs.image_name }}
         tags: ${{ steps.tags.outputs.TAGS }}
         archs: amd64, arm64
+        extra-args: |
+          --pull
         containerfiles: |
           ${{ inputs.docker_directory }}/Dockerfile
         build-args: ${{ inputs.build_args }}
