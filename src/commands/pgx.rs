@@ -6,7 +6,7 @@ use semver::{Version, VersionReq};
 use std::collections::HashMap;
 use std::default::Default;
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::Path;
 use std::string::FromUtf8Error;
 use std::{fs, include_str};
@@ -14,13 +14,13 @@ use std::{fs, include_str};
 use futures_util::stream::StreamExt;
 
 use rand::Rng;
-use tar::{Archive, Header};
+use tar::Header;
 use thiserror::Error;
 
 use bollard::image::BuildImageOptions;
 use bollard::Docker;
 
-use crate::sync_utils::{ByteStreamReceiver, ByteStreamSender};
+use crate::sync_utils::ByteStreamSender;
 use bollard::models::BuildInfo;
 use futures_util::FutureExt;
 use hyper::Body;
@@ -65,13 +65,12 @@ fn semver_from_range(pgx_range: &str) -> Result<String, PgxBuildError> {
             .filter(|v| range.matches(v))
             .max()
             .ok_or(PgxBuildError::ManifestError(format!(
-                "No supported version of pgx satisfies the range {}. \nSupported versions: {:?}",
-                pgx_range, versions
+                "No supported version of pgx satisfies the range {pgx_range}. \nSupported versions: {versions:?}"
             )))?
     } else {
         // The pgx version is already a specific version
         Version::parse(pgx_range).map_err(|_| {
-            PgxBuildError::ManifestError(format!("Invalid pgx version string: {}", pgx_range))
+            PgxBuildError::ManifestError(format!("Invalid pgx version string: {pgx_range}"))
         })?
     };
 
@@ -127,7 +126,7 @@ pub async fn build_pgx(
     println!("Detected pgx version range {}", &pgx_range);
 
     let pgx_version = semver_from_range(pgx_range)?;
-    println!("Using pgx version {}", pgx_version);
+    println!("Using pgx version {pgx_version}");
 
     println!("Building pgx extension at path {}", &path.display());
     let dockerfile = include_str!("./pgx_builder/Dockerfile");
@@ -166,7 +165,7 @@ pub async fn build_pgx(
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", extension_name);
     build_args.insert("EXTENSION_VERSION", extension_version);
-    build_args.insert("PGX_VERSION", &pgx_version.as_str());
+    build_args.insert("PGX_VERSION", pgx_version.as_str());
 
     // TODO: build args in the Dockerfile such as postgres version should be configurable
     let options = BuildImageOptions {
@@ -237,7 +236,7 @@ pub async fn build_pgx(
 
     // output_dir is the path inside the image
     // where we can find the files we want to download
-    let output_dir = format!("/app/trunk-output");
+    let output_dir = "/app/trunk-output".to_string();
 
     let options = Some(DownloadFromContainerOptions { path: output_dir });
 
