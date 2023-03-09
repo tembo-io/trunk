@@ -1,5 +1,7 @@
 mod commands;
 mod manifest;
+mod package;
+mod repository;
 mod sync_utils;
 
 use crate::commands::SubCommand;

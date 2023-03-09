@@ -1,6 +1,7 @@
 use crate::manifest::Manifest;
 use flate2::bufread::GzDecoder;
 use std::fs::File;
+use std::io;
 use std::io::{BufReader, Seek};
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
@@ -18,7 +19,7 @@ impl Into<File> for Package {
 }
 
 impl Package {
-    pub fn new(path: PathBuf) -> Result<Self, std::io::Error> {
+    pub fn new(path: PathBuf) -> Result<Self, io::Error> {
         Ok(Self {
             file: File::open(&path)?,
             path,
@@ -61,5 +62,14 @@ impl Package {
         }
 
         manifest.ok_or(anyhow::Error::msg("no manifest"))
+    }
+
+    /// Returns the original (compressed) file
+    pub fn original_file(&self) -> Result<File, io::Error> {
+        File::open(&self.path)
+    }
+
+    pub fn original_file_path(&self) -> &Path {
+        &self.path
     }
 }
