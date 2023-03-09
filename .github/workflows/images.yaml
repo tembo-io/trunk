@@ -8,7 +8,8 @@ on:
 jobs:
   build_and_push_images:
     name: Build and push images
-    runs-on: ubuntu-22.04
+    runs-on:
+      - dind-runner
     strategy:
       fail-fast: false
       matrix:
@@ -34,9 +35,11 @@ jobs:
       - name: Build and push
         run: |
           set -xe
-          docker buildx build \
-            --build-arg PG_VERSION=${{ matrix.pg_version }} \
-            --build-arg PGX_VERSION=${{ matrix.pgx_version }} \
-            --platform linux/amd64,linux/arm64 \
-            --tag quay.io/coredb/pgx-builder:pg${{ matrix.pg_version }}-pgx${{ matrix.pgx_version }} \
-            --pull --push images/pgx-builder
+          docker run -it --rm hello-world:latest
+          # Testing self-hosted CI
+          # docker buildx build \
+          #   --build-arg PG_VERSION=${{ matrix.pg_version }} \
+          #   --build-arg PGX_VERSION=${{ matrix.pgx_version }} \
+          #   --platform linux/amd64,linux/arm64 \
+          #   --tag quay.io/coredb/pgx-builder:pg${{ matrix.pg_version }}-pgx${{ matrix.pgx_version }} \
+          #   --pull --push images/pgx-builder
