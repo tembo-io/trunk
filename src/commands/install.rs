@@ -3,6 +3,7 @@ use crate::manifest::{Manifest, PackagedFile};
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
+use reqwest;
 use std::fs::File;
 use std::io::Seek;
 use std::path::{Path, PathBuf};
@@ -11,10 +12,15 @@ use tokio_task_manager::Task;
 
 #[derive(Args)]
 pub struct InstallCommand {
+    name: String,
     #[arg(long = "pg-config", short = 'p')]
     pg_config: Option<PathBuf>,
     #[arg(long = "file", short = 'f')]
     file: Option<PathBuf>,
+    #[arg(long = "extension_version")]
+    extension_version: String,
+    #[arg(long = "registry", short = 'r', default_value = "https://pgtrunk.io")]
+    registry: String,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -83,6 +89,21 @@ impl SubCommand for InstallCommand {
         }
         println!("Using pkglibdir: {:?}", package_lib_dir);
         println!("Using sharedir: {:?}", extension_dir);
+
+        // If a file is not specified, then we will query the registry
+        // and download the latest version of the package
+        if !self.file.is_some() {
+            // Using the reqwest crate, we will run the equivalent of this curl command:
+            // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
+            let response = reqwest::get(&format!(
+                "{}/extensions/{}/{}/download",
+                self.registry, self.name, self.extension_version
+            ))
+            .await?;
+            let response_body = response.text().await?;
+            println!("{:?}", response_body);
+            return Ok(());
+        }
 
         // If file is specified
         if let Some(ref file) = self.file {
@@ -197,6 +218,7 @@ impl SubCommand for InstallCommand {
                 return Err(PgxInstallError::ManifestNotFound)?;
             }
         }
+
         Ok(())
     }
 }
