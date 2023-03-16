@@ -17,8 +17,8 @@ pub struct InstallCommand {
     pg_config: Option<PathBuf>,
     #[arg(long = "file", short = 'f')]
     file: Option<PathBuf>,
-    #[arg(long = "extension_version")]
-    extension_version: String,
+    #[arg(long = "version", short = 'v')]
+    version: String,
     #[arg(long = "registry", short = 'r', default_value = "https://pgtrunk.io")]
     registry: String,
 }
@@ -97,11 +97,11 @@ impl SubCommand for InstallCommand {
             // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
             let response = reqwest::get(&format!(
                 "{}/extensions/{}/{}/download",
-                self.registry, self.name, self.extension_version
+                self.registry, self.name, self.version
             ))
             .await?;
             let response_body = response.text().await?;
-            println!("{:?}", response_body);
+            println!("response body: {:?}", response_body);
             return Ok(());
         }
 
