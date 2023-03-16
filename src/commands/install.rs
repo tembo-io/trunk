@@ -5,7 +5,7 @@ use clap::Args;
 use flate2::read::GzDecoder;
 use reqwest;
 use std::fs::File;
-use std::io::{Cursor, Seek};
+use std::io::{Cursor, Read, Seek};
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
@@ -101,12 +101,12 @@ impl SubCommand for InstallCommand {
             ))
             .await?;
             let response_body = response.text().await?;
-            // TODO(ianstanton) We're writing the file to the files system at the moment.
-            //  Determine if this is the right approach.
             let file_response = reqwest::get(response_body).await?;
-            let mut file = std::fs::File::create(format!("{}-{}.tar.gz", self.name, self.version))?;
-            let mut content = Cursor::new(file_response.bytes().await?);
-            std::io::copy(&mut content, &mut file)?;
+            let bytes = file_response.bytes().await?;
+            // Decompress tar.gz
+            let mut gz = GzDecoder::new(&bytes[..]);
+            let mut d = Vec::new();
+            gz.read_to_end(&mut d).unwrap();
             return Ok(());
         }
 
