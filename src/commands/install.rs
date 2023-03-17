@@ -5,7 +5,7 @@ use clap::Args;
 use flate2::read::GzDecoder;
 use reqwest;
 use std::fs::File;
-use std::io::{Cursor, Read, Seek};
+use std::io::{Seek};
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
@@ -88,33 +88,14 @@ impl SubCommand for InstallCommand {
             return Ok(());
         }
         println!("Using pkglibdir: {:?}", package_lib_dir);
-        println!("Using sharedir: {:?}", extension_dir);
+        println!("Using sharedir: {:?}", sharedir);
 
-        // If a file is not specified, then we will query the registry
-        // and download the latest version of the package
-        if !self.file.is_some() {
-            // Using the reqwest crate, we will run the equivalent of this curl command:
-            // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
-            let response = reqwest::get(&format!(
-                "{}/extensions/{}/{}/download",
-                self.registry, self.name, self.version
-            ))
-            .await?;
-            let response_body = response.text().await?;
-            let file_response = reqwest::get(response_body).await?;
-            let bytes = file_response.bytes().await?;
-            // Decompress tar.gz
-            let mut gz = GzDecoder::new(&bytes[..]);
-            let mut d = Vec::new();
-            gz.read_to_end(&mut d).unwrap();
-            return Ok(());
-        }
 
-        // If file is specified
+        // If file is specified...
         if let Some(ref file) = self.file {
             let f = File::open(file)?;
 
-            let mut input = match file
+            let input = match file
                 .extension()
                 .into_iter()
                 .filter_map(|s| s.to_str())
@@ -132,98 +113,126 @@ impl SubCommand for InstallCommand {
                 Some("tar") => f,
                 _ => return Err(PgxInstallError::UnknownFileType)?,
             };
+            install(input, extension_dir, package_lib_dir, bitcode_dir, sharedir).await?;
+        } else {
+            // Using the reqwest crate, we will run the equivalent of this curl command:
+            // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
+            let response = reqwest::get(&format!(
+                "{}/extensions/{}/{}/download",
+                self.registry, self.name, self.version
+            ))
+                .await?;
+            let response_body = response.text().await?;
+            let file_response = reqwest::get(response_body).await?;
+            let bytes = file_response.bytes().await?;
+            // Decompress tar.gz
+            let gz = GzDecoder::new(&bytes[..]);
+            let mut tempfile = tempfile::tempfile()?;
+            use read_write_pipe::*;
+            tempfile.write_reader(gz)?;
+            tempfile.rewind()?;
+            let input = tempfile;
+            install(input, extension_dir, package_lib_dir, bitcode_dir, sharedir).await?;
+        }
+        Ok(())
+        // Else
 
-            // First pass: get to the manifest
-            // Because we're going over entries with `Seek` enabled, we're not reading everything.
-            let mut archive = Archive::new(&input);
 
-            let mut manifest: Option<Manifest> = None;
-            let entries = archive.entries_with_seek()?;
-            for entry in entries {
-                let entry = entry?;
-                let name = entry.path()?;
-                if entry.header().entry_type() == EntryType::file()
-                    && name == Path::new("manifest.json")
-                {
-                    manifest.replace(serde_json::from_reader(entry)?);
-                }
-            }
+        // If a file is not specified, then we will query the registry
+        // and download the latest version of the package
 
-            // Second pass: extraction
-            input.rewind()?;
-            let mut archive = Archive::new(&input);
+    }
+}
 
-            if let Some(mut manifest) = manifest {
-                let manifest_files = manifest.files.take().unwrap_or_default();
-                println!(
-                    "Installing {} {}",
-                    manifest.extension_name, manifest.extension_version
-                );
-                let host_arch = if cfg!(target_arch = "aarch64") {
-                    "aarch64"
-                } else if cfg!(target_arch = "arm") {
-                    "aarch32"
-                } else if cfg!(target_arch = "x86_64") {
-                    "x86_64"
-                } else if cfg!(target = "x86") {
-                    "x86"
-                } else {
-                    "unsupported"
-                };
+async fn install(mut input: File, extension_dir: PathBuf,  package_lib_dir: PathBuf, bitcode_dir: PathBuf, sharedir: PathBuf) -> Result<(), anyhow::Error> {
+    // First pass: get to the manifest
+    // Because we're going over entries with `Seek` enabled, we're not reading everything.
+    let mut archive = Archive::new(&input);
 
-                let entries = archive.entries_with_seek()?;
-                for entry in entries {
-                    let mut entry = entry?;
-                    let name = entry.path()?;
-                    if let Some(file) = manifest_files.get(name.as_ref()) {
-                        match file {
-                            PackagedFile::ControlFile { .. } => {
-                                println!("[+] {} => {}", name.display(), extension_dir.display());
-                                entry.unpack_in(&extension_dir)?;
-                            }
-                            PackagedFile::SqlFile { .. } => {
-                                println!("[+] {} => {}", name.display(), extension_dir.display());
-                                entry.unpack_in(&extension_dir)?;
-                            }
-                            PackagedFile::SharedObject {
-                                architecture: None, ..
-                            } => {
-                                println!(
-                                    "[+] {} (no arch) => {}",
-                                    name.display(),
-                                    package_lib_dir.display()
-                                );
-                                entry.unpack_in(&package_lib_dir)?;
-                            }
-                            PackagedFile::SharedObject {
-                                architecture: Some(ref architecture),
-                                ..
-                            } if architecture == host_arch => {
-                                println!("[+] {} => {}", name.display(), package_lib_dir.display());
-                                entry.unpack_in(&package_lib_dir)?;
-                            }
-                            PackagedFile::SharedObject {
-                                architecture: Some(ref architecture),
-                                ..
-                            } => {
-                                println!("[ ] {} (arch) skipped {}", name.display(), architecture);
-                            }
-                            PackagedFile::Bitcode { .. } => {
-                                println!("[+] {} => {}", name.display(), bitcode_dir.display());
-                                entry.unpack_in(&bitcode_dir)?;
-                            }
-                            PackagedFile::Extra { .. } => {
-                                println!("[+] {} => {}", name.display(), sharedir.display());
-                                entry.unpack_in(&sharedir)?;
-                            }
-                        }
+    let mut manifest: Option<Manifest> = None;
+    let entries = archive.entries_with_seek()?;
+    for entry in entries {
+        let entry = entry?;
+        let name = entry.path()?;
+        println!("{:?}", name);
+        if entry.header().entry_type() == EntryType::file()
+            && name == Path::new("manifest.json")
+        {
+            manifest.replace(serde_json::from_reader(entry)?);
+        }
+    }
+
+    // Second pass: extraction
+    input.rewind()?;
+    let mut archive = Archive::new(&input);
+
+    if let Some(mut manifest) = manifest {
+        let manifest_files = manifest.files.take().unwrap_or_default();
+        println!(
+            "Installing {} {}",
+            manifest.extension_name, manifest.extension_version
+        );
+        let host_arch = if cfg!(target_arch = "aarch64") {
+            "aarch64"
+        } else if cfg!(target_arch = "arm") {
+            "aarch32"
+        } else if cfg!(target_arch = "x86_64") {
+            "x86_64"
+        } else if cfg!(target = "x86") {
+            "x86"
+        } else {
+            "unsupported"
+        };
+        let entries = archive.entries_with_seek()?;
+        for entry in entries {
+            let mut entry = entry?;
+            let name = entry.path()?;
+            if let Some(file) = manifest_files.get(name.as_ref()) {
+                match file {
+                    PackagedFile::ControlFile { .. } => {
+                        println!("[+] {} => {}", name.display(), extension_dir.display());
+                        entry.unpack_in(&extension_dir)?;
+                    }
+                    PackagedFile::SqlFile { .. } => {
+                        println!("[+] {} => {}", name.display(), extension_dir.display());
+                        entry.unpack_in(&extension_dir)?;
+                    }
+                    PackagedFile::SharedObject {
+                        architecture: None, ..
+                    } => {
+                        println!(
+                            "[+] {} (no arch) => {}",
+                            name.display(),
+                            package_lib_dir.display()
+                        );
+                        entry.unpack_in(&package_lib_dir)?;
+                    }
+                    PackagedFile::SharedObject {
+                        architecture: Some(ref architecture),
+                        ..
+                    } if architecture == host_arch => {
+                        println!("[+] {} => {}", name.display(), package_lib_dir.display());
+                        entry.unpack_in(&package_lib_dir)?;
+                    }
+                    PackagedFile::SharedObject {
+                        architecture: Some(ref architecture),
+                        ..
+                    } => {
+                        println!("[ ] {} (arch) skipped {}", name.display(), architecture);
+                    }
+                    PackagedFile::Bitcode { .. } => {
+                        println!("[+] {} => {}", name.display(), bitcode_dir.display());
+                        entry.unpack_in(&bitcode_dir)?;
+                    }
+                    PackagedFile::Extra { .. } => {
+                        println!("[+] {} => {}", name.display(), sharedir.display());
+                        entry.unpack_in(&sharedir)?;
                     }
                 }
-            } else {
-                return Err(PgxInstallError::ManifestNotFound)?;
             }
         }
-
-        Ok(())
+    } else {
+        return Err(PgxInstallError::ManifestNotFound)?;
     }
+    Ok(())
 }
