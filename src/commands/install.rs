@@ -155,7 +155,6 @@ async fn install(
     for entry in entries {
         let entry = entry?;
         let name = entry.path()?;
-        println!("{:?}", name);
         if entry.header().entry_type() == EntryType::file() && name == Path::new("manifest.json") {
             manifest.replace(serde_json::from_reader(entry)?);
         }
