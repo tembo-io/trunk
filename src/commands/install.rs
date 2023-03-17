@@ -90,7 +90,6 @@ impl SubCommand for InstallCommand {
         println!("Using pkglibdir: {:?}", package_lib_dir);
         println!("Using sharedir: {:?}", sharedir);
 
-
         // If file is specified...
         if let Some(ref file) = self.file {
             let f = File::open(file)?;
@@ -115,6 +114,8 @@ impl SubCommand for InstallCommand {
             };
             install(input, extension_dir, package_lib_dir, bitcode_dir, sharedir).await?;
         } else {
+            // If a file is not specified, then we will query the registry
+            // and download the latest version of the package
             // Using the reqwest crate, we will run the equivalent of this curl command:
             // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
             let response = reqwest::get(&format!(
@@ -125,7 +126,7 @@ impl SubCommand for InstallCommand {
             let response_body = response.text().await?;
             let file_response = reqwest::get(response_body).await?;
             let bytes = file_response.bytes().await?;
-            // Decompress tar.gz
+            // unzip the archive into a temporary file
             let gz = GzDecoder::new(&bytes[..]);
             let mut tempfile = tempfile::tempfile()?;
             use read_write_pipe::*;
@@ -135,12 +136,6 @@ impl SubCommand for InstallCommand {
             install(input, extension_dir, package_lib_dir, bitcode_dir, sharedir).await?;
         }
         Ok(())
-        // Else
-
-
-        // If a file is not specified, then we will query the registry
-        // and download the latest version of the package
-
     }
 }
 
