@@ -5,7 +5,7 @@ use clap::Args;
 use flate2::read::GzDecoder;
 use reqwest;
 use std::fs::File;
-use std::io::{Seek};
+use std::io::Seek;
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
@@ -122,7 +122,7 @@ impl SubCommand for InstallCommand {
                 "{}/extensions/{}/{}/download",
                 self.registry, self.name, self.version
             ))
-                .await?;
+            .await?;
             let response_body = response.text().await?;
             let file_response = reqwest::get(response_body).await?;
             let bytes = file_response.bytes().await?;
@@ -139,7 +139,13 @@ impl SubCommand for InstallCommand {
     }
 }
 
-async fn install(mut input: File, extension_dir: PathBuf,  package_lib_dir: PathBuf, bitcode_dir: PathBuf, sharedir: PathBuf) -> Result<(), anyhow::Error> {
+async fn install(
+    mut input: File,
+    extension_dir: PathBuf,
+    package_lib_dir: PathBuf,
+    bitcode_dir: PathBuf,
+    sharedir: PathBuf,
+) -> Result<(), anyhow::Error> {
     // First pass: get to the manifest
     // Because we're going over entries with `Seek` enabled, we're not reading everything.
     let mut archive = Archive::new(&input);
@@ -150,9 +156,7 @@ async fn install(mut input: File, extension_dir: PathBuf,  package_lib_dir: Path
         let entry = entry?;
         let name = entry.path()?;
         println!("{:?}", name);
-        if entry.header().entry_type() == EntryType::file()
-            && name == Path::new("manifest.json")
-        {
+        if entry.header().entry_type() == EntryType::file() && name == Path::new("manifest.json") {
             manifest.replace(serde_json::from_reader(entry)?);
         }
     }
