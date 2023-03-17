@@ -90,7 +90,7 @@ impl SubCommand for InstallCommand {
         println!("Using pkglibdir: {:?}", package_lib_dir);
         println!("Using sharedir: {:?}", sharedir);
 
-        // If file is specified...
+        // If file is specified
         if let Some(ref file) = self.file {
             let f = File::open(file)?;
 
