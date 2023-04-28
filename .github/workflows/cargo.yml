@@ -19,9 +19,15 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
+      - name: Check out the coredb repo to reuse some actions
+        uses: actions/checkout@v3
+        with:
+          repository: coredb-io/coredb
+          path: ./coredb
+          ref: 306f7c3ead394ee041f96d08f6576dc79646a6a2
       - name: Find directories including Cargo.toml that changed
         id: find_directories
-        uses: ./.github/actions/find-changed-directories
+        uses: ./coredb/.github/actions/find-changed-directories
         with:
           contains_the_file: Cargo.toml
           # If the branch does not exist, then it will not
@@ -51,6 +57,12 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
+      - name: Check out the coredb repo to reuse some actions
+        uses: actions/checkout@v3
+        with:
+          repository: coredb-io/coredb
+          path: ./coredb
+          ref: 306f7c3ead394ee041f96d08f6576dc79646a6a2
       - name: Determine which flags to use on cargo publish
         id: cargo_flags
         run: |
@@ -72,7 +84,7 @@ jobs:
           workspaces: |
             ${{ matrix.path }}
       - name: Publish or validate
-        uses: ./.github/actions/publish-crate
+        uses: ./coredb/.github/actions/publish-crate
         with:
           working-directory: ${{ matrix.path }}
           dry-run: ${{ steps.cargo_flags.outputs.dry_run }}
