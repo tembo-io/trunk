@@ -11,34 +11,34 @@ on:
       - 'release/[0-9]+.[0-9]+'
 
 jobs:
-  find_directories:
-    name: Find crates that changed
-    runs-on: ubuntu-20.04
-    outputs:
-      changed_crates: ${{ steps.find_directories.outputs.build_matrix }}
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
-      - name: Check out the coredb repo to reuse some actions
-        uses: actions/checkout@v3
-        with:
-          repository: coredb-io/coredb
-          path: ./coredb
-          ref: 306f7c3ead394ee041f96d08f6576dc79646a6a2
-      - name: Find directories including Cargo.toml that changed
-        id: find_directories
-        uses: ./coredb/.github/actions/find-changed-directories
-        with:
-          contains_the_file: Cargo.toml
-          # If the branch does not exist, then it will not
-          # filter any directories containing the file.
-          # This allows for filtering out unchanged directories
-          # in a pull request, and using all directories on the release
-          # or main branches.
-          changed_relative_to_branch: ${{ github.base_ref || 'not-a-branch' }}
-          ignore_dirs: |
-            cli/tests/test_pgrx_extension
-            registry
+#  find_directories:
+#    name: Find crates that changed
+#    runs-on: ubuntu-20.04
+#    outputs:
+#      changed_crates: ${{ steps.find_directories.outputs.build_matrix }}
+#    steps:
+#      - name: Check out the repo
+#        uses: actions/checkout@v3
+#      - name: Check out the coredb repo to reuse some actions
+#        uses: actions/checkout@v3
+#        with:
+#          repository: coredb-io/coredb
+#          path: ./coredb
+#          ref: 306f7c3ead394ee041f96d08f6576dc79646a6a2
+#      - name: Find directories including Cargo.toml that changed
+#        id: find_directories
+#        uses: ./coredb/.github/actions/find-changed-directories
+#        with:
+#          contains_the_file: Cargo.toml
+#          # If the branch does not exist, then it will not
+#          # filter any directories containing the file.
+#          # This allows for filtering out unchanged directories
+#          # in a pull request, and using all directories on the release
+#          # or main branches.
+#          changed_relative_to_branch: ${{ github.base_ref || 'not-a-branch' }}
+#          ignore_dirs: |
+#            cli/tests/test_pgrx_extension
+#            registry
 
 
   cargo_publish:
@@ -49,11 +49,8 @@ jobs:
     # published.
     name: Cargo publish or validate
     runs-on: ubuntu-20.04
-    needs:
-      - find_directories
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.find_directories.outputs.changed_crates) }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -80,13 +77,11 @@ jobs:
           fi
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: ${{ matrix.name }}
-          workspaces: |
-            ${{ matrix.path }}
+          prefix-key: cli
       - name: Publish or validate
         uses: ./coredb/.github/actions/publish-crate
         with:
-          working-directory: ${{ matrix.path }}
+          working-directory: cli
           dry-run: ${{ steps.cargo_flags.outputs.dry_run }}
           fail-if-version-published: ${{ steps.cargo_flags.outputs.fail_if_version_published }}
           cargo-registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
