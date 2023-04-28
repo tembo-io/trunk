@@ -48,6 +48,7 @@ jobs:
     # does not exist, ignoring if the version is already
     # published.
     name: Cargo publish or validate
+    if: git diff --quiet HEAD origin/${{ github.base_ref || 'not-a-branch' }} -- "cli"; then
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
