@@ -121,5 +121,5 @@ jobs:
           repository: ${{ matrix.repository }}
           ssh_key: ${{ secrets.SERVICE_USER_GITHUB_SSH_KEY }}
           branch: ${{ matrix.branch }}
-          version: ${{ needs.build-push-image.steps.versions.outputs.SHORT_SHA }}
+          version: ${{ needs.build-push-image.outputs.short_sha }}
           subdirectory: ${{ matrix.subdirectory }}
