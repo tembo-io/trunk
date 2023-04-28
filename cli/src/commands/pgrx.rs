@@ -20,7 +20,7 @@ use tokio_task_manager::Task;
 use toml::Value;
 
 #[derive(Error, Debug)]
-pub enum PgxBuildError {
+pub enum PgrxBuildError {
     #[error("IO Error: {0}")]
     IoError(#[from] std::io::Error),
 
@@ -52,49 +52,49 @@ pub enum PgxBuildError {
     OtherError(#[from] anyhow::Error),
 }
 
-fn semver_from_range(pgx_range: &str) -> Result<String, PgxBuildError> {
-    let versions = ["0.7.4", "0.7.3", "0.7.2", "0.7.1"];
+fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
+    let versions = ["0.8.2", "0.8.1", "0.8.0"];
 
-    if versions.contains(&pgx_range) {
+    if versions.contains(&pgrx_range) {
         // If the input is already a specific version, return it as-is
-        return Ok(pgx_range.to_string());
+        return Ok(pgrx_range.to_string());
     }
 
     // If the version is a semver range, convert to a specific version
-    let pgx_semver = if let Ok(range) = VersionReq::parse(pgx_range) {
-        // The pgx version is a range, so we need to find the highest
+    let pgrx_semver = if let Ok(range) = VersionReq::parse(pgrx_range) {
+        // The pgrx version is a range, so we need to find the highest
         // version that satisfies the range
         versions
             .iter()
             .filter_map(|&s| Version::parse(s).ok())
             .filter(|v| range.matches(v))
             .max()
-            .ok_or(PgxBuildError::ManifestError(format!(
-                "No supported version of pgx satisfies the range {pgx_range}. \nSupported versions: {versions:?}"
+            .ok_or(PgrxBuildError::ManifestError(format!(
+                "No supported version of pgrx satisfies the range {pgrx_range}. \nSupported versions: {versions:?}"
             )))?
     } else {
-        // The pgx version is already a specific version
-        Version::parse(pgx_range).map_err(|_| {
-            PgxBuildError::ManifestError(format!("Invalid pgx version string: {pgx_range}"))
+        // The pgrx version is already a specific version
+        Version::parse(pgrx_range).map_err(|_| {
+            PgrxBuildError::ManifestError(format!("Invalid pgrx version string: {pgrx_range}"))
         })?
     };
 
-    let pgx_version = pgx_semver.to_string();
-    Ok(pgx_version)
+    let pgrx_version = pgrx_semver.to_string();
+    Ok(pgrx_version)
 }
 
-pub async fn build_pgx(
+pub async fn build_pgrx(
     path: &Path,
     output_path: &str,
     cargo_toml: toml::Table,
     _task: Task,
-) -> Result<(), PgxBuildError> {
+) -> Result<(), PgrxBuildError> {
     let cargo_package_info = cargo_toml
         .get("package")
         .into_iter()
         .filter_map(Value::as_table)
         .next()
-        .ok_or(PgxBuildError::ManifestError(
+        .ok_or(PgrxBuildError::ManifestError(
             "Could not find package info in Cargo.toml".to_string(),
         ))?;
     let extension_name = cargo_package_info
@@ -102,7 +102,7 @@ pub async fn build_pgx(
         .into_iter()
         .filter_map(Value::as_str)
         .next()
-        .ok_or(PgxBuildError::ManifestError(
+        .ok_or(PgrxBuildError::ManifestError(
             "Could not find package name in Cargo.toml".to_string(),
         ))?;
     let extension_version = cargo_package_info
@@ -110,39 +110,39 @@ pub async fn build_pgx(
         .into_iter()
         .filter_map(Value::as_str)
         .next()
-        .ok_or(PgxBuildError::ManifestError(
+        .ok_or(PgrxBuildError::ManifestError(
             "Could not find package version in Cargo.toml".to_string(),
         ))?;
-    let pgx_range = cargo_toml
+    let pgrx_range = cargo_toml
         .get("dependencies")
         .into_iter()
         .filter_map(Value::as_table)
         .next()
-        .ok_or(PgxBuildError::ManifestError(
+        .ok_or(PgrxBuildError::ManifestError(
             "Could not find dependencies info in Cargo.toml".to_string(),
         ))?
-        .get("pgx")
+        .get("pgrx")
         .into_iter()
         .filter_map(Value::as_str)
         .next()
-        .ok_or(PgxBuildError::ManifestError(
-            "Could not find pgx dependency info in Cargo.toml".to_string(),
+        .ok_or(PgrxBuildError::ManifestError(
+            "Could not find pgrx dependency info in Cargo.toml".to_string(),
         ))?;
 
-    println!("Detected pgx version range {}", &pgx_range);
+    println!("Detected pgrx version range {}", &pgrx_range);
 
-    let pgx_version = semver_from_range(pgx_range)?;
-    println!("Using pgx version {pgx_version}");
+    let pgrx_version = semver_from_range(pgrx_range)?;
+    println!("Using pgrx version {pgrx_version}");
 
-    println!("Building pgx extension at path {}", &path.display());
-    let dockerfile = include_str!("./builders/Dockerfile.pgx");
+    println!("Building pgrx extension at path {}", &path.display());
+    let dockerfile = include_str!("./builders/Dockerfile.pgrx");
 
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", extension_name);
     build_args.insert("EXTENSION_VERSION", extension_version);
-    build_args.insert("PGX_VERSION", pgx_version.as_str());
+    build_args.insert("PGRX_VERSION", pgrx_version.as_str());
 
-    let image_name_prefix = "pgx_builder_".to_string();
+    let image_name_prefix = "pgrx_builder_".to_string();
 
     let docker = Docker::connect_with_local_defaults()?;
 
@@ -194,25 +194,25 @@ mod tests {
     #[test]
     fn test_semver_from_range_specific_version() {
         // Test that a specific version string is returned as-is
-        let result = semver_from_range("0.7.1");
-        assert_eq!(result.unwrap(), "0.7.1");
-        let result = semver_from_range("0.7.2");
-        assert_eq!(result.unwrap(), "0.7.2");
+        let result = semver_from_range("0.8.1");
+        assert_eq!(result.unwrap(), "0.8.1");
+        let result = semver_from_range("0.8.2");
+        assert_eq!(result.unwrap(), "0.8.2");
     }
 
     #[test]
     fn test_semver_from_range_specific_version_with_equals() {
         // Test that a specific version string is returned as-is
-        let result = semver_from_range("=0.7.1");
-        assert_eq!(result.unwrap(), "0.7.1");
-        let result = semver_from_range("=0.7.2");
-        assert_eq!(result.unwrap(), "0.7.2");
+        let result = semver_from_range("=0.8.1");
+        assert_eq!(result.unwrap(), "0.8.1");
+        let result = semver_from_range("=0.8.2");
+        assert_eq!(result.unwrap(), "0.8.2");
     }
 
     #[test]
     fn test_semver_from_range_semver_range() {
         // Test that a semver range is converted to the highest matching version
-        let result = semver_from_range(">=0.7.1, <0.8.0");
-        assert_eq!(result.unwrap(), "0.7.4");
+        let result = semver_from_range(">=0.8.1, <0.9.0");
+        assert_eq!(result.unwrap(), "0.8.2");
     }
 }

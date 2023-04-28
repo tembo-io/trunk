@@ -37,7 +37,7 @@ jobs:
           # or main branches.
           changed_relative_to_branch: ${{ github.base_ref || 'not-a-branch' }}
           ignore_dirs: |
-            cli/tests/test_pgx_extension
+            cli/tests/test_pgrx_extension
             registry
 
 

@@ -5,7 +5,7 @@ pub mod build;
 mod containers;
 mod generic_build;
 pub mod install;
-mod pgx;
+mod pgrx;
 pub mod publish;
 
 #[async_trait]

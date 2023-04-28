@@ -62,14 +62,14 @@ fn install_manifest_v1_extension() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn build_pgx_extension() -> Result<(), Box<dyn std::error::Error>> {
+fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::thread_rng();
     let output_dir = format!("/tmp/pgmq_test_{}", rng.gen_range(0..1000000));
 
     // Construct a path relative to the current file's directory
     let mut extension_path = std::path::PathBuf::from(file!());
     extension_path.pop(); // Remove the file name from the path
-    extension_path.push("test_pgx_extension");
+    extension_path.push("test_pgrx_extension");
 
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("build");
@@ -78,10 +78,10 @@ fn build_pgx_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
-    assert!(
-        std::path::Path::new(format!("{output_dir}/test_pgx_extension-0.0.0.tar.gz").as_str())
-            .exists()
-    );
+    assert!(std::path::Path::new(
+        format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str()
+    )
+    .exists());
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
