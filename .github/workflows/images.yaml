@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - 'main'
+    paths:
+      - "cli/images/**"
+      - ".github/workflows/images.yaml"
   pull_request:
     branches:
       - 'main'
