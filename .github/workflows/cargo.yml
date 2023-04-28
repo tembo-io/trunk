@@ -31,7 +31,8 @@ jobs:
           # or main branches.
           changed_relative_to_branch: ${{ github.base_ref || 'not-a-branch' }}
           ignore_dirs: |
-            trunk/cli/tests/test_pgx_extension
+            cli/tests/test_pgx_extension
+            registry
 
 
   cargo_publish:
