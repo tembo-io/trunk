@@ -1,51 +1,91 @@
-# Motivation
+# Trunk CLI
 
-In the course of building [CoreDB](https://coredb.io)'s Managed Postgres SaaS product, we've identified an exciting opportunity to help evolve the Postgres extension ecosystem. To date, the two most common hubs for Postgres extensions are Aptitude (`apt`) and the PostgreSQL Extension Network (`pgxn`). While these serve as important channels for publication and installation, they are not without criticism. One drawback to highlight is the apparent and necessary tradeoff between the registry's programmatic access and the amplified exposure the platform can offers its users. In order to synthesize these critical features, we're launching a novel, open-source home for Postgres extensions: `trunk`.
+The [Trunk PostgreSQL Extension Registry](https://pgtrunk.io), henceforth Trunk, offers a companion CLI to facilitate a user-friendly programmatic interface. This toolset lowers the barriers to building, sharing, and using PostgreSQL extensions.
 
-# Introducing Trunk
+## Installation
 
-Trunk serves as registry where users can publish, search, and download community-made Postgres extensions. Inspired by popular developer hubs, such as [crates.io](http://crates.io) (Rust), [pypi.org](http://pypi.org) (Python), and [npmjs.com](http://npmjs.com) (JavaScript), Trunk aims to foster an information-rich environment. Here, developers can interact with the registry in a variety of ways and proudly showcase their contributions. Furthermore, users can gain insights into valuable metrics on extension downloads and trends.
+The Trunk CLI can be installed using the following command:
 
-At its core, the goal of trunk is to cultivate a thriving Postgres extension ecosystem by lowering the barriers to building, sharing, and using Postgres extensions.
+`cargo install pg-trunk`
 
-# Roadmap
+By default, the files are stored (). To confirm its proper installation, invoke the following:
 
-The Trunk infrastructure can be divided into the following: a command line interface (CLI), a registry, and a website.
+`trunk --version`
 
-### The CLI
+## Commands - Brief
 
 The CLI toolkit will abstract away many complexities in extension development and installation by using the following commands:
+- `trunk build` - compiles extensions and supports nested dependencies.
+- `trunk publish` - publishes an extension to the registry, making it available for discovery and installation.
+- `trunk install` - download and install the extension distribution, in whichever environment trunk is run.
 
-`trunk init`
-- setup your environment to build a new Postrgres extension.
+On the Horizon:
+- `trunk init` - setup your environment to build a new Postrgres extension.
+- `trunk test` - facilitate the automated unit and integration testing Postgres extensions.
 
-`trunk test`
-- facilitate the automated unit and integration testing Postgres extensions.
+## Commands - Detailed
+### 1. `trunk build`
 
-`trunk build`
-- compiles extensions.
-- supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
+This command leverages [pgrx](https://github.com/tcdi/pgrx) to help you build compiled Postgres extensions. 
 
-`trunk publish`
-- publishes an extension to the registry, making it available for discovery and installation.
+Usage: trunk build [OPTIONS]
 
-`trunk install`
-- download and install the extension distribution, in whichever environment trunk is run.
+Options:
+- -p, --path <PATH>                [default: .]
+- -o, --output-path <OUTPUT_PATH>  [default: ./.trunk]
+- -h, --help                       Print help
 
-### The Registry
+### 2. `trunk publish`
 
-To complement the CLI, we are building a public registry for distributing extension source code and compiled binaries matched to operating system, architecture, Postgres version, and extension version.
+This command allows you to publish your newly-minted Postgres extension to the Trunk registry.
 
-This purpose-built registry would provide a centralized location for developers to share extensions and for users to discover them.
+Usage: trunk publish [OPTIONS] --version <VERSION> <NAME>
 
-### The Website
+Arguments:
+  <NAME>
 
-We will launch a [website](https://pgtrunk.io) to help developers both discover and learn about extensions. This website is key to our success, as it will drive attention, traffic, etc, and lead users to the CLI tool.
+Options:
+-  -v, --version <VERSION>
+-  -f, --file <FILE>
+-  -d, --description <DESCRIPTION>
+-  -D, --documentation <DOCUMENTATION>
+-  -H, --homepage <HOMEPAGE>
+-  -l, --license <LICENSE>
+-  -r, --registry <REGISTRY>            [default: https://registry.pgtrunk.io]
+-  -R, --repository <REPOSITORY>
+-  -h, --help                           Print help
 
-Features will include:
 
-- Extension search and browsing
-- Usage and release metrics, to provide insight into popular and well-maintained extensions
-- User comments and social media streams
-- Benchmarks and tests
-- Version tracking and new release email notifications
+### 3. `trunk install`
+
+This command allows you to install Postgres extensions from the Trunk registry.
+
+Usage: trunk install [OPTIONS]< --version <VERSION> <NAME>
+
+Arguments:
+  <NAME>
+
+Options:
+-  -p, --pg-config <PG_CONFIG>
+-  -f, --file <FILE>
+-  -v, --version <VERSION>
+-  -r, --registry <REGISTRY>    [default: https://registry.pgtrunk.io]
+-  -h, --help                   Print help
+
+## Use Case Example
+Soon to come.
+
+
+# Community Involvement
+
+## Quick and easy:
+- Consider starring the repo :star:
+- Join our [Trunk discord channel](https://discord.com/channels/1060568981725003789/1089363774357647370)
+
+## More developed:
+- Enagage with the [Trunk discord channel](https://discord.com/channels/1060568981725003789/1089363774357647370) community, we're eager to meet you!
+- Consider forking the repo and creating pull requests!
+
+# Further Reading
+
+[Documentation](https://coredb-io.github.io/coredb/)
