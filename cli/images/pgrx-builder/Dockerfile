@@ -1,5 +1,6 @@
 ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
+ARG PG_VERSION=15
 # When Rust 1.68.0 is released, use this instead of nightly
 # for enabling sparse registry, a feature required for
 # multi-stage build to work.
