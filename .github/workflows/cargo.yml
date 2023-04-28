@@ -71,8 +71,6 @@ jobs:
           prefix-key: ${{ matrix.name }}
           workspaces: |
             ${{ matrix.path }}
-        with:
-          working-directory: ${{ matrix.path }}
       - name: Publish or validate
         uses: ./.github/actions/publish-crate
         with:
