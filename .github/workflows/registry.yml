@@ -68,6 +68,8 @@ jobs:
   build-push-image:
     name: Build and push image
     runs-on: ubuntu-20.04
+    outputs:
+      short_sha: ${{ steps.versions.outputs.SHORT_SHA }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
