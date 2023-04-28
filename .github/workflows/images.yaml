@@ -47,4 +47,4 @@ jobs:
             --build-arg PGX_VERSION=${{ matrix.pgx_version }} \
             --platform linux/amd64,linux/arm64 \
             --tag quay.io/coredb/pgx-builder:pg${{ matrix.pg_version }}-pgx${{ matrix.pgx_version }} \
-            --pull --push images/pgx-builder
+            --pull --push cli/images/pgx-builder
