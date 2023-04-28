@@ -71,10 +71,6 @@ jobs:
           prefix-key: ${{ matrix.name }}
           workspaces: |
             ${{ matrix.path }}
-          # Additional directories to cache
-          cache-directories: |
-            /home/runner/.pgx
-      - uses: ./.github/actions/pgx-init
         with:
           working-directory: ${{ matrix.path }}
       - name: Publish or validate
