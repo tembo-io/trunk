@@ -9,6 +9,7 @@ on:
       - 'main'
     paths:
       - "cli/images/**"
+      - ".github/workflows/images.yaml"
 
 jobs:
   build_and_push_pgrx_builders:
