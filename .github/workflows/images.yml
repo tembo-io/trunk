@@ -41,8 +41,8 @@ jobs:
           # or main branches.
           changed_relative_to_branch: ${{ github.base_ref || 'not-a-branch' }}
           ignore_dirs: |
-            cli/src/commands/builders
             coredb
+            cli/src/commands/builders
       
 
   build_and_push_images:
