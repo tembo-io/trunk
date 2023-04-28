@@ -11,6 +11,6 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
 ENV PATH="/var/lib/postgresql/.cargo/bin:${PATH}"
 
 # Install tcdi/pgrx
-ARG PGRX_VERSION=0.7.4
+ARG PGRX_VERSION=0.8.2
 RUN cargo --version && cargo install -Z sparse-registry cargo-pgrx --version "${PGRX_VERSION}"
 RUN cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config
