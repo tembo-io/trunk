@@ -17,7 +17,9 @@ on:
   push:
     branches:
       - main
-      - release**
+    paths:
+      - '.github/workflows/registry.yml'
+      - 'registry/**'
 
 jobs:
   lint:
@@ -67,7 +69,10 @@ jobs:
         run: cargo clippy -- -Dwarnings
   build-push-image:
     name: Build and push image
-    runs-on: ubuntu-20.04
+    runs-on:
+      - self-hosted
+      - dind
+      - large-8x8
     outputs:
       short_sha: ${{ steps.versions.outputs.SHORT_SHA }}
     steps:
