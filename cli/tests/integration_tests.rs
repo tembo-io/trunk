@@ -78,10 +78,10 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
-    assert!(
-        std::path::Path::new(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
-            .exists()
-    );
+    assert!(std::path::Path::new(
+        format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str()
+    )
+    .exists());
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
