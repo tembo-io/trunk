@@ -53,7 +53,7 @@ pub enum PgrxBuildError {
 }
 
 fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
-    let versions = ["0.8.2", "0.7.4", "0.7.2", "0.7.1"];
+    let versions = ["0.8.2", "0.8.1", "0.8.0"];
 
     if versions.contains(&pgrx_range) {
         // If the input is already a specific version, return it as-is
