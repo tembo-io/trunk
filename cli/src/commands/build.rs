@@ -1,6 +1,6 @@
 use super::SubCommand;
 use crate::commands::generic_build::build_generic;
-use crate::commands::pgx::build_pgx;
+use crate::commands::pgrx::build_pgrx;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
@@ -29,12 +29,12 @@ impl SubCommand for BuildCommand {
             let cargo_toml: Table =
                 toml::from_str(&std::fs::read_to_string(path.join("Cargo.toml")).unwrap()).unwrap();
             let dependencies = cargo_toml.get("dependencies").unwrap().as_table().unwrap();
-            if dependencies.contains_key("pgx") {
-                println!("Detected that we are building a pgx extension");
+            if dependencies.contains_key("pgrx") {
+                println!("Detected that we are building a pgrx extension");
                 if self.version.is_some() || self.name.is_some() {
-                    return Err(anyhow!("--version and --name are collected from Cargo.toml when building pgx extensions, please do not configure"));
+                    return Err(anyhow!("--version and --name are collected from Cargo.toml when building pgrx extensions, please do not configure"));
                 }
-                build_pgx(path, &self.output_path, cargo_toml, task).await?;
+                build_pgrx(path, &self.output_path, cargo_toml, task).await?;
                 return Ok(());
             }
         }

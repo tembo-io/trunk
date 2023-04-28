@@ -1,6 +1,6 @@
-use pgx::prelude::*;
+use pgrx::prelude::*;
 
-pgx::pg_module_magic!();
+pgrx::pg_module_magic!();
 
 #[pg_extern]
 fn hello_test_extension() -> &'static str {
@@ -10,7 +10,7 @@ fn hello_test_extension() -> &'static str {
 #[cfg(any(test, feature = "pg_test"))]
 #[pg_schema]
 mod tests {
-    use pgx::prelude::*;
+    use pgrx::prelude::*;
 
     #[pg_test]
     fn test_hello_test_extension() {
@@ -19,7 +19,7 @@ mod tests {
 
 }
 
-/// This module is required by `cargo pgx test` invocations. 
+/// This module is required by `cargo pgrx test` invocations. 
 /// It must be visible at the root of your extension crate.
 #[cfg(test)]
 pub mod pg_test {

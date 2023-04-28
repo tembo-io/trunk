@@ -1,4 +1,4 @@
-name: PGX builder images
+name: PGRX builder images
 
 on:
   push:
@@ -10,8 +10,8 @@ on:
       - 'main'
 
 jobs:
-  build_and_push_pgx_builders:
-    name: Build and push PGX builder images
+  build_and_push_pgrx_builders:
+    name: Build and push PGRX builder images
     runs-on:
       - self-hosted
       - dind
@@ -22,8 +22,9 @@ jobs:
         pg_version:
           - "14"
           - "15"
-        pgx_version:
-          - "0.7.4"
+        pgrx_version:
+          - "0.8.0"
+          - "0.8.1"
           - "0.8.2"
     steps:
       - name: Check out the repo
@@ -43,10 +44,10 @@ jobs:
           set -xe
           docker buildx build \
             --build-arg PG_VERSION=${{ matrix.pg_version }} \
-            --build-arg PGX_VERSION=${{ matrix.pgx_version }} \
+            --build-arg PGRX_VERSION=${{ matrix.pgrx_version }} \
             --platform linux/amd64,linux/arm64 \
-            --tag quay.io/coredb/pgx-builder:pg${{ matrix.pg_version }}-pgx${{ matrix.pgx_version }} \
-            --pull --push cli/images/pgx-builder
+            --tag quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }} \
+            --pull --push cli/images/pgrx-builder
 
   build_and_push_c_builders:
     name: Build and push C builder images
