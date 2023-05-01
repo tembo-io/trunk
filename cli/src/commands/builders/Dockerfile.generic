@@ -1,4 +1,6 @@
-FROM quay.io/coredb/c-builder:d62b2a2
+ARG PG_VERSION
+
+FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 COPY --chown=postgres:postgres . .
 

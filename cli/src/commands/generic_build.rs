@@ -60,6 +60,7 @@ pub enum GenericBuildError {
 //
 // Any file that has changed, copy out of the container and into the trunk package
 pub async fn build_generic(
+    platform: Option<String>,
     path: &Path,
     output_path: &str,
     extension_name: &str,
@@ -80,6 +81,7 @@ pub async fn build_generic(
     let docker = Docker::connect_with_local_defaults()?;
 
     let image_name = build_image(
+        platform.clone(),
         docker.clone(),
         &image_name_prefix,
         dockerfile,
@@ -89,7 +91,7 @@ pub async fn build_generic(
     .await?;
 
     let temp_container =
-        run_temporary_container(docker.clone(), image_name.as_str(), _task).await?;
+        run_temporary_container(docker.clone(), platform.clone(), image_name.as_str(), _task).await?;
 
     println!("Determining installation files...");
     let _exec_output =

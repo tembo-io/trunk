@@ -18,6 +18,8 @@ pub struct BuildCommand {
     version: Option<String>,
     #[arg(long = "name")]
     name: Option<String>,
+    #[arg(long = "platform")]
+    platform: Option<String>,
 }
 
 #[async_trait]
@@ -34,7 +36,7 @@ impl SubCommand for BuildCommand {
                 if self.version.is_some() || self.name.is_some() {
                     return Err(anyhow!("--version and --name are collected from Cargo.toml when building pgrx extensions, please do not configure"));
                 }
-                build_pgrx(path, &self.output_path, cargo_toml, task).await?;
+                build_pgrx(self.platform.clone(), path, &self.output_path, cargo_toml, task).await?;
                 return Ok(());
             }
         }
@@ -50,6 +52,7 @@ impl SubCommand for BuildCommand {
                 ));
             }
             build_generic(
+                self.platform.clone(),
                 path,
                 &self.output_path,
                 self.name.clone().unwrap().as_str(),

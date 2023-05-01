@@ -84,6 +84,7 @@ fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
 }
 
 pub async fn build_pgrx(
+    platform: Option<String>,
     path: &Path,
     output_path: &str,
     cargo_toml: toml::Table,
@@ -147,6 +148,7 @@ pub async fn build_pgrx(
     let docker = Docker::connect_with_local_defaults()?;
 
     let image_name = build_image(
+        platform.clone(),
         docker.clone(),
         &image_name_prefix,
         dockerfile,
@@ -156,7 +158,7 @@ pub async fn build_pgrx(
     .await?;
 
     let temp_container =
-        run_temporary_container(docker.clone(), image_name.as_str(), _task).await?;
+        run_temporary_container(docker.clone(), platform.clone(), image_name.as_str(), _task).await?;
 
     println!("Determining installation files...");
     let _exec_output = exec_in_container(
