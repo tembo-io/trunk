@@ -98,14 +98,14 @@ jobs:
 #          username: ${{ secrets.QUAY_USER }}
 #          password: ${{ secrets.QUAY_PASSWORD }}
       - name: Login to Quay
-        if: ${{ github.ref == 'refs/heads/main' }}
+#        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v2
         with:
           registry: quay.io/coredb
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_PASSWORD }}
       - name: Push to Quay
-        if: ${{ github.ref == 'refs/heads/main' }}
+#        if: ${{ github.ref == 'refs/heads/main' }}
         shell: bash
         run: |
           set -xe
