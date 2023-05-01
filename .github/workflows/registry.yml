@@ -88,31 +88,22 @@ jobs:
           docker build -t trunk-registry .
           docker tag trunk-registry trunk-registry:latest
           docker tag trunk-registry trunk-registry:${{ steps.versions.outputs.SHORT_SHA }}
-#      - name: Push To quay.io
-#        if: ${{ github.ref == 'refs/heads/main' }}
-#        uses: redhat-actions/push-to-registry@v2
-#        with:
-#          registry: quay.io/coredb
-#          image: trunk-registry
-#          tags: latest ${{ steps.versions.outputs.SHORT_SHA }}
-#          username: ${{ secrets.QUAY_USER }}
-#          password: ${{ secrets.QUAY_PASSWORD }}
       - name: Login to Quay
-#        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v2
         with:
           registry: quay.io/coredb
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_PASSWORD }}
       - name: Push to Quay
-#        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
         shell: bash
         run: |
           set -xe
           IFS=' ' read -ra TAG_ARRAY <<< "latest ${{ steps.versions.outputs.SHORT_SHA }}"
           for tag in "${TAG_ARRAY[@]}"; do
             docker tag trunk-registry:$tag quay.io/coredb/trunk-registry:$tag
-            echo quay.io/coredb/trunk-registry:$tag
+            docker push quay.io/coredb/trunk-registry:$tag
           done
   argocd-update:
     name: ArgoCD update automation
