@@ -9,7 +9,6 @@ on:
   pull_request:
     branches:
       - main
-      - 'release/**'
     paths:
       - '.github/workflows/cli.yml'
       - 'cli/**'
@@ -17,7 +16,6 @@ on:
   push:
     branches:
       - main
-      - 'release/**'
 
 jobs:
   lint:
@@ -67,3 +65,45 @@ jobs:
           sudo chown -R $USER $(pg_config --sharedir)
           sudo chown -R $USER $(pg_config --pkglibdir)
           cargo test -- --nocapture
+
+  cargo_publish:
+    # On a pull request, this is validating that the version
+    # is not already published to crates.io, and on a push to
+    # main or release branches, it is publishing if the version
+    # does not exist, ignoring if the version is already
+    # published.
+    name: Cargo publish or validate
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Check out the coredb repo to reuse some actions
+        uses: actions/checkout@v3
+        with:
+          repository: coredb-io/coredb
+          path: ./coredb
+          ref: 306f7c3ead394ee041f96d08f6576dc79646a6a2
+      - name: Determine which flags to use on cargo publish
+        id: cargo_flags
+        run: |
+          set -x
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          if [ "${BRANCH_NAME}" == "main" ]; then
+            echo "dry_run=false" >> $GITHUB_OUTPUT
+            echo "fail_if_version_published=false" >> $GITHUB_OUTPUT
+          else
+            echo "dry_run=true" >> $GITHUB_OUTPUT
+            echo "fail_if_version_published=true" >> $GITHUB_OUTPUT
+          fi
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: trunk-cli
+          workspaces: |
+            cli
+      - name: Publish or validate
+        uses: ./coredb/.github/actions/publish-crate
+        with:
+          working-directory: cli
+          dry-run: ${{ steps.cargo_flags.outputs.dry_run }}
+          fail-if-version-published: ${{ steps.cargo_flags.outputs.fail_if_version_published }}
+          cargo-registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}

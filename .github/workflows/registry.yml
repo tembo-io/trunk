@@ -17,7 +17,9 @@ on:
   push:
     branches:
       - main
-      - release**
+    paths:
+      - '.github/workflows/registry.yml'
+      - 'registry/**'
 
 jobs:
   lint:
@@ -67,7 +69,10 @@ jobs:
         run: cargo clippy -- -Dwarnings
   build-push-image:
     name: Build and push image
-    runs-on: ubuntu-20.04
+    runs-on:
+      - self-hosted
+      - dind
+      - large-8x8
     outputs:
       short_sha: ${{ steps.versions.outputs.SHORT_SHA }}
     steps:
@@ -83,15 +88,23 @@ jobs:
           docker build -t trunk-registry .
           docker tag trunk-registry trunk-registry:latest
           docker tag trunk-registry trunk-registry:${{ steps.versions.outputs.SHORT_SHA }}
-      - name: Push To quay.io
+      - name: Login to Quay
         if: ${{ github.ref == 'refs/heads/main' }}
-        uses: redhat-actions/push-to-registry@v2
+        uses: docker/login-action@v2
         with:
           registry: quay.io/coredb
-          image: trunk-registry
-          tags: latest ${{ steps.versions.outputs.SHORT_SHA }}
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_PASSWORD }}
+      - name: Push to Quay
+        if: ${{ github.ref == 'refs/heads/main' }}
+        shell: bash
+        run: |
+          set -xe
+          IFS=' ' read -ra TAG_ARRAY <<< "latest ${{ steps.versions.outputs.SHORT_SHA }}"
+          for tag in "${TAG_ARRAY[@]}"; do
+            docker tag trunk-registry:$tag quay.io/coredb/trunk-registry:$tag
+            docker push quay.io/coredb/trunk-registry:$tag
+          done
   argocd-update:
     name: ArgoCD update automation
     if: ${{ github.ref == 'refs/heads/main' }}
