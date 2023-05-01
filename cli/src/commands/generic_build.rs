@@ -91,7 +91,8 @@ pub async fn build_generic(
     .await?;
 
     let temp_container =
-        run_temporary_container(docker.clone(), platform.clone(), image_name.as_str(), _task).await?;
+        run_temporary_container(docker.clone(), platform.clone(), image_name.as_str(), _task)
+            .await?;
 
     println!("Determining installation files...");
     let _exec_output =

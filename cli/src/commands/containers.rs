@@ -7,11 +7,10 @@ use std::collections::HashMap;
 
 use bollard::container::Config;
 use bollard::image::BuildImageOptions;
-use bollard::models::{BuildInfo, HostConfig, Platform};
+use bollard::models::{BuildInfo, HostConfig};
 use std::fs::File;
 use std::io::Cursor;
 use std::path::Path;
-use bollard::errors::Error;
 
 use crate::commands::generic_build::GenericBuildError;
 use crate::manifest::Manifest;
@@ -111,7 +110,6 @@ pub async fn run_temporary_container(
     image: &str,
     _task: Task,
 ) -> Result<ReclaimableContainer, anyhow::Error> {
-
     let options = Some(CreateContainerOptions {
         name: image.to_string(),
         platform,
@@ -262,7 +260,7 @@ pub async fn build_image(
         }
     });
 
-    let mut build_args = build_args.clone();
+    let build_args = build_args.clone();
     let image_name = image_name.to_owned();
     let mut platform_value = String::new();
 

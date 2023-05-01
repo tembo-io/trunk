@@ -36,7 +36,14 @@ impl SubCommand for BuildCommand {
                 if self.version.is_some() || self.name.is_some() {
                     return Err(anyhow!("--version and --name are collected from Cargo.toml when building pgrx extensions, please do not configure"));
                 }
-                build_pgrx(self.platform.clone(), path, &self.output_path, cargo_toml, task).await?;
+                build_pgrx(
+                    self.platform.clone(),
+                    path,
+                    &self.output_path,
+                    cargo_toml,
+                    task,
+                )
+                .await?;
                 return Ok(());
             }
         }
