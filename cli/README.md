@@ -39,21 +39,35 @@ Options:
 
 This command allows you to publish your newly-minted Postgres extension to the Trunk registry.
 
+```bash
+❯ trunk publish --help
 Usage: trunk publish [OPTIONS] --version <VERSION> <NAME>
 
 Arguments:
   <NAME>
 
 Options:
--  -v, --version <VERSION>
--  -f, --file <FILE>
--  -d, --description <DESCRIPTION>
--  -D, --documentation <DOCUMENTATION>
--  -H, --homepage <HOMEPAGE>
--  -l, --license <LICENSE>
--  -r, --registry <REGISTRY>            [default: https://registry.pgtrunk.io]
--  -R, --repository <REPOSITORY>
--  -h, --help                           Print help
+  -v, --version <VERSION>
+  -f, --file <FILE>
+  -d, --description <DESCRIPTION>
+  -D, --documentation <DOCUMENTATION>
+  -H, --homepage <HOMEPAGE>
+  -l, --license <LICENSE>
+  -r, --registry <REGISTRY>            [default: https://registry.pgtrunk.io]
+  -R, --repository <REPOSITORY>
+  -h, --help                           Print help
+```
+
+Example usage:
+```bash
+❯ trunk publish my_extension \
+-v 1.0.0 \
+-d "This is a description for my_extension." \
+-D "https://www.myextension.org/docs/current/my_extension.html" \
+-R "https://github.com/my_extension/my_extension" \
+-l "PostgreSQL" \
+-H "https://www.myextension.org"
+```
 
 
 ### 3. `trunk install`
