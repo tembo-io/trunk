@@ -1,6 +1,6 @@
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, web, HttpResponse, Responder, post};
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
@@ -40,4 +40,13 @@ pub async fn get_all_extensions(
     // Return results in response
     let json = serde_json::to_string_pretty(&extensions)?;
     Ok(HttpResponse::Ok().body(json))
+}
+
+#[post("/new")]
+pub async fn new_token() -> Result<HttpResponse, ExtensionRegistryError> {
+    // Get JWT token from header
+    // Decode JWT token
+    // Generate API token for user
+    // Save as record in DB with clerk user ID
+    Ok(HttpResponse::Ok().body("token"))
 }

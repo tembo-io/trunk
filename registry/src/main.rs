@@ -2,6 +2,8 @@ use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use trunk_registry::connect;
 use trunk_registry::{config, download, publish, routes};
+use trunk_registry::routes::new_token;
+use clerk_rs::{ClerkConfiguration, validators::actix::ClerkMiddleware};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -22,6 +24,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let cors = Cors::permissive();
+        let clerk_cfg = ClerkConfiguration::new(None, None, Some(cfg.clone().clerk_secret_key), None);
         App::new()
             .wrap(cors)
             .app_data(web::Data::new(conn.clone()))
@@ -31,6 +34,11 @@ async fn main() -> std::io::Result<()> {
             .service(routes::get_all_extensions)
             .service(publish::publish)
             .service(download::download)
+            .service(
+                web::scope("/token")
+                    .wrap(ClerkMiddleware::new(clerk_cfg))
+                    .service(new_token)
+            )
     })
     .bind(("0.0.0.0", 8080))?
     .run()
