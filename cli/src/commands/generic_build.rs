@@ -62,6 +62,7 @@ pub enum GenericBuildError {
 pub async fn build_generic(
     dockerfile_path: Option<String>,
     platform: Option<String>,
+    install_command: Vec<&str>,
     path: &Path,
     output_path: &str,
     extension_name: &str,
@@ -105,7 +106,7 @@ pub async fn build_generic(
 
     println!("Determining installation files...");
     let _exec_output =
-        exec_in_container(docker.clone(), &temp_container.id, vec!["make", "install"]).await?;
+        exec_in_container(docker.clone(), &temp_container.id, install_command).await?;
 
     // output_path is the locally output path
     fs::create_dir_all(output_path)?;

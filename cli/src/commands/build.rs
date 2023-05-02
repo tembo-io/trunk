@@ -22,6 +22,8 @@ pub struct BuildCommand {
     platform: Option<String>,
     #[arg(long = "dockerfile")]
     dockerfile_path: Option<String>,
+    #[arg(long = "install-command")]
+    install_command: Option<String>,
 }
 
 #[async_trait]
@@ -64,6 +66,7 @@ impl SubCommand for BuildCommand {
             build_generic(
                 self.dockerfile_path.clone(),
                 self.platform.clone(),
+                vec!["make", "install"],
                 path,
                 &self.output_path,
                 self.name.clone().unwrap().as_str(),
