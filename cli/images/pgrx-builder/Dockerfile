@@ -2,7 +2,6 @@ ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 ARG PG_VERSION=15
 
-ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
