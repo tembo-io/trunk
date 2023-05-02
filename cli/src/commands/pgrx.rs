@@ -84,6 +84,7 @@ fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
 }
 
 pub async fn build_pgrx(
+    dockerfile_path: Option<String>,
     platform: Option<String>,
     path: &Path,
     output_path: &str,
@@ -136,7 +137,15 @@ pub async fn build_pgrx(
     println!("Using pgrx version {pgrx_version}");
 
     println!("Building pgrx extension at path {}", &path.display());
-    let dockerfile = include_str!("./builders/Dockerfile.pgrx");
+    let mut dockerfile = String::new();
+    if dockerfile_path.is_some() {
+        let dockerfile_path_unwrapped = dockerfile_path.unwrap();
+        println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
+        dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
+    } else {
+        dockerfile = include_str!("./builders/Dockerfile.pgrx").to_string();
+    }
+    let dockerfile = dockerfile.as_str();
 
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", extension_name);

@@ -20,6 +20,8 @@ pub struct BuildCommand {
     name: Option<String>,
     #[arg(long = "platform")]
     platform: Option<String>,
+    #[arg(long = "dockerfile")]
+    dockerfile_path: Option<String>,
 }
 
 #[async_trait]
@@ -37,6 +39,7 @@ impl SubCommand for BuildCommand {
                     return Err(anyhow!("--version and --name are collected from Cargo.toml when building pgrx extensions, please do not configure"));
                 }
                 build_pgrx(
+                    self.dockerfile_path.clone(),
                     self.platform.clone(),
                     path,
                     &self.output_path,
@@ -59,6 +62,7 @@ impl SubCommand for BuildCommand {
                 ));
             }
             build_generic(
+                self.dockerfile_path.clone(),
                 self.platform.clone(),
                 path,
                 &self.output_path,
