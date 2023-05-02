@@ -60,7 +60,7 @@ pub enum GenericBuildError {
 //
 // Any file that has changed, copy out of the container and into the trunk package
 pub async fn build_generic(
-    dockerfile_path: Option<String>,
+    dockerfile: &str,
     platform: Option<String>,
     install_command: Vec<&str>,
     path: &Path,
@@ -71,16 +71,6 @@ pub async fn build_generic(
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &extension_name);
     println!("Building with version {}", &extension_version);
-
-    let mut dockerfile = String::new();
-    if dockerfile_path.is_some() {
-        let dockerfile_path_unwrapped = dockerfile_path.unwrap();
-        println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
-        dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
-    } else {
-        dockerfile = include_str!("./builders/Dockerfile.generic").to_string();
-    }
-    let dockerfile = dockerfile.as_str();
 
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", extension_name);

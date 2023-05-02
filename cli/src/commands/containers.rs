@@ -172,8 +172,7 @@ pub async fn find_installed_extension_files(
     let mut sharedir_list = vec![];
 
     for change in changes {
-        if change.kind == 1
-            && (change.path.ends_with(".so")
+        if (change.path.ends_with(".so")
                 || change.path.ends_with(".bc")
                 || change.path.ends_with(".sql")
                 || change.path.ends_with(".control"))
