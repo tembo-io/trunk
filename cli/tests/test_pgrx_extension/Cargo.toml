@@ -8,8 +8,8 @@ publish = false
 crate-type = ["cdylib"]
 
 [features]
-default = ["pg15"]
-pg15 = ["pgrx/pg15", "pgrx-tests/pg15" ]
+default = ["pg14"]
+pg14 = ["pgrx/pg14", "pgrx-tests/pg14" ]
 pg_test = []
 
 [dependencies]
