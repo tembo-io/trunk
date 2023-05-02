@@ -1,10 +1,10 @@
-use std::fs;
 use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
+use std::fs;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
@@ -82,7 +82,10 @@ impl SubCommand for BuildCommand {
             } else {
                 install_command_split = vec!["make", "install"];
             }
-            println!("Using install command {}", install_command_split.clone().join(" "));
+            println!(
+                "Using install command {}",
+                install_command_split.clone().join(" ")
+            );
 
             let dockerfile = dockerfile.as_str();
             build_generic(

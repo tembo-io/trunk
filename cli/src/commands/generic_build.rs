@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use std::path::Path;
 
-use std::{fs, include_str};
+use std::fs;
 
 use thiserror::Error;
 
