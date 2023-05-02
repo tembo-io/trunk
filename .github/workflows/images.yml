@@ -14,6 +14,7 @@ on:
       - "cli/images/**"
       - ".github/workflows/images.yaml"
 
+
 jobs:
   build_and_push_pgrx_builders:
     name: Build and push PGRX builder images
@@ -30,8 +31,6 @@ jobs:
         pgrx_version:
           - "0.7.4"
           - "0.8.0"
-          - "0.8.1"
-          - "0.8.2"
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3

@@ -106,12 +106,13 @@ pub async fn exec_in_container(
 
 pub async fn run_temporary_container(
     docker: Docker,
+    platform: Option<String>,
     image: &str,
     _task: Task,
 ) -> Result<ReclaimableContainer, anyhow::Error> {
     let options = Some(CreateContainerOptions {
         name: image.to_string(),
-        platform: None,
+        platform,
     });
 
     let host_config = HostConfig {
@@ -219,6 +220,7 @@ pub async fn find_installed_extension_files(
 // The caller provides an image name prefix, and this function returns
 // the complete image name.
 pub async fn build_image(
+    platform: Option<String>,
     docker: Docker,
     image_name_prefix: &str,
     dockerfile_path: &str,
@@ -258,15 +260,23 @@ pub async fn build_image(
         }
     });
 
+    let build_args = build_args.clone();
     let image_name = image_name.to_owned();
+    let mut platform_value = String::new();
 
-    let options = BuildImageOptions {
+    let mut options = BuildImageOptions {
         dockerfile: "Dockerfile",
         t: &image_name.clone(),
         rm: true,
+        pull: true,
         buildargs: build_args,
         ..Default::default()
     };
+
+    if platform.is_some() {
+        platform_value = platform.unwrap();
+        options.platform = platform_value.as_str();
+    }
 
     let mut image_build_stream = docker.build_image(
         options,
@@ -294,6 +304,7 @@ pub async fn build_image(
             }
             Ok(_) => {}
             Err(err) => {
+                dbg!(&err);
                 return Err(err)?;
             }
         }
