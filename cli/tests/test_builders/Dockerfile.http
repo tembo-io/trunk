@@ -1,0 +1,10 @@
+FROM quay.io/coredb/c-builder:pg15
+
+COPY --chown=postgres:postgres . .
+
+USER root
+
+# this is the extra library we need to build pgsql-http
+RUN apt-get update && apt-get install -y libcurl4-openssl-dev
+
+RUN make

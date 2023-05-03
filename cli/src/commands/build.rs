@@ -4,6 +4,7 @@ use crate::commands::pgrx::build_pgrx;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
+use std::fs;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
@@ -20,6 +21,10 @@ pub struct BuildCommand {
     name: Option<String>,
     #[arg(long = "platform")]
     platform: Option<String>,
+    #[arg(long = "dockerfile")]
+    dockerfile_path: Option<String>,
+    #[arg(long = "install-command")]
+    install_command: Option<String>,
 }
 
 #[async_trait]
@@ -36,7 +41,9 @@ impl SubCommand for BuildCommand {
                 if self.version.is_some() || self.name.is_some() {
                     return Err(anyhow!("--version and --name are collected from Cargo.toml when building pgrx extensions, please do not configure"));
                 }
+
                 build_pgrx(
+                    self.dockerfile_path.clone(),
                     self.platform.clone(),
                     path,
                     &self.output_path,
@@ -58,8 +65,33 @@ impl SubCommand for BuildCommand {
                     "--version and --name are required when building a makefile based extension"
                 ));
             }
+            let mut dockerfile = String::new();
+            if self.dockerfile_path.clone().is_some() {
+                let dockerfile_path_unwrapped = self.dockerfile_path.clone().unwrap();
+                println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
+                dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
+            } else {
+                dockerfile = include_str!("./builders/Dockerfile.generic").to_string();
+            }
+
+            let mut install_command_split: Vec<&str> = vec![];
+            if let Some(install_command) = self.install_command.as_ref() {
+                install_command_split.push("/bin/sh");
+                install_command_split.push("-c");
+                install_command_split.push(install_command);
+            } else {
+                install_command_split = vec!["make", "install"];
+            }
+            println!(
+                "Using install command {}",
+                install_command_split.clone().join(" ")
+            );
+
+            let dockerfile = dockerfile.as_str();
             build_generic(
+                dockerfile,
                 self.platform.clone(),
+                install_command_split,
                 path,
                 &self.output_path,
                 self.name.clone().unwrap().as_str(),
