@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use std::path::Path;
 
-use std::{fs, include_str};
+use std::fs;
 
 use thiserror::Error;
 
@@ -60,7 +60,9 @@ pub enum GenericBuildError {
 //
 // Any file that has changed, copy out of the container and into the trunk package
 pub async fn build_generic(
+    dockerfile: &str,
     platform: Option<String>,
+    install_command: Vec<&str>,
     path: &Path,
     output_path: &str,
     extension_name: &str,
@@ -69,8 +71,6 @@ pub async fn build_generic(
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &extension_name);
     println!("Building with version {}", &extension_version);
-
-    let dockerfile = include_str!("./builders/Dockerfile.generic");
 
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", extension_name);
@@ -96,7 +96,7 @@ pub async fn build_generic(
 
     println!("Determining installation files...");
     let _exec_output =
-        exec_in_container(docker.clone(), &temp_container.id, vec!["make", "install"]).await?;
+        exec_in_container(docker.clone(), &temp_container.id, install_command).await?;
 
     // output_path is the locally output path
     fs::create_dir_all(output_path)?;

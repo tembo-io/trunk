@@ -137,3 +137,122 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+#[test]
+fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/pg_http_test_{}", rng.gen_range(0..1000000));
+
+    let current_file_path = Path::new(file!()).canonicalize().unwrap();
+    // Example of a C extension requires another build-time requirement
+    let repo_url = "https://github.com/pramsey/pgsql-http.git";
+    // clone and checkout ref v1.5.0
+    let repo_dir_path = current_file_path.parent().unwrap().join("pgsql-http");
+    let repo_dir = repo_dir_path;
+    if repo_dir.exists() {
+        fs::remove_dir_all(repo_dir.clone()).unwrap();
+    }
+    let repo = Repository::clone(repo_url, &repo_dir).unwrap();
+    let refname = "v1.5.0";
+    let (object, reference) = repo.revparse_ext(refname).expect("Object not found");
+    repo.checkout_tree(&object, None)
+        .expect("Failed to checkout");
+    match reference {
+        // gref is an actual reference like branches or tags
+        Some(gref) => repo.set_head(gref.name().unwrap()),
+        // this is a commit, not a reference
+        None => repo.set_head_detached(object.id()),
+    }
+    .expect("Failed to set HEAD");
+
+    // Construct a path relative to the current file's directory
+    let mut extension_path = std::path::PathBuf::from(file!());
+    extension_path.pop(); // Remove the file name from the path
+    extension_path.push("pgsql-http");
+
+    let mut dockerfile_path = std::path::PathBuf::from(file!());
+    dockerfile_path.pop(); // Remove the file name from the path
+    dockerfile_path.push("test_builders");
+    dockerfile_path.push("Dockerfile.http");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(extension_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(output_dir.clone());
+    cmd.arg("--dockerfile");
+    cmd.arg(dockerfile_path.clone());
+    cmd.arg("--version");
+    cmd.arg("1.5.0");
+    cmd.arg("--name");
+    cmd.arg("http");
+    cmd.assert().code(0);
+    assert!(std::path::Path::new(format!("{output_dir}/http-1.5.0.tar.gz").as_str()).exists());
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
+
+    Ok(())
+}
+
+#[test]
+fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/pg_stat_statements_test_{}", rng.gen_range(0..1000000));
+
+    let current_file_path = Path::new(file!()).canonicalize().unwrap();
+    // Example of a C extension requires another build-time requirement
+    let repo_url = "https://github.com/postgres/postgres.git";
+    // clone and checkout ref v1.5.0
+    let repo_dir_path = current_file_path.parent().unwrap().join("postgres");
+    let repo_dir = repo_dir_path;
+    if repo_dir.exists() {
+        fs::remove_dir_all(repo_dir.clone()).unwrap();
+    }
+    let repo = Repository::clone(repo_url, &repo_dir).unwrap();
+    let refname = "REL_15_2";
+    let (object, reference) = repo.revparse_ext(refname).expect("Object not found");
+    repo.checkout_tree(&object, None)
+        .expect("Failed to checkout");
+    match reference {
+        // gref is an actual reference like branches or tags
+        Some(gref) => repo.set_head(gref.name().unwrap()),
+        // this is a commit, not a reference
+        None => repo.set_head_detached(object.id()),
+    }
+    .expect("Failed to set HEAD");
+
+    // Construct a path relative to the current file's directory
+    let mut extension_path = std::path::PathBuf::from(file!());
+    extension_path.pop(); // Remove the file name from the path
+    extension_path.push("postgres");
+
+    let mut dockerfile_path = std::path::PathBuf::from(file!());
+    dockerfile_path.pop(); // Remove the file name from the path
+    dockerfile_path.push("test_builders");
+    dockerfile_path.push("Dockerfile.pg_stat_statements");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(extension_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(output_dir.clone());
+    cmd.arg("--dockerfile");
+    cmd.arg(dockerfile_path.clone());
+    cmd.arg("--install-command");
+    cmd.arg("cd contrib/pg_stat_statements && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib");
+    cmd.arg("--version");
+    cmd.arg("1.10");
+    cmd.arg("--name");
+    cmd.arg("pg_stat_statements");
+    cmd.assert().code(0);
+    assert!(
+        std::path::Path::new(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
+            .exists()
+    );
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
+
+    Ok(())
+}
