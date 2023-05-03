@@ -4,7 +4,7 @@ use sha2::Digest;
 const TOKEN_LENGTH: usize = 32;
 
 pub fn generate() -> (String, Vec<u8>) {
-    let plaintext = format!("{}", generate_secure_alphanumeric_string(TOKEN_LENGTH));
+    let plaintext = generate_secure_alphanumeric_string(TOKEN_LENGTH);
     let sha256 = hash(&plaintext);
     (plaintext, sha256)
 }
