@@ -3,6 +3,7 @@ use actix_multipart::MultipartError;
 use actix_web::error;
 use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::put_object::PutObjectError;
+use std::str::Utf8Error;
 use thiserror::Error;
 use url::ParseError;
 
@@ -54,4 +55,10 @@ pub enum ExtensionRegistryError {
     /// a put object error
     #[error("put object error: {0}")]
     PutObjectError(#[from] SdkError<PutObjectError>),
+
+    #[error("bad request error: {0}")]
+    TokenError(String),
+
+    #[error("Byte error: {0}")]
+    ByteError(#[from] Utf8Error),
 }
