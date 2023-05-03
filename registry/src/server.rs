@@ -2,6 +2,13 @@ use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use trunk_registry::{config, connect, download, publish, routes};
 
+pub fn routes_config(cfg: &mut web::ServiceConfig) {
+    cfg.service(routes::running)
+        .service(routes::get_all_extensions)
+        .service(publish::publish)
+        .service(download::download);
+}
+
 pub async fn server() -> std::io::Result<()> {
     env_logger::init();
     // load configurations from environment
@@ -25,10 +32,7 @@ pub async fn server() -> std::io::Result<()> {
             .app_data(web::Data::new(conn.clone()))
             .app_data(web::Data::new(cfg.clone()))
             .app_data(web::Data::new(aws_config.clone()))
-            .service(routes::running)
-            .service(routes::get_all_extensions)
-            .service(publish::publish)
-            .service(download::download)
+            .configure(routes_config)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
