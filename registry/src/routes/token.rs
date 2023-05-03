@@ -1,6 +1,6 @@
-use actix_web::HttpResponse;
 use crate::errors::ExtensionRegistryError;
-use actix_web::{post};
+use actix_web::post;
+use actix_web::HttpResponse;
 
 #[post("/new")]
 pub async fn new_token() -> Result<HttpResponse, ExtensionRegistryError> {

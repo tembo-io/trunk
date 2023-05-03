@@ -1,6 +1,6 @@
 //! Functionality for downloading extensions and maintaining download counts
 use crate::errors::ExtensionRegistryError;
-use actix_web::{web};
+use actix_web::web;
 use sqlx::{Pool, Postgres};
 
 pub async fn latest_version(

@@ -1,13 +1,14 @@
 //! Functionality related to publishing a new extension or version of an extension.
 
 use crate::config::Config;
+use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use crate::errors::ExtensionRegistryError::AuthorizationError;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
 use actix_multipart::Multipart;
 use actix_web::http::header::AUTHORIZATION;
-use actix_web::{error, post, web, HttpResponse, get};
+use actix_web::{error, get, post, web, HttpResponse};
 use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
@@ -15,7 +16,6 @@ use futures::TryStreamExt;
 use log::error;
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
-use crate::download::latest_version;
 
 const MAX_SIZE: usize = 262_144; // max payload size is 256k
 
