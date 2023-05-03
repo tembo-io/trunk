@@ -5,9 +5,9 @@ pub mod config;
 pub mod download;
 pub mod errors;
 pub mod routes;
+pub mod token;
 pub mod uploader;
 pub mod views;
-pub mod token;
 
 use log::LevelFilter;
 use url::{ParseError, Url};

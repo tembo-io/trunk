@@ -12,7 +12,6 @@ pub struct Config {
     pub clerk_secret_key: String,
 }
 
-// TODO(ianstanton) Fix load from .env
 impl Default for Config {
     fn default() -> Self {
         Self {

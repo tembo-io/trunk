@@ -10,4 +10,3 @@ pub async fn new_token() -> Result<HttpResponse, ExtensionRegistryError> {
     // Save as record in DB with clerk user ID
     Ok(HttpResponse::Ok().body("token"))
 }
-
