@@ -3,8 +3,7 @@ use sha2::Digest;
 
 const TOKEN_LENGTH: usize = 32;
 
-// Generate API token. The token is presented to the user in plaintext and written to the database
-// in hashed form.
+// Generate API token
 pub fn generate_token() -> (String, Vec<u8>) {
     let plaintext = generate_secure_alphanumeric_string(TOKEN_LENGTH);
     let sha256 = hash(&plaintext);
