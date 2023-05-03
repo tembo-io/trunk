@@ -14,6 +14,7 @@ pub async fn get_all_extensions(
     conn: web::Data<Pool<Postgres>>,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
     let mut extensions: Vec<Value> = Vec::new();
+    // TODO: pagination
 
     // Create a transaction on the database, if there are no errors,
     // commit the transactions to record a new or updated extension.
@@ -41,3 +42,5 @@ pub async fn get_all_extensions(
     let json = serde_json::to_string_pretty(&extensions)?;
     Ok(HttpResponse::Ok().body(json))
 }
+
+
