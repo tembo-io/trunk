@@ -1,5 +1,5 @@
 use actix_cors::Cors;
-use actix_web::{App, HttpServer, web};
+use actix_web::{web, App, HttpServer};
 use trunk_registry::{config, connect, download, publish, routes};
 
 pub async fn server() -> std::io::Result<()> {
@@ -30,8 +30,8 @@ pub async fn server() -> std::io::Result<()> {
             .service(publish::publish)
             .service(download::download)
     })
-        .bind(("0.0.0.0", 8080))?
-        .run()
-        .await;
-    return server;
+    .bind(("0.0.0.0", 8080))?
+    .run()
+    .await;
+    server
 }

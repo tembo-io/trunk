@@ -42,5 +42,3 @@ pub async fn get_all_extensions(
     let json = serde_json::to_string_pretty(&extensions)?;
     Ok(HttpResponse::Ok().body(json))
 }
-
-
