@@ -302,6 +302,18 @@
     },
     "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4)\n                    "
   },
+  "efb7232a3cec239bb5784f4d394d267955516aeaa124b52d70be3d0b05701cb1": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "\n            INSERT INTO api_tokens(token, created_at)\n            VALUES ($1, (now() at time zone 'utc'))\n            "
+  },
   "f1213b6f0350efbce183597c665e9494141b8063f4fdd096c11337272b484556": {
     "describe": {
       "columns": [],

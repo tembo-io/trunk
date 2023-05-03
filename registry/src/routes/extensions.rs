@@ -211,8 +211,7 @@ pub async fn get_all_extensions(
 ) -> Result<HttpResponse, ExtensionRegistryError> {
     let mut extensions: Vec<Value> = Vec::new();
 
-    // Create a transaction on the database, if there are no errors,
-    // commit the transactions to record a new or updated extension.
+    // Create a database transaction
     let mut tx = conn.begin().await?;
     let rows = sqlx::query!("SELECT * FROM extensions")
         .fetch_all(&mut tx)
