@@ -18,7 +18,7 @@ pub struct InstallCommand {
     #[arg(long = "file", short = 'f')]
     file: Option<PathBuf>,
     #[arg(long = "version", short = 'v')]
-    version: String,
+    version: Option<String>,
     #[arg(
         long = "registry",
         short = 'r',
@@ -48,6 +48,10 @@ pub enum InstallError {
 #[async_trait]
 impl SubCommand for InstallCommand {
     async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
+        let mut version = "latest".to_string();
+        if self.version.is_some() {
+            version = self.version.clone().unwrap();
+        }
         let installed_pg_config = which::which("pg_config").ok();
         let pg_config = self
             .pg_config
@@ -111,13 +115,14 @@ impl SubCommand for InstallCommand {
             // If a file is not specified, then we will query the registry
             // and download the latest version of the package
             // Using the reqwest crate, we will run the equivalent of this curl command:
-            // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
+            // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{version}/download'
             let response = reqwest::get(&format!(
                 "{}/extensions/{}/{}/download",
-                self.registry, self.name, self.version
+                self.registry, self.name, version
             ))
             .await?;
             let response_body = response.text().await?;
+            println!("Downloading from: {}", response_body);
             let file_response = reqwest::get(response_body).await?;
             let bytes = file_response.bytes().await?;
             // unzip the archive into a temporary file
