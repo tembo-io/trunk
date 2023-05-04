@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import cx from "classnames";
 import { useUser, useSignIn, useClerk } from "@clerk/nextjs";
 import Image from "next/image";
 import { Inter } from "next/font/google";
-
+import { useRouter } from "next/router";
+import Link from "next/link";
 import styles from "./ExtensionSearchBox.module.scss";
 const inter = Inter({ subsets: ["latin"], weight: ["400", "700"] });
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -24,8 +25,22 @@ export default function ExtensionSearchBox() {
   const [query, setQuery] = useState("");
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
   const [showresults, setShowResults] = useState(false);
-
+  const router = useRouter();
   const { isLoading, data, isError, error } = useQuery<ExtensionListing[]>(["extList"], fetchExtensions);
+  const resultContainerRef = useRef(null);
+
+  useEffect(() => {
+    document.addEventListener("click", handleClick);
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, []);
+
+  const handleClick = (event) => {
+    if (resultContainerRef.current && !resultContainerRef.current.contains(event.target)) {
+      setShowResults(false);
+    }
+  };
 
   if (isLoading || !data) {
     return <div>Loading...</div>;
@@ -38,17 +53,24 @@ export default function ExtensionSearchBox() {
       setSelectedItemIndex(selectedItemIndex - 1);
     } else if (event.key === "ArrowDown" && selectedItemIndex < filteredItems.length - 1) {
       setSelectedItemIndex(selectedItemIndex + 1);
+    } else if (event.key === "Enter") {
+      if (selectedItemIndex > -1) {
+        router.push(`/extensions/${filteredItems[selectedItemIndex].name}`);
+      }
     }
   };
+
+  const showResultsList = showresults && query.length > 0;
+  console.log("showResultsList", showResultsList, showresults);
+
   return (
-    <div className={styles.searchBoxCont}>
+    <div className={styles.searchBoxCont} ref={resultContainerRef}>
       <div className={styles.searchRow}>
         <input
           type="text"
           value={query}
           onKeyDown={handleKeyDown}
           onFocus={() => setShowResults(true)}
-          onBlur={() => setShowResults(false)}
           onChange={(e) => {
             setSelectedItemIndex(-1);
             setQuery(e.target.value);
@@ -66,7 +88,7 @@ export default function ExtensionSearchBox() {
                 }}
                 key={ext.name}
               >
-                <a href=""> {ext.name}</a>
+                <Link href={`/extensions/${ext.name}`}>{ext.name}</Link>
               </li>
             ))}
         </ul>
