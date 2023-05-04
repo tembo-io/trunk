@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use super::SubCommand;
 use crate::manifest::{Manifest, PackagedFile};
 use async_trait::async_trait;
@@ -5,7 +6,7 @@ use clap::Args;
 use flate2::read::GzDecoder;
 use reqwest;
 use std::fs::File;
-use std::io::Seek;
+use std::io::{Read, Seek};
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
@@ -86,6 +87,7 @@ impl SubCommand for InstallCommand {
 
         // If file is specified
         if let Some(ref file) = self.file {
+            println!("When installing from a file, dependencies will not be installed automatically");
             let f = File::open(file)?;
 
             let input = match file
@@ -106,7 +108,7 @@ impl SubCommand for InstallCommand {
                 Some("tar") => f,
                 _ => return Err(InstallError::UnknownFileType)?,
             };
-            install(input, package_lib_dir, sharedir).await?;
+            install(self.name.clone(), input, package_lib_dir, sharedir).await?;
         } else {
             // If a file is not specified, then we will query the registry
             // and download the latest version of the package
@@ -128,13 +130,14 @@ impl SubCommand for InstallCommand {
             tempfile.write_reader(gz)?;
             tempfile.rewind()?;
             let input = tempfile;
-            install(input, package_lib_dir, sharedir).await?;
+            install(self.name.clone(), input, package_lib_dir, sharedir).await?;
         }
         Ok(())
     }
 }
 
 async fn install(
+    extension_name: String,
     mut input: File,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
@@ -151,12 +154,13 @@ async fn install(
     // Because we're going over entries with `Seek` enabled, we're not reading everything.
     let mut archive = Archive::new(&input);
 
+    let mut dependencies_to_install: Vec<String> = Vec::new();
     let mut manifest: Option<Manifest> = None;
     let entries = archive.entries_with_seek()?;
-    for entry in entries {
-        let entry = entry?;
+    for this_entry in entries {
+        let mut entry = this_entry?;
         let name = entry.path()?;
-        if entry.header().entry_type() == EntryType::file() && name == Path::new("manifest.json") {
+        if entry.header().entry_type() == EntryType::file() && name.clone() == Path::new("manifest.json") {
             let manifest_json = serde_json::from_reader(entry)?;
             // if the manifest_version key does not exist, then create it with a value of 1
             let manifest_json = match manifest_json {
@@ -167,10 +171,12 @@ async fn install(
                             serde_json::Value::Number(1.into()),
                         );
                     }
-                    // For version 1 just assume x86 architecture
                     if !map.contains_key("architecture")
                         && map["manifest_version"].as_i64() < Some(2)
                     {
+                        // If we are installing a legacy package without architecture specified,
+                        // then just assume x86 architecture. All the packages published before that
+                        // were published as x86, so this is a correct assumption.
                         map.insert(
                             "architecture".to_string(),
                             serde_json::Value::String("x86".to_string()),
@@ -182,8 +188,15 @@ async fn install(
             };
             let manifest_result = serde_json::from_value(manifest_json);
             manifest.replace(manifest_result?);
+        } else
+
+        if entry.header().entry_type() == EntryType::file() && name.clone().file_name() == Some(OsStr::new(format!("{}.control", extension_name).as_str())) {
+            let mut control_file = String::new();
+            entry.read_to_string(&mut control_file)?;
+            dependencies_to_install = read_dependencies(&control_file);
         }
     }
+    println!("Dependencies to install: {:?}", dependencies_to_install);
 
     // Second pass: extraction
     input.rewind()?;
@@ -263,4 +276,71 @@ async fn install(
         return Err(InstallError::ManifestNotFound)?;
     }
     Ok(())
+}
+
+fn read_dependencies(contents: &str) -> Vec<String> {
+    let mut dependencies: Vec<String> = Vec::new();
+
+    for line in contents.lines() {
+        let trimmed_line = line.trim();
+        if trimmed_line.starts_with("requires") {
+            let dep_line = trimmed_line.strip_prefix("requires =").unwrap().trim();
+            let dep_list = dep_line
+                .trim_matches('\'')
+                .split(',')
+                .filter(|dep| !dep.trim().is_empty()) // Filter out empty entries
+                .map(|dep| dep.trim().to_string())
+                .collect::<Vec<String>>();
+            dependencies.extend(dep_list);
+            break;
+        }
+    }
+
+    dependencies
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_read_dependencies_with_requires_line() {
+        let sample_data = r#"comment = 'Distributed message queues'
+default_version = '0.4.2'
+module_pathname = '$libdir/pgmq'
+relocatable = false
+superuser = false
+requires = 'pg_partman, dep2, dep3'
+"#;
+
+        let dependencies = read_dependencies(sample_data);
+        assert_eq!(dependencies, vec!["pg_partman", "dep2", "dep3"]);
+    }
+
+    #[test]
+    fn test_read_dependencies_without_requires_line() {
+        let sample_data = r#"comment = 'Distributed message queues'
+default_version = '0.4.2'
+module_pathname = '$libdir/pgmq'
+relocatable = false
+superuser = false
+"#;
+
+        let dependencies = read_dependencies(sample_data);
+        assert_eq!(dependencies, Vec::<String>::new());
+    }
+
+    #[test]
+    fn test_read_dependencies_with_empty_requires_line() {
+        let sample_data = r#"comment = 'Distributed message queues'
+default_version = '0.4.2'
+module_pathname = '$libdir/pgmq'
+relocatable = false
+superuser = false
+requires = ''
+"#;
+
+        let dependencies = read_dependencies(sample_data);
+        assert_eq!(dependencies, Vec::<String>::new());
+    }
 }
