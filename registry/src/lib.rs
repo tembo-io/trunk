@@ -4,8 +4,8 @@ use sqlx::{ConnectOptions, Pool, Postgres};
 pub mod config;
 pub mod download;
 pub mod errors;
-pub mod publish;
 pub mod routes;
+pub mod token;
 pub mod uploader;
 pub mod views;
 

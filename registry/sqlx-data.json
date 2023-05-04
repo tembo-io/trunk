@@ -134,6 +134,19 @@
     },
     "query": "SELECT * FROM extensions WHERE name = $1"
   },
+  "4d10a1c879fd661c4ec9371cf9693e00560f14f9be40789bb18cb9ba811ef492": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Bytea"
+        ]
+      }
+    },
+    "query": "\n            INSERT INTO api_tokens(user_id, token, created_at)\n            VALUES ($1, $2, (now() at time zone 'utc'))\n            "
+  },
   "4db2be5140f4d7c0edebcf62616e8ce97c5479134580a654727fbe4a83435319": {
     "describe": {
       "columns": [

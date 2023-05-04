@@ -1,18 +1,20 @@
 //! Functionality related to publishing a new extension or version of an extension.
 
 use crate::config::Config;
+use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use crate::errors::ExtensionRegistryError::AuthorizationError;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
 use actix_multipart::Multipart;
 use actix_web::http::header::AUTHORIZATION;
-use actix_web::{error, post, web, HttpResponse};
+use actix_web::{error, get, post, web, HttpResponse};
 use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
 use log::error;
+use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
 const MAX_SIZE: usize = 262_144; // max payload size is 256k
@@ -201,4 +203,36 @@ pub fn check_input(input: &str) -> Result<(), ExtensionRegistryError> {
         true => Ok(()),
         false => Err(ExtensionRegistryError::ResponseError()),
     }
+}
+
+#[get("/extensions/all")]
+pub async fn get_all_extensions(
+    conn: web::Data<Pool<Postgres>>,
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    let mut extensions: Vec<Value> = Vec::new();
+
+    // Create a database transaction
+    let mut tx = conn.begin().await?;
+    let rows = sqlx::query!("SELECT * FROM extensions")
+        .fetch_all(&mut tx)
+        .await?;
+    for row in rows.iter() {
+        let name = row.name.to_owned().unwrap();
+        let latest = latest_version(&name, conn.clone()).await?;
+        let data = json!(
+        {
+          "name": row.name.to_owned(),
+          "latestVersion": latest,
+          "createdAt": row.created_at.to_string(),
+          "updatedAt": row.updated_at.to_string(),
+          "description": row.description.to_owned(),
+          "homepage": row.homepage.to_owned(),
+          "documentation": row.documentation.to_owned(),
+          "repository": row.repository.to_owned()
+        });
+        extensions.push(data);
+    }
+    // Return results in response
+    let json = serde_json::to_string_pretty(&extensions)?;
+    Ok(HttpResponse::Ok().body(json))
 }
