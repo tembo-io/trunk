@@ -17,7 +17,7 @@ pub struct InstallCommand {
     pg_config: Option<PathBuf>,
     #[arg(long = "file", short = 'f')]
     file: Option<PathBuf>,
-    #[arg(long = "version", short = 'v')]
+    #[arg(long = "version", short = 'v', default_value = "latest")]
     version: String,
     #[arg(
         long = "registry",
@@ -118,6 +118,7 @@ impl SubCommand for InstallCommand {
             ))
             .await?;
             let response_body = response.text().await?;
+            println!("Downloading from: {response_body}");
             let file_response = reqwest::get(response_body).await?;
             let bytes = file_response.bytes().await?;
             // unzip the archive into a temporary file
