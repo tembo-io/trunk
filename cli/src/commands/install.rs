@@ -85,58 +85,78 @@ impl SubCommand for InstallCommand {
         println!("Using pkglibdir: {package_lib_dir:?}");
         println!("Using sharedir: {sharedir:?}");
 
-        // If file is specified
-        if let Some(ref file) = self.file {
-            println!("When installing from a file, dependencies will not be installed automatically");
-            let f = File::open(file)?;
+        install(
+            self.name.clone(),
+            &self.version,
+            &self.file,
+            &self.registry,
+            package_lib_dir,
+            sharedir,
+        );
 
-            let input = match file
-                .extension()
-                .into_iter()
-                .filter_map(|s| s.to_str())
-                .next()
-            {
-                Some("gz") => {
-                    // unzip the archive into a temporary file
-                    let decoder = GzDecoder::new(f);
-                    let mut tempfile = tempfile::tempfile()?;
-                    use read_write_pipe::*;
-                    tempfile.write_reader(decoder)?;
-                    tempfile.rewind()?;
-                    tempfile
-                }
-                Some("tar") => f,
-                _ => return Err(InstallError::UnknownFileType)?,
-            };
-            install(self.name.clone(), input, package_lib_dir, sharedir).await?;
-        } else {
-            // If a file is not specified, then we will query the registry
-            // and download the latest version of the package
-            // Using the reqwest crate, we will run the equivalent of this curl command:
-            // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
-            let response = reqwest::get(&format!(
-                "{}/extensions/{}/{}/download",
-                self.registry, self.name, self.version
-            ))
-            .await?;
-            let response_body = response.text().await?;
-            println!("Downloading from: {response_body}");
-            let file_response = reqwest::get(response_body).await?;
-            let bytes = file_response.bytes().await?;
-            // unzip the archive into a temporary file
-            let gz = GzDecoder::new(&bytes[..]);
-            let mut tempfile = tempfile::tempfile()?;
-            use read_write_pipe::*;
-            tempfile.write_reader(gz)?;
-            tempfile.rewind()?;
-            let input = tempfile;
-            install(self.name.clone(), input, package_lib_dir, sharedir).await?;
-        }
         Ok(())
     }
 }
-
 async fn install(
+    name: String,
+    version: &str,
+    file: &Option<PathBuf>,
+    registry: &str,
+    package_lib_dir: PathBuf,
+    sharedir: PathBuf,
+) -> Result <(), anyhow::Error> {
+
+    // If file is specified
+    if let Some(ref file) = file {
+        println!("When installing from a file, dependencies will not be installed automatically");
+        let f = File::open(file)?;
+
+        let input = match file
+            .extension()
+            .into_iter()
+            .filter_map(|s| s.to_str())
+            .next()
+        {
+            Some("gz") => {
+                // unzip the archive into a temporary file
+                let decoder = GzDecoder::new(f);
+                let mut tempfile = tempfile::tempfile()?;
+                use read_write_pipe::*;
+                tempfile.write_reader(decoder)?;
+                tempfile.rewind()?;
+                tempfile
+            }
+            Some("tar") => f,
+            _ => return Err(InstallError::UnknownFileType)?,
+        };
+        install_file(name.clone(), input, package_lib_dir, sharedir).await?;
+    } else {
+        // If a file is not specified, then we will query the registry
+        // and download the latest version of the package
+        // Using the reqwest crate, we will run the equivalent of this curl command:
+        // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
+        let response = reqwest::get(&format!(
+            "{}/extensions/{}/{}/download",
+            registry, name.clone(), version
+        ))
+            .await?;
+        let response_body = response.text().await?;
+        println!("Downloading from: {response_body}");
+        let file_response = reqwest::get(response_body).await?;
+        let bytes = file_response.bytes().await?;
+        // unzip the archive into a temporary file
+        let gz = GzDecoder::new(&bytes[..]);
+        let mut tempfile = tempfile::tempfile()?;
+        use read_write_pipe::*;
+        tempfile.write_reader(gz)?;
+        tempfile.rewind()?;
+        let input = tempfile;
+        install_file(name.clone(), input, package_lib_dir, sharedir).await?;
+    }
+    Ok(())
+}
+
+async fn install_file(
     extension_name: String,
     mut input: File,
     package_lib_dir: PathBuf,
@@ -188,9 +208,7 @@ async fn install(
             };
             let manifest_result = serde_json::from_value(manifest_json);
             manifest.replace(manifest_result?);
-        } else
-
-        if entry.header().entry_type() == EntryType::file() && name.clone().file_name() == Some(OsStr::new(format!("{}.control", extension_name).as_str())) {
+        } else if entry.header().entry_type() == EntryType::file() && name.clone().file_name() == Some(OsStr::new(format!("{}.control", extension_name).as_str())) {
             let mut control_file = String::new();
             entry.read_to_string(&mut control_file)?;
             dependencies_to_install = read_dependencies(&control_file);
