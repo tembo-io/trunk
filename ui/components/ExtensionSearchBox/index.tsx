@@ -6,9 +6,10 @@ import { Inter } from "next/font/google";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import styles from "./ExtensionSearchBox.module.scss";
-const inter = Inter({ subsets: ["latin"], weight: ["400", "700"] });
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import fetchExtensions from "@/lib/fetchExtensions";
+
+const inter = Inter({ subsets: ["latin"], weight: ["400", "700"] });
 
 interface ExtensionListing {
   name: string;
@@ -60,14 +61,13 @@ export default function ExtensionSearchBox() {
     }
   };
 
-  const showResultsList = showresults && query.length > 0;
-  console.log("showResultsList", showResultsList, showresults);
-
   return (
     <div className={styles.searchBoxCont} ref={resultContainerRef}>
       <div className={styles.searchRow}>
         <input
+          className={cx(inter.className, styles.input)}
           type="text"
+          placeholder={`Search ${data.length} extensions`}
           value={query}
           onKeyDown={handleKeyDown}
           onFocus={() => setShowResults(true)}
@@ -76,6 +76,7 @@ export default function ExtensionSearchBox() {
             setQuery(e.target.value);
           }}
         />
+        <button className={cx(inter.className, styles.searchButton)}>Search</button>
       </div>
       <div className={styles.resultContainer}>
         <ul className={styles.resultList}>
@@ -86,9 +87,12 @@ export default function ExtensionSearchBox() {
                 style={{
                   backgroundColor: index === selectedItemIndex ? "gray" : "white",
                 }}
+                className={styles.resultItem}
                 key={ext.name}
               >
-                <Link href={`/extensions/${ext.name}`}>{ext.name}</Link>
+                <Link className={cx(inter.className, styles.extLink)} href={`/extensions/${ext.name}`}>
+                  {ext.name.toUpperCase()}
+                </Link>
               </li>
             ))}
         </ul>

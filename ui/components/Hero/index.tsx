@@ -9,7 +9,9 @@ export default function Hero() {
   return (
     <section>
       <h1 className={cx(inter.className, styles.title)}>Expand Your Postgres Capabilities</h1>
-      <ExtensionSearchBox></ExtensionSearchBox>
+      <div className={styles.searchContainer}>
+        <ExtensionSearchBox></ExtensionSearchBox>
+      </div>
       <h2 className={cx(inter.className, styles.subtitle)}>The easiest way to publish and install PostgreSQL extensions. </h2>
       <p className={cx(inter.className, styles.body)}>
         Trunk is an open-source package installer and registry for PostgreSQL extensions. Use the Trunk CLI to easily publish and install
