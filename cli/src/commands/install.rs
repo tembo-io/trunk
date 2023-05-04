@@ -1,10 +1,10 @@
-use std::ffi::OsStr;
 use super::SubCommand;
 use crate::manifest::{Manifest, PackagedFile};
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
 use reqwest;
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{Read, Seek};
 use std::path::{Path, PathBuf};
@@ -65,7 +65,7 @@ impl SubCommand for InstallCommand {
             .trim_end()
             .to_string();
         let package_lib_dir_path = std::path::PathBuf::from(&package_lib_dir);
-        let package_lib_dir = std::fs::canonicalize(&package_lib_dir_path)?;
+        let package_lib_dir = std::fs::canonicalize(package_lib_dir_path)?;
 
         let sharedir = std::process::Command::new(pg_config.clone())
             .arg("--sharedir")
@@ -104,8 +104,7 @@ async fn install(
     registry: &str,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
-) -> Result <(), anyhow::Error> {
-
+) -> Result<(), anyhow::Error> {
     // If file is specified
     if let Some(ref file) = file {
         println!("When installing from a file, dependencies will not be installed automatically");
@@ -137,9 +136,11 @@ async fn install(
         // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
         let response = reqwest::get(&format!(
             "{}/extensions/{}/{}/download",
-            registry, name.clone(), version
+            registry,
+            name.clone(),
+            version
         ))
-            .await?;
+        .await?;
         let response_body = response.text().await?;
         println!("Downloading from: {response_body}");
         let file_response = reqwest::get(response_body).await?;
@@ -180,7 +181,9 @@ async fn install_file(
     for this_entry in entries {
         let mut entry = this_entry?;
         let name = entry.path()?;
-        if entry.header().entry_type() == EntryType::file() && name.clone() == Path::new("manifest.json") {
+        if entry.header().entry_type() == EntryType::file()
+            && name.clone() == Path::new("manifest.json")
+        {
             let manifest_json = serde_json::from_reader(entry)?;
             // if the manifest_version key does not exist, then create it with a value of 1
             let manifest_json = match manifest_json {
@@ -208,13 +211,16 @@ async fn install_file(
             };
             let manifest_result = serde_json::from_value(manifest_json);
             manifest.replace(manifest_result?);
-        } else if entry.header().entry_type() == EntryType::file() && name.clone().file_name() == Some(OsStr::new(format!("{}.control", extension_name).as_str())) {
+        } else if entry.header().entry_type() == EntryType::file()
+            && name.clone().file_name()
+                == Some(OsStr::new(format!("{extension_name}.control").as_str()))
+        {
             let mut control_file = String::new();
             entry.read_to_string(&mut control_file)?;
             dependencies_to_install = read_dependencies(&control_file);
         }
     }
-    println!("Dependencies to install: {:?}", dependencies_to_install);
+    println!("Dependencies to install: {dependencies_to_install:?}");
 
     // Second pass: extraction
     input.rewind()?;
