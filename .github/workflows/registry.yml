@@ -55,6 +55,10 @@ jobs:
           profile: minimal
           toolchain: nightly
           components: rustfmt, clippy
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libssl-dev
       - name: install sqlx-cli
         run: cargo install sqlx-cli
       - uses: Swatinem/rust-cache@v2
