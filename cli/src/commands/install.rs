@@ -122,7 +122,7 @@ impl SubCommand for InstallCommand {
             ))
             .await?;
             let response_body = response.text().await?;
-            println!("Downloading from: {}", response_body);
+            println!("Downloading from: {response_body}");
             let file_response = reqwest::get(response_body).await?;
             let bytes = file_response.bytes().await?;
             // unzip the archive into a temporary file
