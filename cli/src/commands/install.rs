@@ -6,8 +6,10 @@ use flate2::read::GzDecoder;
 use reqwest;
 use std::ffi::OsStr;
 use std::fs::File;
-use std::io::{Read, Seek};
+use std::io::{Read, Seek, Write};
 use std::path::{Path, PathBuf};
+use anyhow::anyhow;
+use reqwest::Url;
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
 
@@ -92,7 +94,7 @@ impl SubCommand for InstallCommand {
             &self.registry,
             package_lib_dir,
             sharedir,
-        );
+        ).await?;
 
         Ok(())
     }
@@ -107,28 +109,7 @@ async fn install(
 ) -> Result<(), anyhow::Error> {
     // If file is specified
     if let Some(ref file) = file {
-        println!("When installing from a file, dependencies will not be installed automatically");
-        let f = File::open(file)?;
-
-        let input = match file
-            .extension()
-            .into_iter()
-            .filter_map(|s| s.to_str())
-            .next()
-        {
-            Some("gz") => {
-                // unzip the archive into a temporary file
-                let decoder = GzDecoder::new(f);
-                let mut tempfile = tempfile::tempfile()?;
-                use read_write_pipe::*;
-                tempfile.write_reader(decoder)?;
-                tempfile.rewind()?;
-                tempfile
-            }
-            Some("tar") => f,
-            _ => return Err(InstallError::UnknownFileType)?,
-        };
-        install_file(name.clone(), input, package_lib_dir, sharedir).await?;
+        install_file(name.clone(), file, package_lib_dir, sharedir, registry).await?;
     } else {
         // If a file is not specified, then we will query the registry
         // and download the latest version of the package
@@ -141,28 +122,65 @@ async fn install(
             version
         ))
         .await?;
+
         let response_body = response.text().await?;
-        println!("Downloading from: {response_body}");
-        let file_response = reqwest::get(response_body).await?;
-        let bytes = file_response.bytes().await?;
-        // unzip the archive into a temporary file
-        let gz = GzDecoder::new(&bytes[..]);
-        let mut tempfile = tempfile::tempfile()?;
-        use read_write_pipe::*;
-        tempfile.write_reader(gz)?;
-        tempfile.rewind()?;
-        let input = tempfile;
-        install_file(name.clone(), input, package_lib_dir, sharedir).await?;
+        println!("Downloading from: {}", response_body);
+
+        let url = Url::parse(&response_body)?;
+
+// Get the path segments as an iterator
+        let segments = url.path_segments().ok_or(anyhow!("Cannot extract path segments"))?;
+
+// Get the last segment, which should be the file name
+        let file_name = segments
+            .last()
+            .ok_or(anyhow!("Cannot extract file name from URL"))?
+            .to_string();
+
+        let response = reqwest::get(url).await?;
+// Write the bytes of the archive to a temporary directory
+        let temp_dir = tempfile::tempdir()?;
+        let dest_path = temp_dir.path().join(file_name);
+
+        let mut dest_file = File::create(&dest_path)?;
+        // write the response body to the file
+        let bytes = response.bytes().await?;
+        dest_file.write_all(&bytes)?;
+
+        install_file(name.clone(), &dest_path, package_lib_dir, sharedir, registry).await?;
     }
     Ok(())
 }
 
 async fn install_file(
     extension_name: String,
-    mut input: File,
+    mut file: &PathBuf,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
+    registry: &str,
 ) -> Result<(), anyhow::Error> {
+
+    let f = File::open(file)?;
+
+    let mut input = match file
+        .extension()
+        .into_iter()
+        .filter_map(|s| s.to_str())
+        .next()
+    {
+        Some("gz") => {
+            // unzip the archive into a temporary file
+            let decoder = GzDecoder::new(f);
+            let mut tempfile = tempfile::tempfile()?;
+            use read_write_pipe::*;
+            tempfile.write_reader(decoder)?;
+            tempfile.rewind()?;
+            tempfile
+        }
+        Some("tar") => f,
+        _ => return Err(InstallError::UnknownFileType)?,
+    };
+
     // Handle symlinks
     let sharedir = std::fs::canonicalize(&sharedir)?;
     let package_lib_dir = std::fs::canonicalize(&package_lib_dir)?;
@@ -220,10 +238,33 @@ async fn install_file(
             dependencies_to_install = read_dependencies(&control_file);
         }
     }
-    println!("Dependencies to install: {dependencies_to_install:?}");
+    println!("Dependencies: {dependencies_to_install:?}");
+    for dependency in dependencies_to_install {
+        // check a control file is present in sharedir for each dependency
+        let control_file_path = sharedir.join("extension").join(format!(
+            "{dependency}.control",
+            dependency = dependency
+        ));
+        if !control_file_path.exists() {
+            println!(
+                "Dependency {dependency} not found in sharedir {sharedir:?}. Installing...",
+                dependency = dependency,
+                sharedir = sharedir
+            );
+            install(
+                dependency,
+                "latest",
+                &None,
+                registry,
+                package_lib_dir.clone(),
+                sharedir.clone(),
+            ).await?;
+        }
+    }
 
     // Second pass: extraction
     input.rewind()?;
+
     let mut archive = Archive::new(&input);
 
     if let Some(mut manifest) = manifest {
