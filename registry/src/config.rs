@@ -9,9 +9,9 @@ pub struct Config {
     pub aws_access_key: String,
     pub aws_secret_key: String,
     pub auth_token: HeaderValue,
+    pub clerk_secret_key: String,
 }
 
-// TODO(ianstanton) Fix load from .env
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -24,6 +24,7 @@ impl Default for Config {
             aws_access_key: from_env_default("AWS_ACCESS_KEY", ""),
             aws_secret_key: from_env_default("AWS_SECRET_KEY", ""),
             auth_token: from_env_default("AUTH_TOKEN", "").parse().unwrap(),
+            clerk_secret_key: env::var("CLERK_SECRET_KEY").expect("CLERK_SECRET_KEY not set"),
         }
     }
 }
