@@ -24,7 +24,10 @@ on:
 jobs:
   lint:
     name: Run linters
-    runs-on: ubuntu-22.04
+    runs-on:
+      - self-hosted
+      - dind
+      - large-8x8
     env:
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
     services:
