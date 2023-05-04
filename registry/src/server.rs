@@ -25,7 +25,7 @@ pub async fn server() -> std::io::Result<()> {
         .await
         .expect("error running migrations");
 
-    let server = HttpServer::new(move || {
+    HttpServer::new(move || {
         let cors = Cors::permissive();
         App::new()
             .wrap(cors)
@@ -36,6 +36,5 @@ pub async fn server() -> std::io::Result<()> {
     })
     .bind(("0.0.0.0", 8080))?
     .run()
-    .await;
-    server
+    .await
 }
