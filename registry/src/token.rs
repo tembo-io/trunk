@@ -1,4 +1,5 @@
 use rand::{distributions::Uniform, rngs::OsRng, Rng};
+use reqwest::header::HeaderValue;
 use sha2::Digest;
 
 const TOKEN_LENGTH: usize = 32;
@@ -8,6 +9,11 @@ pub fn generate_token() -> (String, Vec<u8>) {
     let plaintext = generate_secure_alphanumeric_string(TOKEN_LENGTH);
     let sha256 = hash(&plaintext);
     (plaintext, sha256)
+}
+
+// Validate token exists and has an associated user
+pub fn validate_token(token: &HeaderValue) -> Result<> {
+
 }
 
 fn hash(plaintext: &str) -> Vec<u8> {

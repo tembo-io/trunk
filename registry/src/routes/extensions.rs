@@ -36,6 +36,8 @@ pub async fn publish(
     while let Some(mut field) = payload.try_next().await? {
         let headers = field.headers();
         let auth = headers.get(AUTHORIZATION).unwrap();
+        // Check if token exists and has an associated user
+
         if auth != cfg.auth_token {
             error!("Authorization error");
             return Err(AuthorizationError());
@@ -77,6 +79,7 @@ pub async fn publish(
     match exists {
         // TODO(ianstanton) Refactor into separate functions
         Some(exists) => {
+            // Check if user is owner of extension
             // Extension exists
             let mut tx = conn.begin().await?;
             let extension_id = exists.id;
@@ -142,6 +145,7 @@ pub async fn publish(
             tx.commit().await?;
         }
         None => {
+            // Associate new extension with owner
             // Else, create new record in extensions table
             let mut tx = conn.begin().await?;
             let id_row = sqlx::query!(
