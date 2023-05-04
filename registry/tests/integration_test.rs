@@ -4,7 +4,7 @@ use actix_web::{web, App};
 mod tests {
     use super::*;
     use actix_web::test;
-    use trunk_registry::routes::get_all_extensions;
+    use trunk_registry::routes::extensions::get_all_extensions;
 
     /// make sure the webserver boots up
     #[actix_web::test]

@@ -19,7 +19,7 @@ pub fn extension_path(name: &str, version: &str) -> String {
 ///
 /// The function doesn't check for the existence of the file.
 pub fn extension_location(bucket_name: &str, extension_name: &str, version: &str) -> String {
-    let host = format!("{}.s3.amazonaws.com", bucket_name);
+    let host = format!("{bucket_name}.s3.amazonaws.com");
     let path = extension_path(extension_name, version);
     format!("https://{host}/{path}")
 }
