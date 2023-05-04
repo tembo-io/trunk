@@ -12,6 +12,7 @@ use anyhow::anyhow;
 use reqwest::Url;
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
+use async_recursion::async_recursion;
 
 #[derive(Args)]
 pub struct InstallCommand {
@@ -99,6 +100,8 @@ impl SubCommand for InstallCommand {
         Ok(())
     }
 }
+
+#[async_recursion]
 async fn install(
     name: String,
     version: &str,
@@ -195,6 +198,7 @@ async fn install_file(
 
     let mut dependencies_to_install: Vec<String> = Vec::new();
     let mut manifest: Option<Manifest> = None;
+    {
     let entries = archive.entries_with_seek()?;
     for this_entry in entries {
         let mut entry = this_entry?;
@@ -237,7 +241,7 @@ async fn install_file(
             entry.read_to_string(&mut control_file)?;
             dependencies_to_install = read_dependencies(&control_file);
         }
-    }
+    }}
     println!("Dependencies: {dependencies_to_install:?}");
     for dependency in dependencies_to_install {
         // check a control file is present in sharedir for each dependency
@@ -292,6 +296,7 @@ async fn install_file(
             );
             return Ok(());
         }
+
         let entries = archive.entries_with_seek()?;
         for entry in entries {
             let mut entry = entry?;
