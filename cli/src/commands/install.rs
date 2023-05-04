@@ -1,18 +1,18 @@
 use super::SubCommand;
 use crate::manifest::{Manifest, PackagedFile};
+use anyhow::anyhow;
+use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
 use reqwest;
+use reqwest::Url;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{Read, Seek, Write};
 use std::path::{Path, PathBuf};
-use anyhow::anyhow;
-use reqwest::Url;
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
-use async_recursion::async_recursion;
 
 #[derive(Args)]
 pub struct InstallCommand {
@@ -95,7 +95,8 @@ impl SubCommand for InstallCommand {
             &self.registry,
             package_lib_dir,
             sharedir,
-        ).await?;
+        )
+        .await?;
 
         Ok(())
     }
@@ -127,21 +128,23 @@ async fn install(
         .await?;
 
         let response_body = response.text().await?;
-        println!("Downloading from: {}", response_body);
+        println!("Downloading from: {response_body}");
 
         let url = Url::parse(&response_body)?;
 
-// Get the path segments as an iterator
-        let segments = url.path_segments().ok_or(anyhow!("Cannot extract path segments"))?;
+        // Get the path segments as an iterator
+        let segments = url
+            .path_segments()
+            .ok_or(anyhow!("Cannot extract path segments"))?;
 
-// Get the last segment, which should be the file name
+        // Get the last segment, which should be the file name
         let file_name = segments
             .last()
             .ok_or(anyhow!("Cannot extract file name from URL"))?
             .to_string();
 
         let response = reqwest::get(url).await?;
-// Write the bytes of the archive to a temporary directory
+        // Write the bytes of the archive to a temporary directory
         let temp_dir = tempfile::tempdir()?;
         let dest_path = temp_dir.path().join(file_name);
 
@@ -150,19 +153,25 @@ async fn install(
         let bytes = response.bytes().await?;
         dest_file.write_all(&bytes)?;
 
-        install_file(name.clone(), &dest_path, package_lib_dir, sharedir, registry).await?;
+        install_file(
+            name.clone(),
+            &dest_path,
+            package_lib_dir,
+            sharedir,
+            registry,
+        )
+        .await?;
     }
     Ok(())
 }
 
 async fn install_file(
     extension_name: String,
-    mut file: &PathBuf,
+    file: &PathBuf,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
     registry: &str,
 ) -> Result<(), anyhow::Error> {
-
     let f = File::open(file)?;
 
     let mut input = match file
@@ -199,62 +208,58 @@ async fn install_file(
     let mut dependencies_to_install: Vec<String> = Vec::new();
     let mut manifest: Option<Manifest> = None;
     {
-    let entries = archive.entries_with_seek()?;
-    for this_entry in entries {
-        let mut entry = this_entry?;
-        let name = entry.path()?;
-        if entry.header().entry_type() == EntryType::file()
-            && name.clone() == Path::new("manifest.json")
-        {
-            let manifest_json = serde_json::from_reader(entry)?;
-            // if the manifest_version key does not exist, then create it with a value of 1
-            let manifest_json = match manifest_json {
-                serde_json::Value::Object(mut map) => {
-                    if !map.contains_key("manifest_version") {
-                        map.insert(
-                            "manifest_version".to_string(),
-                            serde_json::Value::Number(1.into()),
-                        );
+        let entries = archive.entries_with_seek()?;
+        for this_entry in entries {
+            let mut entry = this_entry?;
+            let name = entry.path()?;
+            if entry.header().entry_type() == EntryType::file()
+                && name.clone() == Path::new("manifest.json")
+            {
+                let manifest_json = serde_json::from_reader(entry)?;
+                // if the manifest_version key does not exist, then create it with a value of 1
+                let manifest_json = match manifest_json {
+                    serde_json::Value::Object(mut map) => {
+                        if !map.contains_key("manifest_version") {
+                            map.insert(
+                                "manifest_version".to_string(),
+                                serde_json::Value::Number(1.into()),
+                            );
+                        }
+                        if !map.contains_key("architecture")
+                            && map["manifest_version"].as_i64() < Some(2)
+                        {
+                            // If we are installing a legacy package without architecture specified,
+                            // then just assume x86 architecture. All the packages published before that
+                            // were published as x86, so this is a correct assumption.
+                            map.insert(
+                                "architecture".to_string(),
+                                serde_json::Value::String("x86".to_string()),
+                            );
+                        }
+                        serde_json::Value::Object(map)
                     }
-                    if !map.contains_key("architecture")
-                        && map["manifest_version"].as_i64() < Some(2)
-                    {
-                        // If we are installing a legacy package without architecture specified,
-                        // then just assume x86 architecture. All the packages published before that
-                        // were published as x86, so this is a correct assumption.
-                        map.insert(
-                            "architecture".to_string(),
-                            serde_json::Value::String("x86".to_string()),
-                        );
-                    }
-                    serde_json::Value::Object(map)
-                }
-                _ => manifest_json,
-            };
-            let manifest_result = serde_json::from_value(manifest_json);
-            manifest.replace(manifest_result?);
-        } else if entry.header().entry_type() == EntryType::file()
-            && name.clone().file_name()
-                == Some(OsStr::new(format!("{extension_name}.control").as_str()))
-        {
-            let mut control_file = String::new();
-            entry.read_to_string(&mut control_file)?;
-            dependencies_to_install = read_dependencies(&control_file);
+                    _ => manifest_json,
+                };
+                let manifest_result = serde_json::from_value(manifest_json);
+                manifest.replace(manifest_result?);
+            } else if entry.header().entry_type() == EntryType::file()
+                && name.clone().file_name()
+                    == Some(OsStr::new(format!("{extension_name}.control").as_str()))
+            {
+                let mut control_file = String::new();
+                entry.read_to_string(&mut control_file)?;
+                dependencies_to_install = read_dependencies(&control_file);
+            }
         }
-    }}
+    }
     println!("Dependencies: {dependencies_to_install:?}");
     for dependency in dependencies_to_install {
         // check a control file is present in sharedir for each dependency
-        let control_file_path = sharedir.join("extension").join(format!(
-            "{dependency}.control",
-            dependency = dependency
-        ));
+        let control_file_path = sharedir
+            .join("extension")
+            .join(format!("{dependency}.control"));
         if !control_file_path.exists() {
-            println!(
-                "Dependency {dependency} not found in sharedir {sharedir:?}. Installing...",
-                dependency = dependency,
-                sharedir = sharedir
-            );
+            println!("Dependency {dependency} not found in sharedir {sharedir:?}. Installing...");
             install(
                 dependency,
                 "latest",
@@ -262,7 +267,8 @@ async fn install_file(
                 registry,
                 package_lib_dir.clone(),
                 sharedir.clone(),
-            ).await?;
+            )
+            .await?;
         }
     }
 
