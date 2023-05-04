@@ -1,6 +1,6 @@
 use actix_web::{get, HttpResponse, Responder};
 
-#[get("")]
+#[get("/")]
 pub async fn ok() -> impl Responder {
     HttpResponse::Ok().json("ok")
 }
