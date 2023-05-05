@@ -38,7 +38,7 @@ export default function ExtensionDetail() {
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Install</h2>
           <p className={styles.infoPara}>Run the following command in your project directory</p>
-          <p className={styles.installCode}>trunk add {ext?.name}</p>
+          <p className={styles.installCode}>trunk install {ext?.name}</p>
         </div>
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>About</h2>
