@@ -16,7 +16,7 @@ use futures::TryStreamExt;
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
-const MAX_SIZE: usize = 5000000 as usize; // max payload size is 5M
+const MAX_SIZE: usize = 5000000; // max payload size is 5M
 
 /// Handles the `POST /extensions/new` route.
 /// Used by `trunk publish` to publish a new extension or to publish a new version of an
