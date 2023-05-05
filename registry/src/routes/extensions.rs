@@ -13,6 +13,7 @@ use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
+use log::error;
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
@@ -29,14 +30,16 @@ pub async fn publish(
     aws_config: web::Data<SdkConfig>,
     mut payload: Multipart,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
-    // Get request body
     let mut metadata = web::BytesMut::new();
     let mut file = web::BytesMut::new();
+    let mut user_id: String = "".to_string();
+
+    // Get request body
     while let Some(mut field) = payload.try_next().await? {
         let headers = field.headers();
         let auth = headers.get(AUTHORIZATION).unwrap();
         // Check if token exists and has an associated user
-        validate_token(auth, conn.clone()).await?;
+        user_id = validate_token(auth, conn.clone()).await?;
         // Field is stream of Bytes
         while let Some(chunk) = field.try_next().await? {
             // limit max size of in-memory payload
@@ -74,11 +77,33 @@ pub async fn publish(
     match exists {
         // TODO(ianstanton) Refactor into separate functions
         Some(exists) => {
-            // Check if user is owner of extension
             // Extension exists
             let mut tx = conn.begin().await?;
             let extension_id = exists.id;
-
+            // Check if user is owner of extension
+            let is_owner = sqlx::query!(
+                "SELECT *
+                FROM extension_owners
+                WHERE
+                    extension_id = $1
+                    and owner_id = $2",
+                extension_id as i32,
+                user_id
+            )
+            .fetch_optional(&mut tx)
+            .await?;
+            match is_owner {
+                Some(_is_owner) => Ok(()),
+                None => {
+                    error!(
+                        "the user associated with this API token is not an owner of this extension"
+                    );
+                    Err(ExtensionRegistryError::AuthorizationError(
+                        "the user associated with this API token is not an owner of this extension"
+                            .to_string(),
+                    ))
+                }
+            }?;
             // Check if version exists
             let version_exists = sqlx::query!(
                 "SELECT *

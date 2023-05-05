@@ -15,11 +15,11 @@ pub fn generate_token() -> (String, Vec<u8>) {
     (plaintext, sha256)
 }
 
-// Validate token exists and has an associated user
+// Validate token exists and returns associated user ID
 pub async fn validate_token(
     token: &HeaderValue,
     conn: Data<Pool<Postgres>>,
-) -> Result<(), ExtensionRegistryError> {
+) -> Result<String, ExtensionRegistryError> {
     let mut tx = conn.begin().await?;
     // Check if token exists
     let token_exists = sqlx::query!(
@@ -38,22 +38,12 @@ pub async fn validate_token(
                 "SELECT user_id
                 FROM api_tokens
                 WHERE
-                    token = $1
-                AND user_id IS NOT NULL",
+                    token = $1",
                 hash(token.to_str()?),
             )
-            .fetch_optional(&mut tx)
+            .fetch_one(&mut tx)
             .await?;
-            match user {
-                Some(_user) => Ok(()),
-                None => {
-                    error!("there is no user associated with the provided API token");
-                    Err(ExtensionRegistryError::TokenError(
-                        "there is no user associated with the provided API token".to_owned(),
-                    ))
-                }
-            }?;
-            Ok(())
+            Ok(user.user_id.unwrap())
         }
         None => {
             error!("invalid token: API token does not exist");

@@ -1,5 +1,25 @@
 {
   "db": "PostgreSQL",
+  "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "SELECT user_id\n                FROM api_tokens\n                WHERE\n                    token = $1"
+  },
   "2aa8ecff6be8c81144a148b7186424971aba6c06382692a0b26e37b03d68bce8": {
     "describe": {
       "columns": [
@@ -50,25 +70,50 @@
     },
     "query": "SELECT *\n                FROM api_tokens\n                WHERE\n                    token = $1"
   },
-  "3719346bfce71eddb52e9e1b3c86ba3f9381d730e8f3f349d348e2a314eddb60": {
+  "3d97358d04299f979123dc42ac48c1dfa5bffb9f042288edd43d43a9c7fec68c": {
     "describe": {
       "columns": [
         {
-          "name": "user_id",
+          "name": "extension_id",
           "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "owner_id",
+          "ordinal": 1,
           "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "created_by",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "deleted",
+          "ordinal": 4,
+          "type_info": "Bool"
         }
       ],
       "nullable": [
-        true
+        false,
+        false,
+        true,
+        true,
+        false
       ],
       "parameters": {
         "Left": [
-          "Bytea"
+          "Int4",
+          "Text"
         ]
       }
     },
-    "query": "SELECT user_id\n                FROM api_tokens\n                WHERE\n                    token = $1\n                AND user_id IS NOT NULL"
+    "query": "SELECT *\n                FROM extension_owners\n                WHERE\n                    extension_id = $1\n                    and owner_id = $2"
   },
   "48a96a05f91d89cfd30f0cd3b119f0690a53d71d82ad9d40a5b0a07941fc31c9": {
     "describe": {
