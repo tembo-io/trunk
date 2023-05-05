@@ -8,20 +8,10 @@ import Link from "next/link";
 import styles from "./ExtensionSearchBox.module.scss";
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import fetchExtensions from "@/lib/fetchExtensions";
-
+import { ExtensionListing } from "@/types";
+import { truncateString } from "@/lib/truncateString";
 const inter = Inter({ subsets: ["latin"], weight: ["400", "700"] });
 
-interface ExtensionListing {
-  name: string;
-  description: string;
-  author: string;
-  authorLink: string;
-  isInstalled?: boolean;
-  createdAt?: Date;
-  latestVersion?: string;
-  updatedAt?: Date;
-  homepage?: string;
-}
 export default function ExtensionSearchBox() {
   const [query, setQuery] = useState("");
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
@@ -43,11 +33,10 @@ export default function ExtensionSearchBox() {
     }
   };
 
-  if (isLoading || !data) {
-    return <div>Loading...</div>;
-  }
-
-  const filteredItems = data.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()));
+  const filteredItems =
+    data?.filter(
+      (item) => item?.name.toLowerCase().includes(query.toLowerCase()) || item?.description.toLowerCase().includes(query.toLowerCase())
+    ) ?? [];
 
   const handleKeyDown = (event) => {
     if (event.key === "ArrowUp" && selectedItemIndex > 0) {
@@ -67,7 +56,7 @@ export default function ExtensionSearchBox() {
         <input
           className={cx(inter.className, styles.input)}
           type="text"
-          placeholder={`Search ${data.length} extensions`}
+          placeholder={isLoading ? "" : `Search ${data.length} extensions`}
           value={query}
           onKeyDown={handleKeyDown}
           onFocus={() => setShowResults(true)}
@@ -80,18 +69,24 @@ export default function ExtensionSearchBox() {
       </div>
       <div className={styles.resultContainer}>
         <ul className={styles.resultList}>
-          {showresults &&
+          {data &&
+            showresults &&
             query.length > 0 &&
             filteredItems?.map((ext, index) => (
               <li
                 style={{
-                  backgroundColor: index === selectedItemIndex ? "gray" : "white",
+                  backgroundColor: index === selectedItemIndex ? "#faac7f" : "white",
                 }}
                 className={styles.resultItem}
                 key={ext.name}
               >
                 <Link className={cx(inter.className, styles.extLink)} href={`/extensions/${ext.name}`}>
-                  {ext.name.toUpperCase()}
+                  <div className={styles.extListHeader}>
+                    {ext.name} <span className={styles.info}>v{ext.latestVersion}</span>
+                  </div>
+                  <div className={styles.info} style={{ marginLeft: 0 }}>
+                    {truncateString(ext.description)}
+                  </div>
                 </Link>
               </li>
             ))}
