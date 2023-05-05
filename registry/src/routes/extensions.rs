@@ -16,7 +16,7 @@ use futures::TryStreamExt;
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
-const MAX_SIZE: usize = 262_144; // max payload size is 256k
+const MAX_SIZE: usize = 5000000 as usize; // max payload size is 5M
 
 /// Handles the `POST /extensions/new` route.
 /// Used by `trunk publish` to publish a new extension or to publish a new version of an
@@ -42,7 +42,7 @@ pub async fn publish(
             // limit max size of in-memory payload
             if (chunk.len()) > MAX_SIZE {
                 return Err(ExtensionRegistryError::from(error::ErrorBadRequest(
-                    "extension size is greater than 256k",
+                    "extension size is greater than 5M",
                 )));
             }
             if field.name() == "metadata" {
