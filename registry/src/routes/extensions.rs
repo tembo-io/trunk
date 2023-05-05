@@ -3,7 +3,7 @@
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
-use crate::errors::ExtensionRegistryError::AuthorizationError;
+use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
 use actix_multipart::Multipart;
@@ -13,7 +13,6 @@ use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
-use log::error;
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
@@ -37,17 +36,13 @@ pub async fn publish(
         let headers = field.headers();
         let auth = headers.get(AUTHORIZATION).unwrap();
         // Check if token exists and has an associated user
-
-        if auth != cfg.auth_token {
-            error!("Authorization error");
-            return Err(AuthorizationError());
-        }
+        validate_token(auth, conn.clone()).await?;
         // Field is stream of Bytes
         while let Some(chunk) = field.try_next().await? {
             // limit max size of in-memory payload
             if (chunk.len()) > MAX_SIZE {
                 return Err(ExtensionRegistryError::from(error::ErrorBadRequest(
-                    "overflow",
+                    "extension size is greater than 256k",
                 )));
             }
             if field.name() == "metadata" {
