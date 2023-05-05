@@ -8,12 +8,13 @@ use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
 use actix_multipart::Multipart;
 use actix_web::http::header::AUTHORIZATION;
+use actix_web::web::Data;
 use actix_web::{error, get, post, web, HttpResponse};
 use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
-use log::error;
+use log::{error, info};
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
@@ -80,6 +81,28 @@ pub async fn publish(
             // Extension exists
             let mut tx = conn.begin().await?;
             let extension_id = exists.id;
+            // Check if extension has an owner
+            let has_owner = sqlx::query!(
+                "SELECT *
+                FROM extension_owners
+                WHERE
+                    extension_id = $1",
+                extension_id as i32
+            )
+            .fetch_optional(&mut tx)
+            .await?;
+            match has_owner {
+                Some(_has_owner) => Ok::<(), ExtensionRegistryError>(()),
+                None => {
+                    // The extension has no owner. Add user ID as owner of this extension.
+                    info!(
+                        "The extension {} exists and has no owner. Adding {} as an owner of this extension.",
+                        new_extension.name, user_id
+                    );
+                    add_extension_owner(extension_id, user_id.clone(), conn).await?;
+                    Ok(())
+                }
+            }?;
             // Check if user is owner of extension
             let is_owner = sqlx::query!(
                 "SELECT *
@@ -96,12 +119,13 @@ pub async fn publish(
                 Some(_is_owner) => Ok(()),
                 None => {
                     error!(
-                        "the user associated with this API token is not an owner of this extension"
+                        "The user associated with this API token is not an owner of extension {}",
+                        new_extension.name
                     );
-                    Err(ExtensionRegistryError::AuthorizationError(
-                        "the user associated with this API token is not an owner of this extension"
-                            .to_string(),
-                    ))
+                    Err(ExtensionRegistryError::AuthorizationError(format!(
+                        "The user associated with this API token is not an owner of extension {}",
+                        new_extension.name,
+                    )))
                 }
             }?;
             // Check if version exists
@@ -165,7 +189,6 @@ pub async fn publish(
             tx.commit().await?;
         }
         None => {
-            // Associate new extension with owner
             // Else, create new record in extensions table
             let mut tx = conn.begin().await?;
             let id_row = sqlx::query!(
@@ -198,6 +221,12 @@ pub async fn publish(
             .execute(&mut tx)
             .await?;
             tx.commit().await?;
+            // Set user ID as an owner of the new extension
+            info!(
+                "Adding {} as an owner of new extension {}.",
+                user_id, new_extension.name
+            );
+            add_extension_owner(extension_id, user_id.clone(), conn).await?;
         }
     }
 
@@ -259,4 +288,25 @@ pub async fn get_all_extensions(
     // Return results in response
     let json = serde_json::to_string_pretty(&extensions)?;
     Ok(HttpResponse::Ok().body(json))
+}
+
+async fn add_extension_owner(
+    extension_id: i64,
+    user_id: String,
+    conn: Data<Pool<Postgres>>,
+) -> Result<(), ExtensionRegistryError> {
+    let mut tx = conn.begin().await?;
+    sqlx::query!(
+        "
+        INSERT INTO extension_owners(extension_id, owner_id, created_at, created_by)
+        VALUES ($1, $2, (now() at time zone 'utc'), $3)
+        ",
+        extension_id as i32,
+        user_id,
+        user_id
+    )
+    .execute(&mut tx)
+    .await?;
+    tx.commit().await?;
+    Ok(())
 }
