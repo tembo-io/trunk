@@ -20,6 +20,7 @@ pub async fn validate_token(
     token: &HeaderValue,
     conn: Data<Pool<Postgres>>,
 ) -> Result<String, ExtensionRegistryError> {
+    check_token_input(token.to_str()?)?;
     let mut tx = conn.begin().await?;
     // Check if token exists
     let token_exists = sqlx::query!(
@@ -69,8 +70,32 @@ fn generate_secure_alphanumeric_string(len: usize) -> String {
         .collect()
 }
 
+pub fn check_token_input(input: &str) -> Result<(), ExtensionRegistryError> {
+    let valid = input.as_bytes().iter().all(|&c| c.is_ascii_alphanumeric());
+    match valid {
+        true => Ok(()),
+        false => Err(ExtensionRegistryError::TokenError(
+            "API token should only contain ASCII alphanumeric characters".to_string(),
+        )),
+    }
+}
+
 #[test]
 fn test_generate() {
     let (plain, sha256) = generate_token();
     assert_eq!(sha256, sha2::Sha256::digest(plain.as_bytes()).as_slice());
+}
+
+#[test]
+fn test_check_token() {
+    let invalid = ";vBAfmrAa228VPYUnpPv5NdDWFXfkyh6I;";
+    let invalid_result = check_token_input(invalid);
+    assert!(matches!(
+        invalid_result,
+        Err(ExtensionRegistryError::TokenError(_))
+    ));
+
+    let valid = "vBAfmrAa228VPYUnpPv5NdDWFXfkyh6I";
+    let valid_result = check_token_input(valid);
+    assert!(matches!(valid_result, Ok(())))
 }
