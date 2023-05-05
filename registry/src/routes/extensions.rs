@@ -3,12 +3,12 @@
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
+use crate::extensions::{add_extension_owner, check_input};
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
 use actix_multipart::Multipart;
 use actix_web::http::header::AUTHORIZATION;
-use actix_web::web::Data;
 use actix_web::{error, get, post, web, HttpResponse};
 use aws_config::SdkConfig;
 use aws_sdk_s3;
@@ -247,17 +247,6 @@ pub async fn publish(
     )))
 }
 
-pub fn check_input(input: &str) -> Result<(), ExtensionRegistryError> {
-    let valid = input
-        .as_bytes()
-        .iter()
-        .all(|&c| c.is_ascii_alphanumeric() || c == b'_');
-    match valid {
-        true => Ok(()),
-        false => Err(ExtensionRegistryError::ResponseError()),
-    }
-}
-
 #[get("/extensions/all")]
 pub async fn get_all_extensions(
     conn: web::Data<Pool<Postgres>>,
@@ -288,25 +277,4 @@ pub async fn get_all_extensions(
     // Return results in response
     let json = serde_json::to_string_pretty(&extensions)?;
     Ok(HttpResponse::Ok().body(json))
-}
-
-async fn add_extension_owner(
-    extension_id: i64,
-    user_id: String,
-    conn: Data<Pool<Postgres>>,
-) -> Result<(), ExtensionRegistryError> {
-    let mut tx = conn.begin().await?;
-    sqlx::query!(
-        "
-        INSERT INTO extension_owners(extension_id, owner_id, created_at, created_by)
-        VALUES ($1, $2, (now() at time zone 'utc'), $3)
-        ",
-        extension_id as i32,
-        user_id,
-        user_id
-    )
-    .execute(&mut tx)
-    .await?;
-    tx.commit().await?;
-    Ok(())
 }
