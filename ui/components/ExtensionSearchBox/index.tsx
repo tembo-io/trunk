@@ -33,7 +33,7 @@ export default function ExtensionSearchBox() {
 
   const filteredItems =
     data?.filter(
-      (item) => item?.name.toLowerCase().includes(query.toLowerCase()) || item?.description.toLowerCase().includes(query.toLowerCase())
+      (item) => item?.name.toLowerCase().includes(query.toLowerCase()) || item?.description?.toLowerCase().includes(query.toLowerCase())
     ) ?? [];
 
   const handleKeyDown = (event: { key: string }) => {
