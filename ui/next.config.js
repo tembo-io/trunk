@@ -4,7 +4,12 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
+        protocol: "https",
         hostname: "images.clerk.dev",
+      },
+      {
+        protocol: "https",
+        hostname: "pgtrunk.io",
       },
     ],
   },
