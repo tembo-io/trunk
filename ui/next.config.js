@@ -11,6 +11,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "pgtrunk.io",
       },
+      {
+        protocol: "https",
+        hostname: "**.amplifyapp.com",
+      },
     ],
   },
 };
