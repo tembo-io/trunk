@@ -15,7 +15,7 @@ export default function User() {
   const fetchApiToken = useMutation({
     mutationFn: async (body) => {
       const token = await getToken();
-      return fetch(`https://trunk-registry.cdb-dev.com/token/new`, {
+      return fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/token/new`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

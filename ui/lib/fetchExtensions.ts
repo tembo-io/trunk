@@ -1,5 +1,5 @@
 const fetchExtensions = async () => {
-  const apiRes = await fetch(`https://registry.pgtrunk.io/extensions/all`);
+  const apiRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/extensions/all`);
   if (!apiRes.ok) {
     throw new Error("Error fetching all extensions");
   }
