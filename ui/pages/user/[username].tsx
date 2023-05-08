@@ -42,6 +42,8 @@ export default function User() {
     router.push("/");
   }
 
+  console.log("Image fixing");
+
   return (
     <div>
       <Header></Header>
