@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^4.15.0",
+    "@tanstack/react-query": "^4.29.5",
     "@types/node": "18.15.11",
     "@types/react": "18.0.33",
     "@types/react-dom": "18.0.11",
     "classnames": "^2.3.2",
+    "date-fns": "^2.30.0",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
     "next": "13.3.0",
