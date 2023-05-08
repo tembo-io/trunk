@@ -1,5 +1,164 @@
 {
   "db": "PostgreSQL",
+  "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "SELECT user_id\n                FROM api_tokens\n                WHERE\n                    token = $1"
+  },
+  "248a5a4eece6a88e283e65a41eee6d11e9010ab4c2d815c7cc39cc09ae813a67": {
+    "describe": {
+      "columns": [
+        {
+          "name": "extension_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "owner_id",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "created_by",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "deleted",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT *\n                FROM extension_owners\n                WHERE\n                    extension_id = $1"
+  },
+  "2aa8ecff6be8c81144a148b7186424971aba6c06382692a0b26e37b03d68bce8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "token",
+          "ordinal": 2,
+          "type_info": "Bytea"
+        },
+        {
+          "name": "name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "last_used_at",
+          "ordinal": 5,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "SELECT *\n                FROM api_tokens\n                WHERE\n                    token = $1"
+  },
+  "3d97358d04299f979123dc42ac48c1dfa5bffb9f042288edd43d43a9c7fec68c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "extension_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "owner_id",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "created_by",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "deleted",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT *\n                FROM extension_owners\n                WHERE\n                    extension_id = $1\n                    and owner_id = $2"
+  },
   "48a96a05f91d89cfd30f0cd3b119f0690a53d71d82ad9d40a5b0a07941fc31c9": {
     "describe": {
       "columns": [
@@ -299,6 +458,20 @@
       }
     },
     "query": "SELECT *\n                FROM versions\n                WHERE \n                    extension_id = $1\n                    and num = $2"
+  },
+  "95a4c5b00a8f9e776aa73eb4fb2763496a8d234402467c50ef4cc8e1777d82f8": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "\n        INSERT INTO extension_owners(extension_id, owner_id, created_at, created_by)\n        VALUES ($1, $2, (now() at time zone 'utc'), $3)\n        "
   },
   "c9f6b97900ea30be7f940f72c7e20ab21cd00f5f5ef4e4e52c228e2b7e070e9b": {
     "describe": {

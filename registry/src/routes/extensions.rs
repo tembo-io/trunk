@@ -3,7 +3,8 @@
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
-use crate::errors::ExtensionRegistryError::AuthorizationError;
+use crate::extensions::{add_extension_owner, check_input};
+use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
 use actix_multipart::Multipart;
@@ -13,11 +14,11 @@ use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
-use log::error;
+use log::{error, info};
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
-const MAX_SIZE: usize = 262_144; // max payload size is 256k
+const MAX_SIZE: usize = 5000000; // max payload size is 5M
 
 /// Handles the `POST /extensions/new` route.
 /// Used by `trunk publish` to publish a new extension or to publish a new version of an
@@ -30,22 +31,22 @@ pub async fn publish(
     aws_config: web::Data<SdkConfig>,
     mut payload: Multipart,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
-    // Get request body
     let mut metadata = web::BytesMut::new();
     let mut file = web::BytesMut::new();
+    let mut user_id: String = "".to_string();
+
+    // Get request body
     while let Some(mut field) = payload.try_next().await? {
         let headers = field.headers();
         let auth = headers.get(AUTHORIZATION).unwrap();
-        if auth != cfg.auth_token {
-            error!("Authorization error");
-            return Err(AuthorizationError());
-        }
+        // Check if token exists and has an associated user
+        user_id = validate_token(auth, conn.clone()).await?;
         // Field is stream of Bytes
         while let Some(chunk) = field.try_next().await? {
             // limit max size of in-memory payload
             if (chunk.len()) > MAX_SIZE {
                 return Err(ExtensionRegistryError::from(error::ErrorBadRequest(
-                    "overflow",
+                    "extension size is greater than 5M",
                 )));
             }
             if field.name() == "metadata" {
@@ -80,7 +81,53 @@ pub async fn publish(
             // Extension exists
             let mut tx = conn.begin().await?;
             let extension_id = exists.id;
-
+            // Check if extension has an owner
+            let has_owner = sqlx::query!(
+                "SELECT *
+                FROM extension_owners
+                WHERE
+                    extension_id = $1",
+                extension_id as i32
+            )
+            .fetch_optional(&mut tx)
+            .await?;
+            match has_owner {
+                Some(_has_owner) => Ok::<(), ExtensionRegistryError>(()),
+                None => {
+                    // The extension has no owner. Add user ID as owner of this extension.
+                    info!(
+                        "The extension {} exists and has no owner. Adding {} as an owner of this extension.",
+                        new_extension.name, user_id
+                    );
+                    add_extension_owner(extension_id, user_id.clone(), conn).await?;
+                    Ok(())
+                }
+            }?;
+            // Check if user is owner of extension
+            let is_owner = sqlx::query!(
+                "SELECT *
+                FROM extension_owners
+                WHERE
+                    extension_id = $1
+                    and owner_id = $2",
+                extension_id as i32,
+                user_id
+            )
+            .fetch_optional(&mut tx)
+            .await?;
+            match is_owner {
+                Some(_is_owner) => Ok(()),
+                None => {
+                    error!(
+                        "The user associated with this API token is not an owner of extension {}",
+                        new_extension.name
+                    );
+                    Err(ExtensionRegistryError::AuthorizationError(format!(
+                        "The user associated with this API token is not an owner of extension {}",
+                        new_extension.name,
+                    )))
+                }
+            }?;
             // Check if version exists
             let version_exists = sqlx::query!(
                 "SELECT *
@@ -174,6 +221,12 @@ pub async fn publish(
             .execute(&mut tx)
             .await?;
             tx.commit().await?;
+            // Set user ID as an owner of the new extension
+            info!(
+                "Adding {} as an owner of new extension {}.",
+                user_id, new_extension.name
+            );
+            add_extension_owner(extension_id, user_id.clone(), conn).await?;
         }
     }
 
@@ -192,17 +245,6 @@ pub async fn publish(
         "Successfully published extension {} version {}",
         new_extension.name, new_extension.vers
     )))
-}
-
-pub fn check_input(input: &str) -> Result<(), ExtensionRegistryError> {
-    let valid = input
-        .as_bytes()
-        .iter()
-        .all(|&c| c.is_ascii_alphanumeric() || c == b'_');
-    match valid {
-        true => Ok(()),
-        false => Err(ExtensionRegistryError::ResponseError()),
-    }
 }
 
 #[get("/extensions/all")]

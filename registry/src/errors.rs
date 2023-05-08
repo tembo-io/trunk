@@ -1,6 +1,7 @@
 //! Custom errors types for extension registry
 use actix_multipart::MultipartError;
 use actix_web::error;
+use actix_web::http::header::ToStrError;
 use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::put_object::PutObjectError;
 use std::str::Utf8Error;
@@ -25,8 +26,8 @@ pub enum ExtensionRegistryError {
     ResponseError(),
 
     /// an authorization error
-    #[error("authorization error")]
-    AuthorizationError(),
+    #[error("authorization error: {0}")]
+    AuthorizationError(String),
 
     /// a payload error
     #[error("payload error: {0}")]
@@ -56,9 +57,12 @@ pub enum ExtensionRegistryError {
     #[error("put object error: {0}")]
     PutObjectError(#[from] SdkError<PutObjectError>),
 
-    #[error("bad request error: {0}")]
+    #[error("token error: {0}")]
     TokenError(String),
 
-    #[error("Byte error: {0}")]
+    #[error("byte error: {0}")]
     ByteError(#[from] Utf8Error),
+
+    #[error("to str error: {0}")]
+    ToStrError(#[from] ToStrError),
 }
