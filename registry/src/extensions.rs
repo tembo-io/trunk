@@ -1,3 +1,4 @@
+use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use actix_web::web::Data;
 use sqlx::{Pool, Postgres};
@@ -32,4 +33,50 @@ pub async fn add_extension_owner(
     .await?;
     tx.commit().await?;
     Ok(())
+}
+
+pub async fn extension_owners(
+    extension_name: &str,
+    conn: Data<Pool<Postgres>>,
+) -> Result<Vec<String>, ExtensionRegistryError> {
+    let mut extension_owners: Vec<String> = Vec::new();
+    // Create a transaction on the database
+    let mut tx = conn.begin().await?;
+    let ext = sqlx::query!("SELECT * FROM extensions WHERE name = $1", extension_name)
+        .fetch_one(&mut tx)
+        .await?;
+    let id: i32 = ext.id as i32;
+    let owners = sqlx::query!(
+        "SELECT * FROM extension_owners WHERE extension_id = $1;",
+        id
+    )
+    .fetch_all(&mut tx)
+    .await?;
+    for row in owners.iter() {
+        let owner = row.owner_id.to_owned();
+        extension_owners.push(owner);
+    }
+    Ok(extension_owners)
+}
+
+pub async fn latest_license(
+    extension_name: &str,
+    conn: Data<Pool<Postgres>>,
+) -> Result<String, ExtensionRegistryError> {
+    // Get latest version for extension
+    let latest_version = latest_version(extension_name, conn.clone()).await?;
+    // Create a transaction on the database
+    let mut tx = conn.begin().await?;
+    let ext = sqlx::query!("SELECT * FROM extensions WHERE name = $1", extension_name)
+        .fetch_one(&mut tx)
+        .await?;
+    let id: i32 = ext.id as i32;
+    let latest_license = sqlx::query!(
+        "SELECT license FROM versions WHERE extension_id = $1 AND num = $2;",
+        id,
+        latest_version
+    )
+    .fetch_one(&mut tx)
+    .await?;
+    Ok(latest_license.license.unwrap_or("".to_string()))
 }

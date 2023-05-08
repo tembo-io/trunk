@@ -3,7 +3,7 @@
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
-use crate::extensions::{add_extension_owner, check_input};
+use crate::extensions::{add_extension_owner, check_input, extension_owners, latest_license};
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
@@ -260,17 +260,21 @@ pub async fn get_all_extensions(
         .await?;
     for row in rows.iter() {
         let name = row.name.to_owned().unwrap();
-        let latest = latest_version(&name, conn.clone()).await?;
+        let version = latest_version(&name, conn.clone()).await?;
+        let license = latest_license(&name, conn.clone()).await?;
+        let owners = extension_owners(&name, conn.clone()).await?;
         let data = json!(
         {
           "name": row.name.to_owned(),
-          "latestVersion": latest,
+          "latestVersion": version,
           "createdAt": row.created_at.to_string(),
           "updatedAt": row.updated_at.to_string(),
           "description": row.description.to_owned(),
           "homepage": row.homepage.to_owned(),
           "documentation": row.documentation.to_owned(),
-          "repository": row.repository.to_owned()
+          "repository": row.repository.to_owned(),
+          "license": license,
+          "owners": owners
         });
         extensions.push(data);
     }
