@@ -73,9 +73,9 @@ export default function ExtensionDetail() {
             </div>
           ) : (
             <div className={styles.aboutSection}>
-              <a href={"/"} className={styles.infoDetail}>
+              {/* <a href={"/"} className={styles.infoDetail}>
                 Claim this extension
-              </a>
+              </a> */}
             </div>
           )}
         </div>
