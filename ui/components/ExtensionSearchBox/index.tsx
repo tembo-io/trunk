@@ -1,12 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, RefObject } from "react";
 import cx from "classnames";
-import { useUser, useSignIn, useClerk } from "@clerk/nextjs";
-import Image from "next/image";
 import { Inter } from "next/font/google";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import styles from "./ExtensionSearchBox.module.scss";
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import fetchExtensions from "@/lib/fetchExtensions";
 import { ExtensionListing } from "@/types";
 import { truncateString } from "@/lib/truncateString";
@@ -17,8 +15,8 @@ export default function ExtensionSearchBox() {
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
   const [showresults, setShowResults] = useState(false);
   const router = useRouter();
-  const { isLoading, data, isError, error } = useQuery<ExtensionListing[]>(["extList"], fetchExtensions);
-  const resultContainerRef = useRef(null);
+  const { isLoading, data } = useQuery<ExtensionListing[]>(["extList"], fetchExtensions);
+  const resultContainerRef: RefObject<HTMLInputElement> = useRef(null);
 
   useEffect(() => {
     document.addEventListener("click", handleClick);
@@ -27,7 +25,7 @@ export default function ExtensionSearchBox() {
     };
   }, []);
 
-  const handleClick = (event) => {
+  const handleClick = (event: { target: any }) => {
     if (resultContainerRef.current && !resultContainerRef.current.contains(event.target)) {
       setShowResults(false);
     }
@@ -38,7 +36,7 @@ export default function ExtensionSearchBox() {
       (item) => item?.name.toLowerCase().includes(query.toLowerCase()) || item?.description.toLowerCase().includes(query.toLowerCase())
     ) ?? [];
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: { key: string }) => {
     if (event.key === "ArrowUp" && selectedItemIndex > 0) {
       setSelectedItemIndex(selectedItemIndex - 1);
     } else if (event.key === "ArrowDown" && selectedItemIndex < filteredItems.length - 1) {
@@ -56,7 +54,7 @@ export default function ExtensionSearchBox() {
         <input
           className={cx(inter.className, styles.input)}
           type="text"
-          placeholder={isLoading ? "" : `Search ${data.length} extensions`}
+          placeholder={isLoading ? "" : `Search ${data?.length} extensions`}
           value={query}
           onKeyDown={handleKeyDown}
           onFocus={() => setShowResults(true)}

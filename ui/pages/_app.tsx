@@ -1,7 +1,6 @@
 import { ClerkProvider, ClerkLoaded } from "@clerk/nextjs";
 import type { AppProps } from "next/app";
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Header from "@/components/Header";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 function MyApp({ Component, pageProps }: AppProps) {
   const queryClient = new QueryClient();
 

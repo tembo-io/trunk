@@ -1,28 +1,27 @@
-import { useState } from "react";
-import cx from "classnames";
-import { Inter, Island_Moments } from "next/font/google";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import styles from "./extensionDetail.module.scss";
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import fetchExtensions from "@/lib/fetchExtensions";
 import Header from "@/components/Header";
 import { formatDistanceToNow } from "date-fns";
 
 import { ExtensionListing } from "@/types";
 
-const inter = Inter({ subsets: ["latin"], weight: ["400"] });
-
 export default function ExtensionDetail() {
   const router = useRouter();
   const { extName } = router.query;
-  const { isLoading, data, isError, error } = useQuery<ExtensionListing[]>(["extList"], fetchExtensions);
+  const { isLoading, data } = useQuery<ExtensionListing[]>(["extList"], fetchExtensions);
 
   if (isLoading || !data) {
     return <div>Loading...</div>;
   }
 
   const ext = data.find((item) => item.name === extName);
+
+  let extDate = "";
+  if (ext?.updatedAt) {
+    extDate = ext?.updatedAt.split(" +")[0];
+  }
 
   return (
     <div>
@@ -43,7 +42,7 @@ export default function ExtensionDetail() {
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>About</h2>
 
-          {ext?.updatedAt && (
+          {ext?.updatedAt && extDate && (
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>last updated</p>
               <p className={styles.infoDetail}>{formatDistanceToNow(new Date(ext?.updatedAt.split(" +")[0]))}</p>
@@ -67,10 +66,16 @@ export default function ExtensionDetail() {
               </a>
             </div>
           )}
-          {ext?.author && (
+          {ext?.author ? (
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>author</p>
               <p className={styles.infoDetail}>{ext.author}</p>
+            </div>
+          ) : (
+            <div className={styles.aboutSection}>
+              <a href={"/"} className={styles.infoDetail}>
+                Claim this extension
+              </a>
             </div>
           )}
         </div>

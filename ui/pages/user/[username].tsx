@@ -1,14 +1,10 @@
 import { useState } from "react";
-import cx from "classnames";
-import { Inter } from "next/font/google";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import styles from "./user.module.scss";
 import { useUser, useAuth } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import Header from "@/components/Header";
-import { set } from "date-fns";
-const inter = Inter({ subsets: ["latin"], weight: ["400"] });
 
 export default function User() {
   const [apiToken, setApiToken] = useState("");
@@ -16,9 +12,6 @@ export default function User() {
   const { getToken } = useAuth();
 
   const router = useRouter();
-  const { username } = router.query;
-  console.log("username", username);
-
   const fetchApiToken = useMutation({
     mutationFn: async (body) => {
       const token = await getToken();
@@ -58,7 +51,9 @@ export default function User() {
         <div className={styles.section}>
           {/* <h2 className={styles.sectionTitle}>Profile Information</h2> */}
           <div className={styles.profileRow}>
-            <Image style={{ borderRadius: "4px" }} src={user?.profileImageUrl} alt="user profile image" width={150} height={150}></Image>
+            {user?.profileImageUrl && (
+              <Image style={{ borderRadius: "4px" }} src={user?.profileImageUrl} alt="user profile image" width={150} height={150}></Image>
+            )}
             <div className={styles.nameBlock}>
               <h3 className={styles.fullName}>{user?.fullName}</h3>
               <h4 className={styles.userName}>{user?.username}</h4>

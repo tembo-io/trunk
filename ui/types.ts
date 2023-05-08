@@ -4,9 +4,9 @@ export interface ExtensionListing {
   author: string;
   authorLink: string;
   isInstalled?: boolean;
-  createdAt?: Date;
+  createdAt?: string;
   latestVersion?: string;
-  updatedAt?: Date;
+  updatedAt?: string;
   homepage?: string;
   repository?: string;
 }
