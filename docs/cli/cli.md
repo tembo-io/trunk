@@ -1,0 +1,1 @@
+--8<-- "cli/README.md"
