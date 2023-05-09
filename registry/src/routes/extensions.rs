@@ -7,6 +7,7 @@ use crate::extensions::{add_extension_owner, check_input, extension_owners, late
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
+use crate::views::user_info::UserInfo;
 use actix_multipart::Multipart;
 use actix_web::http::header::AUTHORIZATION;
 use actix_web::{error, get, post, web, HttpResponse};
@@ -33,14 +34,17 @@ pub async fn publish(
 ) -> Result<HttpResponse, ExtensionRegistryError> {
     let mut metadata = web::BytesMut::new();
     let mut file = web::BytesMut::new();
-    let mut user_id: String = "".to_string();
+    let mut user_info = UserInfo {
+        user_id: "".to_string(),
+        user_name: "".to_string(),
+    };
 
     // Get request body
     while let Some(mut field) = payload.try_next().await? {
         let headers = field.headers();
         let auth = headers.get(AUTHORIZATION).unwrap();
         // Check if token exists and has an associated user
-        user_id = validate_token(auth, conn.clone()).await?;
+        user_info = validate_token(auth, conn.clone()).await?;
         // Field is stream of Bytes
         while let Some(chunk) = field.try_next().await? {
             // limit max size of in-memory payload
@@ -97,9 +101,15 @@ pub async fn publish(
                     // The extension has no owner. Add user ID as owner of this extension.
                     info!(
                         "The extension {} exists and has no owner. Adding {} as an owner of this extension.",
-                        new_extension.name, user_id
+                        new_extension.name, user_info.user_id
                     );
-                    add_extension_owner(extension_id, user_id.clone(), conn).await?;
+                    add_extension_owner(
+                        extension_id,
+                        user_info.user_id.clone(),
+                        user_info.user_name,
+                        conn,
+                    )
+                    .await?;
                     Ok(())
                 }
             }?;
@@ -111,7 +121,7 @@ pub async fn publish(
                     extension_id = $1
                     and owner_id = $2",
                 extension_id as i32,
-                user_id
+                user_info.user_id
             )
             .fetch_optional(&mut tx)
             .await?;
@@ -224,9 +234,9 @@ pub async fn publish(
             // Set user ID as an owner of the new extension
             info!(
                 "Adding {} as an owner of new extension {}.",
-                user_id, new_extension.name
+                user_info.user_id, new_extension.name
             );
-            add_extension_owner(extension_id, user_id.clone(), conn).await?;
+            add_extension_owner(extension_id, user_info.user_id, user_info.user_name, conn).await?;
         }
     }
 
