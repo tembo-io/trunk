@@ -57,7 +57,7 @@ pub async fn validate_token(
             .await?;
             let user = UserInfo {
                 user_id: uid.user_id.unwrap(),
-                user_name: uname.user_name.unwrap(),
+                user_name: uname.user_name.unwrap_or("".to_string()),
             };
             Ok(user)
         }
