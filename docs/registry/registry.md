@@ -1,0 +1,1 @@
+--8<-- "registry/README.md"
