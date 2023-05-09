@@ -3,6 +3,7 @@ import styles from "./extensionDetail.module.scss";
 import { useQuery } from "@tanstack/react-query";
 import fetchExtensions from "@/lib/fetchExtensions";
 import Header from "@/components/Header";
+import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
 import { ExtensionListing } from "@/types";
@@ -48,7 +49,18 @@ export default function ExtensionDetail() {
               <p className={styles.infoDetail}>{formatDistanceToNow(new Date(ext?.updatedAt.split(" +")[0]))}</p>
             </div>
           )}
-
+          {ext?.license && extDate && (
+            <div className={styles.aboutSection}>
+              <p className={styles.infoPara}>license</p>
+              <p className={styles.infoDetail}>{ext?.license}</p>
+            </div>
+          )}
+          {ext?.fileSize && (
+            <div className={styles.aboutSection}>
+              <p className={styles.infoPara}>file size</p>
+              <p className={styles.infoDetail}>{ext.fileSize}</p>
+            </div>
+          )}
           {ext?.homepage && (
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>homepage</p>
@@ -57,7 +69,6 @@ export default function ExtensionDetail() {
               </a>
             </div>
           )}
-
           {ext?.repository && (
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>repository</p>
@@ -66,16 +77,14 @@ export default function ExtensionDetail() {
               </a>
             </div>
           )}
-          {ext?.author ? (
+          {ext?.owners && ext?.owners?.length > 0 && (
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>author</p>
-              <p className={styles.infoDetail}>{ext.author}</p>
-            </div>
-          ) : (
-            <div className={styles.aboutSection}>
-              {/* <a href={"/"} className={styles.infoDetail}>
-                Claim this extension
-              </a> */}
+              {ext?.owners?.map(({ userName, userId }) => (
+                <Link key={userId} href={`/users/${userName}`} className={styles.infoDetail}>
+                  {userName}
+                </Link>
+              ))}
             </div>
           )}
         </div>
