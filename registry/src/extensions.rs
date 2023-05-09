@@ -17,8 +17,8 @@ pub fn check_input(input: &str) -> Result<(), ExtensionRegistryError> {
 
 pub async fn add_extension_owner(
     extension_id: i64,
-    user_id: String,
-    user_name: String,
+    user_id: &String,
+    user_name: &String,
     conn: Data<Pool<Postgres>>,
 ) -> Result<(), ExtensionRegistryError> {
     let mut tx = conn.begin().await?;

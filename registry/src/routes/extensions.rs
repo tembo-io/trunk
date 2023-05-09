@@ -105,8 +105,8 @@ pub async fn publish(
                     );
                     add_extension_owner(
                         extension_id,
-                        user_info.user_id.clone(),
-                        user_info.user_name.clone(),
+                        &user_info.user_id,
+                        &user_info.user_name,
                         conn,
                     )
                     .await?;
@@ -239,7 +239,8 @@ pub async fn publish(
                 "Adding {} as an owner of new extension {}.",
                 user_info.user_id, new_extension.name
             );
-            add_extension_owner(extension_id, user_info.user_id, user_info.user_name, conn).await?;
+            add_extension_owner(extension_id, &user_info.user_id, &user_info.user_name, conn)
+                .await?;
         }
     }
 
