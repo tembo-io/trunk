@@ -114,6 +114,71 @@
     },
     "query": "SELECT *\n                FROM api_tokens\n                WHERE\n                    token = $1"
   },
+  "2ecd97b9bf16c6fdbd6fd96122fb24930ffd0c2fc978fd73af9e89847bf92e03": {
+    "describe": {
+      "columns": [
+        {
+          "name": "extension_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "owner_id",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "created_by",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "deleted",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM extension_owners WHERE extension_id = $1;"
+  },
+  "36bc3613b2f0f2bf8347edc3ddc1c117a164f45f16195ff92c05f2eb764779bd": {
+    "describe": {
+      "columns": [
+        {
+          "name": "license",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT license FROM versions WHERE extension_id = $1 AND num = $2;"
+  },
   "3d97358d04299f979123dc42ac48c1dfa5bffb9f042288edd43d43a9c7fec68c": {
     "describe": {
       "columns": [

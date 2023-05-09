@@ -1,6 +1,7 @@
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use actix_web::web::Data;
+use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
 pub fn check_input(input: &str) -> Result<(), ExtensionRegistryError> {
@@ -38,8 +39,8 @@ pub async fn add_extension_owner(
 pub async fn extension_owners(
     extension_name: &str,
     conn: Data<Pool<Postgres>>,
-) -> Result<Vec<String>, ExtensionRegistryError> {
-    let mut extension_owners: Vec<String> = Vec::new();
+) -> Result<Vec<Value>, ExtensionRegistryError> {
+    let mut extension_owners: Vec<Value> = Vec::new();
     // Create a transaction on the database
     let mut tx = conn.begin().await?;
     let ext = sqlx::query!("SELECT * FROM extensions WHERE name = $1", extension_name)
@@ -54,7 +55,12 @@ pub async fn extension_owners(
     .await?;
     for row in owners.iter() {
         let owner = row.owner_id.to_owned();
-        extension_owners.push(owner);
+        let data = json!(
+        {
+          "userId": owner,
+          "userName": "user_name"
+        });
+        extension_owners.push(data);
     }
     Ok(extension_owners)
 }
