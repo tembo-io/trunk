@@ -1,3 +1,5 @@
 temp.sh
 .DS_Store
 **/.DS_Store
+poetry.lock
+site/

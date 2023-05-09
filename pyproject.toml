@@ -6,7 +6,7 @@ authors = ["Coredb Admin <admin@coredb.io>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 markdown-include = "^0.8.1"
 mkdocs = "^1.4.2"
 mkdocs-material = "^7.3.6"
