@@ -41,8 +41,6 @@ export default function User() {
     router.push("/");
   }
 
-  console.log("native img");
-
   return (
     <div>
       <Header></Header>
