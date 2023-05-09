@@ -7,6 +7,7 @@ use base64::{engine::general_purpose, Engine as _};
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 
+#[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub azp: String,
@@ -16,6 +17,7 @@ pub struct Claims {
     pub nbf: i32,
     pub sid: String,
     pub sub: String,
+    pub userName: String,
 }
 
 #[post("/new")]
@@ -31,13 +33,14 @@ pub async fn new_token(
     let (token, token_sha) = generate_token();
     // Create a database transaction
     let mut tx = conn.begin().await?;
-    // Save as record in DB with clerk user ID
+    // Save as record in DB with clerk user ID and username
     sqlx::query!(
         "
-            INSERT INTO api_tokens(user_id, token, created_at)
-            VALUES ($1, $2, (now() at time zone 'utc'))
+            INSERT INTO api_tokens(user_id, user_name, token, created_at)
+            VALUES ($1, $2, $3, (now() at time zone 'utc'))
             ",
         claims.sub,
+        claims.userName,
         token_sha
     )
     .execute(&mut tx)

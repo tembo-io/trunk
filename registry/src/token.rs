@@ -1,4 +1,5 @@
 use crate::errors::ExtensionRegistryError;
+use crate::views::user_info::UserInfo;
 use actix_web::web::Data;
 use log::error;
 use rand::{distributions::Uniform, rngs::OsRng, Rng};
@@ -19,7 +20,7 @@ pub fn generate_token() -> (String, Vec<u8>) {
 pub async fn validate_token(
     token: &HeaderValue,
     conn: Data<Pool<Postgres>>,
-) -> Result<String, ExtensionRegistryError> {
+) -> Result<UserInfo, ExtensionRegistryError> {
     check_token_input(token.to_str()?)?;
     let mut tx = conn.begin().await?;
     // Check if token exists
@@ -35,7 +36,7 @@ pub async fn validate_token(
     match token_exists {
         Some(_token_exists) => {
             // Check if token has an associated user ID
-            let user = sqlx::query!(
+            let uid = sqlx::query!(
                 "SELECT user_id
                 FROM api_tokens
                 WHERE
@@ -44,7 +45,21 @@ pub async fn validate_token(
             )
             .fetch_one(&mut tx)
             .await?;
-            Ok(user.user_id.unwrap())
+            // TODO(ianstanton) we can perform this in a single query
+            let uname = sqlx::query!(
+                "SELECT user_name
+                FROM api_tokens
+                WHERE
+                    token = $1",
+                hash(token.to_str()?),
+            )
+            .fetch_one(&mut tx)
+            .await?;
+            let user = UserInfo {
+                user_id: uid.user_id.unwrap(),
+                user_name: uname.user_name,
+            };
+            Ok(user)
         }
         None => {
             error!("invalid token: API token does not exist");
