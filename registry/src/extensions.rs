@@ -44,7 +44,7 @@ pub async fn extension_owners(
     let mut extension_owners: Vec<Value> = Vec::new();
     // Create a transaction on the database
     let mut tx = conn.begin().await?;
-    let ext = sqlx::query!("SELECT * FROM extensions WHERE name = $1", extension_name)
+    let ext = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
         .fetch_one(&mut tx)
         .await?;
     let id: i32 = ext.id as i32;
@@ -75,7 +75,7 @@ pub async fn latest_license(
     let latest_version = latest_version(extension_name, conn.clone()).await?;
     // Create a transaction on the database
     let mut tx = conn.begin().await?;
-    let ext = sqlx::query!("SELECT * FROM extensions WHERE name = $1", extension_name)
+    let ext = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
         .fetch_one(&mut tx)
         .await?;
     let id: i32 = ext.id as i32;

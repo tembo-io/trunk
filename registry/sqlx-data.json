@@ -477,6 +477,26 @@
     },
     "query": "SELECT MAX(num) FROM versions WHERE extension_id = $1;"
   },
+  "5650cfabaad409805e475fa8677e93ee489ee6e2f95d811635ec6b6ffbcce688": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id FROM extensions WHERE name = $1"
+  },
   "69ef7c7c79e69f31731a41417a0047562f0806a7c73eb4bb98c9ed554fff3b7c": {
     "describe": {
       "columns": [],
