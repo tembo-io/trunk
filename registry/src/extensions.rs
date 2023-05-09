@@ -55,11 +55,12 @@ pub async fn extension_owners(
     .fetch_all(&mut tx)
     .await?;
     for row in owners.iter() {
-        let owner = row.owner_id.to_owned();
+        let owner_id = row.owner_id.to_owned();
+        let user_name = row.user_name.to_owned();
         let data = json!(
         {
-          "userId": owner,
-          "userName": "user_name"
+          "userId": owner_id,
+          "userName": user_name
         });
         extension_owners.push(data);
     }
