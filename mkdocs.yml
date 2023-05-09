@@ -1,0 +1,30 @@
+site_name: Trunk
+theme:
+  name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/weather-night
+        name: dark mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: light mode
+nav:
+  - Trunk: 'index.md'
+  - CLI: 'cli/cli.md'
+  - Registry: 'registry/registry.md'
+  - UI: 'ui/ui.md'
+markdown_extensions:
+- toc:
+    permalink: true
+- markdown.extensions.codehilite:
+    guess_lang: false
+- admonition
+- codehilite
+- extra
+- pymdownx.snippets:
+    check_paths: true
+plugins:
+  - search
+  - mkdocstrings
