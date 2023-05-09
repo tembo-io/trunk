@@ -4,7 +4,16 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: "images.clerk.dev",
+        protocol: "https",
+        hostname: "**.images.clerk.dev/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.pgtrunk.io/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.amplifyapp.com/**",
       },
     ],
   },
