@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import styles from "./user.module.scss";
 import { useUser, useAuth } from "@clerk/nextjs";
@@ -52,7 +51,8 @@ export default function User() {
           {/* <h2 className={styles.sectionTitle}>Profile Information</h2> */}
           <div className={styles.profileRow}>
             {user?.profileImageUrl && (
-              <Image style={{ borderRadius: "4px" }} src={user?.profileImageUrl} alt="user profile image" width={150} height={150}></Image>
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className={styles.profilePic} src={user.profileImageUrl} alt="User profile image" />
             )}
             <div className={styles.nameBlock}>
               <h3 className={styles.fullName}>{user?.fullName}</h3>
