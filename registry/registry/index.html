@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pgtrunkio" class="md-skip">
+        <a href="#trunk-registry-httpspgtrunkio" class="md-skip">
           Skip to content
         </a>
       
@@ -288,6 +288,33 @@
     Development
   </a>
   
+    <nav class="md-nav" aria-label="Development">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    Getting Started
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    Architecture
+  </a>
+  
 </li>
       
     </ul>
@@ -344,6 +371,33 @@
     Development
   </a>
   
+    <nav class="md-nav" aria-label="Development">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    Getting Started
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    Architecture
+  </a>
+  
 </li>
       
     </ul>
@@ -361,32 +415,76 @@
                   
 
 
-<h1 id="pgtrunkio">pgtrunk.io<a class="headerlink" href="#pgtrunkio" title="Permanent link">&para;</a></h1>
-<p>The community's registry for Postgres extensions.</p>
-<p>Features will include:</p>
+<h1 id="trunk-registry-httpspgtrunkio">Trunk Registry - https://pgtrunk.io<a class="headerlink" href="#trunk-registry-httpspgtrunkio" title="Permanent link">&para;</a></h1>
+<p>The Trunk registry serves as the community's hub for Postgres extensions of all kinds. It stores extension information
+in its database and compiled extension artifacts in AWS S3. Features include:</p>
 <ul>
-<li>Extension search and browsing</li>
-<li>Usage and release metrics, to provide insight into popular and well-maintained extensions</li>
-<li>User comments and social media streams</li>
-<li>Benchmarks and tests</li>
+<li>Extension discovery and search</li>
+<li>Publish extensions for community use</li>
+<li>Install extensions in Postgres</li>
+<li>Usage metrics to provide insight into popular and well-maintained extensions</li>
 <li>Version tracking and new release email notifications</li>
 </ul>
 <h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
-<p>Start postgres database</p>
-<div class="codehilite"><pre><span></span><code>docker run -it --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:latest
+<h3 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Start postgres database
+    <code>docker run -it --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:latest</code></p>
+</li>
+<li>
+<p>Set connection string environment variable. This can also be configured in <code>.env</code>.
+    <code>export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres"</code></p>
+</li>
+<li>
+<p>Initialize database (must install <a href="https://crates.io/crates/sqlx-cli">sqlx</a>)
+    <code>cargo sqlx migrate run</code></p>
+</li>
+<li>
+<p>Run, with automatic reloads (uses <a href="https://crates.io/crates/cargo-watch">cargo watch</a>)
+    <code>cargo watch -x run</code></p>
+</li>
+</ol>
+<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h3>
+<p>The registry will run at <code>http://localhost:8080</code> by default. The <a href="../cli">Trunk CLI</a> can be configured to interact with
+a local registry by using the <code>--registry</code> flag. Example:</p>
+<div class="codehilite"><pre><span></span><code>trunk<span class="w"> </span>publish<span class="w"> </span>pgmq<span class="w"> </span><span class="se">\</span>
+--version<span class="w"> </span><span class="m">0</span>.5.0<span class="w"> </span><span class="se">\</span>
+--description<span class="w"> </span><span class="s2">&quot;Message queue for Postgres&quot;</span><span class="w"> </span><span class="se">\</span>
+--documentation<span class="w"> </span><span class="s2">&quot;https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension&quot;</span><span class="w"> </span><span class="se">\</span>
+--repository<span class="w"> </span><span class="s2">&quot;https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension&quot;</span><span class="w"> </span><span class="se">\</span>
+--license<span class="w"> </span><span class="s2">&quot;Apache-2.0&quot;</span><span class="w"> </span><span class="se">\</span>
+--homepage<span class="w"> </span><span class="s2">&quot;https://github.com/CoreDB-io/coredb&quot;</span><span class="w"> </span><span class="se">\</span>
+--registry<span class="w"> </span>http://localhost:8080
 </code></pre></div>
 
-<p>Set connection string</p>
-<div class="codehilite"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="n">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://postgres:postgres@localhost:5432/postgres&quot;</span>
+<p>Routes can also be called with tools like <code>curl</code>. Examples:</p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>--request<span class="w"> </span>GET<span class="w"> </span>--url<span class="w"> </span><span class="s1">&#39;http://localhost:8080/extensions/all&#39;</span>
 </code></pre></div>
 
-<p>Initialize database (must install <a href="https://crates.io/crates/sqlx-cli">sqlx</a>)</p>
-<div class="codehilite"><pre><span></span><code>cargo sqlx migrate run
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>--request<span class="w"> </span>GET<span class="w"> </span>--url<span class="w"> </span><span class="s1">&#39;http://localhost:8080/extensions/pgmq/0.5.0/download&#39;</span>
 </code></pre></div>
 
-<p>Run, with automatic reloads (uses <a href="https://crates.io/crates/cargo-watch">cargo watch</a>)</p>
-<div class="codehilite"><pre><span></span><code>cargo watch -x run
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>--request<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="si">${</span><span class="nv">TOKEN</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--url<span class="w"> </span><span class="s1">&#39;http://localhost:8080/token/new&#39;</span>
 </code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-F<span class="w"> </span><span class="nv">metadata</span><span class="o">=</span><span class="s1">&#39;{\</span>
+<span class="s1">&quot;name&quot;: &quot;pgmq&quot;, \</span>
+<span class="s1">&quot;vers&quot;: &quot;0.5.0&quot;, \</span>
+<span class="s1">&quot;description&quot;: &quot;Message queue for Postgres&quot;, \</span>
+<span class="s1">&quot;documentation&quot;: &quot;https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension&quot;, \</span>
+<span class="s1">&quot;repository&quot;: &quot;https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension&quot;, \</span>
+<span class="s1">&quot;license&quot;: &quot;Apache-2.0&quot;, \</span>
+<span class="s1">&quot;homepage&quot;: &quot;https://coredb.io&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="nv">file</span><span class="o">=</span>@./pgmq-0.5.0.tar.gz<span class="w"> </span>--url<span class="w"> </span><span class="s1">&#39;http://localhost:8080/extensions/new&#39;</span>
+</code></pre></div>
+
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>The Trunk registry is made up of the following components:
+- API
+- PostgreSQL database
+- AWS S3 bucket</p>
+<p><img alt="architecture.svg" src="../assets/architecture.svg" /></p>
 
 
 
