@@ -42,10 +42,10 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ❯ trunk publish pgmq \
 --version 0.5.0 \
 --description "Message Queue for postgres" \
---documentation "https://coredb-io.github.io/coredb/extensions/pgmq/" \
+--documentation "https://coredb-io.github.io/coredb/extensions/pgmq" \
 --repository "https://github.com/CoreDB-io/coredb" \
 --license "Apache-2.0" \
---homepage "https://github.com/CoreDB-io/coredb"
+--homepage "https://www.coredb.io"
 ```
 
 ### `trunk install`
