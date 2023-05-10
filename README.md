@@ -78,4 +78,4 @@ If you're interested in contributing, please open a pull request, issue, or reac
 - [Twitter](https://twitter.com/coredb_io)
 - Email us at [hello@coredb.io](mailto:hello@coredb.io)
 
-[Discord]: https://discord.gg/7bGYA9NPux
+[Discord]: https://discord.com/channels/1060568981725003789/1089363774357647370
