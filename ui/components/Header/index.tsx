@@ -32,7 +32,10 @@ export default function Header({ bgTransparent = false }) {
 
   return (
     <header className={styles.header} style={bgTransparent ? { background: "transparent" } : {}}>
-      <Link href="/" style={{ textDecoration: "none" }}>
+      <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+        <div className={styles.logoCont}>
+          <Image src="/images/trunk_logo.svg" alt="Trunk logo" width={28} height={28}></Image>
+        </div>
         <h1 className={cx(inter.className, styles.title)}>Trunk</h1>
       </Link>
       {user ? (
