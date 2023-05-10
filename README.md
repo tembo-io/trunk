@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/CoreDB-io/trunk/assets/8935584/905ef1f3-10ff-48b5-90af-74af74ebb1b1" width=25% height=25%>
+</p>
+
 # Trunk
 [![milestone-alpha](https://img.shields.io/badge/milestone-alpha-orange)]()
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
