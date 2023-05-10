@@ -44,8 +44,15 @@ export default function User() {
     await fetchApiToken.mutateAsync();
   };
 
+  const sortedExtensions = data?.sort((a, b) => {
+    if (a.name < b.name) {
+      return -1;
+    }
+    return 1;
+  });
+
   const usersExtensions =
-    data?.filter((ext) => {
+    sortedExtensions?.filter((ext) => {
       const isOwner = ext.owners.findIndex((owner) => owner.userName === username);
       return isOwner > -1;
     }) ?? [];
