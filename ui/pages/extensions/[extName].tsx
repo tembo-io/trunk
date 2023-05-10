@@ -51,7 +51,7 @@ export default function ExtensionDetail() {
           {ext?.updatedAt && extDate && (
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>last updated</p>
-              <p className={styles.infoDetail}>{formatDistanceToNow(new Date(ext?.updatedAt.split(" +")[0]))}</p>
+              <p className={styles.infoDetail}>{formatDistanceToNow(new Date(extDate))}</p>
             </div>
           )}
           {ext?.license && extDate && (

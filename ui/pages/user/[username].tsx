@@ -93,9 +93,11 @@ export default function User() {
                     <h3 className={styles.ownedTitle}>{ext.name}</h3>
                     <div className={styles.ownedMetaRow}>
                       <p className={styles.ownedDetail}>v{ext.latestVersion}</p>
-                      <p className={styles.ownedDetail}>
-                        {ext?.updatedAt ? `updated ${formatDistanceToNow(new Date(ext?.updatedAt.split(" +")[0]))} ago` : ""}
-                      </p>
+                      {extDate && (
+                        <p className={styles.ownedDetail}>
+                          {ext?.updatedAt ? `updated ${formatDistanceToNow(new Date(extDate))} ago` : ""}
+                        </p>
+                      )}
                     </div>
                   </Link>
                 </div>
