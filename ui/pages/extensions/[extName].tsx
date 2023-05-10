@@ -81,7 +81,7 @@ export default function ExtensionDetail() {
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>author</p>
               {ext?.owners?.map(({ userName, userId }) => (
-                <Link key={userId} href={`/users/${userName}`} className={styles.infoDetail}>
+                <Link key={userId} href={`/user/${userName}`} className={styles.infoDetail}>
                   {userName}
                 </Link>
               ))}
