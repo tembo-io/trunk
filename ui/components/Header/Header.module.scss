@@ -21,7 +21,7 @@
   align-items: center;
   border: 1px solid white;
   border-radius: 4px;
-  padding: 0 30px;
+  padding: 0 15px;
   height: 48px;
   cursor: pointer;
   &:hover .userName {
@@ -53,11 +53,14 @@
 }
 .navLink {
   text-decoration: none;
-  color: white;
+  color: #ffffff;
   padding: 0 20px;
   background-color: transparent;
   border: none;
   font-size: 1rem;
   letter-spacing: 0.75px;
   cursor: pointer;
+}
+.logoCont {
+  margin-right: 10px;
 }
