@@ -1,0 +1,28 @@
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.spinner {
+  position: relative;
+  transform-origin: center;
+  transform: rotate(0deg);
+  -webkit-animation: spinnerSpin 0.75s infinite linear;
+  animation: spinnerSpin 0.75s infinite linear;
+}
+
+@-webkit-keyframes spinnerSpin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinnerSpin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}

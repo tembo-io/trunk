@@ -1,3 +1,6 @@
+.title {
+  color: #373737;
+}
 .userCont {
   margin: 0 auto;
   max-width: 1200px;
@@ -33,6 +36,7 @@
 }
 .sectionTitle {
   margin-bottom: 0;
+  color: #373737;
 }
 .tokenButton {
   border: none;
@@ -65,4 +69,37 @@
   width: 200px;
   border-radius: 4px;
   max-width: 30vw;
+}
+
+.ownedRow {
+  margin: 20px 0;
+  border: 1px solid #fead7e;
+  border-radius: 4px;
+  padding: 10px;
+  transition: all 0.2s ease-in-out;
+  max-width: 400px;
+  &:hover {
+    background-color: #ff5d01;
+  }
+  &:hover * {
+    color: white;
+  }
+}
+.ownedTitle {
+  color: #ff5d01;
+  font-weight: 400;
+  margin: 0 0 5px 0;
+  transition: all 0.2s ease-in-out;
+}
+.ownedDetail {
+  color: #6b6b6b;
+  font-weight: 4;
+  margin: 0;
+  transition: all 0.2s ease-in-out;
+}
+.ownedMetaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
 }
