@@ -7,8 +7,7 @@ pub async fn latest_version(
     extension_name: &str,
     conn: web::Data<Pool<Postgres>>,
 ) -> Result<String, ExtensionRegistryError> {
-    // Create a transaction on the database, if there are no errors,
-    // commit the transactions to record a new or updated extension.
+    // Create a transaction on the database
     let mut tx = conn.begin().await?;
     let ext = sqlx::query!("SELECT * FROM extensions WHERE name = $1", extension_name)
         .fetch_one(&mut tx)
