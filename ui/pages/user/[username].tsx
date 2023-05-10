@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import { ExtensionListing } from "@/types";
 import fetchExtensions from "@/lib/fetchExtensions";
 import { formatDistanceToNow } from "date-fns";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function User() {
   const [apiToken, setApiToken] = useState("");
@@ -70,6 +71,7 @@ export default function User() {
             </div>
           </div>
         )}
+        {isLoading && <LoadingSpinner size="lg"></LoadingSpinner>}
         {usersExtensions.length > 0 && (
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>Owned Extensions</h2>

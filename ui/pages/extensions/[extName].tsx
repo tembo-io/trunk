@@ -5,7 +5,7 @@ import fetchExtensions from "@/lib/fetchExtensions";
 import Header from "@/components/Header";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { ExtensionListing } from "@/types";
 
 export default function ExtensionDetail() {
@@ -14,7 +14,12 @@ export default function ExtensionDetail() {
   const { isLoading, data } = useQuery<ExtensionListing[]>(["extList"], fetchExtensions);
 
   if (isLoading || !data) {
-    return <div>Loading...</div>;
+    return (
+      <div>
+        <Header></Header>
+        <LoadingSpinner size="lg"></LoadingSpinner>;
+      </div>
+    );
   }
 
   const ext = data.find((item) => item.name === extName);
