@@ -1,5 +1,6 @@
 # Trunk
 [![milestone-alpha](https://img.shields.io/badge/milestone-alpha-orange)]()
+[![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
 
 Trunk is an open source package installer and registry for PostgreSQL extensions. Use the Trunk CLI to build, publish
 and install PostgreSQL extensions _of all kinds_.
