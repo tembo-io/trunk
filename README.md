@@ -1,3 +1,4 @@
+![trunk.png](./assets/trunk.png)
 # Trunk
 [![milestone-alpha](https://img.shields.io/badge/milestone-alpha-orange)]()
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
