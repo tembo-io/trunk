@@ -79,8 +79,8 @@ export default function User() {
                 extDate = ext?.updatedAt.split(" +")[0];
               }
               return (
-                <Link key={ext.name} style={{ all: "unset", cursor: "pointer" }} href={`/extensions/${ext.name}`}>
-                  <div className={styles.ownedRow}>
+                <div key={ext.name} className={styles.ownedRow}>
+                  <Link style={{ all: "unset", cursor: "pointer" }} href={`/extensions/${ext.name}`}>
                     <h3 className={styles.ownedTitle}>{ext.name}</h3>
                     <div className={styles.ownedMetaRow}>
                       <p className={styles.ownedDetail}>v{ext.latestVersion}</p>
@@ -88,8 +88,8 @@ export default function User() {
                         {ext?.updatedAt ? `updated ${formatDistanceToNow(new Date(ext?.updatedAt.split(" +")[0]))} ago` : ""}
                       </p>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </div>
               );
             })}
           </div>
