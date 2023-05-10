@@ -1,5 +1,12 @@
-# pgtrunk.io
-The community's registry for Postgres extensions.
+# Trunk Registry - https://pgtrunk.io
+The Trunk registry serves as the community's hub for Postgres extensions of all kinds. The Trunk CLI installs extensions and
+their dependencies as compiled artifacts from this registry.
+
+- Extension discovery and search
+- Publish extensions for community use
+- Install extensions in Postgres
+- Usage metrics to provide insight into popular and well-maintained extensions
+- Version tracking and new release email notifications
 
 Features will include:
 
@@ -30,3 +37,11 @@ Run, with automatic reloads (uses [cargo watch](https://crates.io/crates/cargo-w
 ```
 cargo watch -x run
 ```
+
+## Architecture
+The Trunk registry is made up of the following components:
+- API
+- PostgreSQL database
+- AWS S3 bucket
+
+![architecture.svg](../assets/architecture.svg)
