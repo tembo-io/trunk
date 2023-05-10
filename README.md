@@ -1,6 +1,7 @@
 # Trunk
 [![milestone-alpha](https://img.shields.io/badge/milestone-alpha-orange)]()
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
+[![Discord Chat](https://img.shields.io/discord/1060568981725003789?label=Discord)][Discord]
 
 Trunk is an open source package installer and registry for PostgreSQL extensions. Use the Trunk CLI to build, publish
 and install PostgreSQL extensions _of all kinds_.
@@ -76,3 +77,5 @@ If you're interested in contributing, please open a pull request, issue, or reac
 - [Discord](https://discord.com/channels/1060568981725003789/1089363774357647370)
 - [Twitter](https://twitter.com/coredb_io)
 - Email us at [hello@coredb.io](mailto:hello@coredb.io)
+
+[Discord]: https://discord.gg/7bGYA9NPux
