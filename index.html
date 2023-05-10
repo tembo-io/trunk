@@ -71,7 +71,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#introducing-trunk" class="md-skip">
+        <a href="#trunk" class="md-skip">
           Skip to content
         </a>
       
@@ -227,9 +227,81 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Trunk
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="." class="md-nav__link md-nav__link--active">
         Trunk
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#trunk-cli" class="md-nav__link">
+    Trunk CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="Trunk CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trunk-build" class="md-nav__link">
+    trunk build
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trunk-publish" class="md-nav__link">
+    trunk publish
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trunk-install" class="md-nav__link">
+    trunk install
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trunk-registry-httpspgtrunkio" class="md-nav__link">
+    Trunk Registry - https://pgtrunk.io
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    Contributing
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -300,6 +372,62 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#trunk-cli" class="md-nav__link">
+    Trunk CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="Trunk CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trunk-build" class="md-nav__link">
+    trunk build
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trunk-publish" class="md-nav__link">
+    trunk publish
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trunk-install" class="md-nav__link">
+    trunk install
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trunk-registry-httpspgtrunkio" class="md-nav__link">
+    Trunk Registry - https://pgtrunk.io
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    Contributing
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -313,37 +441,87 @@
                   
 
 
-<h1 id="introducing-trunk">Introducing Trunk<a class="headerlink" href="#introducing-trunk" title="Permanent link">&para;</a></h1>
-<p>Trunk serves as a registry where users can publish, search, and download community-made Postgres extensions. Inspired by popular developer hubs, such as <a href="http://crates.io">crates.io</a> (Rust), <a href="http://pypi.org">pypi.org</a> (Python), and <a href="http://npmjs.com">npmjs.com</a> (JavaScript), Trunk aims to foster an information-rich environment. Here, developers can interact with the registry in a variety of ways and proudly showcase their contributions. Furthermore, users can gain insights into valuable metrics on extension downloads and trends.</p>
-<p>At its core, the goal of trunk is to cultivate a thriving Postgres extension ecosystem by lowering the barriers to building, sharing, and using Postgres extensions.</p>
-<h1 id="roadmap">Roadmap<a class="headerlink" href="#roadmap" title="Permanent link">&para;</a></h1>
-<p>The Trunk infrastructure can be divided into the following: a command line interface (CLI), a registry, and a website.</p>
-<h3 id="the-cli">The CLI<a class="headerlink" href="#the-cli" title="Permanent link">&para;</a></h3>
-<p>The CLI toolkit will abstract away many complexities in extension development and installation by using the following commands:</p>
-<p><code>trunk init</code>
-- setup your environment to build a new Postrgres extension.</p>
-<p><code>trunk test</code>
-- facilitate the automated unit and integration testing Postgres extensions.</p>
-<p><code>trunk build</code>
-- compiles extensions.
-- supports nested dependencies, e.g. installing <code>extension_a</code> will automatically install <code>extension_b</code> if required.</p>
-<p><code>trunk publish</code>
-- publishes an extension to the registry, making it available for discovery and installation.</p>
-<p><code>trunk install</code>
-- download and install the extension distribution, in whichever environment trunk is run.</p>
-<h3 id="the-registry">The Registry<a class="headerlink" href="#the-registry" title="Permanent link">&para;</a></h3>
-<p>To complement the CLI, we are building a public registry for distributing extension source code and compiled binaries matched to operating system, architecture, Postgres version, and extension version.</p>
-<p>This purpose-built registry would provide a centralized location for developers to share extensions and for users to discover them.</p>
-<h3 id="the-website">The Website<a class="headerlink" href="#the-website" title="Permanent link">&para;</a></h3>
-<p>We will launch a <a href="https://pgtrunk.io">website</a> to help developers both discover and learn about extensions. This website is key to our success, as it will drive attention, traffic, etc, and lead users to the CLI tool.</p>
-<p>Features will include:</p>
+<p align="center">
+  <img src="https://github.com/CoreDB-io/trunk/assets/8935584/905ef1f3-10ff-48b5-90af-74af74ebb1b1" width=25% height=25%>
+</p>
+
+<h1 id="trunk">Trunk<a class="headerlink" href="#trunk" title="Permanent link">&para;</a></h1>
+<p><a href=""><img alt="milestone-alpha" src="https://img.shields.io/badge/milestone-alpha-orange" /></a>
+<a href="https://ossrank.com/p/2643"><img alt="OSSRank" src="https://shields.io/endpoint?url=https://ossrank.com/shield/2643" /></a>
+<a href="https://discord.com/channels/1060568981725003789/1089363774357647370"><img alt="Discord Chat" src="https://img.shields.io/discord/1060568981725003789?label=Discord" /></a></p>
+<p>Trunk is an open source package installer and registry for PostgreSQL extensions. Use the Trunk CLI to build, publish
+and install PostgreSQL extensions <em>of all kinds</em>.</p>
+<h2 id="trunk-cli">Trunk CLI<a class="headerlink" href="#trunk-cli" title="Permanent link">&para;</a></h2>
+<p>The Trunk CLI allows for building, publishing and installing Postgres extensions of all kinds. It abstracts away
+complexities of extension development and management with the following commands:</p>
+<h3 id="trunk-build"><code>trunk build</code><a class="headerlink" href="#trunk-build" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Extension search and browsing</li>
-<li>Usage and release metrics, to provide insight into popular and well-maintained extensions</li>
-<li>User comments and social media streams</li>
-<li>Benchmarks and tests</li>
+<li>Compile extensions of all kinds.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>build
+Building<span class="w"> </span>from<span class="w"> </span>path<span class="w"> </span>.
+Detected<span class="w"> </span>that<span class="w"> </span>we<span class="w"> </span>are<span class="w"> </span>building<span class="w"> </span>a<span class="w"> </span>pgrx<span class="w"> </span>extension
+Detected<span class="w"> </span>pgrx<span class="w"> </span>version<span class="w"> </span>range<span class="w"> </span><span class="m">0</span>.7.4
+Using<span class="w"> </span>pgrx<span class="w"> </span>version<span class="w"> </span><span class="m">0</span>.7.4
+Building<span class="w"> </span>pgrx<span class="w"> </span>extension<span class="w"> </span>at<span class="w"> </span>path<span class="w"> </span>.
+.
+.
+.
+Creating<span class="w"> </span>package<span class="w"> </span>at:<span class="w"> </span>./.trunk/pgmq-0.5.0.tar.gz
+Create<span class="w"> </span>Trunk<span class="w"> </span>bundle:
+<span class="w">    </span>pgmq.so
+<span class="w">    </span>extension/pgmq--0.5.0.sql
+<span class="w">    </span>extension/pgmq.control
+<span class="w">    </span>manifest.json
+Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pgmq-0.5.0.tar.gz
+</code></pre></div>
+
+<h3 id="trunk-publish"><code>trunk publish</code><a class="headerlink" href="#trunk-publish" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Publish extensions to the registry, making it available to the Postgres community for discovery and installation.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>publish<span class="w"> </span>pgmq<span class="w"> </span><span class="se">\</span>
+--version<span class="w"> </span><span class="m">0</span>.5.0<span class="w"> </span><span class="se">\</span>
+--description<span class="w"> </span><span class="s2">&quot;Message Queue for postgres&quot;</span><span class="w"> </span><span class="se">\</span>
+--documentation<span class="w"> </span><span class="s2">&quot;https://coredb-io.github.io/coredb/extensions/pgmq/&quot;</span><span class="w"> </span><span class="se">\</span>
+--repository<span class="w"> </span><span class="s2">&quot;https://github.com/CoreDB-io/coredb&quot;</span><span class="w"> </span><span class="se">\</span>
+--license<span class="w"> </span><span class="s2">&quot;Apache-2.0&quot;</span><span class="w"> </span><span class="se">\</span>
+--homepage<span class="w"> </span><span class="s2">&quot;https://github.com/CoreDB-io/coredb&quot;</span>
+</code></pre></div>
+
+<h3 id="trunk-install"><code>trunk install</code><a class="headerlink" href="#trunk-install" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Download and install the extension distribution, in whichever environment trunk is run.</li>
+<li>Supports nested dependencies, e.g. installing <code>extension_a</code> will automatically install <code>extension_b</code> if required.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>install<span class="w"> </span>pgmq
+Using<span class="w"> </span>pg_config:<span class="w"> </span>/usr/bin/pg_config
+Using<span class="w"> </span>pkglibdir:<span class="w"> </span><span class="s2">&quot;/usr/lib/postgresql/15/lib&quot;</span>
+Using<span class="w"> </span>sharedir:<span class="w"> </span><span class="s2">&quot;/usr/share/postgresql/15&quot;</span>
+Downloading<span class="w"> </span>from:<span class="w"> </span>https://cdb-plat-use1-prod-pgtrunkio.s3.amazonaws.com/extensions/pgmq/pgmq-0.5.0.tar.gz
+Dependencies:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;pg_partman&quot;</span><span class="o">]</span>
+Installing<span class="w"> </span>pgmq<span class="w"> </span><span class="m">0</span>.5.0
+<span class="o">[</span>+<span class="o">]</span><span class="w"> </span>pgmq.so<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>/usr/lib/postgresql/15/lib
+<span class="o">[</span>+<span class="o">]</span><span class="w"> </span>extension/pgmq--0.5.0.sql<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>/usr/share/postgresql/15
+<span class="o">[</span>+<span class="o">]</span><span class="w"> </span>extension/pgmq.control<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>/usr/share/postgresql/15
+</code></pre></div>
+
+<h2 id="trunk-registry-httpspgtrunkio">Trunk Registry - https://pgtrunk.io<a class="headerlink" href="#trunk-registry-httpspgtrunkio" title="Permanent link">&para;</a></h2>
+<p>The Trunk registry serves as the community's hub for Postgres extensions of all kinds. The Trunk CLI installs extensions and
+their dependencies as compiled artifacts from this registry.</p>
+<ul>
+<li>Extension discovery and search</li>
+<li>Publish extensions for community use</li>
+<li>Install extensions in Postgres</li>
+<li>Usage metrics to provide insight into popular and well-maintained extensions</li>
 <li>Version tracking and new release email notifications</li>
 </ul>
+<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
+<p>Trunk is in active development, and we look forward to the contributions the Postgres community has to offer.
+If you're interested in contributing, please open a pull request, issue, or reach out:
+- <a href="https://discord.com/channels/1060568981725003789/1089363774357647370">Discord</a>
+- <a href="https://twitter.com/coredb_io">Twitter</a>
+- Email us at <a href="mailto:hello@coredb.io">hello@coredb.io</a></p>
 
 
 
