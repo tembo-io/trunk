@@ -1,47 +1,81 @@
-# Introducing Trunk
+# Trunk
+[![milestone-alpha](https://img.shields.io/badge/milestone-alpha-orange)]()
+[![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
+[![Discord Chat](https://img.shields.io/discord/1060568981725003789?label=Discord)][Discord]
 
-Trunk serves as a registry where users can publish, search, and download community-made Postgres extensions. Inspired by popular developer hubs, such as [crates.io](http://crates.io) (Rust), [pypi.org](http://pypi.org) (Python), and [npmjs.com](http://npmjs.com) (JavaScript), Trunk aims to foster an information-rich environment. Here, developers can interact with the registry in a variety of ways and proudly showcase their contributions. Furthermore, users can gain insights into valuable metrics on extension downloads and trends.
+Trunk is an open source package installer and registry for PostgreSQL extensions. Use the Trunk CLI to build, publish
+and install PostgreSQL extensions _of all kinds_.
 
-At its core, the goal of trunk is to cultivate a thriving Postgres extension ecosystem by lowering the barriers to building, sharing, and using Postgres extensions.
+## Trunk CLI
+The Trunk CLI allows for building, publishing and installing Postgres extensions of all kinds. It abstracts away
+complexities of extension development and management with the following commands:
 
-# Roadmap
+### `trunk build`
+- Compile extensions of all kinds.
+```bash
+❯ trunk build
+Building from path .
+Detected that we are building a pgrx extension
+Detected pgrx version range 0.7.4
+Using pgrx version 0.7.4
+Building pgrx extension at path .
+.
+.
+.
+Creating package at: ./.trunk/pgmq-0.5.0.tar.gz
+Create Trunk bundle:
+	pgmq.so
+	extension/pgmq--0.5.0.sql
+	extension/pgmq.control
+	manifest.json
+Packaged to ./.trunk/pgmq-0.5.0.tar.gz
+```
 
-The Trunk infrastructure can be divided into the following: a command line interface (CLI), a registry, and a website.
+### `trunk publish`
+- Publish extensions to the registry, making it available to the Postgres community for discovery and installation.
 
-### The CLI
+```bash
+❯ trunk publish pgmq \
+--version 0.5.0 \
+--description "Message Queue for postgres" \
+--documentation "https://coredb-io.github.io/coredb/extensions/pgmq/" \
+--repository "https://github.com/CoreDB-io/coredb" \
+--license "Apache-2.0" \
+--homepage "https://github.com/CoreDB-io/coredb"
+```
 
-The CLI toolkit will abstract away many complexities in extension development and installation by using the following commands:
+### `trunk install`
+- Download and install the extension distribution, in whichever environment trunk is run.
+- Supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
 
-`trunk init`
-- setup your environment to build a new Postrgres extension.
+```bash
+❯ trunk install pgmq
+Using pg_config: /usr/bin/pg_config
+Using pkglibdir: "/usr/lib/postgresql/15/lib"
+Using sharedir: "/usr/share/postgresql/15"
+Downloading from: https://cdb-plat-use1-prod-pgtrunkio.s3.amazonaws.com/extensions/pgmq/pgmq-0.5.0.tar.gz
+Dependencies: ["pg_partman"]
+Installing pgmq 0.5.0
+[+] pgmq.so => /usr/lib/postgresql/15/lib
+[+] extension/pgmq--0.5.0.sql => /usr/share/postgresql/15
+[+] extension/pgmq.control => /usr/share/postgresql/15
+```
 
-`trunk test`
-- facilitate the automated unit and integration testing Postgres extensions.
+## Trunk Registry - https://pgtrunk.io
+The Trunk registry serves as the community's hub for Postgres extensions of all kinds. The Trunk CLI installs extensions and
+their dependencies as compiled artifacts from this registry.
 
-`trunk build`
-- compiles extensions.
-- supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
-
-`trunk publish`
-- publishes an extension to the registry, making it available for discovery and installation.
-
-`trunk install`
-- download and install the extension distribution, in whichever environment trunk is run.
-
-### The Registry
-
-To complement the CLI, we are building a public registry for distributing extension source code and compiled binaries matched to operating system, architecture, Postgres version, and extension version.
-
-This purpose-built registry would provide a centralized location for developers to share extensions and for users to discover them.
-
-### The Website
-
-We will launch a [website](https://pgtrunk.io) to help developers both discover and learn about extensions. This website is key to our success, as it will drive attention, traffic, etc, and lead users to the CLI tool.
-
-Features will include:
-
-- Extension search and browsing
-- Usage and release metrics, to provide insight into popular and well-maintained extensions
-- User comments and social media streams
-- Benchmarks and tests
+- Extension discovery and search
+- Publish extensions for community use
+- Install extensions in Postgres
+- Usage metrics to provide insight into popular and well-maintained extensions
 - Version tracking and new release email notifications
+
+## Contributing
+Trunk is in active development, and we look forward to the contributions the Postgres community has to offer.
+If you're interested in contributing, please open a pull request, issue, or reach out:
+- [Discord](https://discord.com/channels/1060568981725003789/1089363774357647370)
+- [Twitter](https://twitter.com/coredb_io)
+- Email us at [hello@coredb.io](mailto:hello@coredb.io)
+
+[Discord]: https://discord.com/channels/1060568981725003789/1089363774357647370
