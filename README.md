@@ -18,7 +18,7 @@ complexities of extension development and management with the following commands
 
 ### `trunk build`
 - Compile extensions of all kinds.
-```bash
+```shell
 ❯ trunk build
 Building from path .
 Detected that we are building a pgrx extension
@@ -38,9 +38,9 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ```
 
 ### `trunk publish`
-- Publish extensions to the registry, making it available to the Postgres community for discovery and installation.
+- Publish extensions to the registry, making them available to the Postgres community for discovery and installation.
 
-```bash
+```shell
 ❯ trunk publish pgmq \
 --version 0.5.0 \
 --description "Message Queue for postgres" \
@@ -51,10 +51,10 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ```
 
 ### `trunk install`
-- Download and install the extension distribution, in whichever environment trunk is run.
+- Downloads Postgres extensions from the Trunk registry and installs in whichever environment trunk is run.
 - Supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
 
-```bash
+```shell
 ❯ trunk install pgmq
 Using pg_config: /usr/bin/pg_config
 Using pkglibdir: "/usr/lib/postgresql/15/lib"
