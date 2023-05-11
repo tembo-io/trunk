@@ -1,13 +1,13 @@
 [package]
 name = "pg-trunk"
-version = "0.4.7"
+version = "0.4.8"
 edition = "2021"
 authors = ["Steven Miller", "Ian Stanton"]
 description = "A package manager for PostgreSQL extensions"
 homepage = "https://pgtrunk.io"
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/coredb-io/coredb"
+repository = "https://github.com/CoreDB-io/trunk"
 
 [[bin]]
 name = "trunk"
@@ -23,6 +23,7 @@ elf = "0.7.2"
 flate2 = "1.0.25"
 futures-util = "0.3.26"
 hyper = "0.14.24"
+ignore = "0.4.20"
 rand = "0.8.5"
 read-write-pipe = "0.1.0"
 reqwest = { version = "0.11.16", features = ["multipart"] }
