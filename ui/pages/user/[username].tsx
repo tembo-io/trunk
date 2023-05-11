@@ -69,40 +69,13 @@ export default function User() {
             <div className={styles.profileRow}>
               {user?.profileImageUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img className={styles.profilePic} src={user.profileImageUrl} alt="User profile image" />
+                <img className={styles.profilePic} src={user.externalAccounts[0].avatarUrl} alt="User profile image" />
               )}
               <div className={styles.nameBlock}>
                 <h3 className={styles.fullName}>{user?.fullName}</h3>
                 <h4 className={styles.userName}>{user?.username}</h4>
               </div>
             </div>
-          </div>
-        )}
-        {isLoading && <LoadingSpinner size="lg"></LoadingSpinner>}
-        {usersExtensions.length > 0 && (
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>Owned Extensions</h2>
-            {usersExtensions.map((ext) => {
-              let extDate = "";
-              if (ext?.updatedAt) {
-                extDate = ext?.updatedAt.split(" +")[0];
-              }
-              return (
-                <div key={ext.name} className={styles.ownedRow}>
-                  <Link style={{ all: "unset", cursor: "pointer" }} href={`/extensions/${ext.name}`}>
-                    <h3 className={styles.ownedTitle}>{ext.name}</h3>
-                    <div className={styles.ownedMetaRow}>
-                      <p className={styles.ownedDetail}>v{ext.latestVersion}</p>
-                      {extDate && (
-                        <p className={styles.ownedDetail}>
-                          {ext?.updatedAt ? `updated ${formatDistanceToNow(new Date(extDate))} ago` : ""}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-              );
-            })}
           </div>
         )}
         {isSignedInUsersPage && (
@@ -127,6 +100,40 @@ export default function User() {
               <button onClick={getApiToken} className={styles.tokenButton}>
                 {fetchApiToken.isLoading ? "Generating Token..." : "Create New Token"}
               </button>
+            )}
+          </div>
+        )}
+        {isLoading ? (
+          <LoadingSpinner size="lg"></LoadingSpinner>
+        ) : (
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Owned Extensions</h2>
+            {usersExtensions.length > 0 ? (
+              usersExtensions.map((ext) => {
+                let extDate = "";
+                if (ext?.updatedAt) {
+                  extDate = ext?.updatedAt.split(" +")[0];
+                }
+                return (
+                  <div key={ext.name} className={styles.ownedRow}>
+                    <Link style={{ all: "unset", cursor: "pointer" }} href={`/extensions/${ext.name}`}>
+                      <h3 className={styles.ownedTitle}>{ext.name}</h3>
+                      <div className={styles.ownedMetaRow}>
+                        <p className={styles.ownedDetail}>v{ext.latestVersion}</p>
+                        {extDate && (
+                          <p className={styles.ownedDetail}>
+                            {ext?.updatedAt ? `updated ${formatDistanceToNow(new Date(extDate))} ago` : ""}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })
+            ) : (
+              <p className={styles.infoPara}>
+                You haven&apos;t created any extensions yet. <a href="https://coredb-io.github.io/trunk/">Create one now!</a>
+              </p>
             )}
           </div>
         )}
