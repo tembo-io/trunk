@@ -164,8 +164,7 @@ The `publish` command allows you to publish your newly-minted Postgres extension
 ## `trunk install`
 
 The `install` command allows you to install Postgres extensions from the Trunk registry. Trunk will automatically install any
-additional extension dependencies that exist in the registry. Local files can be specified using the
-`--file` flag.
+additional extension dependencies that exist in the registry.
 ```shell
 ❯ trunk install pgmq
 Using pg_config: /usr/bin/pg_config
