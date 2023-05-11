@@ -2,10 +2,10 @@
 
 The Trunk CLI allows for building, publishing and installing Postgres extensions of all kinds. It abstracts away
 complexities of extension development and management with the following commands:
-- `trunk build` - Compiles extensions of all kinds.
-- `trunk publish` - Publish extensions to the registry, making them available to the Postgres community for discovery and
+- `trunk build` - Compiles extensions into publishable and installable artifacts.
+- `trunk publish` - Publishes extensions to the Trunk registry, making them available to the Postgres community for discovery and
 installation.
-- `trunk install` - Downloads Postgres extensions from the Trunk registry and installs in whichever environment trunk is
+- `trunk install` - Downloads Postgres extensions from the [Trunk registry](https://pgtrunk.io/) and installs in whichever environment trunk is
 run.
 
 ## Installation
@@ -13,10 +13,10 @@ The Trunk CLI is hosted at [crates.io](https://crates.io/crates/pg-trunk) and ca
 1. `curl https://sh.rustup.rs -sSf | sh`
 2. `cargo install pg-trunk`
 
-To upgrade to the latest version of Trunk, run`cargo install pg-trunk`.
+To upgrade to the latest version of Trunk, run `cargo install pg-trunk`.
 
 ## `trunk build`
-This command allows for building and packaging Postgres extensions from source. Packaged extensions are written to
+The `build` command allows for building and packaging Postgres extensions from source. Packaged extensions are written to
 `.trunk/<extension-name>-<extension-version>.tar.gz`.
 
 ### PGRX Based Extensions
@@ -82,27 +82,26 @@ repository.
 
 ## `trunk publish`
 
-This command allows you to publish your newly-minted Postgres extension to the Trunk registry.
-
-Trunk will look for your packaged extension file in your working directory with the naming format
+The `publish` command allows you to publish your newly-minted Postgres extension to the Trunk registry.
+1. Sign in at the [Trunk registry](https://pgtrunk.io) and click `Profile`.
+2. Under `API Token`, click `Create New Token`.
+3. `export TRUNK_API_TOKEN=<your-new-token>`
+4. Trunk will look for your packaged extension file in your working directory with the naming format
 `<extension-name>-<extension-version>.tar.gz`. Simply run the following from the same directory your extension is in:
-
-```shell
-❯ trunk publish pgmq \
---version 0.5.0 \
---description "Message Queue for postgres" \
---documentation "https://coredb-io.github.io/coredb/extensions/pgmq" \
---repository "https://github.com/CoreDB-io/coredb" \
---license "Apache-2.0" \
---homepage "https://www.coredb.io"
-```
-
-If the file is elsewhere, you can specify a filepath by using the `--file` flag.
+   ```shell
+   ❯ trunk publish pgmq \
+   --version 0.5.0 \
+   --description "Message Queue for postgres" \
+   --documentation "https://coredb-io.github.io/coredb/extensions/pgmq" \
+   --repository "https://github.com/CoreDB-io/coredb" \
+   --license "Apache-2.0" \
+   --homepage "https://www.coredb.io"
+   ```
 
 ## `trunk install`
 
-This command allows you to install Postgres extensions from the Trunk registry. Trunk will automatically install any
-additional extension dependencies, so long as they exist in the registry. Local files can be specified using the
+The `install` command allows you to install Postgres extensions from the Trunk registry. Trunk will automatically install any
+additional extension dependencies that exist in the registry. Local files can be specified using the
 `--file` flag.
 ```shell
 ❯ trunk install pgmq
