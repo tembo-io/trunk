@@ -2,6 +2,7 @@
 
 The Trunk CLI allows for building, publishing and installing Postgres extensions of all kinds. It abstracts away
 complexities of extension development and management with the following commands:
+
 - `trunk build` - Compiles extensions into publishable and installable artifacts.
 - `trunk publish` - Publishes extensions to the Trunk registry, making them available to the Postgres community for discovery and
 installation.
@@ -10,6 +11,7 @@ run.
 
 ## Installation
 The Trunk CLI is hosted at [crates.io](https://crates.io/crates/pg-trunk) and can be installed with `cargo`.
+
 1. `curl https://sh.rustup.rs -sSf | sh`
 2. `cargo install pg-trunk`
 
@@ -48,7 +50,7 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 
 Extensions can also be written in C & SQL. Let's take a look at how we can build C & SQL based extensions with Trunk.
 
-Example `trunk build` with C & SQL based extension [pg_cron](https://github.com/citusdata/pg_cron):
+#### Example `trunk build` with C & SQL based extension [pg_cron](https://github.com/citusdata/pg_cron)
 ```shell
 ❯ trunk build --name pg_cron --version 1.5.2
 Building from path .
@@ -84,82 +86,88 @@ Some extensions are part of larger projects and include Makefiles with reference
 Examples of such extensions include those found in [postgres/contrib](https://github.com/postgres/postgres/tree/master/contrib).
 Trunk can help us build and package these types of extensions as well.
 
-Example `trunk build` with C & SQL based extension [pg_stat_statements](https://github.com/postgres/postgres/tree/master/contrib/pg_stat_statements):
+#### Example `trunk build` with C & SQL based extension [pg_stat_statements](https://github.com/postgres/postgres/tree/master/contrib/pg_stat_statements)
 
-1. Create a custom Dockerfile named `Dockerfile.pg_stat_statements` at the root of the [postgres/contrib](https://github.com/postgres/postgres/tree/master/contrib)
-repository.
-    ```Dockerfile
-    ARG PG_VERSION=15
-    FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-    USER root
+Create a custom Dockerfile named `Dockerfile.pg_stat_statements` at the root of the [postgres/contrib](https://github.com/postgres/postgres/tree/master/contrib)
+repository:
+```dockerfile
+ARG PG_VERSION=15
+FROM quay.io/coredb/c-builder:pg${PG_VERSION}
+USER root
 
-    # Postgres build dependencies. Additional system dependencies for the extension can be added here.
-    # https://wiki.postgresql.org/wiki/Compile_and_Install_from_source_code
-    RUN apt-get update && apt-get install -y  build-essential libreadline-dev zlib1g-dev flex bison libxml2-dev libxslt-dev libssl-dev libxml2-utils xsltproc ccache
+# Postgres build dependencies. Additional system dependencies for the extension can be added here.
+# https://wiki.postgresql.org/wiki/Compile_and_Install_from_source_code
+RUN apt-get update && apt-get install -y  build-essential libreadline-dev zlib1g-dev flex bison libxml2-dev libxslt-dev libssl-dev libxml2-utils xsltproc ccache
 
-    # Copy working directory into container
-    COPY --chown=postgres:postgres . .
-    # Necessary step for building extensions in postgres/contrib
-    RUN ./configure
-    # Run make in the pg_stat_statements directory
-    RUN cd contrib/pg_stat_statements && make
-    ```
-2. Run `trunk build` with `--dockerfile` and `--install-command` flags.
-    ```shell
-    ❯ trunk build \
-    --name pg_stat_statements \
-    --version 1.10.0 \
-    --dockerfile Dockerfile.pg_stat_statements \
-    --install-command \
-    "cd contrib/pg_stat_statements \
-    && make install \
-    && set -x \
-    && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension \
-    && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib"
-    Building from path .
-    Detected a Makefile, guessing that we are building an extension with 'make', 'make install...'
-    Using Dockerfile at Dockerfile.pg_stat_statements
-    Using install command /bin/sh -c cd contrib/pg_stat_statements && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    Building with name pg_stat_statements
-    Building with version 1.10.0
-    .
-    .
-    .
-    Creating package at: ./.trunk/pg_stat_statements-1.10.0.tar.gz
-    Create Trunk bundle:
-    pg_stat_statements.so
-    extension/pg_stat_statements--1.0--1.1.sql
-    extension/pg_stat_statements--1.1--1.2.sql
-    extension/pg_stat_statements--1.2--1.3.sql
-    extension/pg_stat_statements--1.3--1.4.sql
-    extension/pg_stat_statements--1.4--1.5.sql
-    extension/pg_stat_statements--1.4.sql
-    extension/pg_stat_statements--1.5--1.6.sql
-    extension/pg_stat_statements--1.6--1.7.sql
-    extension/pg_stat_statements--1.7--1.8.sql
-    extension/pg_stat_statements--1.8--1.9.sql
-    extension/pg_stat_statements--1.9--1.10.sql
-    extension/pg_stat_statements.control
-    manifest.json
-    Packaged to ./.trunk/pg_stat_statements-1.10.0.tar.gz
-    ```
+# Copy working directory into container
+COPY --chown=postgres:postgres . .
+# Necessary step for building extensions in postgres/contrib
+RUN ./configure
+# Run make in the pg_stat_statements directory
+RUN cd contrib/pg_stat_statements && make
+```
+
+Run `trunk build` with `--dockerfile` and `--install-command` flags:
+
+```shell
+❯ trunk build \
+--name pg_stat_statements \
+--version 1.10.0 \
+--dockerfile Dockerfile.pg_stat_statements \
+--install-command \
+"cd contrib/pg_stat_statements \
+&& make install \
+&& set -x \
+&& mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension \
+&& mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib"
+Building from path .
+Detected a Makefile, guessing that we are building an extension with 'make', 'make install...'
+Using Dockerfile at Dockerfile.pg_stat_statements
+Using install command /bin/sh -c cd contrib/pg_stat_statements && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+Building with name pg_stat_statements
+Building with version 1.10.0
+.
+.
+.
+Creating package at: ./.trunk/pg_stat_statements-1.10.0.tar.gz
+Create Trunk bundle:
+pg_stat_statements.so
+extension/pg_stat_statements--1.0--1.1.sql
+extension/pg_stat_statements--1.1--1.2.sql
+extension/pg_stat_statements--1.2--1.3.sql
+extension/pg_stat_statements--1.3--1.4.sql
+extension/pg_stat_statements--1.4--1.5.sql
+extension/pg_stat_statements--1.4.sql
+extension/pg_stat_statements--1.5--1.6.sql
+extension/pg_stat_statements--1.6--1.7.sql
+extension/pg_stat_statements--1.7--1.8.sql
+extension/pg_stat_statements--1.8--1.9.sql
+extension/pg_stat_statements--1.9--1.10.sql
+extension/pg_stat_statements.control
+manifest.json
+Packaged to ./.trunk/pg_stat_statements-1.10.0.tar.gz
+```
 
 ## `trunk publish`
 
 The `publish` command allows you to publish your newly-minted Postgres extension to the Trunk registry.
+
 1. Sign in at the [Trunk registry](https://pgtrunk.io) and click `Profile`.
+
 2. Under `API Token`, click `Create New Token`.
+
 3. `export TRUNK_API_TOKEN=<your-new-token>`
+
 4. Run the following from the same directory your extension is in:
-   ```shell
-   ❯ trunk publish pgmq \
-   --version 0.5.0 \
-   --description "Message Queue for postgres" \
-   --documentation "https://coredb-io.github.io/coredb/extensions/pgmq" \
-   --repository "https://github.com/CoreDB-io/coredb" \
-   --license "Apache-2.0" \
-   --homepage "https://www.coredb.io"
-   ```
+```shell
+❯ trunk publish pgmq \
+--version 0.5.0 \
+--description "Message Queue for postgres" \
+--documentation "https://coredb-io.github.io/coredb/extensions/pgmq" \
+--repository "https://github.com/CoreDB-io/coredb" \
+--license "Apache-2.0" \
+--homepage "https://www.coredb.io"
+```
 
 ## `trunk install`
 
