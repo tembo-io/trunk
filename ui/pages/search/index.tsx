@@ -25,9 +25,15 @@ export default function SearchPage() {
     setSearchQuery(input);
     router.push(`/search?q=${input}`);
   };
+  const sortedExtensions = data?.sort((a, b) => {
+    if (a.name < b.name) {
+      return -1;
+    }
+    return 1;
+  });
 
   const filteredItems =
-    data?.filter(
+    sortedExtensions?.filter(
       (item) =>
         item?.name.toLowerCase().includes(searchQuery?.toLowerCase()) ||
         item?.description?.toLowerCase().includes(searchQuery?.toLowerCase())
