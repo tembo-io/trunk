@@ -150,8 +150,7 @@ The `publish` command allows you to publish your newly-minted Postgres extension
 1. Sign in at the [Trunk registry](https://pgtrunk.io) and click `Profile`.
 2. Under `API Token`, click `Create New Token`.
 3. `export TRUNK_API_TOKEN=<your-new-token>`
-4. Trunk will look for your packaged extension file in your working directory with the naming format
-`<extension-name>-<extension-version>.tar.gz`. Simply run the following from the same directory your extension is in:
+4. Run the following from the same directory your extension is in:
    ```shell
    ❯ trunk publish pgmq \
    --version 0.5.0 \
