@@ -55,7 +55,7 @@ export default function SearchPage() {
               extDate = ext?.updatedAt.split(" +")[0];
             }
             return (
-              <div key={ext.name} className={styles.extCont}>
+              <Link href={`/extensions/${ext.name}`} key={ext.name} className={styles.extCont}>
                 <div className={styles.titleRow}>
                   <p className={styles.extName}>{ext.name}</p>
                   <p className={styles.extVersion}>v{ext.latestVersion}</p>
@@ -69,7 +69,7 @@ export default function SearchPage() {
                   </p>
                   <p className={styles.extLastUpdated}>{extDate ? `${formatDistanceToNow(new Date(extDate))} ago` : ""}</p>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

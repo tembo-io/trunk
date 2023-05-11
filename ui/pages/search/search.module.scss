@@ -35,6 +35,8 @@
   justify-content: center;
 }
 .extCont {
+  all: unset;
+  cursor: pointer;
   flex: 1 1 350px;
   display: flex;
   flex-direction: column;
