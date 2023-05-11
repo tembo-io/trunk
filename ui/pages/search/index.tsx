@@ -6,8 +6,7 @@ import cx from "classnames";
 import { truncateString } from "@/lib/truncateString";
 
 import { Inter } from "next/font/google";
-import { useUser, useAuth } from "@clerk/nextjs";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import { ExtensionListing } from "@/types";
 import fetchExtensions from "@/lib/fetchExtensions";
