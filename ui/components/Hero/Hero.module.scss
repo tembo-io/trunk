@@ -11,7 +11,7 @@
   font-size: 28px;
   color: rgba(255, 255, 255, 0.6);
   text-align: center;
-  margin: 50px auto;
+  margin: 30px auto;
 }
 .body {
   font-style: normal;
@@ -21,10 +21,28 @@
   text-align: center;
   color: rgba(255, 255, 255, 0.6);
   max-width: 750px;
-  margin: 50px auto;
+  margin: 30px auto;
   padding: 10px;
 }
 .searchContainer {
   display: flex;
   justify-content: center;
+}
+.repoButton {
+  all: unset;
+  margin: 0 auto;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  padding: 0 15px;
+  height: 48px;
+  cursor: pointer;
+}
+.repoText {
+  color: white;
+  font-weight: 400;
+  font-size: 16px;
+  margin-left: 10px;
 }

@@ -44,6 +44,8 @@ export default function ExtensionSearchBox() {
     } else if (event.key === "Enter") {
       if (selectedItemIndex > -1) {
         router.push(`/extensions/${filteredItems[selectedItemIndex].name}`);
+      } else {
+        router.push(`/search?q=${query}`);
       }
     }
   };
@@ -63,7 +65,9 @@ export default function ExtensionSearchBox() {
             setQuery(e.target.value);
           }}
         />
-        <button className={cx(inter.className, styles.searchButton)}>Search</button>
+        <button onClick={() => router.push(`/search?q=${query}`)} className={cx(inter.className, styles.searchButton)}>
+          Search
+        </button>
       </div>
       <div className={styles.resultContainer}>
         <ul className={styles.resultList}>
