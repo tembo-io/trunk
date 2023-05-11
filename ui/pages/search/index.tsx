@@ -58,7 +58,7 @@ export default function SearchPage() {
           {filteredItems.map((ext) => {
             let extDate = "";
             if (ext?.updatedAt) {
-              extDate = ext?.updatedAt.split(" +")[0];
+              extDate = ext?.updatedAt.split(".")[0];
             }
             return (
               <Link href={`/extensions/${ext.name}`} key={ext.name} className={styles.extCont}>
@@ -73,7 +73,7 @@ export default function SearchPage() {
                       <span key={owner.userId}>{owner.userName}</span>
                     ))}
                   </p>
-                  <p className={styles.extLastUpdated}>{extDate ? `${formatDistanceToNow(new Date(extDate))} ago` : ""}</p>
+                  <p className={styles.extLastUpdated}>{extDate ? `${formatDistanceToNow(new Date(extDate.replace(/-/g, "/")))} ago` : ""}</p>
                 </div>
               </Link>
             );
