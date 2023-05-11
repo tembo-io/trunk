@@ -41,7 +41,7 @@ export default function Header({ bgTransparent = false }) {
       {user ? (
         <>
           <div className={styles.loggedIn}>
-            <Link href={`/user/${user.username}`} className={cx(inter.className, styles.navLink)}>
+            <Link href={`/user/${user.username || user.externalAccounts[0].username}`} className={cx(inter.className, styles.navLink)}>
               Profile
             </Link>
             <button onClick={handleSignout} className={cx(inter.className, styles.navLink)}>
