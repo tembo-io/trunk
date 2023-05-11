@@ -38,7 +38,7 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ```
 
 ### `trunk publish`
-- Publish extensions to the registry, making it available to the Postgres community for discovery and installation.
+- Publish extensions to the registry, making them available to the Postgres community for discovery and installation.
 
 ```shell
 ❯ trunk publish pgmq \
