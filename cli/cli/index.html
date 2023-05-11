@@ -276,38 +276,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#commands-brief" class="md-nav__link">
-    Commands - Brief
+  <a href="#trunk-build" class="md-nav__link">
+    trunk build
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands-detailed" class="md-nav__link">
-    Commands - Detailed
-  </a>
-  
-    <nav class="md-nav" aria-label="Commands - Detailed">
+    <nav class="md-nav" aria-label="trunk build">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-trunk-build" class="md-nav__link">
-    1. trunk build
+  <a href="#pgrx-based-extensions" class="md-nav__link">
+    PGRX Based Extensions
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-trunk-publish" class="md-nav__link">
-    2. trunk publish
+  <a href="#c-sql-based-extensions" class="md-nav__link">
+    C &amp; SQL Based Extensions
+  </a>
+  
+    <nav class="md-nav" aria-label="C &amp; SQL Based Extensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-trunk-build-with-c-sql-based-extension-pg_cron" class="md-nav__link">
+    Example trunk build with C &amp; SQL based extension pg_cron
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-trunk-install" class="md-nav__link">
-    3. trunk install
+  <a href="#example-trunk-build-with-c-sql-based-extension-pg_stat_statements" class="md-nav__link">
+    Example trunk build with C &amp; SQL based extension pg_stat_statements
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -317,8 +323,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#use-case-example" class="md-nav__link">
-    Use Case Example
+  <a href="#trunk-publish" class="md-nav__link">
+    trunk publish
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trunk-install" class="md-nav__link">
+    trunk install
   </a>
   
 </li>
@@ -395,38 +408,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#commands-brief" class="md-nav__link">
-    Commands - Brief
+  <a href="#trunk-build" class="md-nav__link">
+    trunk build
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands-detailed" class="md-nav__link">
-    Commands - Detailed
-  </a>
-  
-    <nav class="md-nav" aria-label="Commands - Detailed">
+    <nav class="md-nav" aria-label="trunk build">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-trunk-build" class="md-nav__link">
-    1. trunk build
+  <a href="#pgrx-based-extensions" class="md-nav__link">
+    PGRX Based Extensions
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-trunk-publish" class="md-nav__link">
-    2. trunk publish
+  <a href="#c-sql-based-extensions" class="md-nav__link">
+    C &amp; SQL Based Extensions
+  </a>
+  
+    <nav class="md-nav" aria-label="C &amp; SQL Based Extensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-trunk-build-with-c-sql-based-extension-pg_cron" class="md-nav__link">
+    Example trunk build with C &amp; SQL based extension pg_cron
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-trunk-install" class="md-nav__link">
-    3. trunk install
+  <a href="#example-trunk-build-with-c-sql-based-extension-pg_stat_statements" class="md-nav__link">
+    Example trunk build with C &amp; SQL based extension pg_stat_statements
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -436,8 +455,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#use-case-example" class="md-nav__link">
-    Use Case Example
+  <a href="#trunk-publish" class="md-nav__link">
+    trunk publish
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trunk-install" class="md-nav__link">
+    trunk install
   </a>
   
 </li>
@@ -458,69 +484,181 @@
 
 
 <h1 id="trunk-cli">Trunk CLI<a class="headerlink" href="#trunk-cli" title="Permanent link">&para;</a></h1>
-<p>The <a href="https://pgtrunk.io">Trunk PostgreSQL Extension Registry</a>, henceforth Trunk, offers a companion CLI to facilitate a user-friendly programmatic interface. This toolset lowers the barriers to building, sharing, and using PostgreSQL extensions.</p>
+<p>The Trunk CLI allows for building, publishing and installing Postgres extensions of all kinds. It abstracts away
+complexities of extension development and management with the following commands:</p>
+<ul>
+<li><code>trunk build</code> - Compiles extensions into publishable and installable artifacts.</li>
+<li><code>trunk publish</code> - Publishes extensions to the Trunk registry, making them available to the Postgres community for discovery and
+installation.</li>
+<li><code>trunk install</code> - Downloads Postgres extensions from the <a href="https://pgtrunk.io/">Trunk registry</a> and installs in whichever environment trunk is
+run.</li>
+</ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<p>The Trunk CLI can be installed using the following command:</p>
-<p><code>cargo install pg-trunk</code></p>
-<p>By default, the files are stored (). To confirm its proper installation, invoke the following:</p>
-<p><code>trunk --version</code></p>
-<h2 id="commands-brief">Commands - Brief<a class="headerlink" href="#commands-brief" title="Permanent link">&para;</a></h2>
-<p>The CLI toolkit will abstract away many complexities in extension development and installation by using the following commands:
-- <code>trunk build</code> - compiles extensions and supports nested dependencies.
-- <code>trunk publish</code> - publishes an extension to the registry, making it available for discovery and installation.
-- <code>trunk install</code> - download and install the extension distribution, in whichever environment trunk is run.</p>
-<p>On the Horizon:
-- <code>trunk init</code> - setup your environment to build a new Postrgres extension.
-- <code>trunk test</code> - facilitate the automated unit and integration testing Postgres extensions.</p>
-<h2 id="commands-detailed">Commands - Detailed<a class="headerlink" href="#commands-detailed" title="Permanent link">&para;</a></h2>
-<h3 id="1-trunk-build">1. <code>trunk build</code><a class="headerlink" href="#1-trunk-build" title="Permanent link">&para;</a></h3>
-<p>This command leverages <a href="https://github.com/tcdi/pgrx">pgrx</a> to help you build compiled Postgres extensions. </p>
-<p>Usage: trunk build [OPTIONS]</p>
-<p>Options:
-- -p, --path <PATH>                [default: .]
-- -o, --output-path <OUTPUT_PATH>  [default: ./.trunk]
-- -h, --help                       Print help</p>
-<h3 id="2-trunk-publish">2. <code>trunk publish</code><a class="headerlink" href="#2-trunk-publish" title="Permanent link">&para;</a></h3>
-<p>This command allows you to publish your newly-minted Postgres extension to the Trunk registry.</p>
-<p>Usage: trunk publish [OPTIONS] --version <VERSION> <NAME></p>
-<p>Arguments:
-  <NAME></p>
-<p>Options:
--  -v, --version <VERSION>
--  -f, --file <FILE>
--  -d, --description <DESCRIPTION>
--  -D, --documentation <DOCUMENTATION>
--  -H, --homepage <HOMEPAGE>
--  -l, --license <LICENSE>
--  -r, --registry <REGISTRY>            [default: https://registry.pgtrunk.io]
--  -R, --repository <REPOSITORY>
--  -h, --help                           Print help</p>
-<h3 id="3-trunk-install">3. <code>trunk install</code><a class="headerlink" href="#3-trunk-install" title="Permanent link">&para;</a></h3>
-<p>This command allows you to install Postgres extensions from the Trunk registry.</p>
-<p>Usage: trunk install [OPTIONS]&lt; --version <VERSION> <NAME></p>
-<p>Arguments:
-  <NAME></p>
-<p>Options:
--  -p, --pg-config <PG_CONFIG>
--  -f, --file <FILE>
--  -v, --version <VERSION>
--  -r, --registry <REGISTRY>    [default: https://registry.pgtrunk.io]
--  -h, --help                   Print help</p>
-<h2 id="use-case-example">Use Case Example<a class="headerlink" href="#use-case-example" title="Permanent link">&para;</a></h2>
-<p>Soon to come.</p>
-<h1 id="community-involvement">Community Involvement<a class="headerlink" href="#community-involvement" title="Permanent link">&para;</a></h1>
-<h2 id="quick-and-easy">Quick and easy:<a class="headerlink" href="#quick-and-easy" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Consider starring the repo :star:</li>
-<li>Join our <a href="https://discord.com/channels/1060568981725003789/1089363774357647370">Trunk discord channel</a></li>
-</ul>
-<h2 id="more-developed">More developed:<a class="headerlink" href="#more-developed" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Enagage with the <a href="https://discord.com/channels/1060568981725003789/1089363774357647370">Trunk discord channel</a> community, we're eager to meet you!</li>
-<li>Consider forking the repo and creating pull requests!</li>
-</ul>
-<h1 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">&para;</a></h1>
-<p><a href="https://coredb-io.github.io/coredb/">Documentation</a></p>
+<p>The Trunk CLI is hosted at <a href="https://crates.io/crates/pg-trunk">crates.io</a> and can be installed with <code>cargo</code>.</p>
+<ol>
+<li><code>curl https://sh.rustup.rs -sSf | sh</code></li>
+<li><code>cargo install pg-trunk</code></li>
+</ol>
+<p>To upgrade to the latest version of Trunk, run <code>cargo install pg-trunk</code>.</p>
+<h2 id="trunk-build"><code>trunk build</code><a class="headerlink" href="#trunk-build" title="Permanent link">&para;</a></h2>
+<p>The <code>build</code> command allows for building and packaging Postgres extensions from source. Packaged extensions are written to
+<code>.trunk/&lt;extension-name&gt;-&lt;extension-version&gt;.tar.gz</code>.</p>
+<h3 id="pgrx-based-extensions">PGRX Based Extensions<a class="headerlink" href="#pgrx-based-extensions" title="Permanent link">&para;</a></h3>
+<p>Extensions can be built in many ways, and <a href="https://github.com/tcdi/pgrx">PGRX</a> allows for us to do so with Rust.
+Trunk makes building and packaging PGRX based extensions easier than ever.</p>
+<p>Example <code>trunk build</code> with PGRX based extension
+<a href="https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension">pgmq</a>:</p>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>build
+Building<span class="w"> </span>from<span class="w"> </span>path<span class="w"> </span>.
+Detected<span class="w"> </span>that<span class="w"> </span>we<span class="w"> </span>are<span class="w"> </span>building<span class="w"> </span>a<span class="w"> </span>pgrx<span class="w"> </span>extension
+Detected<span class="w"> </span>pgrx<span class="w"> </span>version<span class="w"> </span>range<span class="w"> </span><span class="m">0</span>.7.4
+Using<span class="w"> </span>pgrx<span class="w"> </span>version<span class="w"> </span><span class="m">0</span>.7.4
+Building<span class="w"> </span>pgrx<span class="w"> </span>extension<span class="w"> </span>at<span class="w"> </span>path<span class="w"> </span>.
+.
+.
+.
+Creating<span class="w"> </span>package<span class="w"> </span>at:<span class="w"> </span>./.trunk/pgmq-0.5.0.tar.gz
+Create<span class="w"> </span>Trunk<span class="w"> </span>bundle:
+<span class="w">    </span>pgmq.so
+<span class="w">    </span>extension/pgmq--0.5.0.sql
+<span class="w">    </span>extension/pgmq.control
+<span class="w">    </span>manifest.json
+Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pgmq-0.5.0.tar.gz
+</code></pre></div>
+
+<h3 id="c-sql-based-extensions">C &amp; SQL Based Extensions<a class="headerlink" href="#c-sql-based-extensions" title="Permanent link">&para;</a></h3>
+<p>Extensions can also be written in C &amp; SQL. Let's take a look at how we can build C &amp; SQL based extensions with Trunk.</p>
+<h4 id="example-trunk-build-with-c-sql-based-extension-pg_cron">Example <code>trunk build</code> with C &amp; SQL based extension <a href="https://github.com/citusdata/pg_cron">pg_cron</a><a class="headerlink" href="#example-trunk-build-with-c-sql-based-extension-pg_cron" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>build<span class="w"> </span>--name<span class="w"> </span>pg_cron<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.5.2
+Building<span class="w"> </span>from<span class="w"> </span>path<span class="w"> </span>.
+Detected<span class="w"> </span>a<span class="w"> </span>Makefile,<span class="w"> </span>guessing<span class="w"> </span>that<span class="w"> </span>we<span class="w"> </span>are<span class="w"> </span>building<span class="w"> </span>an<span class="w"> </span>extension<span class="w"> </span>with<span class="w"> </span><span class="s1">&#39;make&#39;</span>,<span class="w"> </span><span class="s1">&#39;make install...&#39;</span>
+Using<span class="w"> </span>install<span class="w"> </span><span class="nb">command</span><span class="w"> </span>make<span class="w"> </span>install
+Building<span class="w"> </span>with<span class="w"> </span>name<span class="w"> </span>pg_cron
+Building<span class="w"> </span>with<span class="w"> </span>version<span class="w"> </span><span class="m">1</span>.5.2
+.
+.
+.
+Creating<span class="w"> </span>package<span class="w"> </span>at:<span class="w"> </span>./.trunk/pg_cron-1.5.2.tar.gz
+Create<span class="w"> </span>Trunk<span class="w"> </span>bundle:
+<span class="w">    </span>bitcode/pg_cron/src/entry.bc
+<span class="w">    </span>bitcode/pg_cron/src/job_metadata.bc
+<span class="w">    </span>bitcode/pg_cron/src/misc.bc
+<span class="w">    </span>bitcode/pg_cron/src/pg_cron.bc
+<span class="w">    </span>bitcode/pg_cron/src/task_states.bc
+<span class="w">    </span>bitcode/pg_cron.index.bc
+<span class="w">    </span>pg_cron.so
+<span class="w">    </span>extension/pg_cron--1.0--1.1.sql
+<span class="w">    </span>extension/pg_cron--1.0.sql
+<span class="w">    </span>extension/pg_cron--1.1--1.2.sql
+<span class="w">    </span>extension/pg_cron--1.2--1.3.sql
+<span class="w">    </span>extension/pg_cron--1.3--1.4.sql
+<span class="w">    </span>extension/pg_cron--1.4--1.4-1.sql
+<span class="w">    </span>extension/pg_cron--1.4-1--1.5.sql
+<span class="w">    </span>extension/pg_cron.control
+<span class="w">    </span>manifest.json
+Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pg_cron-1.5.2.tar.gz
+</code></pre></div>
+
+<p>Some extensions are part of larger projects and include Makefiles with references to parent directories.
+Examples of such extensions include those found in <a href="https://github.com/postgres/postgres/tree/master/contrib">postgres/contrib</a>.
+Trunk can help us build and package these types of extensions as well.</p>
+<h4 id="example-trunk-build-with-c-sql-based-extension-pg_stat_statements">Example <code>trunk build</code> with C &amp; SQL based extension <a href="https://github.com/postgres/postgres/tree/master/contrib/pg_stat_statements">pg_stat_statements</a><a class="headerlink" href="#example-trunk-build-with-c-sql-based-extension-pg_stat_statements" title="Permanent link">&para;</a></h4>
+<p>Create a custom Dockerfile named <code>Dockerfile.pg_stat_statements</code> at the root of the <a href="https://github.com/postgres/postgres/tree/master/contrib">postgres/contrib</a>
+repository:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">ARG</span><span class="w"> </span><span class="nv">PG_VERSION</span><span class="o">=</span><span class="m">15</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">quay.io/coredb/c-builder:pg${PG_VERSION}</span>
+<span class="k">USER</span><span class="w"> </span><span class="s">root</span>
+
+<span class="c"># Postgres build dependencies. Additional system dependencies for the extension can be added here.</span>
+<span class="c"># https://wiki.postgresql.org/wiki/Compile_and_Install_from_source_code</span>
+<span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w">  </span>build-essential<span class="w"> </span>libreadline-dev<span class="w"> </span>zlib1g-dev<span class="w"> </span>flex<span class="w"> </span>bison<span class="w"> </span>libxml2-dev<span class="w"> </span>libxslt-dev<span class="w"> </span>libssl-dev<span class="w"> </span>libxml2-utils<span class="w"> </span>xsltproc<span class="w"> </span>ccache
+
+<span class="c"># Copy working directory into container</span>
+<span class="k">COPY</span><span class="w"> </span>--chown<span class="o">=</span>postgres:postgres<span class="w"> </span>.<span class="w"> </span>.
+<span class="c"># Necessary step for building extensions in postgres/contrib</span>
+<span class="k">RUN</span><span class="w"> </span>./configure
+<span class="c"># Run make in the pg_stat_statements directory</span>
+<span class="k">RUN</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>contrib/pg_stat_statements<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make
+</code></pre></div>
+
+<p>Run <code>trunk build</code> with <code>--dockerfile</code> and <code>--install-command</code> flags:</p>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+--name<span class="w"> </span>pg_stat_statements<span class="w"> </span><span class="se">\</span>
+--version<span class="w"> </span><span class="m">1</span>.10.0<span class="w"> </span><span class="se">\</span>
+--dockerfile<span class="w"> </span>Dockerfile.pg_stat_statements<span class="w"> </span><span class="se">\</span>
+--install-command<span class="w"> </span><span class="se">\</span>
+<span class="s2">&quot;cd contrib/pg_stat_statements \</span>
+<span class="s2">&amp;&amp; make install \</span>
+<span class="s2">&amp;&amp; set -x \</span>
+<span class="s2">&amp;&amp; mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension \</span>
+<span class="s2">&amp;&amp; mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib&quot;</span>
+Building<span class="w"> </span>from<span class="w"> </span>path<span class="w"> </span>.
+Detected<span class="w"> </span>a<span class="w"> </span>Makefile,<span class="w"> </span>guessing<span class="w"> </span>that<span class="w"> </span>we<span class="w"> </span>are<span class="w"> </span>building<span class="w"> </span>an<span class="w"> </span>extension<span class="w"> </span>with<span class="w"> </span><span class="s1">&#39;make&#39;</span>,<span class="w"> </span><span class="s1">&#39;make install...&#39;</span>
+Using<span class="w"> </span>Dockerfile<span class="w"> </span>at<span class="w"> </span>Dockerfile.pg_stat_statements
+Using<span class="w"> </span>install<span class="w"> </span><span class="nb">command</span><span class="w"> </span>/bin/sh<span class="w"> </span>-c<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>contrib/pg_stat_statements<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>install<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">set</span><span class="w"> </span>-x<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>mv<span class="w"> </span>/usr/local/pgsql/share/extension/*<span class="w"> </span>/usr/share/postgresql/15/extension<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>mv<span class="w"> </span>/usr/local/pgsql/lib/*<span class="w"> </span>/usr/lib/postgresql/15/lib
+Building<span class="w"> </span>with<span class="w"> </span>name<span class="w"> </span>pg_stat_statements
+Building<span class="w"> </span>with<span class="w"> </span>version<span class="w"> </span><span class="m">1</span>.10.0
+.
+.
+.
+Creating<span class="w"> </span>package<span class="w"> </span>at:<span class="w"> </span>./.trunk/pg_stat_statements-1.10.0.tar.gz
+Create<span class="w"> </span>Trunk<span class="w"> </span>bundle:
+pg_stat_statements.so
+extension/pg_stat_statements--1.0--1.1.sql
+extension/pg_stat_statements--1.1--1.2.sql
+extension/pg_stat_statements--1.2--1.3.sql
+extension/pg_stat_statements--1.3--1.4.sql
+extension/pg_stat_statements--1.4--1.5.sql
+extension/pg_stat_statements--1.4.sql
+extension/pg_stat_statements--1.5--1.6.sql
+extension/pg_stat_statements--1.6--1.7.sql
+extension/pg_stat_statements--1.7--1.8.sql
+extension/pg_stat_statements--1.8--1.9.sql
+extension/pg_stat_statements--1.9--1.10.sql
+extension/pg_stat_statements.control
+manifest.json
+Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pg_stat_statements-1.10.0.tar.gz
+</code></pre></div>
+
+<h2 id="trunk-publish"><code>trunk publish</code><a class="headerlink" href="#trunk-publish" title="Permanent link">&para;</a></h2>
+<p>The <code>publish</code> command allows you to publish your newly-minted Postgres extension to the Trunk registry.</p>
+<ol>
+<li>
+<p>Sign in at the <a href="https://pgtrunk.io">Trunk registry</a> and click <code>Profile</code>.</p>
+</li>
+<li>
+<p>Under <code>API Token</code>, click <code>Create New Token</code>.</p>
+</li>
+<li>
+<p><code>export TRUNK_API_TOKEN=&lt;your-new-token&gt;</code></p>
+</li>
+<li>
+<p>Run the following from the same directory your extension is in:</p>
+</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>publish<span class="w"> </span>pgmq<span class="w"> </span><span class="se">\</span>
+--version<span class="w"> </span><span class="m">0</span>.5.0<span class="w"> </span><span class="se">\</span>
+--description<span class="w"> </span><span class="s2">&quot;Message Queue for postgres&quot;</span><span class="w"> </span><span class="se">\</span>
+--documentation<span class="w"> </span><span class="s2">&quot;https://coredb-io.github.io/coredb/extensions/pgmq&quot;</span><span class="w"> </span><span class="se">\</span>
+--repository<span class="w"> </span><span class="s2">&quot;https://github.com/CoreDB-io/coredb&quot;</span><span class="w"> </span><span class="se">\</span>
+--license<span class="w"> </span><span class="s2">&quot;Apache-2.0&quot;</span><span class="w"> </span><span class="se">\</span>
+--homepage<span class="w"> </span><span class="s2">&quot;https://www.coredb.io&quot;</span>
+</code></pre></div>
+
+<h2 id="trunk-install"><code>trunk install</code><a class="headerlink" href="#trunk-install" title="Permanent link">&para;</a></h2>
+<p>The <code>install</code> command allows you to install Postgres extensions from the Trunk registry. Trunk will automatically install any
+additional extension dependencies that exist in the registry.</p>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>install<span class="w"> </span>pgmq
+Using<span class="w"> </span>pg_config:<span class="w"> </span>/usr/bin/pg_config
+Using<span class="w"> </span>pkglibdir:<span class="w"> </span><span class="s2">&quot;/usr/lib/postgresql/15/lib&quot;</span>
+Using<span class="w"> </span>sharedir:<span class="w"> </span><span class="s2">&quot;/usr/share/postgresql/15&quot;</span>
+Downloading<span class="w"> </span>from:<span class="w"> </span>https://cdb-plat-use1-prod-pgtrunkio.s3.amazonaws.com/extensions/pgmq/pgmq-0.5.0.tar.gz
+Dependencies:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;pg_partman&quot;</span><span class="o">]</span>
+Installing<span class="w"> </span>pgmq<span class="w"> </span><span class="m">0</span>.5.0
+<span class="o">[</span>+<span class="o">]</span><span class="w"> </span>pgmq.so<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>/usr/lib/postgresql/15/lib
+<span class="o">[</span>+<span class="o">]</span><span class="w"> </span>extension/pgmq--0.5.0.sql<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>/usr/share/postgresql/15
+<span class="o">[</span>+<span class="o">]</span><span class="w"> </span>extension/pgmq.control<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>/usr/share/postgresql/15
+</code></pre></div>
 
 
 

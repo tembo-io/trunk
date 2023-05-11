@@ -449,7 +449,7 @@
 <p><a href=""><img alt="milestone-alpha" src="https://img.shields.io/badge/milestone-alpha-orange" /></a>
 <a href="https://ossrank.com/p/2643"><img alt="OSSRank" src="https://shields.io/endpoint?url=https://ossrank.com/shield/2643" /></a>
 <a href="https://discord.com/channels/1060568981725003789/1089363774357647370"><img alt="Discord Chat" src="https://img.shields.io/discord/1060568981725003789?label=Discord" /></a></p>
-<p>Trunk is an open source package installer and registry for PostgreSQL extensions. Use the Trunk CLI to build, publish
+<p>Trunk is an open source package manager and registry for PostgreSQL extensions. Use the Trunk CLI to build, publish
 and install PostgreSQL extensions <em>of all kinds</em>.</p>
 <p><img alt="trunk-install" src="https://github.com/CoreDB-io/trunk/assets/8935584/3c178a85-914f-44dc-a514-5ebaf1aa6048" /></p>
 <h2 id="trunk-cli">Trunk CLI<a class="headerlink" href="#trunk-cli" title="Permanent link">&para;</a></h2>
@@ -479,7 +479,7 @@ Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pgmq-0.5.0.ta
 
 <h3 id="trunk-publish"><code>trunk publish</code><a class="headerlink" href="#trunk-publish" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Publish extensions to the registry, making it available to the Postgres community for discovery and installation.</li>
+<li>Publish extensions to the registry, making them available to the Postgres community for discovery and installation.</li>
 </ul>
 <div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>publish<span class="w"> </span>pgmq<span class="w"> </span><span class="se">\</span>
 --version<span class="w"> </span><span class="m">0</span>.5.0<span class="w"> </span><span class="se">\</span>
@@ -492,7 +492,7 @@ Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pgmq-0.5.0.ta
 
 <h3 id="trunk-install"><code>trunk install</code><a class="headerlink" href="#trunk-install" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Download and install the extension distribution, in whichever environment trunk is run.</li>
+<li>Downloads Postgres extensions from the Trunk registry and installs in whichever environment trunk is run.</li>
 <li>Supports nested dependencies, e.g. installing <code>extension_a</code> will automatically install <code>extension_b</code> if required.</li>
 </ul>
 <div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>install<span class="w"> </span>pgmq
