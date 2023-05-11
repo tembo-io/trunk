@@ -7,8 +7,8 @@
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
 [![Discord Chat](https://img.shields.io/discord/1060568981725003789?label=Discord)][Discord]
 
-Trunk is an open source package manager and registry for PostgreSQL extensions. Use the Trunk CLI to build, publish
-and install PostgreSQL extensions _of all kinds_.
+Trunk is an open source package manager and registry for PostgreSQL (Postgres) extensions. Use the Trunk CLI to build, publish
+and install Postgres extensions _of all kinds_.
 
 ![trunk-install](https://github.com/CoreDB-io/trunk/assets/8935584/3c178a85-914f-44dc-a514-5ebaf1aa6048)
 
