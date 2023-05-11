@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import styles from "./search.module.scss";
 import Link from "next/link";
 import cx from "classnames";
+import { truncateString } from "@/lib/truncateString";
 
 import { Inter } from "next/font/google";
 import { useUser, useAuth } from "@clerk/nextjs";
@@ -47,10 +48,30 @@ export default function SearchPage() {
         <button className={cx(inter.className, styles.searchButton)}>Search</button>
       </div>
       <div>
-        <div>
-          {/* {filteredItems.map((item) => (
-
-          ))} */}
+        <div className={styles.extensionList}>
+          {filteredItems.map((ext) => {
+            let extDate = "";
+            if (ext?.updatedAt) {
+              extDate = ext?.updatedAt.split(" +")[0];
+            }
+            return (
+              <div key={ext.name} className={styles.extCont}>
+                <div className={styles.titleRow}>
+                  <p className={styles.extName}>{ext.name}</p>
+                  <p className={styles.extVersion}>v{ext.latestVersion}</p>
+                </div>
+                <p className={styles.extDesc}>{truncateString(ext.description, 200)}</p>
+                <div className={styles.extFooter}>
+                  <p className={styles.extAuthor}>
+                    {ext.owners.map((owner) => (
+                      <span key={owner.userId}>{owner.userName}</span>
+                    ))}
+                  </p>
+                  <p className={styles.extLastUpdated}>{extDate ? `${formatDistanceToNow(new Date(extDate))} ago` : ""}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
