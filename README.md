@@ -51,7 +51,7 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ```
 
 ### `trunk install`
-- Download and install the extension distribution, in whichever environment trunk is run.
+- Downloads Postgres extensions from the Trunk registry and installs in whichever environment trunk is run.
 - Supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
 
 ```shell

@@ -2,9 +2,11 @@
 
 The Trunk CLI allows for building, publishing and installing Postgres extensions of all kinds. It abstracts away
 complexities of extension development and management with the following commands:
-- `trunk build` - compiles extensions and supports nested dependencies.
-- `trunk publish` - publishes an extension to the registry, making it available for discovery and installation.
-- `trunk install` - download and install the extension distribution, in whichever environment trunk is run.
+- `trunk build` - Compiles extensions of all kinds.
+- `trunk publish` - Publish extensions to the registry, making it available to the Postgres community for discovery and
+installation.
+- `trunk install` - Downloads Postgres extensions from the Trunk registry and installs in whichever environment trunk is
+`run.
 
 ## Installation
 The Trunk CLI is hosted at [crates.io](https://crates.io/crates/pg-trunk) and can be installed with `cargo`.
@@ -18,6 +20,8 @@ To upgrade to the latest version of Trunk, run`cargo install pg-trunk`.
 
 Usage depends on how the extension was written
 pgrx
+
+explain custom Dockerfile
 
 Example `trunk build` with PGRX based extension:
 ```shell
@@ -38,7 +42,7 @@ Create Trunk bundle:
 	manifest.json
 Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ```
-Packaged extensions are written to `.trunk/<extension-name>-<extension-version>`.
+Packaged extensions are written to `.trunk/<extension-name>-<extension-version>.tar.gz`.
 
 c + sql
 
@@ -47,8 +51,20 @@ c + sql
 
 This command allows you to publish your newly-minted Postgres extension to the Trunk registry.
 
-Simply run the following from the directory 
+Trunk will look for your packaged extension file in your working directory with the naming format
+`<extension-name>-<extension-version>.tar.gz`. Simply run the following from the same directory your extension is in:
 
+```shell
+❯ trunk publish pgmq \
+--version 0.5.0 \
+--description "Message Queue for postgres" \
+--documentation "https://coredb-io.github.io/coredb/extensions/pgmq" \
+--repository "https://github.com/CoreDB-io/coredb" \
+--license "Apache-2.0" \
+--homepage "https://www.coredb.io"
+```
+
+If the file is elsewhere, you can specify a filepath by using the `--file` flag.
 
 ## `trunk install`
 
