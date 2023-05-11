@@ -12,6 +12,7 @@ on:
     paths:
       - '.github/workflows/cli.yml'
       - 'cli/**'
+      - '!cli/README.md'
   # Always run tests on main or release branches
   push:
     branches:
