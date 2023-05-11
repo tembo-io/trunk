@@ -1,7 +1,10 @@
 # Trunk CLI
 
-The [Trunk Registry](https://pgtrunk.io) offers a companion CLI to facilitate a user-friendly programmatic interface. 
-This toolset lowers the barriers to building, sharing, and using PostgreSQL extensions.
+The Trunk CLI allows for building, publishing and installing Postgres extensions of all kinds. It abstracts away
+complexities of extension development and management with the following commands:
+- `trunk build` - compiles extensions and supports nested dependencies.
+- `trunk publish` - publishes an extension to the registry, making it available for discovery and installation.
+- `trunk install` - download and install the extension distribution, in whichever environment trunk is run.
 
 ## Installation
 The Trunk CLI is hosted at [crates.io](https://crates.io/crates/pg-trunk) and can be installed with `cargo`.
@@ -10,57 +13,57 @@ The Trunk CLI is hosted at [crates.io](https://crates.io/crates/pg-trunk) and ca
 
 To upgrade to the latest version of Trunk, run`cargo install pg-trunk`.
 
-## Commands
-
-The CLI toolkit will abstract away many complexities in extension development and installation by using the following commands:
-- `trunk build` - compiles extensions and supports nested dependencies.
-- `trunk publish` - publishes an extension to the registry, making it available for discovery and installation.
-- `trunk install` - download and install the extension distribution, in whichever environment trunk is run.
 
 ## `trunk build`
 
-This command leverages [pgrx](https://github.com/tcdi/pgrx) to help you build compiled Postgres extensions. 
+Usage depends on how the extension was written
+pgrx
 
-Usage: trunk build [OPTIONS]
+Example `trunk build` with PGRX based extension:
+```shell
+❯ trunk build
+Building from path .
+Detected that we are building a pgrx extension
+Detected pgrx version range 0.7.4
+Using pgrx version 0.7.4
+Building pgrx extension at path .
+.
+.
+.
+Creating package at: ./.trunk/pgmq-0.5.0.tar.gz
+Create Trunk bundle:
+	pgmq.so
+	extension/pgmq--0.5.0.sql
+	extension/pgmq.control
+	manifest.json
+Packaged to ./.trunk/pgmq-0.5.0.tar.gz
+```
+Packaged extensions are written to `.trunk/<extension-name>-<extension-version>`.
 
-Options:
-- -p, --path <PATH>                [default: .]
-- -o, --output-path <OUTPUT_PATH>  [default: ./.trunk]
-- -h, --help                       Print help
+c + sql
+
 
 ## `trunk publish`
 
 This command allows you to publish your newly-minted Postgres extension to the Trunk registry.
 
-Usage: trunk publish [OPTIONS] --version <VERSION> <NAME>
-
-Arguments:
-  <NAME>
-
-Options:
--  -v, --version <VERSION>
--  -f, --file <FILE>
--  -d, --description <DESCRIPTION>
--  -D, --documentation <DOCUMENTATION>
--  -H, --homepage <HOMEPAGE>
--  -l, --license <LICENSE>
--  -r, --registry <REGISTRY>            [default: https://registry.pgtrunk.io]
--  -R, --repository <REPOSITORY>
--  -h, --help                           Print help
+Simply run the following from the directory 
 
 
 ## `trunk install`
 
-This command allows you to install Postgres extensions from the Trunk registry.
-
-Usage: trunk install [OPTIONS]< --version <VERSION> <NAME>
-
-Arguments:
-  <NAME>
-
-Options:
--  -p, --pg-config <PG_CONFIG>
--  -f, --file <FILE>
--  -v, --version <VERSION>
--  -r, --registry <REGISTRY>    [default: https://registry.pgtrunk.io]
--  -h, --help                   Print help
+This command allows you to install Postgres extensions from the Trunk registry. Trunk will automatically install any
+additional extension dependencies, so long as they exist in the registry. Local files can be specified using the
+`--file` flag.
+```shell
+❯ trunk install pgmq
+Using pg_config: /usr/bin/pg_config
+Using pkglibdir: "/usr/lib/postgresql/15/lib"
+Using sharedir: "/usr/share/postgresql/15"
+Downloading from: https://cdb-plat-use1-prod-pgtrunkio.s3.amazonaws.com/extensions/pgmq/pgmq-0.5.0.tar.gz
+Dependencies: ["pg_partman"]
+Installing pgmq 0.5.0
+[+] pgmq.so => /usr/lib/postgresql/15/lib
+[+] extension/pgmq--0.5.0.sql => /usr/share/postgresql/15
+[+] extension/pgmq.control => /usr/share/postgresql/15
+```
