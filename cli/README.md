@@ -20,7 +20,10 @@ The `build` command allows for building and packaging Postgres extensions from s
 `.trunk/<extension-name>-<extension-version>.tar.gz`.
 
 ### PGRX Based Extensions
-Example `trunk build` with [PGRX](https://github.com/tcdi/pgrx) based extension
+Extensions can be built in many ways, and [PGRX](https://github.com/tcdi/pgrx) allows for us to do so with Rust.
+Trunk makes building and packaging PGRX based extensions easier than ever.
+
+Example `trunk build` with PGRX based extension
 [pgmq](https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension):
 ```shell
 ❯ trunk build
@@ -43,8 +46,43 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 
 ### C & SQL Based Extensions
 
+Extensions can also be written in C & SQL. Let's take a look at how we can build C & SQL based extensions with Trunk.
+
+Example `trunk build` with C & SQL based extension [pg_cron](https://github.com/citusdata/pg_cron):
+```shell
+❯ trunk build --name pg_cron --version 1.5.2
+Building from path .
+Detected a Makefile, guessing that we are building an extension with 'make', 'make install...'
+Using install command make install
+Building with name pg_cron
+Building with version 1.5.2
+.
+.
+.
+Creating package at: ./.trunk/pg_cron-1.5.2.tar.gz
+Create Trunk bundle:
+	bitcode/pg_cron/src/entry.bc
+	bitcode/pg_cron/src/job_metadata.bc
+	bitcode/pg_cron/src/misc.bc
+	bitcode/pg_cron/src/pg_cron.bc
+	bitcode/pg_cron/src/task_states.bc
+	bitcode/pg_cron.index.bc
+	pg_cron.so
+	extension/pg_cron--1.0--1.1.sql
+	extension/pg_cron--1.0.sql
+	extension/pg_cron--1.1--1.2.sql
+	extension/pg_cron--1.2--1.3.sql
+	extension/pg_cron--1.3--1.4.sql
+	extension/pg_cron--1.4--1.4-1.sql
+	extension/pg_cron--1.4-1--1.5.sql
+	extension/pg_cron.control
+	manifest.json
+Packaged to ./.trunk/pg_cron-1.5.2.tar.gz
+```
+
 Some extensions are part of larger projects and include Makefiles with references to parent directories.
 Examples of such extensions include those found in [postgres/contrib](https://github.com/postgres/postgres/tree/master/contrib).
+Trunk can help us build and package these types of extensions as well.
 
 Example `trunk build` with C & SQL based extension [pg_stat_statements](https://github.com/postgres/postgres/tree/master/contrib/pg_stat_statements):
 
@@ -68,7 +106,7 @@ repository.
     ```
 2. Run `trunk build` with `--dockerfile` and `--install-command` flags.
     ```shell
-    trunk build \
+    ❯ trunk build \
     --name pg_stat_statements \
     --version 1.10.0 \
     --dockerfile Dockerfile.pg_stat_statements \
@@ -78,6 +116,32 @@ repository.
     && set -x \
     && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension \
     && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib"
+    Building from path .
+    Detected a Makefile, guessing that we are building an extension with 'make', 'make install...'
+    Using Dockerfile at Dockerfile.pg_stat_statements
+    Using install command /bin/sh -c cd contrib/pg_stat_statements && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    Building with name pg_stat_statements
+    Building with version 1.10.0
+    .
+    .
+    .
+    Creating package at: ./.trunk/pg_stat_statements-1.10.0.tar.gz
+    Create Trunk bundle:
+    pg_stat_statements.so
+    extension/pg_stat_statements--1.0--1.1.sql
+    extension/pg_stat_statements--1.1--1.2.sql
+    extension/pg_stat_statements--1.2--1.3.sql
+    extension/pg_stat_statements--1.3--1.4.sql
+    extension/pg_stat_statements--1.4--1.5.sql
+    extension/pg_stat_statements--1.4.sql
+    extension/pg_stat_statements--1.5--1.6.sql
+    extension/pg_stat_statements--1.6--1.7.sql
+    extension/pg_stat_statements--1.7--1.8.sql
+    extension/pg_stat_statements--1.8--1.9.sql
+    extension/pg_stat_statements--1.9--1.10.sql
+    extension/pg_stat_statements.control
+    manifest.json
+    Packaged to ./.trunk/pg_stat_statements-1.10.0.tar.gz
     ```
 
 ## `trunk publish`
