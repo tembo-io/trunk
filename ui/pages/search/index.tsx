@@ -47,6 +47,7 @@ export default function SearchPage() {
         />
         <button className={cx(inter.className, styles.searchButton)}>Search</button>
       </div>
+      {isLoading && <LoadingSpinner size="lg"></LoadingSpinner>}
       <div>
         <div className={styles.extensionList}>
           {filteredItems.map((ext) => {
