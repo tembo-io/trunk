@@ -67,10 +67,15 @@ export default function User() {
         {isSignedInUsersPage && (
           <div className={styles.section}>
             <div className={styles.profileRow}>
-              {user?.profileImageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className={styles.profilePic} src={user.externalAccounts[0].avatarUrl} alt="User profile image" />
-              )}
+              {user?.profileImageUrl ||
+                (user?.externalAccounts[0].avatarUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className={styles.profilePic}
+                    src={user.externalAccounts[0].avatarUrl || user.profileImageUrl}
+                    alt="User profile image"
+                  />
+                ))}
               <div className={styles.nameBlock}>
                 <h3 className={styles.fullName}>{user?.fullName}</h3>
                 <h4 className={styles.userName}>{user?.username}</h4>
@@ -112,7 +117,7 @@ export default function User() {
               usersExtensions.map((ext) => {
                 let extDate = "";
                 if (ext?.updatedAt) {
-                  extDate = ext?.updatedAt.split(" +")[0];
+                  extDate = ext?.updatedAt.split(".")[0];
                 }
                 return (
                   <div key={ext.name} className={styles.ownedRow}>
@@ -122,7 +127,7 @@ export default function User() {
                         <p className={styles.ownedDetail}>v{ext.latestVersion}</p>
                         {extDate && (
                           <p className={styles.ownedDetail}>
-                            {ext?.updatedAt ? `updated ${formatDistanceToNow(new Date(extDate))} ago` : ""}
+                            {ext?.updatedAt ? `updated ${formatDistanceToNow(new Date(extDate.replace(/-/g, "/")))} ago` : ""}
                           </p>
                         )}
                       </div>
