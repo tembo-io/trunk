@@ -81,6 +81,7 @@ their dependencies as compiled artifacts from this registry.
 ## Contributing
 Trunk is in active development, and we look forward to the contributions the Postgres community has to offer.
 If you're interested in contributing, please open a pull request, issue, or reach out:
+
 - [Discord](https://discord.com/channels/1060568981725003789/1089363774357647370)
 - [Twitter](https://twitter.com/coredb_io)
 - Email us at [hello@coredb.io](mailto:hello@coredb.io)
