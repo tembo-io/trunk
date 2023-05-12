@@ -57,7 +57,7 @@ export default function User() {
       return isOwner > -1;
     }) ?? [];
 
-  const isSignedInUsersPage = isSignedIn && username === user.username;
+  const isSignedInUsersPage = isSignedIn && username === user?.externalAccounts[0].username;
 
   return (
     <div>
@@ -136,7 +136,14 @@ export default function User() {
               })
             ) : (
               <p className={styles.infoPara}>
-                You haven&apos;t created any extensions yet. <a href="https://coredb-io.github.io/trunk/">Create one now!</a>
+                {isSignedInUsersPage ? (
+                  <>
+                    <span>You haven&apos;t created any extensions yet.</span>{" "}
+                    <a href="https://coredb-io.github.io/trunk/">Create one now!</a>
+                  </>
+                ) : (
+                  <span>This user hasn&apos;t created any extensions yet.</span>
+                )}
               </p>
             )}
           </div>
