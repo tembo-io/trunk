@@ -1,11 +1,9 @@
 use anyhow::Error;
 use ignore::Error as IgnoreError;
-use std::{path::Path};
+use std::path::Path;
 use std::path::PathBuf;
 
-pub fn find_licenses(
-    directory: &Path,
-) -> Result<Vec<PathBuf>, Error> {
+pub fn find_licenses(directory: &Path) -> Result<Vec<PathBuf>, Error> {
     use ignore::types::TypesBuilder;
     use ignore::WalkBuilder;
 
@@ -21,7 +19,10 @@ pub fn find_licenses(
         .filter_map(|entry| match entry {
             Ok(entry) => Some(entry),
             Err(error) => {
-                IgnoreError::WithPath { path: Default::default(), err: Box::from(error) };
+                IgnoreError::WithPath {
+                    path: Default::default(),
+                    err: Box::from(error),
+                };
                 None
             }
         })

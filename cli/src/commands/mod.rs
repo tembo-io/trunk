@@ -5,9 +5,9 @@ pub mod build;
 mod containers;
 mod generic_build;
 pub mod install;
+pub mod license;
 mod pgrx;
 pub mod publish;
-pub mod license;
 
 #[async_trait]
 pub trait SubCommand {
