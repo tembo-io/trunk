@@ -67,14 +67,15 @@ export default function User() {
         {isSignedInUsersPage && (
           <div className={styles.section}>
             <div className={styles.profileRow}>
-              {user?.profileImageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  className={styles.profilePic}
-                  src={user.externalAccounts[0].avatarUrl || user.profileImageUrl}
-                  alt="User profile image"
-                />
-              )}
+              {user?.profileImageUrl ||
+                (user?.externalAccounts[0].avatarUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className={styles.profilePic}
+                    src={user.externalAccounts[0].avatarUrl || user.profileImageUrl}
+                    alt="User profile image"
+                  />
+                ))}
               <div className={styles.nameBlock}>
                 <h3 className={styles.fullName}>{user?.fullName}</h3>
                 <h4 className={styles.userName}>{user?.username}</h4>
