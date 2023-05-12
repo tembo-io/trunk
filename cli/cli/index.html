@@ -61,7 +61,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="indigo">
   
     
     
@@ -121,7 +121,7 @@
             
             
             
-            <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="dark mode"  type="radio" name="__palette" id="__palette_1">
+            <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="indigo"  aria-label="dark mode"  type="radio" name="__palette" id="__palette_1">
             
               <label class="md-header__button md-icon" title="dark mode" for="__palette_2" hidden>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
@@ -131,7 +131,7 @@
             
             
             
-            <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="light mode"  type="radio" name="__palette" id="__palette_2">
+            <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-orange" data-md-color-accent="indigo"  aria-label="light mode"  type="radio" name="__palette" id="__palette_2">
             
               <label class="md-header__button md-icon" title="light mode" for="__palette_1" hidden>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
@@ -497,12 +497,31 @@ run.</li>
 <p>The Trunk CLI is hosted at <a href="https://crates.io/crates/pg-trunk">crates.io</a> and can be installed with <code>cargo</code>.</p>
 <ol>
 <li><code>curl https://sh.rustup.rs -sSf | sh</code></li>
-<li><code>cargo install pg-trunk</code></li>
+<li>
+<p><code>cargo install pg-trunk</code></p>
+</li>
+<li>
+<p>To check you're version of Trunk, invoke <code>trunk --version</code>.</p>
+</li>
+<li>To upgrade to the latest version of Trunk, run <code>cargo install pg-trunk</code>.</li>
 </ol>
-<p>To upgrade to the latest version of Trunk, run <code>cargo install pg-trunk</code>.</p>
 <h2 id="trunk-build"><code>trunk build</code><a class="headerlink" href="#trunk-build" title="Permanent link">&para;</a></h2>
-<p>The <code>build</code> command allows for building and packaging Postgres extensions from source. Packaged extensions are written to
+<p>The <code>build</code> command allows for compiling and packaging Postgres extensions from source. Packaged extensions are written to
 <code>.trunk/&lt;extension-name&gt;-&lt;extension-version&gt;.tar.gz</code>.</p>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>build<span class="w"> </span>--help
+Usage:<span class="w"> </span>trunk<span class="w"> </span>build<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+
+Options:
+<span class="w">  </span>-p,<span class="w"> </span>--path<span class="w"> </span>&lt;PATH&gt;<span class="w">                        </span><span class="o">[</span>default:<span class="w"> </span>.<span class="o">]</span>
+<span class="w">  </span>-o,<span class="w"> </span>--output-path<span class="w"> </span>&lt;OUTPUT_PATH&gt;<span class="w">          </span><span class="o">[</span>default:<span class="w"> </span>./.trunk<span class="o">]</span>
+<span class="w">      </span>--version<span class="w"> </span>&lt;VERSION&gt;
+<span class="w">      </span>--name<span class="w"> </span>&lt;NAME&gt;
+<span class="w">      </span>--platform<span class="w"> </span>&lt;PLATFORM&gt;
+<span class="w">      </span>--dockerfile<span class="w"> </span>&lt;DOCKERFILE_PATH&gt;
+<span class="w">      </span>--install-command<span class="w"> </span>&lt;INSTALL_COMMAND&gt;
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">                               </span>Print<span class="w"> </span><span class="nb">help</span>
+</code></pre></div>
+
 <h3 id="pgrx-based-extensions">PGRX Based Extensions<a class="headerlink" href="#pgrx-based-extensions" title="Permanent link">&para;</a></h3>
 <p>Extensions can be built in many ways, and <a href="https://github.com/tcdi/pgrx">PGRX</a> allows for us to do so with Rust.
 Trunk makes building and packaging PGRX based extensions easier than ever.</p>
@@ -622,6 +641,24 @@ Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pg_stat_state
 
 <h2 id="trunk-publish"><code>trunk publish</code><a class="headerlink" href="#trunk-publish" title="Permanent link">&para;</a></h2>
 <p>The <code>publish</code> command allows you to publish your newly-minted Postgres extension to the Trunk registry.</p>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>publish<span class="w"> </span>--help
+Usage:<span class="w"> </span>trunk<span class="w"> </span>publish<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>--version<span class="w"> </span>&lt;VERSION&gt;<span class="w"> </span>&lt;NAME&gt;
+
+Arguments:
+<span class="w">  </span>&lt;NAME&gt;
+
+Options:
+<span class="w">  </span>-v,<span class="w"> </span>--version<span class="w"> </span>&lt;VERSION&gt;
+<span class="w">  </span>-f,<span class="w"> </span>--file<span class="w"> </span>&lt;FILE&gt;
+<span class="w">  </span>-d,<span class="w"> </span>--description<span class="w"> </span>&lt;DESCRIPTION&gt;
+<span class="w">  </span>-D,<span class="w"> </span>--documentation<span class="w"> </span>&lt;DOCUMENTATION&gt;
+<span class="w">  </span>-H,<span class="w"> </span>--homepage<span class="w"> </span>&lt;HOMEPAGE&gt;
+<span class="w">  </span>-l,<span class="w"> </span>--license<span class="w"> </span>&lt;LICENSE&gt;
+<span class="w">  </span>-r,<span class="w"> </span>--registry<span class="w"> </span>&lt;REGISTRY&gt;<span class="w">            </span><span class="o">[</span>default:<span class="w"> </span>https://registry.pgtrunk.io<span class="o">]</span>
+<span class="w">  </span>-R,<span class="w"> </span>--repository<span class="w"> </span>&lt;REPOSITORY&gt;
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">                           </span>Print<span class="w"> </span><span class="nb">help</span>
+</code></pre></div>
+
 <ol>
 <li>
 <p>Sign in at the <a href="https://pgtrunk.io">Trunk registry</a> and click <code>Profile</code>.</p>
@@ -648,6 +685,20 @@ Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pg_stat_state
 <h2 id="trunk-install"><code>trunk install</code><a class="headerlink" href="#trunk-install" title="Permanent link">&para;</a></h2>
 <p>The <code>install</code> command allows you to install Postgres extensions from the Trunk registry. Trunk will automatically install any
 additional extension dependencies that exist in the registry.</p>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>install<span class="w"> </span>--help
+Usage:<span class="w"> </span>trunk<span class="w"> </span>install<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>&lt;NAME&gt;
+
+Arguments:
+<span class="w">  </span>&lt;NAME&gt;
+
+Options:
+<span class="w">  </span>-p,<span class="w"> </span>--pg-config<span class="w"> </span>&lt;PG_CONFIG&gt;
+<span class="w">  </span>-f,<span class="w"> </span>--file<span class="w"> </span>&lt;FILE&gt;
+<span class="w">  </span>-v,<span class="w"> </span>--version<span class="w"> </span>&lt;VERSION&gt;<span class="w">      </span><span class="o">[</span>default:<span class="w"> </span>latest<span class="o">]</span>
+<span class="w">  </span>-r,<span class="w"> </span>--registry<span class="w"> </span>&lt;REGISTRY&gt;<span class="w">    </span><span class="o">[</span>default:<span class="w"> </span>https://registry.pgtrunk.io<span class="o">]</span>
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">                   </span>Print<span class="w"> </span><span class="nb">help</span>
+</code></pre></div>
+
 <div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>install<span class="w"> </span>pgmq
 Using<span class="w"> </span>pg_config:<span class="w"> </span>/usr/bin/pg_config
 Using<span class="w"> </span>pkglibdir:<span class="w"> </span><span class="s2">&quot;/usr/lib/postgresql/15/lib&quot;</span>
