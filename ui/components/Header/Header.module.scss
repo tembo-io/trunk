@@ -63,7 +63,7 @@
   cursor: pointer;
 
   @media screen and (max-width: 768px) {
-    justify-self: start;
+    justify-self: flex-start;
     padding: 15px 0;
     margin: 10px 0;
     font-size: 1.5rem;
