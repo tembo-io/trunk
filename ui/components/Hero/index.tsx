@@ -14,10 +14,14 @@ export default function Hero() {
         <ExtensionSearchBox></ExtensionSearchBox>
       </div>
       <h2 className={cx(inter.className, styles.subtitle)}>The easiest way to publish and install PostgreSQL extensions. </h2>
-      <a href="https://github.com/CoreDB-io/trunk" className={styles.repoButton}>
-        <Image src="/images/github.svg" alt="GitHub logo" width={20} height={20}></Image>
-        <span className={cx(inter.className, styles.repoText)}>View on GitHub</span>
-      </a>
+      <div className={styles.linkRow}>
+        <a href="https://coredb-io.github.io/trunk/" className={styles.linkButton}>
+          <span className={cx(inter.className, styles.repoText)}>Get Started</span>
+        </a>
+        <a href="https://github.com/CoreDB-io/trunk" className={styles.linkButton}>
+          <span className={cx(inter.className, styles.repoText)}>Contribute</span>
+        </a>
+      </div>
       <p className={cx(inter.className, styles.body)}>
         Trunk is an open-source package installer and registry for PostgreSQL extensions. Use the Trunk CLI to easily publish and install
         PostgreSQL extensions and their dependencies.
