@@ -12,6 +12,7 @@
   color: rgba(255, 255, 255, 0.6);
   text-align: center;
   margin: 30px auto;
+  padding: 0 5px;
 }
 .body {
   font-style: normal;
@@ -28,7 +29,7 @@
   display: flex;
   justify-content: center;
 }
-.repoButton {
+.linkButton {
   all: unset;
   margin: 0 auto;
   background-color: transparent;
@@ -36,13 +37,18 @@
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  padding: 0 15px;
+  border: 1px solid hsla(0, 0%, 100%, 1);
+  padding: 0 40px;
   height: 48px;
   cursor: pointer;
 }
 .repoText {
-  color: white;
+  color: hsla(0, 0%, 100%, 1);
   font-weight: 400;
-  font-size: 16px;
-  margin-left: 10px;
+  font-size: 1rem;
+}
+.linkRow {
+  display: flex;
+  max-width: 500px;
+  margin: 0 auto;
 }

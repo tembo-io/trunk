@@ -2,10 +2,11 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  padding: 0 20px;
+  padding: 10px 25px;
   width: 100%;
+  margin-bottom: 5px;
   background: linear-gradient(103.48deg, #d7036a 2.42%, #ff5c00 73.18%, #ff7a00 98.1%);
 }
 .title {
@@ -60,7 +61,73 @@
   font-size: 1rem;
   letter-spacing: 0.75px;
   cursor: pointer;
+
+  @media screen and (max-width: 768px) {
+    justify-self: flex-start;
+    padding: 15px 0;
+    margin: 10px 0;
+    font-size: 1.5rem;
+  }
 }
 .logoCont {
   margin-right: 10px;
+}
+.version {
+  background-color: hsla(0, 0%, 100%, 0.26);
+  border-radius: 5px;
+  margin-left: 15px;
+  color: white;
+  padding: 5px 7px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 10px;
+}
+
+.open {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.linksCont {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  @media screen and (max-width: 768px) {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+  }
+}
+.menuButton {
+  display: none;
+  text-decoration: none;
+  color: #ffffff;
+  padding: 0 0 0 20px;
+  background-color: transparent;
+  border: none;
+  font-size: 1rem;
+  letter-spacing: 0.75px;
+  cursor: pointer;
+  @media screen and (max-width: 768px) {
+    display: block;
+  }
+}
+.logo {
+  margin-right: auto;
+  text-decoration: none;
+  color: #ffffff;
+  background-color: transparent;
+  border: none;
+  font-size: 1rem;
+  letter-spacing: 0.75px;
+  cursor: pointer;
+}
+
+.showLinks {
+  display: flex;
 }
