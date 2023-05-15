@@ -190,6 +190,7 @@ pub async fn build_pgrx(
             format!("target/release/{extension_name}-pg15/usr").as_str(),
             "/",
         ],
+        None,
     )
     .await?;
 
@@ -199,20 +200,27 @@ pub async fn build_pgrx(
         docker.clone(),
         &temp_container.id,
         vec!["mkdir", "/usr/licenses/"],
+        None,
     )
     .await?;
 
-    // Iterate through license files and copy to /usr/licenses/
+    // Iterate through license files and copy to /usr/licenses/. If filename exists in /usr/licenses,
+    // append numbered suffix. Example:
+    // ❯ tar -tvf .trunk/pg_stat_statements-1.10.0.tar.gz | grep -i copyright
+    //     -rw-r--r-- 0/0            4362 2023-05-15 19:28 COPYRIGHT
+    //     -rw-r--r-- 0/0            1192 2023-05-15 19:28 COPYRIGHT.~1~
     for license in trimmed_licenses {
         let _exec_output = exec_in_container(
             docker.clone(),
             &temp_container.id,
             vec![
                 "cp",
+                "--backup",
                 "--verbose",
                 format!("{}", license).as_str(),
                 "/usr/licenses/",
             ],
+            Some(vec!["VERSION_CONTROL=numbered"]),
         )
         .await?;
     }

@@ -63,11 +63,13 @@ pub async fn exec_in_container(
     docker: Docker,
     container_id: &str,
     command: Vec<&str>,
+    env: Option<Vec<&str>>,
 ) -> Result<String, anyhow::Error> {
     println!("Executing in container: {:?}", command.join(" "));
 
     let config = CreateExecOptions {
         cmd: Some(command),
+        env,
         attach_stdout: Some(true),
         attach_stderr: Some(true),
         ..Default::default()
@@ -150,6 +152,7 @@ pub async fn find_installed_extension_files(
         docker.clone(),
         container_id,
         vec!["pg_config", "--sharedir"],
+        None,
     )
     .await?;
     let sharedir = sharedir.trim();
@@ -158,6 +161,7 @@ pub async fn find_installed_extension_files(
         docker.clone(),
         container_id,
         vec!["pg_config", "--pkglibdir"],
+        None,
     )
     .await?;
     let pkglibdir = pkglibdir.trim();
@@ -357,13 +361,15 @@ pub async fn package_installed_extension_files(
     let extension_name = extension_name.to_owned();
     let extension_version = extension_version.to_owned();
 
-    let target_arch = exec_in_container(docker.clone(), container_id, vec!["uname", "-m"]).await?;
+    let target_arch =
+        exec_in_container(docker.clone(), container_id, vec!["uname", "-m"], None).await?;
     let target_arch = target_arch.trim().to_string();
 
     let sharedir = exec_in_container(
         docker.clone(),
         container_id,
         vec!["pg_config", "--sharedir"],
+        None,
     )
     .await?;
     let sharedir = sharedir.trim();
@@ -372,6 +378,7 @@ pub async fn package_installed_extension_files(
         docker.clone(),
         container_id,
         vec!["pg_config", "--pkglibdir"],
+        None,
     )
     .await?;
     let pkglibdir = pkglibdir.trim();
