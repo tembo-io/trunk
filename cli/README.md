@@ -15,11 +15,27 @@ The Trunk CLI is hosted at [crates.io](https://crates.io/crates/pg-trunk) and ca
 1. `curl https://sh.rustup.rs -sSf | sh`
 2. `cargo install pg-trunk`
 
-To upgrade to the latest version of Trunk, run `cargo install pg-trunk`.
+- To check you're version of Trunk, invoke `trunk --version`.
+- To upgrade to the latest version of Trunk, run `cargo install pg-trunk`.
 
 ## `trunk build`
-The `build` command allows for building and packaging Postgres extensions from source. Packaged extensions are written to
+The `build` command allows for compiling and packaging Postgres extensions from source. Packaged extensions are written to
 `.trunk/<extension-name>-<extension-version>.tar.gz`.
+
+```shell
+❯ trunk build --help
+Usage: trunk build [OPTIONS]
+
+Options:
+  -p, --path <PATH>                        [default: .]
+  -o, --output-path <OUTPUT_PATH>          [default: ./.trunk]
+      --version <VERSION>
+      --name <NAME>
+      --platform <PLATFORM>
+      --dockerfile <DOCKERFILE_PATH>
+      --install-command <INSTALL_COMMAND>
+  -h, --help                               Print help
+```
 
 ### PGRX Based Extensions
 Extensions can be built in many ways, and [PGRX](https://github.com/tcdi/pgrx) allows for us to do so with Rust.
@@ -151,6 +167,24 @@ Packaged to ./.trunk/pg_stat_statements-1.10.0.tar.gz
 ## `trunk publish`
 
 The `publish` command allows you to publish your newly-minted Postgres extension to the Trunk registry.
+```shell
+❯ trunk publish --help
+Usage: trunk publish [OPTIONS] --version <VERSION> <NAME>
+
+Arguments:
+  <NAME>
+
+Options:
+  -v, --version <VERSION>
+  -f, --file <FILE>
+  -d, --description <DESCRIPTION>
+  -D, --documentation <DOCUMENTATION>
+  -H, --homepage <HOMEPAGE>
+  -l, --license <LICENSE>
+  -r, --registry <REGISTRY>            [default: https://registry.pgtrunk.io]
+  -R, --repository <REPOSITORY>
+  -h, --help                           Print help
+```
 
 1. Sign in at the [Trunk registry](https://pgtrunk.io) and click `Profile`.
 
@@ -173,6 +207,22 @@ The `publish` command allows you to publish your newly-minted Postgres extension
 
 The `install` command allows you to install Postgres extensions from the Trunk registry. Trunk will automatically install any
 additional extension dependencies that exist in the registry.
+
+```shell
+❯ trunk install --help
+Usage: trunk install [OPTIONS] <NAME>
+
+Arguments:
+  <NAME>
+
+Options:
+  -p, --pg-config <PG_CONFIG>
+  -f, --file <FILE>
+  -v, --version <VERSION>      [default: latest]
+  -r, --registry <REGISTRY>    [default: https://registry.pgtrunk.io]
+  -h, --help                   Print help
+```
+
 ```shell
 ❯ trunk install pgmq
 Using pg_config: /usr/bin/pg_config

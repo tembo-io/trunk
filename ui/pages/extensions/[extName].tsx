@@ -17,7 +17,7 @@ export default function ExtensionDetail() {
     return (
       <div>
         <Header></Header>
-        <LoadingSpinner size="lg"></LoadingSpinner>;
+        <LoadingSpinner size="lg"></LoadingSpinner>
       </div>
     );
   }
@@ -26,7 +26,7 @@ export default function ExtensionDetail() {
 
   let extDate = "";
   if (ext?.updatedAt) {
-    extDate = ext?.updatedAt.split(" +")[0];
+    extDate = ext?.updatedAt.split(".")[0];
   }
 
   return (
@@ -51,7 +51,7 @@ export default function ExtensionDetail() {
           {ext?.updatedAt && extDate && (
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>last updated</p>
-              <p className={styles.infoDetail}>{formatDistanceToNow(new Date(extDate))}</p>
+              <p className={styles.infoDetail}>{formatDistanceToNow(new Date(extDate.replace(/-/g, "/")))}</p>
             </div>
           )}
           {ext?.license && extDate && (
