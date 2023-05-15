@@ -1,6 +1,5 @@
 import cx from "classnames";
 import styles from "./Hero.module.scss";
-import Image from "next/image";
 import ExtensionSearchBox from "../ExtensionSearchBox";
 import { Inter } from "next/font/google";
 
