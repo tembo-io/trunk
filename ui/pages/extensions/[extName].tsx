@@ -17,7 +17,7 @@ export default function ExtensionDetail() {
     return (
       <div>
         <Header></Header>
-        <LoadingSpinner size="lg"></LoadingSpinner>;
+        <LoadingSpinner size="lg"></LoadingSpinner>
       </div>
     );
   }
