@@ -1,9 +1,8 @@
 use anyhow::Error;
 use ignore::Error as IgnoreError;
 use std::path::Path;
-use std::path::PathBuf;
 
-pub fn find_licenses(directory: &Path) -> Result<Vec<PathBuf>, Error> {
+pub fn find_licenses(directory: &Path) -> Result<Vec<String>, Error> {
     use ignore::types::TypesBuilder;
     use ignore::WalkBuilder;
 
@@ -29,7 +28,7 @@ pub fn find_licenses(directory: &Path) -> Result<Vec<PathBuf>, Error> {
         .filter(|entry| !entry.metadata().unwrap().is_dir())
         .for_each(|entry| {
             let path = entry.path();
-            let path_owned = path.to_owned();
+            let path_owned = path.to_str().unwrap().to_owned();
             paths.push(path_owned);
         });
 
