@@ -37,6 +37,7 @@ export default function Header({ bgTransparent = false }) {
           <Image src="/images/trunk_logo.svg" alt="Trunk logo" width={28} height={28}></Image>
         </div>
         <h1 className={cx(inter.className, styles.title)}>Trunk</h1>
+        <span className={cx(inter.className, styles.version)}>BETA</span>
       </Link>
       {user ? (
         <>
