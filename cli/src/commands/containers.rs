@@ -386,12 +386,12 @@ pub async fn package_installed_extension_files(
     let extension_files = find_installed_extension_files(docker.clone(), container_id).await?;
     let license_files = find_license_files(docker.clone(), container_id).await?;
 
-    let licensedir_list = license_files["licensedir"].clone();
     let sharedir_list = extension_files["sharedir"].clone();
     let pkglibdir_list = extension_files["pkglibdir"].clone();
+    let licensedir_list = license_files["licensedir"].clone();
 
-    let pkglibdir = pkglibdir.to_owned();
     let sharedir = sharedir.to_owned();
+    let pkglibdir = pkglibdir.to_owned();
     let licensedir = "/usr/licenses".to_owned();
 
     // In this function, we open and work with .tar only, then we finalize the package with a .gz in a separate call
