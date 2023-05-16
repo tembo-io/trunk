@@ -52,21 +52,26 @@ export default function ExtensionSearchBox() {
 
   return (
     <div className={styles.searchBoxCont} ref={resultContainerRef}>
-      <div className={styles.searchRow}>
-        <input
-          className={cx(inter.className, styles.input)}
-          type="text"
-          placeholder={isLoading ? "" : `Search ${data?.length} extensions`}
-          value={query}
-          onKeyDown={handleKeyDown}
-          onFocus={() => setShowResults(true)}
-          onChange={(e) => {
-            setSelectedItemIndex(-1);
-            setQuery(e.target.value);
-          }}
-        />
-        <button onClick={() => router.push(`/search?q=${query}`)} className={cx(inter.className, styles.searchButton)}>
-          Search
+      <div className={styles.searchCont}>
+        <div className={styles.searchRow}>
+          <input
+            className={cx(inter.className, styles.input)}
+            type="text"
+            placeholder={isLoading ? "" : `Search ${data?.length} extensions`}
+            value={query}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setShowResults(true)}
+            onChange={(e) => {
+              setSelectedItemIndex(-1);
+              setQuery(e.target.value);
+            }}
+          />
+          <button onClick={() => router.push(`/search?q=${query}`)} className={cx(inter.className, styles.searchButton)}>
+            Search
+          </button>
+        </div>
+        <button className={cx(inter.className, styles.viewAll)} onClick={() => router.push("/search?q=")}>
+          View all
         </button>
       </div>
       <div className={styles.resultContainer}>
