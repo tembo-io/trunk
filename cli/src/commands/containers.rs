@@ -63,11 +63,13 @@ pub async fn exec_in_container(
     docker: Docker,
     container_id: &str,
     command: Vec<&str>,
+    env: Option<Vec<&str>>,
 ) -> Result<String, anyhow::Error> {
     println!("Executing in container: {:?}", command.join(" "));
 
     let config = CreateExecOptions {
         cmd: Some(command),
+        env,
         attach_stdout: Some(true),
         attach_stderr: Some(true),
         ..Default::default()
@@ -150,6 +152,7 @@ pub async fn find_installed_extension_files(
         docker.clone(),
         container_id,
         vec!["pg_config", "--sharedir"],
+        None,
     )
     .await?;
     let sharedir = sharedir.trim();
@@ -158,6 +161,7 @@ pub async fn find_installed_extension_files(
         docker.clone(),
         container_id,
         vec!["pg_config", "--pkglibdir"],
+        None,
     )
     .await?;
     let pkglibdir = pkglibdir.trim();
@@ -206,11 +210,45 @@ pub async fn find_installed_extension_files(
     for pkglibdir_file in pkglibdir_list.clone() {
         println!("\t{pkglibdir_file}");
     }
-    println!();
 
     let mut result = HashMap::new();
     result.insert("sharedir".to_string(), sharedir_list);
     result.insert("pkglibdir".to_string(), pkglibdir_list);
+    Ok(result)
+}
+
+pub async fn find_license_files(
+    docker: Docker,
+    container_id: &str,
+) -> Result<HashMap<String, Vec<String>>, anyhow::Error> {
+    let licensedir = "/usr/licenses/";
+
+    // collect changes from container filesystem
+    let changes = docker
+        .container_changes(container_id)
+        .await?
+        .expect("Expected to find changed files");
+
+    let mut licensedir_list = vec![];
+
+    for change in changes {
+        if change.path.starts_with(licensedir) {
+            let file_in_licensedir = change.path;
+            let file_in_licensedir = file_in_licensedir.strip_prefix(licensedir);
+            let file_in_licensedir = file_in_licensedir.unwrap();
+            let file_in_licensedir = file_in_licensedir.trim_start_matches('/');
+            licensedir_list.push(file_in_licensedir.to_owned());
+        }
+    }
+
+    println!("License files:");
+    for license_file in licensedir_list.clone() {
+        println!("\t{license_file}");
+    }
+    println!();
+
+    let mut result = HashMap::new();
+    result.insert("licensedir".to_string(), licensedir_list);
     Ok(result)
 }
 
@@ -323,13 +361,15 @@ pub async fn package_installed_extension_files(
     let extension_name = extension_name.to_owned();
     let extension_version = extension_version.to_owned();
 
-    let target_arch = exec_in_container(docker.clone(), container_id, vec!["uname", "-m"]).await?;
+    let target_arch =
+        exec_in_container(docker.clone(), container_id, vec!["uname", "-m"], None).await?;
     let target_arch = target_arch.trim().to_string();
 
     let sharedir = exec_in_container(
         docker.clone(),
         container_id,
         vec!["pg_config", "--sharedir"],
+        None,
     )
     .await?;
     let sharedir = sharedir.trim();
@@ -338,17 +378,21 @@ pub async fn package_installed_extension_files(
         docker.clone(),
         container_id,
         vec!["pg_config", "--pkglibdir"],
+        None,
     )
     .await?;
     let pkglibdir = pkglibdir.trim();
 
     let extension_files = find_installed_extension_files(docker.clone(), container_id).await?;
+    let license_files = find_license_files(docker.clone(), container_id).await?;
 
     let sharedir_list = extension_files["sharedir"].clone();
     let pkglibdir_list = extension_files["pkglibdir"].clone();
+    let licensedir_list = license_files["licensedir"].clone();
 
-    let pkglibdir = pkglibdir.to_owned();
     let sharedir = sharedir.to_owned();
+    let pkglibdir = pkglibdir.to_owned();
+    let licensedir = "/usr/licenses".to_owned();
 
     // In this function, we open and work with .tar only, then we finalize the package with a .gz in a separate call
     let package_path = format!("{package_path}/{extension_name}-{extension_version}.tar.gz");
@@ -390,16 +434,18 @@ pub async fn package_installed_extension_files(
             // If we can get the file from the stream
             // Then we will handle packaging the file
             let path = entry.path()?.to_path_buf();
-            // Check if we found a file to package in pkglibdir
+            // Check if we found a file to package in pkglibdir, sharedir or licensedir
             let full_path = format!("/{}", path.to_str().unwrap_or(""));
             let trimmed = full_path
                 .trim_start_matches(&format!("{}/", pkglibdir.clone()))
                 .trim_start_matches(&format!("{}/", sharedir.clone()))
+                .trim_start_matches(&format!("{}/", licensedir.clone()))
                 .to_string();
             let pkglibdir_match = pkglibdir_list.contains(&trimmed);
             let sharedir_match = sharedir_list.contains(&trimmed);
+            let licensedir_match = licensedir_list.contains(&trimmed);
             // Check if we found a file to package
-            if !(sharedir_match || pkglibdir_match) {
+            if !(sharedir_match || pkglibdir_match || licensedir_match) {
                 continue;
             }
             if path.to_str() == Some("manifest.json") {
@@ -409,14 +455,16 @@ pub async fn package_installed_extension_files(
                 let root_path = Path::new("/");
                 let path = root_path.join(path);
                 let mut path = path.as_path();
-                // trim pkglibdir or sharedir from start of path
+                // trim pkglibdir, sharedir or licensedir from start of path
                 if path.to_string_lossy().contains(&pkglibdir) {
                     path = path.strip_prefix(format!("{}/", &pkglibdir))?;
                 } else if path.to_string_lossy().contains(&sharedir) {
                     path = path.strip_prefix(format!("{}/", &sharedir))?;
+                } else if path.to_string_lossy().contains(&licensedir) {
+                    path = path.strip_prefix("/usr/")?;
                 } else {
                     println!(
-                        "WARNING: Skipping file because it's not in sharedir or pkglibdir {:?}",
+                        "WARNING: Skipping file because it's not in sharedir, pkglibdir or licensedir {:?}",
                         &path
                     );
                     continue;

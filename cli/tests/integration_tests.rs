@@ -82,6 +82,14 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
         format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str()
     )
     .exists());
+    // assert any license files are included
+    let output = Command::new("tar")
+        .arg("-tvf")
+        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
+        .output()
+        .expect("failed to run tar command");
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("licenses/LICENSE.txt"));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
@@ -132,6 +140,16 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("pg_tle");
     cmd.assert().code(0);
     assert!(std::path::Path::new(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str()).exists());
+    // assert any license files are included
+    let output = Command::new("tar")
+        .arg("-tvf")
+        .arg(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str())
+        .output()
+        .expect("failed to run tar command");
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("licenses/LICENSE"));
+    assert!(stdout.contains("licenses/NOTICE"));
+
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
@@ -189,6 +207,14 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     cmd.arg("http");
     cmd.assert().code(0);
     assert!(std::path::Path::new(format!("{output_dir}/http-1.5.0.tar.gz").as_str()).exists());
+    // assert any license files are included
+    let output = Command::new("tar")
+        .arg("-tvf")
+        .arg(format!("{output_dir}/http-1.5.0.tar.gz").as_str())
+        .output()
+        .expect("failed to run tar command");
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("licenses/LICENSE.md"));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
@@ -251,6 +277,15 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
         std::path::Path::new(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
             .exists()
     );
+    // assert any license files are included
+    let output = Command::new("tar")
+        .arg("-tvf")
+        .arg(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
+        .output()
+        .expect("failed to run tar command");
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("licenses/COPYRIGHT"));
+    assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 

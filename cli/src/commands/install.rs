@@ -345,6 +345,9 @@ async fn install_file(
                         println!("[+] {} => {}", name.display(), sharedir.display());
                         entry.unpack_in(&sharedir)?;
                     }
+                    PackagedFile::LicenseFile { .. } => {
+                        println!("Skipping license file {}", name.display());
+                    }
                 }
             }
         }

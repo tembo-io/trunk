@@ -11,11 +11,15 @@ pub enum PackagedFile {
     SharedObject {},
     Bitcode {},
     Extra {},
+    LicenseFile {},
 }
 
 impl PackagedFile {
     pub fn from<P: AsRef<Path>>(path: P) -> Self {
         let extension = path.as_ref().extension();
+        if path.as_ref().starts_with("licenses") {
+            return PackagedFile::LicenseFile {};
+        }
         if let Some(ext) = extension {
             match ext.to_str() {
                 Some("control") => PackagedFile::ControlFile {},
