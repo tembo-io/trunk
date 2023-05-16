@@ -461,7 +461,7 @@ pub async fn package_installed_extension_files(
                 } else if path.to_string_lossy().contains(&sharedir) {
                     path = path.strip_prefix(format!("{}/", &sharedir))?;
                 } else if path.to_string_lossy().contains(&licensedir) {
-                    path = path.strip_prefix(format!("{}/", &licensedir))?;
+                    path = path.strip_prefix("/usr/")?;
                 } else {
                     println!(
                         "WARNING: Skipping file because it's not in sharedir, pkglibdir or licensedir {:?}",
