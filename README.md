@@ -11,7 +11,7 @@
 Trunk is an open source package manager and registry for Postgres extensions. Use the Trunk CLI to build, publish
 and install Postgres extensions _of all kinds_.
 
-![trunk-install](https://github.com/CoreDB-io/trunk/assets/8935584/3c178a85-914f-44dc-a514-5ebaf1aa6048)
+![trunk-install-larger-font](https://github.com/CoreDB-io/trunk/assets/8935584/1c09e899-c77a-48c1-a978-a46f03774f1a)
 
 ## Trunk CLI
 The Trunk CLI allows for building, publishing and installing Postgres extensions of all kinds. It abstracts away
