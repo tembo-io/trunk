@@ -19,7 +19,6 @@ export default function SearchPage() {
   const { q: query } = router.query;
   const [searchQuery, setSearchQuery] = useState<string>(query?.toString() ?? "");
   const { isLoading, data } = useQuery<ExtensionListing[]>(["extList"], fetchExtensions);
-  console.log("query", query);
 
   const handleChange = (input: string) => {
     setSearchQuery(input);
@@ -52,6 +51,13 @@ export default function SearchPage() {
         />
         <button className={cx(inter.className, styles.searchButton)}>Search</button>
       </div>
+      {searchQuery && (
+        <div style={{ textAlign: "center" }}>
+          <button className={cx(inter.className, styles.viewAll)} onClick={() => setSearchQuery("")}>
+            View all
+          </button>
+        </div>
+      )}
       {isLoading && <LoadingSpinner size="lg"></LoadingSpinner>}
       <div>
         <div className={styles.extensionList}>
@@ -73,11 +79,27 @@ export default function SearchPage() {
                       <span key={owner.userId}>{owner.userName}</span>
                     ))}
                   </p>
-                  <p className={styles.extLastUpdated}>{extDate ? `${formatDistanceToNow(new Date(extDate.replace(/-/g, "/")))} ago` : ""}</p>
+                  <p className={styles.extLastUpdated}>
+                    {extDate ? `${formatDistanceToNow(new Date(extDate.replace(/-/g, "/")))} ago` : ""}
+                  </p>
                 </div>
               </Link>
             );
           })}
+          {filteredItems.length === 0 && !isLoading && (
+            <div style={{ textAlign: "center" }}>
+              <h1 className={cx(inter.className)}>We couldn&apos;t find any extensions for that query.</h1>
+              <p className={cx(inter.className)}>Try searching again or creating your own</p>
+              <div className={styles.linkRow}>
+                <a href="https://coredb-io.github.io/trunk/" className={styles.linkButton}>
+                  <span className={cx(inter.className, styles.repoText)}>Get Started</span>
+                </a>
+                <a href="https://github.com/CoreDB-io/trunk" className={styles.linkButton}>
+                  <span className={cx(inter.className, styles.repoText)}>Contribute</span>
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
