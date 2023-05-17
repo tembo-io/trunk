@@ -15,15 +15,15 @@ pub struct BuildCommand {
     path: String,
     #[arg(short = 'o', long = "output-path", default_value = "./.trunk")]
     output_path: String,
-    #[arg(long = "version")]
+    #[arg(short = 'v', long = "version")]
     version: Option<String>,
-    #[arg(long = "name")]
+    #[arg(short = 'n', long = "name")]
     name: Option<String>,
-    #[arg(long = "platform")]
+    #[arg(short = 'pl', long = "platform")]
     platform: Option<String>,
-    #[arg(long = "dockerfile")]
+    #[arg(short = 'd', long = "dockerfile")]
     dockerfile_path: Option<String>,
-    #[arg(long = "install-command")]
+    #[arg(short = 'i', long = "install-command")]
     install_command: Option<String>,
 }
 
