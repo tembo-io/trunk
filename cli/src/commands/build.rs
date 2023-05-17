@@ -19,7 +19,7 @@ pub struct BuildCommand {
     version: Option<String>,
     #[arg(short = 'n', long = "name")]
     name: Option<String>,
-    #[arg(short = 'pl', long = "platform")]
+    #[arg(short = 'P', long = "platform")]
     platform: Option<String>,
     #[arg(short = 'd', long = "dockerfile")]
     dockerfile_path: Option<String>,
