@@ -10,8 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import { ExtensionListing } from "@/types";
 import fetchExtensions from "@/lib/fetchExtensions";
-import { formatDistanceToNow } from "date-fns";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { formatDateString } from "@/lib/formatDate";
 const inter = Inter({ subsets: ["latin"], weight: ["400", "700"] });
 
 export default function SearchPage() {
@@ -61,31 +61,23 @@ export default function SearchPage() {
       {isLoading && <LoadingSpinner size="lg"></LoadingSpinner>}
       <div>
         <div className={styles.extensionList}>
-          {filteredItems.map((ext) => {
-            let extDate = "";
-            if (ext?.updatedAt) {
-              extDate = ext?.updatedAt.split(".")[0];
-            }
-            return (
-              <Link href={`/extensions/${ext.name}`} key={ext.name} className={styles.extCont}>
-                <div className={styles.titleRow}>
-                  <p className={styles.extName}>{ext.name}</p>
-                  <p className={styles.extVersion}>v{ext.latestVersion}</p>
-                </div>
-                <p className={styles.extDesc}>{truncateString(ext.description, 200)}</p>
-                <div className={styles.extFooter}>
-                  <p className={styles.extAuthor}>
-                    {ext.owners.map((owner) => (
-                      <span key={owner.userId}>{owner.userName}</span>
-                    ))}
-                  </p>
-                  <p className={styles.extLastUpdated}>
-                    {extDate ? `${formatDistanceToNow(new Date(extDate.replace(/-/g, "/")))} ago` : ""}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
+          {filteredItems.map((ext) => (
+            <Link href={`/extensions/${ext.name}`} key={ext.name} className={styles.extCont}>
+              <div className={styles.titleRow}>
+                <p className={styles.extName}>{ext.name}</p>
+                <p className={styles.extVersion}>v{ext.latestVersion}</p>
+              </div>
+              <p className={styles.extDesc}>{truncateString(ext.description, 200)}</p>
+              <div className={styles.extFooter}>
+                <p className={styles.extAuthor}>
+                  {ext.owners.map((owner) => (
+                    <span key={owner.userId}>{owner.userName}</span>
+                  ))}
+                </p>
+                <p className={styles.extLastUpdated}>{ext.updatedAt ? formatDateString(ext.updatedAt) : ""}</p>
+              </div>
+            </Link>
+          ))}
           {filteredItems.length === 0 && !isLoading && (
             <div style={{ textAlign: "center" }}>
               <h1 className={cx(inter.className)}>We couldn&apos;t find any extensions for that query.</h1>
