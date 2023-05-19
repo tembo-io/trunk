@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import fetchExtensions from "@/lib/fetchExtensions";
 import Header from "@/components/Header";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { ExtensionListing } from "@/types";
+import { formatDateString } from "@/lib/formatDate";
 
 export default function ExtensionDetail() {
   const router = useRouter();
@@ -23,11 +23,6 @@ export default function ExtensionDetail() {
   }
 
   const ext = data.find((item) => item.name === extName);
-
-  let extDate = "";
-  if (ext?.updatedAt) {
-    extDate = ext?.updatedAt.split(".")[0];
-  }
 
   return (
     <div>
@@ -48,13 +43,13 @@ export default function ExtensionDetail() {
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>About</h2>
 
-          {ext?.updatedAt && extDate && (
+          {ext?.updatedAt && (
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>last updated</p>
-              <p className={styles.infoDetail}>{formatDistanceToNow(new Date(extDate.replace(/-/g, "/")))}</p>
+              <p className={styles.infoDetail}>{formatDateString(ext.updatedAt)}</p>
             </div>
           )}
-          {ext?.license && extDate && (
+          {ext?.license && (
             <div className={styles.aboutSection}>
               <p className={styles.infoPara}>license</p>
               <p className={styles.infoDetail}>{ext?.license}</p>
