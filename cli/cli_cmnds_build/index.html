@@ -9,17 +9,17 @@
       
       
       
-        <link rel="prev" href="../../cli/cli_cmnds_build/">
+        <link rel="prev" href="../cli/">
       
       
-        <link rel="next" href="../../ui/ui/">
+        <link rel="next" href="../../registry/registry/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.13">
     
     
       
-        <title>Registry - Trunk</title>
+        <title>Build - Trunk</title>
       
     
     
@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#trunk-registry-httpspgtrunkio" class="md-skip">
+        <a href="#build" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Registry
+              Build
             
           </span>
         </div>
@@ -235,7 +235,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         CLI
       </a>
     </li>
@@ -248,14 +248,16 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
       
       
       
@@ -264,7 +266,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
           Commands
@@ -273,28 +275,6 @@
           
             
               
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cli/cli_cmnds_build/" class="md-nav__link">
-        Build
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
   
   
     
@@ -309,12 +289,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Registry
+          Build
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Registry
+        Build
       </a>
       
         
@@ -333,23 +313,65 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#development" class="md-nav__link">
-    Development
+  <a href="#options" class="md-nav__link">
+    Options
   </a>
   
-    <nav class="md-nav" aria-label="Development">
+    <nav class="md-nav" aria-label="Options">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    Getting Started
+  <a href="#-p-path" class="md-nav__link">
+    -p, --path
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
+  <a href="#-o-output-path" class="md-nav__link">
+    -o, --output-path
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-v-version" class="md-nav__link">
+    -v, --version
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-n-name" class="md-nav__link">
+    -n, --name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-p-platform" class="md-nav__link">
+    -P, --platform
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-d-dockerfile" class="md-nav__link">
+    -d, --dockerfile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-i-install-command" class="md-nav__link">
+    -i, --install-command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-h-help" class="md-nav__link">
+    --h, --help
   </a>
   
 </li>
@@ -360,9 +382,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
-    Architecture
+  <a href="#example" class="md-nav__link">
+    Example
   </a>
+  
+    <nav class="md-nav" aria-label="Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pgrx-based-extensions" class="md-nav__link">
+    PGRX Based Extensions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -370,6 +405,28 @@
   
 </nav>
       
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../registry/registry/" class="md-nav__link">
+        Registry
+      </a>
     </li>
   
 
@@ -416,23 +473,65 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#development" class="md-nav__link">
-    Development
+  <a href="#options" class="md-nav__link">
+    Options
   </a>
   
-    <nav class="md-nav" aria-label="Development">
+    <nav class="md-nav" aria-label="Options">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    Getting Started
+  <a href="#-p-path" class="md-nav__link">
+    -p, --path
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
+  <a href="#-o-output-path" class="md-nav__link">
+    -o, --output-path
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-v-version" class="md-nav__link">
+    -v, --version
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-n-name" class="md-nav__link">
+    -n, --name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-p-platform" class="md-nav__link">
+    -P, --platform
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-d-dockerfile" class="md-nav__link">
+    -d, --dockerfile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-i-install-command" class="md-nav__link">
+    -i, --install-command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-h-help" class="md-nav__link">
+    --h, --help
   </a>
   
 </li>
@@ -443,9 +542,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
-    Architecture
+  <a href="#example" class="md-nav__link">
+    Example
   </a>
+  
+    <nav class="md-nav" aria-label="Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pgrx-based-extensions" class="md-nav__link">
+    PGRX Based Extensions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -464,76 +576,71 @@
                   
 
 
-<h1 id="trunk-registry-httpspgtrunkio">Trunk Registry - https://pgtrunk.io<a class="headerlink" href="#trunk-registry-httpspgtrunkio" title="Permanent link">&para;</a></h1>
-<p>The Trunk registry serves as the community's hub for Postgres extensions of all kinds. It stores extension information
-in its database and compiled extension artifacts in AWS S3. Features include:</p>
+<h1 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h1>
+<p>The <code>build</code> command allows for compiling and packaging Postgres extensions from source. Packaged extensions are written to .trunk/<extension-name>-<extension-version>.tar.gz.</p>
+<h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
+<h3 id="-p-path">-p, --path<a class="headerlink" href="#-p-path" title="Permanent link">&para;</a></h3>
+<p>Define a path that the Trunk CLI will use to search for relevant files.</p>
 <ul>
-<li>Extension discovery and search</li>
-<li>Publish extensions for community use</li>
-<li>Install extensions in Postgres</li>
-<li>Usage metrics to provide insight into popular and well-maintained extensions</li>
-<li>Version tracking and new release email notifications</li>
+<li>Default Behavior: If this option is not specified, the Trunk CLI operates in the directory where the build command is invoked.</li>
 </ul>
-<h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
-<h3 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h3>
-<ol>
-<li>
-<p>Start postgres database
-    <code>docker run -it --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:latest</code></p>
-</li>
-<li>
-<p>Set connection string environment variable. This can also be configured in <code>.env</code>.
-    <code>export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres"</code></p>
-</li>
-<li>
-<p>Initialize database (must install <a href="https://crates.io/crates/sqlx-cli">sqlx</a>)
-    <code>cargo sqlx migrate run</code></p>
-</li>
-<li>
-<p>Run, with automatic reloads (uses <a href="https://crates.io/crates/cargo-watch">cargo watch</a>)
-    <code>cargo watch -x run</code></p>
-</li>
-</ol>
-<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h3>
-<p>The registry will run at <code>http://localhost:8080</code> by default. The <a href="../cli">Trunk CLI</a> can be configured to interact with
-a local registry by using the <code>--registry</code> flag. Example:</p>
-<div class="codehilite"><pre><span></span><code>trunk<span class="w"> </span>publish<span class="w"> </span>pgmq<span class="w"> </span><span class="se">\</span>
---version<span class="w"> </span><span class="m">0</span>.5.0<span class="w"> </span><span class="se">\</span>
---description<span class="w"> </span><span class="s2">&quot;Message queue for Postgres&quot;</span><span class="w"> </span><span class="se">\</span>
---documentation<span class="w"> </span><span class="s2">&quot;https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension&quot;</span><span class="w"> </span><span class="se">\</span>
---repository<span class="w"> </span><span class="s2">&quot;https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension&quot;</span><span class="w"> </span><span class="se">\</span>
---license<span class="w"> </span><span class="s2">&quot;Apache-2.0&quot;</span><span class="w"> </span><span class="se">\</span>
---homepage<span class="w"> </span><span class="s2">&quot;https://github.com/CoreDB-io/coredb&quot;</span><span class="w"> </span><span class="se">\</span>
---registry<span class="w"> </span>http://localhost:8080
+<h3 id="-o-output-path">-o, --output-path<a class="headerlink" href="#-o-output-path" title="Permanent link">&para;</a></h3>
+<p>Sets the directory where the product is written to.</p>
+<ul>
+<li>Default Behavior: If this option is not specified, a new directory named .trunk is created in the current directory, resulting in ./.trunk.</li>
+</ul>
+<h3 id="-v-version">-v, --version<a class="headerlink" href="#-v-version" title="Permanent link">&para;</a></h3>
+<p>Use this option to specify the version of the extension. The version is usually associated with the highest value found in a SQL file. Trunk abides by semantic versioning standards. For more information, please refer to the [SOURCE LINK HERE].</p>
+<ul>
+<li>Default Behavior: It is required to include the extension version. Failing to do so will cause an error.</li>
+</ul>
+<h3 id="-n-name">-n, --name<a class="headerlink" href="#-n-name" title="Permanent link">&para;</a></h3>
+<p>This option allows you to define the name of your extension. While you have creative freedom, a good naming convention<code>pg_</code>.</p>
+<ul>
+<li>Default Behavior: Similar to --version, it is necessary to attribute a name to the extension you would like to build.</li>
+</ul>
+<h3 id="-p-platform">-P, --platform<a class="headerlink" href="#-p-platform" title="Permanent link">&para;</a></h3>
+<p>This option enables you to specify the target architecture that will be used when building the extension. This allows you to ensure compatibility of your extension with the desired systems. The current options are as follows:</p>
+<ul>
+<li>linux/amd64</li>
+<li>arm</li>
+</ul>
+<h3 id="-d-dockerfile">-d, --dockerfile<a class="headerlink" href="#-d-dockerfile" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Updates to come.</li>
+<li>Default Behavior: If this option is not specified and a Makefile is detected, the default Dockerfile at ./builders/Dockerfile.generic is used. If a Cargo.toml file is detected, the Dockerfile is not required. </li>
+</ul>
+<h3 id="-i-install-command">-i, --install-command<a class="headerlink" href="#-i-install-command" title="Permanent link">&para;</a></h3>
+<p>This option is used to specify the command that will be used to install the extension during the build process. In the context of this build script, if a Cargo.toml file is detected, the script assumes that it's building a pgrx extension and handles the build process internally. In other words, it does not require an install command. However, if a Makefile is detected, the script presumes that it is building an extension with make and make install. In this scenario, the --install-command becomes essential.</p>
+<ul>
+<li>Default Behavior: If this option is not specified, the default install command make install is used.</li>
+<li>Note: The --install-command is only used when building with a Makefile. The --version and --name options are mandatory in this case.</li>
+</ul>
+<h3 id="-h-help">--h, --help<a class="headerlink" href="#-h-help" title="Permanent link">&para;</a></h3>
+<p>This option displays a help message summarizing the usage of the command-line options.</p>
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<h3 id="pgrx-based-extensions">PGRX Based Extensions<a class="headerlink" href="#pgrx-based-extensions" title="Permanent link">&para;</a></h3>
+<p>Extensions can be built in many ways, and <a href="https://github.com/tcdi/pgrx">PGRX</a> allows for us to do so with Rust.
+Trunk makes building and packaging PGRX based extensions easier than ever.</p>
+<p>Example <code>trunk build</code> with PGRX based extension
+<a href="https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension">pgmq</a>:</p>
+<div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>build
+Building<span class="w"> </span>from<span class="w"> </span>path<span class="w"> </span>.
+Detected<span class="w"> </span>that<span class="w"> </span>we<span class="w"> </span>are<span class="w"> </span>building<span class="w"> </span>a<span class="w"> </span>pgrx<span class="w"> </span>extension
+Detected<span class="w"> </span>pgrx<span class="w"> </span>version<span class="w"> </span>range<span class="w"> </span><span class="m">0</span>.7.4
+Using<span class="w"> </span>pgrx<span class="w"> </span>version<span class="w"> </span><span class="m">0</span>.7.4
+Building<span class="w"> </span>pgrx<span class="w"> </span>extension<span class="w"> </span>at<span class="w"> </span>path<span class="w"> </span>.
+.
+.
+.
+Creating<span class="w"> </span>package<span class="w"> </span>at:<span class="w"> </span>./.trunk/pgmq-0.5.0.tar.gz
+Create<span class="w"> </span>Trunk<span class="w"> </span>bundle:
+<span class="w">    </span>pgmq.so
+<span class="w">    </span>extension/pgmq--0.5.0.sql
+<span class="w">    </span>extension/pgmq.control
+<span class="w">    </span>manifest.json
+Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pgmq-0.5.0.tar.gz
 </code></pre></div>
-
-<p>Routes can also be called with tools like <code>curl</code>. Examples:</p>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>--request<span class="w"> </span>GET<span class="w"> </span>--url<span class="w"> </span><span class="s1">&#39;http://localhost:8080/extensions/all&#39;</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>--request<span class="w"> </span>GET<span class="w"> </span>--url<span class="w"> </span><span class="s1">&#39;http://localhost:8080/extensions/pgmq/0.5.0/download&#39;</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>--request<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="si">${</span><span class="nv">TOKEN</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--url<span class="w"> </span><span class="s1">&#39;http://localhost:8080/token/new&#39;</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-F<span class="w"> </span><span class="nv">metadata</span><span class="o">=</span><span class="s1">&#39;{\</span>
-<span class="s1">&quot;name&quot;: &quot;pgmq&quot;, \</span>
-<span class="s1">&quot;vers&quot;: &quot;0.5.0&quot;, \</span>
-<span class="s1">&quot;description&quot;: &quot;Message queue for Postgres&quot;, \</span>
-<span class="s1">&quot;documentation&quot;: &quot;https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension&quot;, \</span>
-<span class="s1">&quot;repository&quot;: &quot;https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension&quot;, \</span>
-<span class="s1">&quot;license&quot;: &quot;Apache-2.0&quot;, \</span>
-<span class="s1">&quot;homepage&quot;: &quot;https://coredb.io&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
--F<span class="w"> </span><span class="nv">file</span><span class="o">=</span>@./pgmq-0.5.0.tar.gz<span class="w"> </span>--url<span class="w"> </span><span class="s1">&#39;http://localhost:8080/extensions/new&#39;</span>
-</code></pre></div>
-
-<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
-<p>The Trunk registry is made up of the following components:
-- API
-- PostgreSQL database
-- AWS S3 bucket</p>
-<p><img alt="architecture.svg" src="../assets/architecture.svg" /></p>
 
 
 
