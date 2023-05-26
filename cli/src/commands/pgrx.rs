@@ -266,6 +266,6 @@ mod tests {
     fn test_semver_from_range_semver_range() {
         // Test that a semver range is converted to the highest matching version
         let result = semver_from_range(">=0.8.1, <0.9.0");
-        assert_eq!(result.unwrap(), "0.8.2");
+        assert_eq!(result.unwrap(), "0.8.4");
     }
 }
