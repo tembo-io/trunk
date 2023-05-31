@@ -6,13 +6,13 @@ on:
       - 'main'
     paths:
       - "cli/images/**"
-      - ".github/workflows/images.yaml"
+      - ".github/workflows/images.yml"
   pull_request:
     branches:
       - 'main'
     paths:
       - "cli/images/**"
-      - ".github/workflows/images.yaml"
+      - ".github/workflows/images.yml"
 
 
 jobs:
