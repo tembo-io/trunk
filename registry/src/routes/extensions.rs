@@ -296,3 +296,51 @@ pub async fn get_all_extensions(
     let json = serde_json::to_string_pretty(&extensions)?;
     Ok(HttpResponse::Ok().body(json))
 }
+
+#[get("/extensions/detail/{extension_name}")]
+pub async fn get_version_history(
+    conn: web::Data<Pool<Postgres>>,
+    path: web::Path<String>,
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    let name = path.into_inner();
+    let mut versions: Vec<Value> = Vec::new();
+
+    // Create a database transaction
+    let mut tx = conn.begin().await?;
+    // Get extension information
+    let row = sqlx::query!("SELECT * FROM extensions WHERE name = $1", name)
+        .fetch_one(&mut tx)
+        .await?;
+    let id: i32 = row.id as i32;
+    let name = row.name.to_owned().unwrap();
+    let description = row.description.to_owned();
+    let homepage = row.homepage.to_owned();
+    let documentation = row.documentation.to_owned();
+    let repository = row.repository.to_owned();
+    let owners = extension_owners(&name, conn.clone()).await?;
+
+    // Get information for all versions of extension
+    let rows = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1", id)
+        .fetch_all(&mut tx)
+        .await?;
+    for row in rows.iter() {
+        let data = json!(
+        {
+          "name": name.to_owned(),
+          "version": row.num,
+          "createdAt": row.created_at.to_string(),
+          "updatedAt": row.updated_at.to_string(),
+          "description": description,
+          "homepage": homepage,
+          "documentation": documentation,
+          "repository": repository,
+          "license": row.license,
+          "owners": owners,
+          "publisher": row.published_by
+        });
+        versions.push(data);
+    }
+    // Return results in response
+    let json = serde_json::to_string_pretty(&versions)?;
+    Ok(HttpResponse::Ok().body(json))
+}
