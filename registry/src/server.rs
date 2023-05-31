@@ -15,7 +15,7 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
         .service(routes::download::download)
         .service(
             web::scope("/token")
-                .wrap(ClerkMiddleware::new(clerk_cfg))
+                .wrap(ClerkMiddleware::new(clerk_cfg, None))
                 .service(new_token),
         );
 }
