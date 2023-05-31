@@ -31,6 +31,8 @@ jobs:
         pgrx_version:
           - "0.7.4"
           - "0.8.0"
+          - "0.8.3"
+          - "0.8.4"
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
