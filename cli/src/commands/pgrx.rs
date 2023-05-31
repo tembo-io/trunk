@@ -54,7 +54,7 @@ pub enum PgrxBuildError {
 }
 
 fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
-    let versions = ["0.8.4", "0.8.3", "0.8.2", "0.8.1", "0.8.0", "0.7.4"];
+    let versions = ["0.8.4", "0.8.3", "0.8.0", "0.7.4"];
 
     if versions.contains(&pgrx_range) {
         // If the input is already a specific version, return it as-is
@@ -247,25 +247,25 @@ mod tests {
     #[test]
     fn test_semver_from_range_specific_version() {
         // Test that a specific version string is returned as-is
-        let result = semver_from_range("0.8.1");
-        assert_eq!(result.unwrap(), "0.8.1");
-        let result = semver_from_range("0.8.2");
-        assert_eq!(result.unwrap(), "0.8.2");
+        let result = semver_from_range("0.8.3");
+        assert_eq!(result.unwrap(), "0.8.3");
+        let result = semver_from_range("0.8.4");
+        assert_eq!(result.unwrap(), "0.8.4");
     }
 
     #[test]
     fn test_semver_from_range_specific_version_with_equals() {
         // Test that a specific version string is returned as-is
-        let result = semver_from_range("=0.8.1");
-        assert_eq!(result.unwrap(), "0.8.1");
-        let result = semver_from_range("=0.8.2");
-        assert_eq!(result.unwrap(), "0.8.2");
+        let result = semver_from_range("=0.8.3");
+        assert_eq!(result.unwrap(), "0.8.3");
+        let result = semver_from_range("=0.8.4");
+        assert_eq!(result.unwrap(), "0.8.4");
     }
 
     #[test]
     fn test_semver_from_range_semver_range() {
         // Test that a semver range is converted to the highest matching version
-        let result = semver_from_range(">=0.8.1, <0.9.0");
+        let result = semver_from_range(">=0.8.0, <0.9.0");
         assert_eq!(result.unwrap(), "0.8.4");
     }
 }
