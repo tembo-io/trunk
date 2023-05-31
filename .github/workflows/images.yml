@@ -6,13 +6,13 @@ on:
       - 'main'
     paths:
       - "cli/images/**"
-      - ".github/workflows/images.yaml"
+      - ".github/workflows/images.yml"
   pull_request:
     branches:
       - 'main'
     paths:
       - "cli/images/**"
-      - ".github/workflows/images.yaml"
+      - ".github/workflows/images.yml"
 
 
 jobs:
@@ -31,6 +31,8 @@ jobs:
         pgrx_version:
           - "0.7.4"
           - "0.8.0"
+          - "0.8.3"
+          - "0.8.4"
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
