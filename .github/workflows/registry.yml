@@ -81,6 +81,7 @@ jobs:
       - large-8x8
     env:
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
+      CLERK_SECRET_KEY: ""
     services:
       # Label used to access the service container
       postgres:
