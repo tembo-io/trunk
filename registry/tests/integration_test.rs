@@ -5,6 +5,8 @@ mod tests {
     use super::*;
     use actix_web::test;
     use trunk_registry::routes::extensions::get_all_extensions;
+    use sqlx;
+    use trunk_registry::connect;
 
     /// make sure the webserver boots up
     #[actix_web::test]
@@ -12,8 +14,18 @@ mod tests {
         env_logger::init();
 
         let cfg = trunk_registry::config::Config::default();
+        let conn = connect(&cfg.database_url)
+            .await
+            .expect("error connecting to database");
+
+        sqlx::migrate!()
+            .run(&conn)
+            .await
+            .expect("error running migrations");
+
         let app = test::init_service(
             App::new()
+                .app_data(web::Data::new(conn.clone()))
                 .app_data(web::Data::new(cfg.clone()))
                 .service(get_all_extensions),
         )
