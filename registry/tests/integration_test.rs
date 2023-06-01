@@ -4,9 +4,9 @@ use actix_web::{web, App};
 mod tests {
     use super::*;
     use actix_web::test;
-    use trunk_registry::routes::extensions::get_all_extensions;
     use sqlx;
     use trunk_registry::connect;
+    use trunk_registry::routes::extensions::get_all_extensions;
 
     /// make sure the webserver boots up
     #[actix_web::test]
