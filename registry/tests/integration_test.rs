@@ -6,6 +6,7 @@ mod tests {
     use actix_web::test;
     use sqlx;
     use trunk_registry::connect;
+    use trunk_registry::routes::download::download;
     use trunk_registry::routes::extensions::get_all_extensions;
     use trunk_registry::routes::root::ok;
     use trunk_registry::routes::token::new_token;
@@ -34,6 +35,7 @@ mod tests {
                 .app_data(web::Data::new(cfg.clone()))
                 .service(ok)
                 .service(get_all_extensions)
+                .service(download)
                 .service(web::scope("/token").service(new_token)),
         )
         .await;
@@ -66,7 +68,14 @@ mod tests {
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
 
+        // Test /
         let req = test::TestRequest::get().uri("/").to_request();
+        let resp = test::call_service(&app, req).await;
+        println!("status: {:?}", resp.response());
+        assert!(resp.status().is_success());
+
+        // Test /extensions/{extension_name}/{version}/download
+        let req = test::TestRequest::get().uri("/extensions/my_extension/0.0.1/download").to_request();
         let resp = test::call_service(&app, req).await;
         println!("status: {:?}", resp.response());
         assert!(resp.status().is_success());
