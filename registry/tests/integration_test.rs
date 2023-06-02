@@ -7,7 +7,7 @@ mod tests {
     use sqlx;
     use trunk_registry::connect;
     use trunk_registry::routes::download::download;
-    use trunk_registry::routes::extensions::get_all_extensions;
+    use trunk_registry::routes::extensions::{get_all_extensions, get_version_history};
     use trunk_registry::routes::root::ok;
     use trunk_registry::routes::token::new_token;
     use trunk_registry::token::check_token_input;
@@ -53,7 +53,7 @@ mod tests {
         let valid_result = check_token_input(&t);
         assert!(matches!(valid_result, Ok(())));
 
-        // Publish dummy extension
+        // TODO(ianstanton) Publish dummy extension
 
         // good request should succeed
         let req = test::TestRequest::get().uri("/extensions/all").to_request();
@@ -75,9 +75,14 @@ mod tests {
         assert!(resp.status().is_success());
 
         // Test /extensions/{extension_name}/{version}/download
-        let req = test::TestRequest::get().uri("/extensions/my_extension/0.0.1/download").to_request();
+        let req = test::TestRequest::get()
+            .uri("/extensions/my_extension/0.0.1/download")
+            .to_request();
         let resp = test::call_service(&app, req).await;
         println!("status: {:?}", resp.response());
         assert!(resp.status().is_success());
+
+        // TODO(ianstanton) Test /extensions/detail/{extension_name}. Requires publishing dummy
+        //  extension
     }
 }
