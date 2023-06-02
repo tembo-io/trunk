@@ -55,13 +55,12 @@ mod tests {
 
         // TODO(ianstanton) Publish dummy extension
 
-        // good request should succeed
+        // Test /extensions/all
         let req = test::TestRequest::get().uri("/extensions/all").to_request();
         let resp = test::call_service(&app, req).await;
         println!("status: {:?}", resp.response());
         assert!(resp.status().is_success());
 
-        // bad request should be client error
         let req = test::TestRequest::get()
             .uri("/extensions/get-all")
             .to_request();
