@@ -67,13 +67,58 @@ jobs:
       - name: Cargo format
         run: cargo +nightly fmt --all --check
       - name: Run migrations
-        # ensure migration cache is up-to-date
         run: cargo sqlx migrate run
       - name: Migrations check
         # ensure migration cache is up-to-date
         run: cargo sqlx prepare --check
       - name: Clippy
         run: cargo clippy -- -Dwarnings
+  test:
+    name: Run tests
+    runs-on:
+      - self-hosted
+      - dind
+      - large-8x8
+    env:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
+      CLERK_SECRET_KEY: ""
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "trunk-registry-functional-test"
+          workspaces: |
+            registry
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libssl-dev
+      - name: install sqlx-cli
+        run: cargo install sqlx-cli
+      - name: Run migrations
+        run: cargo sqlx migrate run
+      - name: Run functional tests
+        run: cargo test -- --nocapture
   build-push-image:
     name: Build and push image
     runs-on:
