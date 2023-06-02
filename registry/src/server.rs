@@ -10,6 +10,7 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
     configuration
         .service(routes::root::ok)
         .service(routes::extensions::get_all_extensions)
+        .service(routes::extensions::get_version_history)
         .service(routes::extensions::publish)
         .service(routes::download::download)
         .service(
