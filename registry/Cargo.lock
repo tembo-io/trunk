@@ -823,9 +823,9 @@ dependencies = [
 
 [[package]]
 name = "clerk-rs"
-version = "0.1.5"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b70300845a5120207ecda62f02db2c8468ff653b91375527c61b5e1aacec962"
+checksum = "c92b3f9da1eb67fe624da533d8e9ca65209c9a24bd85db74339faa3fb05783d7"
 dependencies = [
  "actix-web",
  "futures-util",
