@@ -312,7 +312,6 @@ pub async fn get_version_history(
         .fetch_one(&mut tx)
         .await?;
     let id: i32 = row.id as i32;
-    let name = row.name.to_owned().unwrap();
     let description = row.description.to_owned();
     let homepage = row.homepage.to_owned();
     let documentation = row.documentation.to_owned();
