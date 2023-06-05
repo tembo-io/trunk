@@ -32,6 +32,8 @@ pub struct PublishCommand {
     registry: String,
     #[arg(long = "repository", short = 'R')]
     repository: Option<String>,
+    #[arg(long = "categories", short = 'c')]
+    categories: Option<Vec<String>>,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -45,6 +47,7 @@ impl SubCommand for PublishCommand {
     async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
         // Validate extension name input
         check_input(&self.name)?;
+        // Validate categories
         let (file, name) = match &self.file {
             Some(..) => {
                 // If file is specified, use it
