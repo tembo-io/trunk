@@ -88,3 +88,24 @@ pub async fn latest_license(
     .await?;
     Ok(latest_license.license.unwrap_or("".to_string()))
 }
+
+// Add category to extension
+pub async fn add_extension_category(
+    extension_id: i64,
+    category_id: i64,
+    conn: Data<Pool<Postgres>>,
+) -> Result<(), ExtensionRegistryError> {
+    let mut tx = conn.begin().await?;
+    sqlx::query!(
+        "
+        INSERT INTO extensions_categories(extension_id, category_id)
+        VALUES ($1, $2)
+        ",
+        extension_id as i32,
+        category_id as i32
+    )
+        .execute(&mut tx)
+        .await?;
+    tx.commit().await?;
+    Ok(())
+}
