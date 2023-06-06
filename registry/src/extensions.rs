@@ -104,8 +104,8 @@ pub async fn add_extension_category(
         extension_id as i32,
         category_id as i32
     )
-        .execute(&mut tx)
-        .await?;
+    .execute(&mut tx)
+    .await?;
     tx.commit().await?;
     Ok(())
 }

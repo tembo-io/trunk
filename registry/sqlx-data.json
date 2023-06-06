@@ -741,5 +741,18 @@
       }
     },
     "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)\n            "
+  },
+  "dd5e154fe1a9ead3c69392ce5b1f17bbdbbdad6df628fe31198fa5ddbf77b038": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "\n        INSERT INTO extensions_categories(extension_id, category_id)\n        VALUES ($1, $2)\n        "
   }
 }
