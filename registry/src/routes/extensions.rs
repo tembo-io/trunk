@@ -189,16 +189,13 @@ pub async fn publish(
             }
 
             // If categories is not None, update
-            match new_extension.categories {
-                Some(_) => {
-                    update_extension_categories(
-                        extension_id,
-                        new_extension.categories.clone().unwrap(),
-                        conn,
-                    )
-                    .await?
-                }
-                _ => (),
+            if new_extension.categories.is_some() {
+                update_extension_categories(
+                    extension_id,
+                    new_extension.categories.clone().unwrap(),
+                    conn.clone(),
+                )
+                .await?
             }
 
             // Set updated_at time on extension
@@ -252,16 +249,13 @@ pub async fn publish(
             tx.commit().await?;
 
             // If categories not None, update
-            match new_extension.categories {
-                Some(_) => {
-                    update_extension_categories(
-                        extension_id,
-                        new_extension.categories.clone().unwrap(),
-                        conn.clone(),
-                    )
-                    .await?
-                }
-                _ => (),
+            if new_extension.categories.is_some() {
+                update_extension_categories(
+                    extension_id,
+                    new_extension.categories.clone().unwrap(),
+                    conn.clone(),
+                )
+                .await?
             }
 
             // Set user ID as an owner of the new extension
@@ -304,7 +298,7 @@ pub async fn get_all_extensions(
         .await?;
     for row in rows.iter() {
         let name = row.name.to_owned().unwrap();
-        let id = row.id as i64;
+        let id = row.id;
         let version = latest_version(&name, conn.clone()).await?;
         let license = latest_license(&name, conn.clone()).await?;
         let owners = extension_owners(&name, conn.clone()).await?;
