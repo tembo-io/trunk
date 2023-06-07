@@ -3,9 +3,7 @@
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
-use crate::extensions::{
-    add_extension_owner, check_input, extension_owners, latest_license, update_extension_categories,
-};
+use crate::extensions::{add_extension_owner, check_input, extension_owners, get_categories, get_category_ids, latest_license, update_extension_categories};
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
@@ -303,9 +301,11 @@ pub async fn get_all_extensions(
         .await?;
     for row in rows.iter() {
         let name = row.name.to_owned().unwrap();
+        let id = row.id as i64;
         let version = latest_version(&name, conn.clone()).await?;
         let license = latest_license(&name, conn.clone()).await?;
         let owners = extension_owners(&name, conn.clone()).await?;
+        let categories = get_categories(id, conn.clone()).await?;
         let data = json!(
         {
           "name": row.name.to_owned(),
@@ -317,7 +317,8 @@ pub async fn get_all_extensions(
           "documentation": row.documentation.to_owned(),
           "repository": row.repository.to_owned(),
           "license": license,
-          "owners": owners
+          "owners": owners,
+          "categories": categories
         });
         extensions.push(data);
     }
@@ -346,6 +347,7 @@ pub async fn get_version_history(
     let documentation = row.documentation.to_owned();
     let repository = row.repository.to_owned();
     let owners = extension_owners(&name, conn.clone()).await?;
+    let categories = get_categories(id as i64, conn).await?;
 
     // Get information for all versions of extension
     let rows = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1", id)
@@ -364,7 +366,8 @@ pub async fn get_version_history(
           "repository": repository,
           "license": row.license,
           "owners": owners,
-          "publisher": row.published_by
+          "publisher": row.published_by,
+          "categories": categories
         });
         versions.push(data);
     }

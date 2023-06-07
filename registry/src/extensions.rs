@@ -89,6 +89,17 @@ pub async fn latest_license(
     Ok(latest_license.license.unwrap_or("".to_string()))
 }
 
+pub async fn get_extension_id(
+    extension_name: String,
+    conn: Data<Pool<Postgres>>,
+) -> Result<i64, ExtensionRegistryError> {
+    let mut tx = conn.begin().await?;
+    let id = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
+        .fetch_one(&mut tx)
+        .await?;
+    Ok(id.id)
+}
+
 // Update categories for a given extension
 pub async fn update_extension_categories(
     extension_id: i64,
