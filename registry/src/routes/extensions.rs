@@ -3,7 +3,10 @@
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
-use crate::extensions::{add_extension_owner, check_input, extension_owners, get_categories, get_category_ids, latest_license, update_extension_categories};
+use crate::extensions::{
+    add_extension_owner, check_input, extension_owners, get_categories, latest_license,
+    update_extension_categories,
+};
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
