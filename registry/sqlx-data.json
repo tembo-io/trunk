@@ -20,6 +20,19 @@
     },
     "query": "SELECT user_id\n                FROM api_tokens\n                WHERE\n                    token = $1"
   },
+  "246a9f7369555b2fbedcc5db3ac5a84ce5c889b227095a07e420b7b0b4a3ea3b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "\n                INSERT INTO extensions_categories(extension_id, category_id)\n                VALUES ($1, $2)\n                "
+  },
   "248a5a4eece6a88e283e65a41eee6d11e9010ab4c2d815c7cc39cc09ae813a67": {
     "describe": {
       "columns": [
@@ -69,6 +82,26 @@
       }
     },
     "query": "SELECT *\n                FROM extension_owners\n                WHERE\n                    extension_id = $1"
+  },
+  "293879a01947fadc812b0a4edd6e128a33917c8cd66cc4844c1101e95163c0c3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id FROM categories WHERE slug = $1"
   },
   "2aa8ecff6be8c81144a148b7186424971aba6c06382692a0b26e37b03d68bce8": {
     "describe": {
@@ -364,6 +397,26 @@
       }
     },
     "query": "SELECT * FROM extensions"
+  },
+  "49a41631cfe21efe58022e6e4026e6f3d388d8bb12ac478dbf30addab78d430e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "category_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT category_id FROM extensions_categories WHERE extension_id = $1;"
   },
   "4b2365bc80293846957f284d63c2d23a2ac6d2e3629e1f836f12c0eca2dd4339": {
     "describe": {
@@ -742,7 +795,7 @@
     },
     "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)\n            "
   },
-  "dd5e154fe1a9ead3c69392ce5b1f17bbdbbdad6df628fe31198fa5ddbf77b038": {
+  "8a3643fa646f1768ce6b3abdc949b6daade8f796a8f2b9a388f436e486425299": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -753,6 +806,6 @@
         ]
       }
     },
-    "query": "\n        INSERT INTO extensions_categories(extension_id, category_id)\n        VALUES ($1, $2)\n        "
+    "query": "\n                DELETE FROM extensions_categories\n                WHERE extension_id = $1\n                AND category_id = $2\n                "
   }
 }

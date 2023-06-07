@@ -3,7 +3,9 @@
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
-use crate::extensions::{add_extension_owner, check_input, extension_owners, latest_license};
+use crate::extensions::{
+    add_extension_owner, check_input, extension_owners, latest_license, update_extension_categories,
+};
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
@@ -107,7 +109,7 @@ pub async fn publish(
                         extension_id,
                         &user_info.user_id,
                         &user_info.user_name,
-                        conn,
+                        conn.clone(),
                     )
                     .await?;
                     Ok(())
@@ -185,7 +187,18 @@ pub async fn publish(
                 }
             }
 
-            // If categories is not None, check diff and update
+            // If categories is not None, update
+            match new_extension.categories {
+                Some(_) => {
+                    update_extension_categories(
+                        extension_id,
+                        new_extension.categories.clone().unwrap(),
+                        conn,
+                    )
+                    .await?
+                }
+                _ => (),
+            }
 
             // Set updated_at time on extension
             sqlx::query!(
@@ -236,6 +249,20 @@ pub async fn publish(
             .execute(&mut tx)
             .await?;
             tx.commit().await?;
+
+            // If categories not None, update
+            match new_extension.categories {
+                Some(_) => {
+                    update_extension_categories(
+                        extension_id,
+                        new_extension.categories.clone().unwrap(),
+                        conn.clone(),
+                    )
+                    .await?
+                }
+                _ => (),
+            }
+
             // Set user ID as an owner of the new extension
             info!(
                 "Adding {} as an owner of new extension {}.",
