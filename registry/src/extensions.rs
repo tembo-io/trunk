@@ -89,23 +89,75 @@ pub async fn latest_license(
     Ok(latest_license.license.unwrap_or("".to_string()))
 }
 
-// Add category to extension
-pub async fn add_extension_category(
+// Update categories for a given extension
+pub async fn update_extension_categories(
     extension_id: i64,
-    category_id: i64,
+    categories: Vec<String>,
     conn: Data<Pool<Postgres>>,
 ) -> Result<(), ExtensionRegistryError> {
     let mut tx = conn.begin().await?;
-    sqlx::query!(
-        "
-        INSERT INTO extensions_categories(extension_id, category_id)
-        VALUES ($1, $2)
-        ",
-        extension_id as i32,
-        category_id as i32
+    // Get category IDs
+    let new_ids = get_category_ids(categories, conn).await?;
+    // Get existing categories for the extension
+    let existing = sqlx::query!(
+        "SELECT category_id FROM extensions_categories WHERE extension_id = $1;",
+        extension_id as i32
     )
-    .execute(&mut tx)
+    .fetch_all(&mut tx)
     .await?;
+
+    let existing_ids: Vec<i64> = existing
+        .into_iter()
+        .map(|x| x.category_id.unwrap() as i64)
+        .collect();
+
+    // If id not in existing, add
+    for category_id in new_ids.clone() {
+        if !existing_ids.contains(&category_id) {
+            sqlx::query!(
+                "
+                INSERT INTO extensions_categories(extension_id, category_id)
+                VALUES ($1, $2)
+                ",
+                extension_id as i32,
+                category_id as i32
+            )
+            .execute(&mut tx)
+            .await?;
+        }
+    }
+    // If existing not in ids, delete
+    for category_id in existing_ids {
+        if !new_ids.contains(&category_id) {
+            sqlx::query!(
+                "
+                DELETE FROM extensions_categories
+                WHERE extension_id = $1
+                AND category_id = $2
+                ",
+                extension_id as i32,
+                category_id as i32
+            )
+            .execute(&mut tx)
+            .await?;
+        }
+    }
+
     tx.commit().await?;
     Ok(())
+}
+
+pub async fn get_category_ids(
+    categories: Vec<String>,
+    conn: Data<Pool<Postgres>>,
+) -> Result<Vec<i64>, ExtensionRegistryError> {
+    let mut ids: Vec<i64> = Vec::new();
+    let mut tx = conn.begin().await?;
+    for slug in categories {
+        let id = sqlx::query!("SELECT id FROM categories WHERE slug = $1", slug)
+            .fetch_one(&mut tx)
+            .await?;
+        ids.push(id.id)
+    }
+    Ok(ids)
 }

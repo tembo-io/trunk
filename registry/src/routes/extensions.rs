@@ -185,6 +185,8 @@ pub async fn publish(
                 }
             }
 
+            // If categories is not None, check diff and update
+
             // Set updated_at time on extension
             sqlx::query!(
                 "UPDATE extensions
