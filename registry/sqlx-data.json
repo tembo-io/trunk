@@ -245,6 +245,26 @@
     },
     "query": "SELECT license FROM versions WHERE extension_id = $1 AND num = $2;"
   },
+  "399e2d821efc414f5ec8e274d588b6e67fbfcb1366d2f637bc6f111d9b778b41": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT name FROM categories WHERE id = $1"
+  },
   "3d97358d04299f979123dc42ac48c1dfa5bffb9f042288edd43d43a9c7fec68c": {
     "describe": {
       "columns": [
@@ -807,5 +827,25 @@
       }
     },
     "query": "\n                DELETE FROM extensions_categories\n                WHERE extension_id = $1\n                AND category_id = $2\n                "
+  },
+  "93dcb7f60cd6ddf42247b883db9771b15507aa0ceda52091c4886f55493a6b59": {
+    "describe": {
+      "columns": [
+        {
+          "name": "category_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT category_id FROM extensions_categories WHERE extension_id = $1"
   }
 }

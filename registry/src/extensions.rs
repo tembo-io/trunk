@@ -161,3 +161,44 @@ pub async fn get_category_ids(
     }
     Ok(ids)
 }
+
+pub async fn get_category_names(
+    category_ids: Vec<i64>,
+    conn: Data<Pool<Postgres>>,
+) -> Result<Vec<String>, ExtensionRegistryError> {
+    let mut categories: Vec<String> = Vec::new();
+    let mut tx = conn.begin().await?;
+    for id in category_ids {
+        let name = sqlx::query!("SELECT name FROM categories WHERE id = $1", id)
+            .fetch_one(&mut tx)
+            .await?;
+        categories.push(name.name.unwrap())
+    }
+    Ok(categories)
+}
+
+pub async fn get_categories(
+    extension_id: i64,
+    conn: Data<Pool<Postgres>>,
+) -> Result<Vec<String>, ExtensionRegistryError> {
+    // let mut category_ids: Vec<i64> = Vec::new();
+    let mut categories: Vec<String> = Vec::new();
+    let mut tx = conn.begin().await?;
+    let category_ids = sqlx::query!(
+        "SELECT category_id FROM extensions_categories WHERE extension_id = $1",
+        extension_id as i32
+    )
+    .fetch_all(&mut tx)
+    .await?;
+    let category_ids: Vec<i64> = category_ids
+        .into_iter()
+        .map(|x| x.category_id.unwrap() as i64)
+        .collect();
+    for id in category_ids {
+        let name = sqlx::query!("SELECT name FROM categories WHERE id = $1", id as i32)
+            .fetch_one(&mut tx)
+            .await?;
+        categories.push(name.name.unwrap())
+    }
+    Ok(categories)
+}
