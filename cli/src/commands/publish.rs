@@ -32,8 +32,8 @@ pub struct PublishCommand {
     registry: String,
     #[arg(long = "repository", short = 'R')]
     repository: Option<String>,
-    #[arg(long = "categories", short = 'c')]
-    categories: Option<Vec<String>>,
+    #[arg(long = "category", short = 'c')]
+    category: Option<Vec<String>>,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -82,7 +82,8 @@ impl SubCommand for PublishCommand {
             "documentation": self.documentation,
             "homepage": self.homepage,
             "license": self.license,
-            "repository": self.repository
+            "repository": self.repository,
+            "categories": self.category
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
         let form = reqwest::multipart::Form::new()

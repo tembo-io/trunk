@@ -1,6 +1,7 @@
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use actix_web::web::Data;
+use log::{debug, info};
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
@@ -106,6 +107,7 @@ pub async fn update_extension_categories(
     categories: Vec<String>,
     conn: Data<Pool<Postgres>>,
 ) -> Result<(), ExtensionRegistryError> {
+    debug!("categories: {:?}", categories);
     let mut tx = conn.begin().await?;
     // Get category IDs
     let new_ids = get_category_ids(categories, conn).await?;
@@ -125,6 +127,10 @@ pub async fn update_extension_categories(
     // If id not in existing, add
     for category_id in new_ids.clone() {
         if !existing_ids.contains(&category_id) {
+            info!(
+                "adding category_id {} to extension_id {}",
+                category_id, extension_id
+            );
             sqlx::query!(
                 "
                 INSERT INTO extensions_categories(extension_id, category_id)
@@ -140,6 +146,10 @@ pub async fn update_extension_categories(
     // If existing not in ids, delete
     for category_id in existing_ids {
         if !new_ids.contains(&category_id) {
+            info!(
+                "removing category_id {} from extension_id {}",
+                category_id, extension_id
+            );
             sqlx::query!(
                 "
                 DELETE FROM extensions_categories
@@ -166,9 +176,11 @@ pub async fn get_category_ids(
     let mut tx = conn.begin().await?;
     for slug in categories {
         let id = sqlx::query!("SELECT id FROM categories WHERE slug = $1", slug)
-            .fetch_one(&mut tx)
+            .fetch_optional(&mut tx)
             .await?;
-        ids.push(id.id)
+        if id.is_some() {
+            ids.push(id.unwrap().id)
+        }
     }
     Ok(ids)
 }
