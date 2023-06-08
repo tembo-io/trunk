@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use tokio_task_manager::Task;
 
 pub mod build;
+pub mod categories;
 mod containers;
 mod generic_build;
 pub mod install;

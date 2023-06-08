@@ -1,10 +1,12 @@
 use super::SubCommand;
+use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
+use reqwest::StatusCode;
 use serde::Deserialize;
 use serde_json::json;
 use std::path::PathBuf;
@@ -55,25 +57,36 @@ pub struct Category {
 impl SubCommand for PublishCommand {
     async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
         // Validate extension name input
+        let mut slugs = Vec::new();
+
         check_input(&self.name)?;
         // Validate categories input if provided
         if self.category.is_some() {
             let response = reqwest::get(&format!("{}/categories/all", self.registry)).await?;
-
-            // Fall back to local file if network issue
-
-            let response_body = response.text().await?;
-            let resp: Vec<Category> = serde_json::from_str(&response_body)?;
-
-            // Collect list of valid category slugs
-            let mut slugs = Vec::new();
-            for r in resp {
-                slugs.push(r.slug);
+            match response.status() {
+                StatusCode::OK => {
+                    let response_body = response.text().await?;
+                    let resp: Vec<Category> = serde_json::from_str(&response_body)?;
+                    // Collect list of valid category slugs
+                    for r in resp {
+                        slugs.push(r.slug);
+                    }
+                }
+                _ => {
+                    // Fall back to local file if we fail to fetch valid slugs from registry
+                    println!("Error fetching valid category slugs from {}/categories/all. Falling back to local definitions in categories.rs", self.registry);
+                    slugs = VALID_CATEGORY_SLUGS
+                        .to_vec()
+                        .into_iter()
+                        .map(|x| x.to_string())
+                        .collect();
+                }
             }
+
             let categories = self.category.clone().unwrap();
             for category in categories {
                 if !slugs.contains(&category) {
-                    return Err(anyhow!("invalid category slug: {}. valid category slugs can be found at {}/categories/all", category, self.registry));
+                    return Err(anyhow!("Invalid category slug: {}. \nValid category slugs: {:?} \nMore details can be found at {}/categories/all", category, slugs, self.registry));
                 }
             }
         }
