@@ -4,9 +4,11 @@ use async_trait::async_trait;
 use clap::Args;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
+use serde::Deserialize;
 use serde_json::json;
 use std::path::PathBuf;
 use std::{env, fs};
+use anyhow::anyhow;
 use tokio_task_manager::Task;
 
 #[derive(Args)]
@@ -42,12 +44,44 @@ pub enum PublishError {
     InvalidExtensionName,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct Category {
+    pub name: String,
+    pub description: String,
+    pub slug: String,
+}
+
 #[async_trait]
 impl SubCommand for PublishCommand {
     async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
         // Validate extension name input
         check_input(&self.name)?;
-        // Validate categories
+        // Validate categories input if provided
+        if self.category.is_some() {
+            let response = reqwest::get(&format!(
+                "{}/categories/all",
+                self.registry
+            ))
+                .await?;
+
+            // Fall back to local file if network issue
+
+            let response_body = response.text().await?;
+            let resp: Vec<Category> = serde_json::from_str(&response_body)?;
+
+            // Collect list of valid category slugs
+            let mut slugs = Vec::new();
+            for r in resp {
+                slugs.push(r.slug);
+            }
+            let categories = self.category.clone().unwrap();
+            for category in categories {
+                if !slugs.contains(&category) {
+                    return Err(anyhow!("invalid category slug: {}. valid category slugs can be found at {}/categories/all", category, self.registry));
+                }
+            }
+        }
+
         let (file, name) = match &self.file {
             Some(..) => {
                 // If file is specified, use it
