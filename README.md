@@ -13,6 +13,12 @@ and install Postgres extensions _of all kinds_.
 
 ![trunk-install-larger-font](https://github.com/CoreDB-io/trunk/assets/8935584/1c09e899-c77a-48c1-a978-a46f03774f1a)
 
+## Installation
+The Trunk CLI is hosted at crates.io and can be installed with cargo.
+1. `curl https://sh.rustup.rs -sSf | sh`
+2. `cargo install pg-trunk`
+
+
 ## Trunk CLI
 The Trunk CLI allows for building, publishing and installing Postgres extensions of all kinds. It abstracts away
 complexities of extension development and management with the following commands:
