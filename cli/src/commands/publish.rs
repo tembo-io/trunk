@@ -1,5 +1,6 @@
 use super::SubCommand;
 use crate::commands::publish::PublishError::InvalidExtensionName;
+use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
 use reqwest::header::CONTENT_TYPE;
@@ -8,7 +9,6 @@ use serde::Deserialize;
 use serde_json::json;
 use std::path::PathBuf;
 use std::{env, fs};
-use anyhow::anyhow;
 use tokio_task_manager::Task;
 
 #[derive(Args)]
@@ -58,11 +58,7 @@ impl SubCommand for PublishCommand {
         check_input(&self.name)?;
         // Validate categories input if provided
         if self.category.is_some() {
-            let response = reqwest::get(&format!(
-                "{}/categories/all",
-                self.registry
-            ))
-                .await?;
+            let response = reqwest::get(&format!("{}/categories/all", self.registry)).await?;
 
             // Fall back to local file if network issue
 
