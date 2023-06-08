@@ -1,6 +1,6 @@
 //! Functionality related to publishing a new extension or version of an extension.
 
-use crate::categories::{get_categories, update_extension_categories};
+use crate::categories::{get_categories_for_extension, update_extension_categories};
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
@@ -300,7 +300,7 @@ pub async fn get_all_extensions(
         let version = latest_version(&name, conn.clone()).await?;
         let license = latest_license(&name, conn.clone()).await?;
         let owners = extension_owners(&name, conn.clone()).await?;
-        let categories = get_categories(id, conn.clone()).await?;
+        let categories = get_categories_for_extension(id, conn.clone()).await?;
         let data = json!(
         {
           "name": row.name.to_owned(),
@@ -342,7 +342,7 @@ pub async fn get_version_history(
     let documentation = row.documentation.to_owned();
     let repository = row.repository.to_owned();
     let owners = extension_owners(&name, conn.clone()).await?;
-    let categories = get_categories(id as i64, conn).await?;
+    let categories = get_categories_for_extension(id as i64, conn).await?;
 
     // Get information for all versions of extension
     let rows = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1", id)
