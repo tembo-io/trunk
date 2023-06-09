@@ -21,10 +21,7 @@ pub async fn update_extension_categories(
     .fetch_all(&mut tx)
     .await?;
 
-    let existing_ids: Vec<i64> = existing
-        .into_iter()
-        .map(|x| x.category_id.unwrap() as i64)
-        .collect();
+    let existing_ids: Vec<i64> = existing.into_iter().map(|x| x.category_id as i64).collect();
 
     // If id not in existing, add
     for category_id in new_ids.clone() {
@@ -97,7 +94,7 @@ pub async fn get_category_names(
         let name = sqlx::query!("SELECT name FROM categories WHERE id = $1", id)
             .fetch_one(conn.as_ref())
             .await?;
-        categories.push(name.name.unwrap())
+        categories.push(name.name)
     }
     Ok(categories)
 }
@@ -115,7 +112,7 @@ pub async fn get_categories_for_extension(
     .await?;
     let category_ids: Vec<i64> = category_ids
         .into_iter()
-        .map(|x| x.category_id.unwrap() as i64)
+        .map(|x| x.category_id as i64)
         .collect();
     let categories = get_category_names(category_ids, conn).await?;
     Ok(categories)
