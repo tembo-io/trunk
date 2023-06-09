@@ -87,9 +87,7 @@ mod tests {
         //  extension
 
         // Test /extensions/{extension_name}/{version}/download
-        let req = test::TestRequest::get()
-            .uri("/categories/all")
-            .to_request();
+        let req = test::TestRequest::get().uri("/categories/all").to_request();
         let resp = test::call_service(&app, req).await;
         println!("status: {:?}", resp.response());
         assert!(resp.status().is_success());
