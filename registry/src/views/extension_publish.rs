@@ -10,4 +10,5 @@ pub struct ExtensionUpload {
     pub documentation: Option<String>,
     pub license: Option<String>,
     pub repository: Option<String>,
+    pub categories: Option<Vec<String>>,
 }

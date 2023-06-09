@@ -1,5 +1,6 @@
 //! Functionality related to publishing a new extension or version of an extension.
 
+use crate::categories::{get_categories_for_extension, update_extension_categories};
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
@@ -107,7 +108,7 @@ pub async fn publish(
                         extension_id,
                         &user_info.user_id,
                         &user_info.user_name,
-                        conn,
+                        conn.clone(),
                     )
                     .await?;
                     Ok(())
@@ -185,6 +186,16 @@ pub async fn publish(
                 }
             }
 
+            // If categories is not None, update
+            if new_extension.categories.is_some() {
+                update_extension_categories(
+                    extension_id,
+                    new_extension.categories.clone().unwrap(),
+                    conn.clone(),
+                )
+                .await?
+            }
+
             // Set updated_at time on extension
             sqlx::query!(
                 "UPDATE extensions
@@ -234,6 +245,17 @@ pub async fn publish(
             .execute(&mut tx)
             .await?;
             tx.commit().await?;
+
+            // If categories not None, update
+            if new_extension.categories.is_some() {
+                update_extension_categories(
+                    extension_id,
+                    new_extension.categories.clone().unwrap(),
+                    conn.clone(),
+                )
+                .await?
+            }
+
             // Set user ID as an owner of the new extension
             info!(
                 "Adding {} as an owner of new extension {}.",
@@ -274,9 +296,11 @@ pub async fn get_all_extensions(
         .await?;
     for row in rows.iter() {
         let name = row.name.to_owned().unwrap();
+        let id = row.id;
         let version = latest_version(&name, conn.clone()).await?;
         let license = latest_license(&name, conn.clone()).await?;
         let owners = extension_owners(&name, conn.clone()).await?;
+        let categories = get_categories_for_extension(id, conn.clone()).await?;
         let data = json!(
         {
           "name": row.name.to_owned(),
@@ -288,7 +312,8 @@ pub async fn get_all_extensions(
           "documentation": row.documentation.to_owned(),
           "repository": row.repository.to_owned(),
           "license": license,
-          "owners": owners
+          "owners": owners,
+          "categories": categories
         });
         extensions.push(data);
     }
@@ -317,6 +342,7 @@ pub async fn get_version_history(
     let documentation = row.documentation.to_owned();
     let repository = row.repository.to_owned();
     let owners = extension_owners(&name, conn.clone()).await?;
+    let categories = get_categories_for_extension(id as i64, conn).await?;
 
     // Get information for all versions of extension
     let rows = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1", id)
@@ -335,7 +361,8 @@ pub async fn get_version_history(
           "repository": repository,
           "license": row.license,
           "owners": owners,
-          "publisher": row.published_by
+          "publisher": row.published_by,
+          "categories": categories
         });
         versions.push(data);
     }

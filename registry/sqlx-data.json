@@ -1,5 +1,53 @@
 {
   "db": "PostgreSQL",
+  "002d293c501005c025256289cb7ef4f89f767c53ad62a544b68cb7e8f6750c96": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "slug",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "description",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "extension_count",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM categories"
+  },
   "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
     "describe": {
       "columns": [
@@ -19,6 +67,43 @@
       }
     },
     "query": "SELECT user_id\n                FROM api_tokens\n                WHERE\n                    token = $1"
+  },
+  "1d305b40cb84e8ed2a3f1ed57a9bc8375387a13936128bf91ae5f30e0ee75d5e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "\n                UPDATE categories\n                SET extension_count = extension_count - 1\n                WHERE id = $1\n                "
+  },
+  "1dee7b02e97b471263351d60ab6a3d8a2fe83a4113749e037d246df718457925": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "\n                UPDATE categories\n                SET extension_count = extension_count + 1\n                WHERE id = $1\n                "
+  },
+  "246a9f7369555b2fbedcc5db3ac5a84ce5c889b227095a07e420b7b0b4a3ea3b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "\n                INSERT INTO extensions_categories(extension_id, category_id)\n                VALUES ($1, $2)\n                "
   },
   "248a5a4eece6a88e283e65a41eee6d11e9010ab4c2d815c7cc39cc09ae813a67": {
     "describe": {
@@ -69,6 +154,26 @@
       }
     },
     "query": "SELECT *\n                FROM extension_owners\n                WHERE\n                    extension_id = $1"
+  },
+  "293879a01947fadc812b0a4edd6e128a33917c8cd66cc4844c1101e95163c0c3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id FROM categories WHERE slug = $1"
   },
   "2aa8ecff6be8c81144a148b7186424971aba6c06382692a0b26e37b03d68bce8": {
     "describe": {
@@ -211,6 +316,26 @@
       }
     },
     "query": "SELECT license FROM versions WHERE extension_id = $1 AND num = $2;"
+  },
+  "399e2d821efc414f5ec8e274d588b6e67fbfcb1366d2f637bc6f111d9b778b41": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT name FROM categories WHERE id = $1"
   },
   "3d97358d04299f979123dc42ac48c1dfa5bffb9f042288edd43d43a9c7fec68c": {
     "describe": {
@@ -364,6 +489,26 @@
       }
     },
     "query": "SELECT * FROM extensions"
+  },
+  "49a41631cfe21efe58022e6e4026e6f3d388d8bb12ac478dbf30addab78d430e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "category_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT category_id FROM extensions_categories WHERE extension_id = $1;"
   },
   "4b2365bc80293846957f284d63c2d23a2ac6d2e3629e1f836f12c0eca2dd4339": {
     "describe": {
@@ -741,5 +886,38 @@
       }
     },
     "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)\n            "
+  },
+  "8a3643fa646f1768ce6b3abdc949b6daade8f796a8f2b9a388f436e486425299": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "\n                DELETE FROM extensions_categories\n                WHERE extension_id = $1\n                AND category_id = $2\n                "
+  },
+  "93dcb7f60cd6ddf42247b883db9771b15507aa0ceda52091c4886f55493a6b59": {
+    "describe": {
+      "columns": [
+        {
+          "name": "category_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT category_id FROM extensions_categories WHERE extension_id = $1"
   }
 }
