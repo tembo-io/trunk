@@ -6,6 +6,7 @@ mod tests {
     use actix_web::test;
     use sqlx;
     use trunk_registry::connect;
+    use trunk_registry::routes::categories::get_all_categories;
     use trunk_registry::routes::download::download;
     use trunk_registry::routes::extensions::{get_all_extensions, get_version_history};
     use trunk_registry::routes::root::ok;
@@ -35,6 +36,7 @@ mod tests {
                 .app_data(web::Data::new(cfg.clone()))
                 .service(ok)
                 .service(get_all_extensions)
+                .service(get_all_categories)
                 .service(download)
                 .service(web::scope("/token").service(new_token)),
         )
@@ -83,5 +85,13 @@ mod tests {
 
         // TODO(ianstanton) Test /extensions/detail/{extension_name}. Requires publishing dummy
         //  extension
+
+        // Test /extensions/{extension_name}/{version}/download
+        let req = test::TestRequest::get()
+            .uri("/categories/all")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        println!("status: {:?}", resp.response());
+        assert!(resp.status().is_success());
     }
 }
