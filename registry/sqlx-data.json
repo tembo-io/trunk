@@ -68,6 +68,30 @@
     },
     "query": "SELECT user_id\n                FROM api_tokens\n                WHERE\n                    token = $1"
   },
+  "1d305b40cb84e8ed2a3f1ed57a9bc8375387a13936128bf91ae5f30e0ee75d5e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "\n                UPDATE categories\n                SET extension_count = extension_count - 1\n                WHERE id = $1\n                "
+  },
+  "1dee7b02e97b471263351d60ab6a3d8a2fe83a4113749e037d246df718457925": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "\n                UPDATE categories\n                SET extension_count = extension_count + 1\n                WHERE id = $1\n                "
+  },
   "246a9f7369555b2fbedcc5db3ac5a84ce5c889b227095a07e420b7b0b4a3ea3b": {
     "describe": {
       "columns": [],

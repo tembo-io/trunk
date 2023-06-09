@@ -40,6 +40,16 @@ pub async fn update_extension_categories(
             )
             .execute(&mut tx)
             .await?;
+            sqlx::query!(
+                "
+                UPDATE categories
+                SET extension_count = extension_count + 1
+                WHERE id = $1
+                ",
+                category_id as i32
+            )
+            .execute(&mut tx)
+            .await?;
         }
     }
     // If existing not in ids, delete
@@ -56,6 +66,16 @@ pub async fn update_extension_categories(
                 AND category_id = $2
                 ",
                 extension_id as i32,
+                category_id as i32
+            )
+            .execute(&mut tx)
+            .await?;
+            sqlx::query!(
+                "
+                UPDATE categories
+                SET extension_count = extension_count - 1
+                WHERE id = $1
+                ",
                 category_id as i32
             )
             .execute(&mut tx)
