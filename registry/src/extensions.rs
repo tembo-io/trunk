@@ -93,9 +93,8 @@ pub async fn get_extension_id(
     extension_name: String,
     conn: Data<Pool<Postgres>>,
 ) -> Result<i64, ExtensionRegistryError> {
-    let mut tx = conn.begin().await?;
     let id = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
-        .fetch_one(&mut tx)
+        .fetch_one(conn.as_ref())
         .await?;
     Ok(id.id)
 }
