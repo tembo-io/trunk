@@ -20,7 +20,7 @@ use log::{error, info};
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
 
-const MAX_SIZE: usize = 5000000; // max payload size is 5M
+const MAX_SIZE: usize = 15000000; // max payload size is 15M
 
 /// Handles the `POST /extensions/new` route.
 /// Used by `trunk publish` to publish a new extension or to publish a new version of an
