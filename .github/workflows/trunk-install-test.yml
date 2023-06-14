@@ -30,11 +30,8 @@ jobs:
         run: |
           docker-entrypoint.sh postgres &
           sleep 5
-          ps aux
-          psql -l
           curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > /tmp/extensions.txt
-          cat /tmp/extensions.txt
-          trunk install pgmq
-          psql -c "create extension pgmq cascade;"
+          pwd
+          sh .github/scripts/trunk-install.sh
 
           
