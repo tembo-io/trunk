@@ -33,7 +33,7 @@ jobs:
           curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > /tmp/extensions.txt
           pwd
           ls -la ..
-          ls -la .github
+          cat README.md
           sh .github/scripts/trunk-install.sh
 
           
