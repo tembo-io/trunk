@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Trunk Version
         run: |
-         trunk --version && sh /usr/local/bin/docker-entrypoint.sh
+         trunk --version && /usr/local/bin/docker-entrypoint.sh
       - name: check
         run: |
           ps aux && psql -l
