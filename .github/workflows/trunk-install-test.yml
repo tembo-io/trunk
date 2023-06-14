@@ -11,7 +11,7 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
-    container: quay.io/tembo/trunk-test:0.0.1
+#    container: quay.io/tembo/trunk-test:0.0.1
     env:
       PGHOST: "localhost"
       PGPORT: "5432"
@@ -21,8 +21,8 @@ jobs:
 
     steps:
       - name: Trunk Version
+        uses: quay.io/tembo/trunk-test:0.0.1
+        with:
+          entrypoint: /usr/local/bin/docker-entrypoint.sh
         run: |
-         trunk --version && /usr/local/bin/docker-entrypoint.sh
-      - name: check
-        run: |
-          ps aux && psql -l
+         trunk --version && /usr/local/bin/docker-entrypoint.sh && ps aux && psql -l
