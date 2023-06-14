@@ -41,5 +41,9 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
-      - name: Hello world
-        run: echo 'hello world'
+      - name: Install Dependencies
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          /root/.cargo/bin/cargo install --version 0.6.0 pg-trunk
+      - name: Trunk Version
+        run: trunk --version
