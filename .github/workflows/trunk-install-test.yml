@@ -10,10 +10,10 @@ on:
 jobs:
   test:
     name: Run tests
-    runs-on:
-      - self-hosted
-      - dind
-      - large-8x8
+#    runs-on:
+#      - self-hosted
+#      - dind
+#      - large-8x8
     container: quay.io/tembo/trunk-test:0.0.1
     env:
       PGHOST: "localhost"
