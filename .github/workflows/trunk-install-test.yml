@@ -30,6 +30,7 @@ jobs:
           sleep 5
           ps aux
           psql -l
+          trunk install pgmq
 
 
           
