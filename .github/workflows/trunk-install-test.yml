@@ -42,4 +42,5 @@ jobs:
           - 5432:5432
     steps:
       - name: Trunk Version
-        run: trunk --version
+        run: |
+         trunk --version && psql -l
