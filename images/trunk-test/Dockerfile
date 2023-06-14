@@ -20,6 +20,7 @@ RUN set -eux; \
 
 RUN apt-get update && apt-get install -y \
     curl \
+    jq \
     ca-certificates \
     gnupg \
     lsb-release \
