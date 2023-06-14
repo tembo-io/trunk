@@ -32,7 +32,7 @@ jobs:
           sleep 5
           ps aux
           psql -l
-          curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > extensions.txt
+          curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > ~/extensions.txt
           cat extensions.txt
           trunk install pgmq
           psql -c "create extension pgmq cascade;"
