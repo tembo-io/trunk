@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/CoreDB-io/trunk/assets/8935584/905ef1f3-10ff-48b5-90af-74af74ebb1b1" width=25% height=25%>
+  <img src="https://github.com/tembo-io/trunk/assets/8935584/905ef1f3-10ff-48b5-90af-74af74ebb1b1" width=25% height=25%>
 </p>
 
 # Trunk
@@ -11,7 +11,7 @@
 Trunk is an open source package manager and registry for Postgres extensions. Use the Trunk CLI to build, publish
 and install Postgres extensions _of all kinds_.
 
-![trunk-install-larger-font](https://github.com/CoreDB-io/trunk/assets/8935584/1c09e899-c77a-48c1-a978-a46f03774f1a)
+![trunk-install-larger-font](https://github.com/tembo-io/trunk/assets/8935584/1c09e899-c77a-48c1-a978-a46f03774f1a)
 
 ## Installation
 The Trunk CLI is hosted at crates.io and can be installed with cargo.
@@ -51,8 +51,8 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ❯ trunk publish pgmq \
 --version 0.5.0 \
 --description "Message Queue for postgres" \
---documentation "https://coredb-io.github.io/coredb/extensions/pgmq" \
---repository "https://github.com/CoreDB-io/coredb" \
+--documentation "https://tembo-io.github.io/coredb/extensions/pgmq" \
+--repository "https://github.com/tembo-io/coredb" \
 --license "Apache-2.0" \
 --homepage "https://www.coredb.io"
 ```
