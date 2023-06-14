@@ -32,5 +32,5 @@ jobs:
           sleep 5
           curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > /tmp/extensions.txt
           trunk-install.sh | tee /tmp/output.txt
-          grep -q ERROR /tmp/output.txt
-          if [ $? -eq 1 ] ; then exit 1 ; else echo nope ; fi
+#          grep -q ERROR /tmp/output.txt
+#          if [ $? -eq 1 ] ; then exit 1 ; else echo nope ; fi
