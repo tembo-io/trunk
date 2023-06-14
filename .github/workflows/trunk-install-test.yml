@@ -10,8 +10,11 @@ on:
 jobs:
   test:
     name: Run tests
-    runs-on: ubuntu-latest
-#    container: quay.io/tembo/trunk-test:0.0.1
+    runs-on:
+      - self-hosted
+      - dind
+      - large-8x8
+    container: quay.io/tembo/trunk-test:0.0.1
     env:
       PGHOST: "localhost"
       PGPORT: "5432"
@@ -20,8 +23,8 @@ jobs:
       PGPASSWORD: "postgres"
 
     steps:
-        - uses: quay.io/tembo/trunk-test:0.0.1
-          with:
-            entrypoint: /usr/local/bin/docker-entrypoint.sh
-        - run: |
-           trunk --version && /usr/local/bin/docker-entrypoint.sh && ps aux && psql -l
+      - name: Trunk Version
+        run: |
+         postgres && trunk --version && ps aux
+
+          
