@@ -24,6 +24,8 @@ jobs:
 
     steps:
       - name: Trunk Version
-        run: initdb && postgres
+        run: initdb && postgres &
+      - name: test psql
+        run: psql -l
 
           
