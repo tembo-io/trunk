@@ -5,4 +5,5 @@ for line in $lines
 do
         trunk install $line
         psql -c "create extension \"$line\" cascade;"
+        printf "\n\n"
 done
