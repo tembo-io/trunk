@@ -20,9 +20,8 @@ jobs:
       PGPASSWORD: "postgres"
 
     steps:
-      - name: Trunk Version
-        uses: quay.io/tembo/trunk-test:0.0.1
-        with:
-          entrypoint: /usr/local/bin/docker-entrypoint.sh
-        run: |
-         trunk --version && /usr/local/bin/docker-entrypoint.sh && ps aux && psql -l
+        - uses: quay.io/tembo/trunk-test:0.0.1
+          with:
+            entrypoint: /usr/local/bin/docker-entrypoint.sh
+        - run: |
+           trunk --version && /usr/local/bin/docker-entrypoint.sh && ps aux && psql -l
