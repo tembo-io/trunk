@@ -25,4 +25,4 @@ jobs:
     steps:
       - name: Trunk Version
         run: |
-         trunk --version && psql -l
+         trunk --version && ps aux && psql -l
