@@ -14,7 +14,7 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
-    container: postgres
+    container: quay.io/tembo/trunk-test:0.0.1
     env:
       PGHOST: "localhost"
       PGPORT: "5432"
@@ -24,7 +24,11 @@ jobs:
 
     steps:
       - name: Trunk Version
-        run: psql -l
+        run: |
+          initdb
+          nohup postgres
+          ps aux
+          psql -l
 
 
           
