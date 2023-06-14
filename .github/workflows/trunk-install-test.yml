@@ -14,7 +14,7 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
-    container: quay.io/tembo/trunk-test:0.0.2
+    container: quay.io/tembo/trunk-test:0.0.3
     env:
       PGHOST: "localhost"
       PGPORT: "5432"
@@ -33,9 +33,4 @@ jobs:
           docker-entrypoint.sh postgres &
           sleep 5
           curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > /tmp/extensions.txt
-          pwd
-          ls -la ..
-          cat README.md
-          sh .github/scripts/trunk-install.sh
-
-          
+          trunk-install.sh
