@@ -31,6 +31,6 @@ jobs:
           ps aux
           psql -l
           trunk install pgmq
-
+          psql -c "create extension pgmq cascade;"
 
           
