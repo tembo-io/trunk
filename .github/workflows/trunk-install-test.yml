@@ -26,7 +26,7 @@ jobs:
       - name: Trunk Version
         run: |
           initdb
-          nohup postgres
+          postgres &
           ps aux
           psql -l
 
