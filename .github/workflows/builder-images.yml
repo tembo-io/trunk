@@ -12,7 +12,7 @@ on:
       - 'main'
     paths:
       - "cli/images/**"
-      - ".github/workflows/builderimages.yml"
+      - ".github/workflows/builder-images.yml"
 
 
 jobs:
