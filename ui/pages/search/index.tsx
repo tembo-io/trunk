@@ -83,10 +83,10 @@ export default function SearchPage() {
               <h1 className={cx(inter.className)}>We couldn&apos;t find any extensions for that query.</h1>
               <p className={cx(inter.className)}>Try searching again or creating your own</p>
               <div className={styles.linkRow}>
-                <a href="https://coredb-io.github.io/trunk/" className={styles.linkButton}>
+                <a href="https://tembo-io.github.io/trunk/" className={styles.linkButton}>
                   <span className={cx(inter.className, styles.repoText)}>Get Started</span>
                 </a>
-                <a href="https://github.com/CoreDB-io/trunk" className={styles.linkButton}>
+                <a href="https://github.com/tembo-io/trunk" className={styles.linkButton}>
                   <span className={cx(inter.className, styles.repoText)}>Contribute</span>
                 </a>
               </div>

@@ -38,10 +38,10 @@ a local registry by using the `--registry` flag. Example:
 trunk publish pgmq \
 --version 0.5.0 \
 --description "Message queue for Postgres" \
---documentation "https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension" \
---repository "https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension" \
+--documentation "https://github.com/tembo-io/coredb/tree/main/pgmq/extension" \
+--repository "https://github.com/tembo-io/coredb/tree/main/pgmq/extension" \
 --license "Apache-2.0" \
---homepage "https://github.com/CoreDB-io/coredb" \
+--homepage "https://github.com/tembo-io/coredb" \
 --registry http://localhost:8080
 ```
 
@@ -63,8 +63,8 @@ curl -F metadata='{\
 "name": "pgmq", \
 "vers": "0.5.0", \
 "description": "Message queue for Postgres", \
-"documentation": "https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension", \
-"repository": "https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension", \
+"documentation": "https://github.com/tembo-io/coredb/tree/main/pgmq/extension", \
+"repository": "https://github.com/tembo-io/coredb/tree/main/pgmq/extension", \
 "license": "Apache-2.0", \
 "homepage": "https://coredb.io"}' \
 -F file=@./pgmq-0.5.0.tar.gz --url 'http://localhost:8080/extensions/new'
