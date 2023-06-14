@@ -139,7 +139,7 @@ export default function User() {
                 {isSignedInUsersPage ? (
                   <>
                     <span>You haven&apos;t created any extensions yet.</span>{" "}
-                    <a href="https://coredb-io.github.io/trunk/">Create one now!</a>
+                    <a href="https://tembo-io.github.io/trunk/">Create one now!</a>
                   </>
                 ) : (
                   <span>This user hasn&apos;t created any extensions yet.</span>

@@ -81,7 +81,7 @@ jobs:
       - name: Check out the coredb repo to reuse some actions
         uses: actions/checkout@v3
         with:
-          repository: coredb-io/coredb
+          repository: tembo-io/coredb
           path: ./coredb
           ref: 306f7c3ead394ee041f96d08f6576dc79646a6a2
       - name: Determine which flags to use on cargo publish

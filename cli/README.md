@@ -42,7 +42,7 @@ Extensions can be built in many ways, and [PGRX](https://github.com/tcdi/pgrx) a
 Trunk makes building and packaging PGRX based extensions easier than ever.
 
 Example `trunk build` with PGRX based extension
-[pgmq](https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension):
+[pgmq](https://github.com/tembo-io/coredb/tree/main/pgmq/extension):
 ```shell
 ❯ trunk build
 Building from path .
@@ -197,8 +197,8 @@ Options:
 ❯ trunk publish pgmq \
 --version 0.5.0 \
 --description "Message Queue for postgres" \
---documentation "https://coredb-io.github.io/coredb/extensions/pgmq" \
---repository "https://github.com/CoreDB-io/coredb" \
+--documentation "https://tembo-io.github.io/coredb/extensions/pgmq" \
+--repository "https://github.com/tembo-io/coredb" \
 --license "Apache-2.0" \
 --homepage "https://www.coredb.io"
 ```
