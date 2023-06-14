@@ -21,6 +21,7 @@ jobs:
       PGDATABASE: "postgres"
       PGUSER: "postgres"
       PGPASSWORD: "postgres"
+      POSTGRES_PASSWORD: "password"
 
     steps:
       - name: Trunk Version
