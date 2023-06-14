@@ -24,7 +24,7 @@ jobs:
       POSTGRES_PASSWORD: "password"
 
     steps:
-      - name: Trunk Version
+      - name: Install all extensions in registry
         # Entrypoint is overwritten by GitHub Action. We need to execute it manually in order to start Postgres.
         # More information here https://github.com/actions/runner/issues/1964
         run: |
