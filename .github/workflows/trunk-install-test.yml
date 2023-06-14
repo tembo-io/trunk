@@ -1,6 +1,8 @@
 name: Trunk install test workflow
 
 on:
+  schedule:
+    - cron:  '0 12 * * *'
   pull_request:
     branches:
       - main
