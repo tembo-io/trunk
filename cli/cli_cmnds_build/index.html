@@ -15,7 +15,7 @@
         <link rel="next" href="../../registry/registry/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.13">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.11">
     
     
       
@@ -608,7 +608,7 @@
 <h3 id="-d-dockerfile">-d, --dockerfile<a class="headerlink" href="#-d-dockerfile" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Updates to come.</li>
-<li>Default Behavior: If this option is not specified and a Makefile is detected, the default Dockerfile at ./builders/Dockerfile.generic is used. If a Cargo.toml file is detected, the Dockerfile is not required. </li>
+<li>Default Behavior: If this option is not specified and a Makefile is detected, the default Dockerfile at ./builders/Dockerfile.generic is used. If a Cargo.toml file is detected, the Dockerfile is not required.</li>
 </ul>
 <h3 id="-i-install-command">-i, --install-command<a class="headerlink" href="#-i-install-command" title="Permanent link">&para;</a></h3>
 <p>This option is used to specify the command that will be used to install the extension during the build process. In the context of this build script, if a Cargo.toml file is detected, the script assumes that it's building a pgrx extension and handles the build process internally. In other words, it does not require an install command. However, if a Makefile is detected, the script presumes that it is building an extension with make and make install. In this scenario, the --install-command becomes essential.</p>
@@ -623,7 +623,7 @@
 <p>Extensions can be built in many ways, and <a href="https://github.com/tcdi/pgrx">PGRX</a> allows for us to do so with Rust.
 Trunk makes building and packaging PGRX based extensions easier than ever.</p>
 <p>Example <code>trunk build</code> with PGRX based extension
-<a href="https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension">pgmq</a>:</p>
+<a href="https://github.com/tembo-io/coredb/tree/main/pgmq/extension">pgmq</a>:</p>
 <div class="codehilite"><pre><span></span><code>❯<span class="w"> </span>trunk<span class="w"> </span>build
 Building<span class="w"> </span>from<span class="w"> </span>path<span class="w"> </span>.
 Detected<span class="w"> </span>that<span class="w"> </span>we<span class="w"> </span>are<span class="w"> </span>building<span class="w"> </span>a<span class="w"> </span>pgrx<span class="w"> </span>extension
@@ -681,7 +681,7 @@ Packaged<span class="w"> </span>to<span class="w"> </span>./.trunk/pgmq-0.5.0.ta
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.b4d07000.min.js"></script>
+      <script src="../../assets/javascripts/bundle.fac441b0.min.js"></script>
       
     
   </body>
