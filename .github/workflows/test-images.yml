@@ -57,3 +57,4 @@ jobs:
           for tag in "${TAG_ARRAY[@]}"; do
             docker tag trunk-test:$tag quay.io/tembo/trunk-test:$tag
             docker push quay.io/tembo/trunk-test:$tag
+          done
