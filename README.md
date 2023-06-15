@@ -4,7 +4,6 @@
 
 # Trunk
 
-[![milestone-alpha](https://img.shields.io/badge/milestone-alpha-orange)]()
 [![version](https://img.shields.io/crates/v/pg-trunk?label=CLI&logo=rust)](https://crates.io/crates/pg-trunk)
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
 [![Discord Chat](https://img.shields.io/discord/1060568981725003789?label=Discord)][Discord]
