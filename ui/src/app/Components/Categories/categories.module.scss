@@ -1,0 +1,10 @@
+.container {
+  background-color: red;
+  //   TODO: Might not want to hardcode this
+  width: 220px;
+}
+@media screen and (max-width: 1024px) {
+  .container {
+    display: none;
+  }
+}

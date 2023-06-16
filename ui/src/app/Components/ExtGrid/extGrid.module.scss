@@ -1,0 +1,26 @@
+@import "../../variables.scss";
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 24px;
+}
+.extCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: $white;
+  border: 1px solid $dark-tan;
+  padding: $spacing-xl;
+  border-radius: $spacing-xl;
+}
+.titleRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.extDescription {
+  margin: $spacing-s 0;
+}
+.extAuthor {
+  margin-top: auto;
+}
