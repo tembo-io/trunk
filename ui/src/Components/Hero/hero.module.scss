@@ -1,3 +1,4 @@
+@import "../../variables.scss";
 .container {
   position: relative;
   display: flex;
@@ -21,6 +22,7 @@
 }
 .ext {
   font-size: 5vw;
+  font-family: $inter;
 }
 .reg {
   position: absolute;
@@ -30,4 +32,5 @@
 .tag {
   position: absolute;
   top: 20vh;
+  font-family: $plex;
 }

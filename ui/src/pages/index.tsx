@@ -10,29 +10,46 @@ type Category = {
   name: string;
   slug: string;
 };
+// type Extension = {
+
+// }
 
 export const getStaticProps: GetStaticProps<{
   categories: Category[];
 }> = async () => {
-  console.log("GET STATIC PROPS");
+  const catRes = await fetch("https://registry.pgtrunk.io/categories/all");
+  const extRes = await fetch("https://registry.pgtrunk.io/extensions/all");
 
-  const res = await fetch("https://registry.pgtrunk.io/categories/all");
-  console.log("RES", res);
+  const cats = await catRes.json();
+  const exts = await extRes.json();
 
-  const cats = await res.json();
   const sortedData = cats.sort((a, b) => (a.name < b.name ? -1 : 1));
-  return { props: { categories: sortedData } };
+
+  const categoriesForGrid = {};
+  cats.forEach((cat) => {
+    categoriesForGrid[cat.slug] = { displayName: cat.name };
+  });
+
+  return { props: { categories: sortedData, extensions: exts, categoriesForGrid } };
 };
 
-export default function Home({ categories }: { categories: Category[] }) {
+export default function Home({
+  categories,
+  extensions,
+  categoriesForGrid,
+}: {
+  categories: Category[];
+  extensions: any[];
+  categoriesForGrid: {};
+}) {
   return (
-    <main className={styles.main}>
+    <div className={styles.main}>
       <Header />
       <Hero />
       <div className={styles.body}>
         <Categories categories={categories} />
-        <ExtGrid />
+        <ExtGrid extensions={extensions} categories={categories} categoriesForGrid={categoriesForGrid} />
       </div>
-    </main>
+    </div>
   );
 }

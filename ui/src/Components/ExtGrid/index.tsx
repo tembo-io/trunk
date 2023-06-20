@@ -1,42 +1,28 @@
-"use client";
-// import { useSearchParams } from "next/navigation";
 import styles from "./extGrid.module.scss";
 import { truncate } from "../../stringHelpers";
 import cx from "classnames";
+import { useRouter } from "next/router";
 
-async function getData() {
-  const res = await fetch("https://registry.pgtrunk.io/extensions/all");
+export default function ExtGrid({ extensions, categories, categoriesForGrid }) {
+  const router = useRouter();
+  console.log(router.query);
+  console.log(categoriesForGrid);
 
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
+  const title = router.query.cat ? categoriesForGrid[router.query.cat].displayName : "Featured";
 
-  // TODO: handle errors
-  // Recommendation: handle errors
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error("Failed to fetch data");
-  }
+  const filteredList = extensions.filter((ext) => ext.categories.includes(title));
 
-  return res.json();
-}
-export default function ExtGrid() {
-  // const searchParams = useSearchParams();
-
-  // const cat = searchParams.get("cat");
-
-  // const data = await getData();
-  const data = [];
   return (
     <div className={styles.container}>
       <div className={styles.sectionHeader}>
-        <h1>Featured</h1>
+        <h1>{title}</h1>
         <div className={styles.inputCont}>
           <input type="text" className={styles.input} />
           <button className={cx(styles.searchButton, styles.interBold14)}>Search</button>
         </div>
       </div>
       <div className={styles.gridContainer}>
-        {data.map((ext) => (
+        {filteredList.map((ext) => (
           <div key={ext.name} className={styles.extCard}>
             <div className={styles.titleRow}>
               <p>{ext.name}</p> <div className={styles.catBubble}>category</div>
