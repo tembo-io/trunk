@@ -1,0 +1,57 @@
+@import "../../variables.scss";
+.container {
+  margin-right: $spacing-4xl;
+  flex: 1;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 24px;
+}
+.extCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: $white;
+  border: 1px solid $dark-tan;
+  padding: $spacing-xl;
+  border-radius: $spacing-xl;
+}
+.titleRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.extDescription {
+  margin: $spacing-s 0;
+}
+.extAuthor {
+  margin-top: auto;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: $spacing-m 0;
+}
+
+.inputCont {
+  position: relative;
+}
+.input {
+  padding: 4px 20px;
+  border: 1px solid blue;
+}
+.searchButton {
+  all: unset;
+  cursor: pointer;
+  position: absolute;
+  top: 2px;
+  right: 0;
+  background-color: $black;
+  color: $white;
+  padding: $spacing-l $spacing-m;
+}

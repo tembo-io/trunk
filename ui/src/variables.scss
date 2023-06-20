@@ -1,0 +1,61 @@
+//Spacing variables
+$spacing-none: 0px;
+$spacing-xs: 4px;
+$spacing-s: 8px;
+$spacing-m: 16px;
+$spacing-l: 20px;
+$spacing-xl: 24px;
+$spacing-2xl: 28px;
+$spacing-3xl: 32px;
+$spacing-4xl: 40px;
+$spacing-5xl: 48px;
+$spacing-6xl: 64px;
+$spacing-7xl: 80px;
+$spacing-8xl: 96px;
+$spacing-9xl: 128px;
+$spacing-10xl: 160px;
+
+//Color variables
+$black: hsla(0, 0%, 0%, 1);
+$white: hsla(0, 0%, 100%, 1);
+$light-tan: hsla(28, 100%, 97%, 1);
+$med-tan: hsla(40, 43%, 89%, 0.5);
+$dark-tan: hsla(40, 43%, 89%, 1);
+$grey: hsla(0, 0%, 50%, 1);
+$dark-grey: hsla(0, 0%, 30%, 1);
+$light-grey: hsla(0, 0%, 87%, 1);
+$green: hsla(112, 68%, 49%, 1);
+
+//Fonts
+$plex: var(--font-plex), "Courier New", Courier, monospace;
+$inter: var(--font-inter), "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+.interMed16 {
+  font-family: $inter;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 19px;
+  color: black;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.interReg12 {
+  font-family: $inter;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: black;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.interBold14 {
+  font-family: $inter;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 17px;
+  color: black;
+  font-style: normal;
+  text-decoration: none;
+}

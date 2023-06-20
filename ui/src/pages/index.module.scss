@@ -1,0 +1,12 @@
+@import "../variables.scss";
+.main {
+  position: relative;
+  min-height: 100vh;
+  min-width: 100vw;
+  // max-width: 1800px;
+}
+.body {
+  display: flex;
+  flex-direction: row;
+  background-color: $light-tan;
+}
