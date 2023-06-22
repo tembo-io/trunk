@@ -2,11 +2,8 @@ import type { InferGetStaticPropsType, GetStaticProps } from "next";
 import Link from "next/link";
 import styles from "./categories.module.scss";
 import cx from "classnames";
-import { useRouter } from "next/router";
 
 export default function Categories({ categories }) {
-  console.log(categories);
-
   return (
     <div className={styles.container}>
       {categories

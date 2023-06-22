@@ -29,8 +29,6 @@ export default function Search({ extensions }) {
   };
 
   const handleKeyDown = (event: { key: string }) => {
-    console.log(event.key);
-
     if (event.key === "ArrowUp" && selectedItemIndex > 0) {
       setSelectedItemIndex(selectedItemIndex - 1);
     } else if (event.key === "ArrowDown" && selectedItemIndex < filteredList.length - 1) {

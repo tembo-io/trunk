@@ -36,11 +36,23 @@
 }
 .installCont {
   position: absolute;
-  top: 75%;
+  top: calc(60% + 5vw);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: all 1s ease-in-out;
+}
+@media screen and (max-width: 1200px) {
+  .installCont {
+    top: calc(65%);
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .installCont {
+    top: calc(60%);
+  }
 }
 .installRow {
   background-color: $white;

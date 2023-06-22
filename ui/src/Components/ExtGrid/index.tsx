@@ -6,10 +6,7 @@ import { useRouter } from "next/router";
 import Search from "../Search";
 
 export default function ExtGrid({ extensions, categories, categoriesForGrid }) {
-  const [searchString, setSearchString] = useState("");
   const router = useRouter();
-  console.log(router.query);
-  console.log(categoriesForGrid);
 
   const title = router.query.cat ? categoriesForGrid[router.query.cat].displayName : "All Extensions";
 
