@@ -2,6 +2,7 @@
 .container {
   margin-right: $spacing-4xl;
   flex: 1;
+  height: 100%;
 }
 
 .gridContainer {
@@ -36,22 +37,26 @@
   justify-content: space-between;
   align-items: center;
   margin: $spacing-m 0;
+  position: sticky;
+  top: $spacing-6xl;
+  background-color: $light-tan;
+  padding: $spacing-m 0;
 }
-
-.inputCont {
-  position: relative;
+.catBubble {
+  font-family: $inter;
+  font-size: 12px;
+  border-radius: 14px;
+  color: $grey;
+  background-color: $dark-tan;
+  padding: $spacing-xs $spacing-s;
+  margin-left: $spacing-xs;
 }
-.input {
-  padding: 4px 20px;
-  border: 1px solid blue;
+.description {
+  color: $dark-grey;
+  margin-top: $spacing-l;
 }
-.searchButton {
-  all: unset;
-  cursor: pointer;
-  position: absolute;
-  top: 2px;
-  right: 0;
-  background-color: $black;
-  color: $white;
-  padding: $spacing-l $spacing-m;
+.author {
+  margin-top: auto;
+  padding-top: $spacing-l;
+  color: $green;
 }

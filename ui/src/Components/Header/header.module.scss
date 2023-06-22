@@ -1,15 +1,47 @@
 @import "../../variables.scss";
 .header {
-  position: absolute;
+  position: fixed;
   top: 0;
   background-color: transparent;
   transition: all 0.5s ease-in-out;
   z-index: 5;
+  padding: $spacing-m;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 .title {
-  color: $grey;
+  color: $black;
+  font-family: $inter;
+  margin: 0;
+  padding: 0;
+  font-size: 1.9rem;
 }
 .headerScrolled {
   background-color: $white;
   // box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.navLink {
+  font-family: $plex;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 18px;
+  padding: 0 $spacing-2xl;
+}
+
+.ctaCont {
+  padding: $spacing-s $spacing-xl;
+  margin: 0;
+  background-color: $black;
+  display: flex;
+  align-items: center;
+  border-radius: 44px;
+  white-space: nowrap;
+}
+.ctaText {
+  color: $white;
+  font-family: $inter;
+  font-size: 14px;
+  font-weight: 700;
 }

@@ -1,7 +1,10 @@
-"use client";
+import Image from "next/image";
+import Link from "next/link";
 import styles from "./header.module.scss";
 import React, { useState, useEffect, useRef } from "react";
 import cx from "classnames";
+const TrunkLogo = "/trunk_logo.png";
+const SlackLogo = "/slack_logo.png";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -21,7 +24,28 @@ export default function Header() {
   }, []);
   return (
     <header className={cx(styles.header, scrolled ? styles.headerScrolled : "")} ref={headerRef}>
-      <h1 className={styles.title}>header</h1>
+      <Link href={"/"} shallow style={{ display: "flex", alignItems: "flex-start" }}>
+        <Image width={29} height={29} style={{ marginRight: "10px" }} quality={20} priority alt="Trunk Logo" src={TrunkLogo}></Image>
+        <h1 className={styles.title}>Trunk</h1>
+      </Link>
+      <div>
+        <Link className={styles.navLink} href={"/"}>
+          Download
+        </Link>
+        <Link className={styles.navLink} href={"/"}>
+          Contribute
+        </Link>
+        <Link className={styles.navLink} href={"/"}>
+          Docs
+        </Link>
+        <Link className={styles.navLink} href={"/"}>
+          Blog
+        </Link>
+      </div>
+      <div className={styles.ctaCont}>
+        <span className={styles.ctaText}>Join Trunk on Slack</span>
+        <Image width={16} height={16} style={{ marginLeft: "10px" }} quality={20} priority alt="Slack Logo" src={SlackLogo}></Image>
+      </div>
     </header>
   );
 }

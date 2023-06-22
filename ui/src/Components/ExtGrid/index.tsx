@@ -1,34 +1,35 @@
+import { useState } from "react";
 import styles from "./extGrid.module.scss";
 import { truncate } from "../../stringHelpers";
 import cx from "classnames";
 import { useRouter } from "next/router";
+import Search from "../Search";
 
 export default function ExtGrid({ extensions, categories, categoriesForGrid }) {
+  const [searchString, setSearchString] = useState("");
   const router = useRouter();
   console.log(router.query);
   console.log(categoriesForGrid);
 
-  const title = router.query.cat ? categoriesForGrid[router.query.cat].displayName : "Featured";
+  const title = router.query.cat ? categoriesForGrid[router.query.cat].displayName : "All Extensions";
 
-  const filteredList = extensions.filter((ext) => ext.categories.includes(title));
+  const filteredList = router.query.cat ? extensions.filter((ext) => ext.categories.includes(title)) : extensions;
 
   return (
     <div className={styles.container}>
       <div className={styles.sectionHeader}>
-        <h1>{title}</h1>
-        <div className={styles.inputCont}>
-          <input type="text" className={styles.input} />
-          <button className={cx(styles.searchButton, styles.interBold14)}>Search</button>
-        </div>
+        <h1 className={styles.interMed24}>{title}</h1>
+        <Search extensions={extensions}></Search>
       </div>
       <div className={styles.gridContainer}>
         {filteredList.map((ext) => (
           <div key={ext.name} className={styles.extCard}>
             <div className={styles.titleRow}>
-              <p>{ext.name}</p> <div className={styles.catBubble}>category</div>
+              <p className={styles.interMed16}>{ext.name}</p>
+              {ext?.categories[0] && <div className={styles.catBubble}>{ext.categories[0]}</div>}
             </div>
-            <p className={styles.extDescription}>{truncate(ext.description)}</p>
-            <p className={styles.extAuthor}>{ext.owners[0].userName}</p>
+            <p className={cx(styles.interReg12, styles.description)}>{truncate(ext.description)}</p>
+            <p className={cx(styles.interReg12, styles.author)}>{ext.owners[0].userName}</p>
           </div>
         ))}
       </div>

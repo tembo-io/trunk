@@ -1,13 +1,14 @@
 @import "../../variables.scss";
 .container {
-  //   TODO: Might not want to hardcode this
   display: flex;
   flex-direction: column;
   width: 220px;
   position: sticky;
-  top: $spacing-5xl;
-  list-style: none;
+  top: $spacing-6xl;
+  height: 100%;
   margin: 0 $spacing-7xl;
+  align-self: flex-start;
+  padding-bottom: $spacing-l;
 }
 @media screen and (max-width: 1024px) {
   .container {
