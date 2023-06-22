@@ -4,6 +4,7 @@ import Link from "next/link";
 import cx from "classnames";
 import styles from "./search.module.scss";
 import { Extension } from "@/types";
+import { truncate } from "@/stringHelpers";
 
 export default function Search({ extensions }: { extensions: Extension[] }) {
   const [searchString, setSearchString] = useState("");
@@ -68,7 +69,7 @@ export default function Search({ extensions }: { extensions: Extension[] }) {
                 <Link className={styles.extLink} href={`/extensions/${ext.name}`}>
                   <div>
                     <p className={styles.extName}>{ext.name}</p>
-                    <p className={styles.extDesc}>{ext.description}</p>
+                    <p className={styles.extDesc}>{truncate(ext.description)}</p>
                   </div>
                   {ext?.categories[0] && <div className={styles.extCategory}>{ext?.categories[0] ?? ""}</div>}
                 </Link>
