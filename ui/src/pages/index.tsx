@@ -5,14 +5,7 @@ import Header from "../Components/Header";
 import Hero from "../Components/Hero";
 import Categories from "../Components/Categories";
 import ExtGrid from "../Components/ExtGrid";
-
-type Category = {
-  name: string;
-  slug: string;
-};
-// type Extension = {
-
-// }
+import { Category, CategoriesForGrid } from "@/types";
 
 export const getStaticProps: GetStaticProps<{
   categories: Category[];
@@ -20,13 +13,13 @@ export const getStaticProps: GetStaticProps<{
   const catRes = await fetch("https://registry.pgtrunk.io/categories/all");
   const extRes = await fetch("https://registry.pgtrunk.io/extensions/all");
 
-  const cats = await catRes.json();
+  const cats: Category[] = await catRes.json();
   const exts = await extRes.json();
 
   const sortedData = cats.sort((a, b) => (a.name < b.name ? -1 : 1));
 
-  const categoriesForGrid = {};
-  cats.forEach((cat) => {
+  const categoriesForGrid: CategoriesForGrid = {};
+  cats.forEach((cat: Category) => {
     categoriesForGrid[cat.slug] = { displayName: cat.name };
   });
 

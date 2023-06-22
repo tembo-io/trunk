@@ -3,8 +3,9 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import cx from "classnames";
 import styles from "./search.module.scss";
+import { Extension } from "@/types";
 
-export default function Search({ extensions }) {
+export default function Search({ extensions }: { extensions: Extension[] }) {
   const [searchString, setSearchString] = useState("");
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
   const [showresults, setShowResults] = useState(false);
@@ -39,7 +40,7 @@ export default function Search({ extensions }) {
       if (selectedItemIndex > -1) {
         router.push(`/extensions/${filteredList[selectedItemIndex].name}`);
       } else {
-        router.push(`/search?q=${query}`);
+        // router.push(`/search?q=${query}`);
       }
     }
   };

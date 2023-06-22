@@ -4,11 +4,20 @@ import { truncate } from "../../stringHelpers";
 import cx from "classnames";
 import { useRouter } from "next/router";
 import Search from "../Search";
+import { Category, Extension, CategoriesForGrid } from "@/types";
 
-export default function ExtGrid({ extensions, categories, categoriesForGrid }) {
+export default function ExtGrid({
+  extensions,
+  categories,
+  categoriesForGrid,
+}: {
+  extensions: Extension[];
+  categories: Category[];
+  categoriesForGrid: CategoriesForGrid;
+}) {
   const router = useRouter();
 
-  const title = router.query.cat ? categoriesForGrid[router.query.cat].displayName : "All Extensions";
+  const title = router.query.cat ? categoriesForGrid[router.query.cat as string]?.displayName : "All Extensions";
 
   const filteredList = router.query.cat ? extensions.filter((ext) => ext.categories.includes(title)) : extensions;
 

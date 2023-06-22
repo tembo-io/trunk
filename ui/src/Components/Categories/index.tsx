@@ -2,8 +2,9 @@ import type { InferGetStaticPropsType, GetStaticProps } from "next";
 import Link from "next/link";
 import styles from "./categories.module.scss";
 import cx from "classnames";
+import { Category } from "@/types";
 
-export default function Categories({ categories }) {
+export default function Categories({ categories }: { categories: Category[] }) {
   return (
     <div className={styles.container}>
       {categories
