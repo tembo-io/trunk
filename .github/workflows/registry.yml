@@ -166,13 +166,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - repository: coredb-io/app-deploy-dev
+          - repository: tembo-io/app-deploy-dev
             subdirectory: dev
             branch: main
-          - repository: coredb-io/app-deploy
+          - repository: tembo-io/app-deploy
             subdirectory: staging
             branch: staging-updates
-          - repository: coredb-io/app-deploy
+          - repository: tembo-io/app-deploy
             subdirectory: prod
             branch: prod-updates
     needs:

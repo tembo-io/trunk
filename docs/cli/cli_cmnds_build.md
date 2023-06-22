@@ -32,7 +32,7 @@ This option enables you to specify the target architecture that will be used whe
 ### -d, --dockerfile
 
 - Updates to come.
-- Default Behavior: If this option is not specified and a Makefile is detected, the default Dockerfile at ./builders/Dockerfile.generic is used. If a Cargo.toml file is detected, the Dockerfile is not required. 
+- Default Behavior: If this option is not specified and a Makefile is detected, the default Dockerfile at ./builders/Dockerfile.generic is used. If a Cargo.toml file is detected, the Dockerfile is not required.
 
 ### -i, --install-command
 This option is used to specify the command that will be used to install the extension during the build process. In the context of this build script, if a Cargo.toml file is detected, the script assumes that it's building a pgrx extension and handles the build process internally. In other words, it does not require an install command. However, if a Makefile is detected, the script presumes that it is building an extension with make and make install. In this scenario, the --install-command becomes essential.
@@ -51,7 +51,7 @@ Extensions can be built in many ways, and [PGRX](https://github.com/tcdi/pgrx) a
 Trunk makes building and packaging PGRX based extensions easier than ever.
 
 Example `trunk build` with PGRX based extension
-[pgmq](https://github.com/CoreDB-io/coredb/tree/main/pgmq/extension):
+[pgmq](https://github.com/tembo-io/coredb/tree/main/pgmq/extension):
 ```shell
 ❯ trunk build
 Building from path .

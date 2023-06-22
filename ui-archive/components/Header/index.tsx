@@ -63,7 +63,7 @@ export default function Header({ bgTransparent = false }) {
         {showNavLinks ? "" : "Menu"}
       </button>
       <div ref={navRef} className={cx(styles.linksCont, showNavLinks ? styles.showLinks : "")}>
-        <a className={cx(inter.className, styles.navLink)} href="https://coredb-io.github.io/trunk/">
+        <a className={cx(inter.className, styles.navLink)} href="https://tembo-io.github.io/trunk/">
           Documentation
         </a>
         {user && (

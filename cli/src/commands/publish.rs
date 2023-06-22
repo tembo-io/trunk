@@ -1,9 +1,13 @@
 use super::SubCommand;
+use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
+use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
+use reqwest::StatusCode;
+use serde::Deserialize;
 use serde_json::json;
 use std::path::PathBuf;
 use std::{env, fs};
@@ -32,6 +36,8 @@ pub struct PublishCommand {
     registry: String,
     #[arg(long = "repository", short = 'R')]
     repository: Option<String>,
+    #[arg(long = "category", short = 'c')]
+    category: Option<Vec<String>>,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -40,11 +46,51 @@ pub enum PublishError {
     InvalidExtensionName,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct Category {
+    pub name: String,
+    pub description: String,
+    pub slug: String,
+}
+
 #[async_trait]
 impl SubCommand for PublishCommand {
     async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
         // Validate extension name input
+        let mut slugs = Vec::new();
+
         check_input(&self.name)?;
+        // Validate categories input if provided
+        if self.category.is_some() {
+            let response = reqwest::get(&format!("{}/categories/all", self.registry)).await?;
+            match response.status() {
+                StatusCode::OK => {
+                    let response_body = response.text().await?;
+                    let resp: Vec<Category> = serde_json::from_str(&response_body)?;
+                    // Collect list of valid category slugs
+                    for r in resp {
+                        slugs.push(r.slug);
+                    }
+                }
+                _ => {
+                    // Fall back to local file if we fail to fetch valid slugs from registry
+                    println!("Error fetching valid category slugs from {}/categories/all. Falling back to local definitions in categories.rs", self.registry);
+                    slugs = VALID_CATEGORY_SLUGS
+                        .to_vec()
+                        .into_iter()
+                        .map(|x| x.to_string())
+                        .collect();
+                }
+            }
+
+            let categories = self.category.clone().unwrap();
+            for category in categories {
+                if !slugs.contains(&category) {
+                    return Err(anyhow!("Invalid category slug: {}. \nValid category slugs: {:?} \nMore details can be found at {}/categories/all", category, slugs, self.registry));
+                }
+            }
+        }
+
         let (file, name) = match &self.file {
             Some(..) => {
                 // If file is specified, use it
@@ -79,7 +125,8 @@ impl SubCommand for PublishCommand {
             "documentation": self.documentation,
             "homepage": self.homepage,
             "license": self.license,
-            "repository": self.repository
+            "repository": self.repository,
+            "categories": self.category
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
         let form = reqwest::multipart::Form::new()

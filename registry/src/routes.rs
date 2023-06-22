@@ -1,3 +1,4 @@
+pub mod categories;
 pub mod download;
 pub mod extensions;
 pub mod root;
