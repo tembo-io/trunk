@@ -23,7 +23,7 @@ export default function ExtGrid({
 
   useEffect(() => {
     if (sectionTitleRef.current && router.query.cat) {
-      window.scrollTo({ top: sectionTitleRef.current.offsetTop - 30, behavior: "smooth" });
+      window.scrollTo({ top: sectionTitleRef.current.offsetTop - 35, behavior: "smooth" });
     }
   }, [router.query.cat]);
 
