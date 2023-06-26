@@ -32,10 +32,9 @@ export default function ExtGrid({
           <div key={ext.name} className={styles.extCard}>
             <div className={styles.titleRow}>
               <p className={styles.interMed16}>{ext.name}</p>
-              {ext?.categories[0] && <div className={styles.catBubble}>{ext.categories[0]}</div>}
             </div>
             <p className={cx(styles.interReg12, styles.description)}>{truncate(ext.description)}</p>
-            <p className={cx(styles.interReg12, styles.author)}>{ext.owners[0].userName}</p>
+            {ext?.categories[0] && <div className={styles.catBubble}>{ext.categories[0]}</div>}
           </div>
         ))}
       </div>

@@ -24,9 +24,7 @@
   flex-direction: row;
   justify-content: space-between;
 }
-.extDescription {
-  margin: $spacing-s 0;
-}
+
 .extAuthor {
   margin-top: auto;
 }
@@ -49,11 +47,12 @@
   color: $grey;
   background-color: $dark-tan;
   padding: $spacing-xs $spacing-s;
-  margin-left: $spacing-xs;
+  width: fit-content;
+  margin-top: auto;
 }
 .description {
   color: $dark-grey;
-  margin-top: $spacing-l;
+  margin: $spacing-l 0;
 }
 .author {
   margin-top: auto;
