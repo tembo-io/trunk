@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useEffect } from "react";
 import styles from "./extGrid.module.scss";
 import { truncate } from "../../stringHelpers";
 import cx from "classnames";
@@ -16,13 +16,19 @@ export default function ExtGrid({
   categoriesForGrid: CategoriesForGrid;
 }) {
   const router = useRouter();
-
+  const sectionTitleRef = useRef(null);
   const title = router.query.cat ? categoriesForGrid[router.query.cat as string]?.displayName : "All Extensions";
 
   const filteredList = router.query.cat ? extensions.filter((ext) => ext.categories.includes(title)) : extensions;
 
+  useEffect(() => {
+    if (sectionTitleRef.current && router.query.cat) {
+      window.scrollTo({ top: sectionTitleRef.current.offsetTop - 30, behavior: "smooth" });
+    }
+  }, [router.query.cat]);
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={sectionTitleRef}>
       <div className={styles.sectionHeader}>
         <h1 className={styles.interMed24}>{title}</h1>
         <Search extensions={extensions}></Search>
