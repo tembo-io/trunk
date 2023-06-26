@@ -29,15 +29,16 @@ export default function Header() {
         <h1 className={styles.title}>Trunk</h1>
       </Link>
       <div>
-        <Link className={styles.navLink} href={"/"}>
+        <a className={styles.navLink} href={"https://github.com/tembo-io/trunk#installation"} target="_blank">
           Download
-        </Link>
-        <Link className={styles.navLink} href={"/"}>
+        </a>
+        <a className={styles.navLink} href="https://github.com/tembo-io/trunk" target="_blank">
           Contribute
-        </Link>
-        <Link className={styles.navLink} href={"/"}>
+        </a>
+        <a className={styles.navLink} href="https://tembo-io.github.io/trunk/" target="_blank">
           Docs
-        </Link>
+        </a>
+        {/* TODO: Add blog */}
         <Link className={styles.navLink} href={"/"}>
           Blog
         </Link>
