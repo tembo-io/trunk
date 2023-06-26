@@ -25,7 +25,7 @@ export default function Header() {
   return (
     <header className={cx(styles.header, scrolled ? styles.headerScrolled : "")} ref={headerRef}>
       <Link href={"/"} shallow style={{ display: "flex", alignItems: "flex-start" }}>
-        <Image width={29} height={29} style={{ marginRight: "10px" }} quality={20} priority alt="Trunk Logo" src={TrunkLogo}></Image>
+        <Image width={36} height={36} style={{ marginRight: "10px" }} quality={20} priority alt="Trunk Logo" src={TrunkLogo}></Image>
         <h1 className={styles.title}>Trunk</h1>
       </Link>
       <div>
