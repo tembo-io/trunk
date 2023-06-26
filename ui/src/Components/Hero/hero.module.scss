@@ -71,7 +71,12 @@
   font-family: $inter;
   padding: $spacing-s $spacing-m;
   border-radius: 44px;
+  cursor: pointer;
+  &:active {
+    transform: translateY(2px);
+  }
 }
+
 .installCode {
   font-family: $plex;
   font-size: 14px;
@@ -96,4 +101,20 @@
   text-align: center;
   margin-top: $spacing-m;
   font-weight: 500;
+}
+.buttonFeedback {
+  position: absolute;
+  top: -10px;
+  right: 50px;
+  font-weight: 700;
+  background-color: $black;
+  color: $white;
+  font-family: $inter;
+  padding: $spacing-s $spacing-m;
+  border-radius: 44px;
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+}
+.showButtonFeedback {
+  opacity: 1;
 }
