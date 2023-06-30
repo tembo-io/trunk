@@ -1,0 +1,118 @@
+@import "../../../variables.scss";
+.container {
+  //   min-width: 100%;
+  //   max-width: 100vw;
+  background-color: $light-tan;
+  display: flex;
+  flex-direction: row;
+  //   justify-content: center;
+  //   position: relative;
+  min-height: 100vh;
+  //   width: fit-content;
+  width: 100%;
+  //   padding: 0 $spacing-5xl;
+  //   overflow: auto;
+  //   min-width: fit-content;
+}
+.markdownCont {
+  width: calc(100vw / 10 * 7);
+  //   flex: 1 1 auto;
+
+  //   max-width: 200px;
+}
+.markdown {
+  border-radius: 24px;
+  padding: $spacing-4xl;
+}
+.infoSection {
+  //   position: sticky;
+  //   max-width: 300px;
+  //   min-width: 250px;
+  //   flex: 1;
+  //   height: fit-content;
+  //   margin-left: $spacing-5xl;
+  //   flex: 1 1 auto;
+  width: calc(100vw / 10 * 3);
+  max-width: 300px;
+  //   min-width: 225px;
+}
+
+.extHeaderRow {
+  background-color: $light-tan;
+  display: flex;
+  justify-content: space-between;
+  padding: 80px $spacing-5xl;
+  width: 100%;
+}
+.title {
+  font-family: $inter;
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+}
+.installText {
+  font-family: $inter;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.description {
+  font-family: $inter;
+  font-size: 18px;
+  font-weight: 400;
+  color: $dark-grey;
+  margin: 0;
+  padding: 0;
+}
+// .readmeContainer {
+//   //   max-width: 800px;
+//   flex: 1;
+//   border: 4px solid green;
+//   //   margin: 0 auto;
+//   background-color: orange;
+// }
+.readme {
+  //   padding: $spacing-5xl;
+  //   max-width: 70%;
+  border-radius: 24px;
+}
+
+.infoRow {
+  padding: $spacing-m 0;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid $dark-tan;
+  font-family: $inter;
+  font-weight: 400;
+  font-size: 16px;
+}
+.buttonLink {
+  display: block;
+  width: 100%;
+  border-radius: 44px;
+  font-size: 14px;
+  padding: $spacing-s;
+  margin: $spacing-m 0;
+  background-color: $black;
+  color: $white;
+  font-family: $plex;
+  text-decoration: underline;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.linkIcon {
+  margin: 0 $spacing-s;
+}
+.details {
+  font-family: $inter;
+  font-size: 22px;
+  padding-top: $spacing-m;
+}
+.about {
+  font-family: $inter;
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: $spacing-xl;
+}

@@ -5,6 +5,7 @@ import cx from "classnames";
 import { useRouter } from "next/router";
 import Search from "../Search";
 import { Category, Extension, CategoriesForGrid } from "@/types";
+import Link from "next/link";
 
 export default function ExtGrid({
   extensions,
@@ -35,13 +36,13 @@ export default function ExtGrid({
       </div>
       <div className={styles.gridContainer}>
         {filteredList.map((ext) => (
-          <div key={ext.name} className={styles.extCard}>
+          <Link href={`/extensions/${ext.name}`} key={ext.name} className={styles.extCard}>
             <div className={styles.titleRow}>
               <p className={styles.interMed16}>{ext.name}</p>
             </div>
             <p className={cx(styles.interReg12, styles.description)}>{truncate(ext.description)}</p>
             {ext?.categories[0] && <div className={styles.catBubble}>{ext.categories[0]}</div>}
-          </div>
+          </Link>
         ))}
       </div>
     </div>

@@ -5,6 +5,11 @@ export type Extension = {
   categories: string[];
   tags: string[];
   owners: Owner[];
+  license: string;
+  version: string;
+  repository?: string;
+  homepage?: string;
+  updatedAt: string;
 };
 
 export type Owner = {
