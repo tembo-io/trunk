@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import type { InferGetStaticPropsType, GetStaticProps } from "next";
 import { Extension } from "@/types";
 import ReactMarkdown from "react-markdown";
@@ -11,19 +12,40 @@ import Image from "next/image";
 const Octocat = "/OctocatIcon.png";
 const LinkIcon = "/LinkIcon.png";
 import Header from "@/Components/Header";
-import Markdown from "markdown-to-jsx";
+const CopyIcon = "/copy.png";
 
 export default function Page({ extension, readme, allExtensions, repoDescription, error }: InferGetStaticPropsType<typeof getStaticProps>) {
   const latestVersion: Extension = extension[extension.length - 1];
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  useEffect(() => {
+    if (showFeedback) {
+      const timer = setTimeout(() => {
+        setShowFeedback(false);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showFeedback]);
 
   if (error) {
     console.log("ERROR: ", error);
     return <div>404</div>;
   }
 
+  const installText = `trunk install ${latestVersion.name}`;
+
+  const handleCopy = async () => {
+    try {
+      navigator.clipboard.writeText(installText);
+      setShowFeedback(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
-      <Header search extensions={allExtensions} />
+      <Header search extensions={allExtensions} white />
       <div className={styles.extHeaderRow}>
         <div>
           <h1 className={styles.title}>{latestVersion.name}</h1>
@@ -31,6 +53,13 @@ export default function Page({ extension, readme, allExtensions, repoDescription
         </div>
         <div>
           <p className={styles.installText}>Install</p>
+          <div className={styles.installRow}>
+            <div className={cx(styles.buttonFeedback, showFeedback ? styles.showButtonFeedback : "")}>Copied to clipboard!</div>
+            <p className={styles.installCode}>{installText}</p>
+            <button onClick={handleCopy} className={styles.copyButton}>
+              <Image src={CopyIcon} width={18} height={18} alt="Copy button" />
+            </button>
+          </div>
         </div>
       </div>
       <div className={styles.container}>
@@ -38,7 +67,6 @@ export default function Page({ extension, readme, allExtensions, repoDescription
           <ReactMarkdown className={cx("markdown-body", styles.markdown)} remarkPlugins={[remarkGfm]}>
             {readme}
           </ReactMarkdown>
-          {/* <Markdown>{readme}</Markdown> */}
         </div>
         <div className={styles.infoSection}>
           <h2 className={styles.details}>Details</h2>

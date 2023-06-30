@@ -10,7 +10,7 @@
   min-height: 100vh;
   //   width: fit-content;
   width: 100%;
-  //   padding: 0 $spacing-5xl;
+  padding: 0 $spacing-5xl;
   //   overflow: auto;
   //   min-width: fit-content;
 }
@@ -30,7 +30,7 @@
   //   min-width: 250px;
   //   flex: 1;
   //   height: fit-content;
-  //   margin-left: $spacing-5xl;
+  margin-left: $spacing-5xl;
   //   flex: 1 1 auto;
   width: calc(100vw / 10 * 3);
   max-width: 300px;
@@ -41,7 +41,8 @@
   background-color: $light-tan;
   display: flex;
   justify-content: space-between;
-  padding: 80px $spacing-5xl;
+  align-items: flex-end;
+  padding: $spacing-8xl $spacing-5xl $spacing-4xl $spacing-5xl;
   width: 100%;
 }
 .title {
@@ -115,4 +116,71 @@
   font-size: 16px;
   font-weight: 700;
   margin-top: $spacing-xl;
+}
+.installRow {
+  background-color: $white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 250px;
+  padding: $spacing-xs;
+  padding-left: $spacing-s;
+  border-radius: 44px;
+  border: 1px solid $dark-tan;
+  margin-top: $spacing-xs;
+  position: relative;
+}
+.copyButton {
+  border: none;
+  background-color: $black;
+  color: $white;
+  font-family: $inter;
+  padding: $spacing-s;
+  border-radius: 44px;
+  cursor: pointer;
+  &:active {
+    transform: translateY(2px);
+  }
+}
+
+.installCode {
+  font-family: $plex;
+  font-size: 14px;
+  font-weight: 400;
+}
+.installDropdown {
+  font-family: $inter;
+  font-weight: 700;
+  font-size: 14px;
+}
+.getTrunk {
+  font-family: $inter;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: $spacing-s;
+}
+.installDesc {
+  font-family: $inter;
+  color: $dark-grey;
+  font-size: 16px;
+  max-width: 500px;
+  text-align: center;
+  margin-top: $spacing-m;
+  font-weight: 500;
+}
+.buttonFeedback {
+  position: absolute;
+  top: -40px;
+  right: 0px;
+  font-weight: 700;
+  background-color: $black;
+  color: $white;
+  font-family: $inter;
+  padding: $spacing-s $spacing-m;
+  border-radius: 44px;
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+}
+.showButtonFeedback {
+  opacity: 1;
 }

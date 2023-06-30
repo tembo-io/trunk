@@ -31,7 +31,15 @@ export default function Header({ white = false, search = false, extensions = [] 
     >
       <div style={{ display: "flex" }}>
         <Link href={"/"} shallow style={{ display: "flex", alignItems: "flex-start" }}>
-          <Image width={108} height={38} style={{ marginRight: "10px" }} quality={90} priority alt="Trunk Logo" src={TrunkLogo}></Image>
+          <Image
+            width={108}
+            height={38}
+            style={{ marginRight: "10px", minWidth: "108px", minHeight: "38px" }}
+            quality={90}
+            priority
+            alt="Trunk Logo"
+            src={TrunkLogo}
+          ></Image>
         </Link>
         {search && (
           <div style={{ marginLeft: "20px" }}>
