@@ -3,6 +3,8 @@
   position: relative;
   min-height: 100vh;
   background-color: $light-tan;
+  width: 100%;
+  // min-width: 100vw;
 }
 .body {
   display: flex;

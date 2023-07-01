@@ -14,16 +14,14 @@
   //   overflow: auto;
   //   min-width: fit-content;
 }
+
 .markdownCont {
   width: calc(100vw / 10 * 7);
   //   flex: 1 1 auto;
 
   //   max-width: 200px;
 }
-.markdown {
-  border-radius: 24px;
-  padding: $spacing-4xl;
-}
+
 .infoSection {
   //   position: sticky;
   //   max-width: 300px;
@@ -31,10 +29,14 @@
   //   flex: 1;
   //   height: fit-content;
   margin-left: $spacing-5xl;
-  //   flex: 1 1 auto;
-  width: calc(100vw / 10 * 3);
+  // flex: 1 1 auto;
   max-width: 300px;
   //   min-width: 225px;
+}
+
+.markdown {
+  border-radius: 24px;
+  padding: $spacing-4xl;
 }
 
 .extHeaderRow {
@@ -178,4 +180,73 @@
 }
 .showButtonFeedback {
   opacity: 1;
+}
+@media screen and (max-width: 1000px) {
+  .container {
+    flex-direction: column-reverse;
+    padding: $spacing-l;
+  }
+
+  .markdownCont {
+    width: 100%;
+    flex: 1;
+  }
+  .infoDetails {
+    display: flex;
+    // flex-direction: row;
+    flex-wrap: wrap;
+    // background-color: green;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .infoSection {
+    max-width: 100%;
+    margin-left: $spacing-xl;
+  }
+  .infoRow {
+    // border: 1px solid red;
+    flex-direction: column;
+    // margin: 0 $spacing-3xl;
+    &:first-child {
+      // margin-left: 0;
+    }
+  }
+  .buttonLinkCont {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+  .buttonLink {
+    margin: $spacing-m;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .extHeaderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: $spacing-8xl $spacing-l 0 $spacing-l;
+  }
+  .installCont {
+    margin-top: $spacing-xl;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .infoSection {
+    max-width: 100%;
+    margin: 0;
+  }
+  .infoDetails {
+    flex-direction: column;
+  }
+  .buttonLinkCont {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .buttonLink {
+    margin: $spacing-m 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
 }

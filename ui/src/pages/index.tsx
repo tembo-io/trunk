@@ -4,25 +4,31 @@ import styles from "./index.module.scss";
 import Hero from "../Components/Hero";
 import Categories from "../Components/Categories";
 import ExtGrid from "../Components/ExtGrid";
-import { Category, CategoriesForGrid } from "@/types";
+import { Category, CategoriesForGrid, Extension } from "@/types";
 import Header from "@/Components/Header";
 export const getStaticProps: GetStaticProps<{
   categories: Category[];
 }> = async () => {
-  const catRes = await fetch("https://registry.pgtrunk.io/categories/all");
-  const extRes = await fetch("https://registry.pgtrunk.io/extensions/all");
+  try {
+    const catRes = await fetch("https://registry.pgtrunk.io/categories/all");
+    const extRes = await fetch("https://registry.pgtrunk.io/extensions/all");
 
-  const cats: Category[] = await catRes.json();
-  const exts = await extRes.json();
+    const cats: Category[] = await catRes.json();
+    const exts: Extension[] = await extRes.json();
 
-  const sortedData = cats.sort((a, b) => (a.name < b.name ? -1 : 1));
+    const sortedData = cats.sort((a, b) => (a.name < b.name ? -1 : 1));
 
-  const categoriesForGrid: CategoriesForGrid = {};
-  cats.forEach((cat: Category) => {
-    categoriesForGrid[cat.slug] = { displayName: cat.name };
-  });
+    const categoriesForGrid: CategoriesForGrid = {};
+    cats.forEach((cat: Category) => {
+      categoriesForGrid[cat.slug] = { displayName: cat.name };
+    });
 
-  return { props: { categories: sortedData, extensions: exts, categoriesForGrid } };
+    return { props: { categories: sortedData, extensions: exts, categoriesForGrid } };
+  } catch (error) {
+    console.log("ERROR LOADING DATA: ", error);
+
+    return { props: { categories: [], extensions: [], categoriesForGrid: {} } };
+  }
 };
 
 export default function Home({
@@ -31,7 +37,7 @@ export default function Home({
   categoriesForGrid,
 }: {
   categories: Category[];
-  extensions: any[];
+  extensions: Extension[];
   categoriesForGrid: {};
 }) {
   return (

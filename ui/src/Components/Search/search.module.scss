@@ -7,6 +7,12 @@
   justify-content: flex-end;
   min-width: 350px;
 }
+
+@media screen and (max-width: 800px) {
+  .inputCont {
+    min-width: 100%;
+  }
+}
 .input {
   padding: 4px 20px;
   height: $spacing-5xl;

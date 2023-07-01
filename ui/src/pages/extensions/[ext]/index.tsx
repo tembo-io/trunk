@@ -51,7 +51,7 @@ export default function Page({ extension, readme, allExtensions, repoDescription
           <h1 className={styles.title}>{latestVersion.name}</h1>
           <p className={styles.description}>{repoDescription}</p>
         </div>
-        <div>
+        <div className={styles.installCont}>
           <p className={styles.installText}>Install</p>
           <div className={styles.installRow}>
             <div className={cx(styles.buttonFeedback, showFeedback ? styles.showButtonFeedback : "")}>Copied to clipboard!</div>
@@ -71,41 +71,45 @@ export default function Page({ extension, readme, allExtensions, repoDescription
         <div className={styles.infoSection}>
           <h2 className={styles.details}>Details</h2>
           <h3 className={styles.about}>About</h3>
-          {latestVersion.categories.length > 0 && (
+          <div className={styles.infoDetails}>
+            {latestVersion.categories.length > 0 && (
+              <div className={styles.infoRow}>
+                <span className={styles.infoTitle}>Category</span>
+                <span className={styles.infoValue}>{latestVersion.categories[0]}</span>
+              </div>
+            )}
             <div className={styles.infoRow}>
-              <span className={styles.infoTitle}>Category</span>
-              <span className={styles.infoValue}>{latestVersion.categories[0]}</span>
+              <span className={styles.infoTitle}>Version</span>
+              <span className={styles.infoValue}>{latestVersion.version}</span>
             </div>
-          )}
-          <div className={styles.infoRow}>
-            <span className={styles.infoTitle}>Version</span>
-            <span className={styles.infoValue}>{latestVersion.version}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoTitle}>Last updated</span>
-            <span className={styles.infoValue}>{formatDateString(latestVersion.updatedAt)}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoTitle}>License</span>
-            <span className={styles.infoValue}>{latestVersion.license}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoTitle}>Owner</span>
-            <span className={styles.infoValue}>{latestVersion.owners[0].userName}</span>
-          </div>
-          {latestVersion.homepage && (
-            <a href={latestVersion.homepage} target="_blank" className={styles.buttonLink}>
-              <Image className={styles.linkIcon} src={LinkIcon} width={14} height={14} alt="Link icon" />
-              {truncate(latestVersion.homepage, 35).replace("https://", "")}
-            </a>
-          )}
-          {latestVersion.repository && (
-            <a href={latestVersion.repository} target="_blank" className={styles.buttonLink}>
-              <Image className={styles.linkIcon} src={Octocat} width={14} height={14} alt="Link icon" />
+            <div className={styles.infoRow}>
+              <span className={styles.infoTitle}>Last updated</span>
+              <span className={styles.infoValue}>{formatDateString(latestVersion.updatedAt)}</span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.infoTitle}>License</span>
+              <span className={styles.infoValue}>{latestVersion.license}</span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.infoTitle}>Owner</span>
+              <span className={styles.infoValue}>{latestVersion.owners[0].userName}</span>
+            </div>
+            <div className={styles.buttonLinkCont}>
+              {latestVersion.homepage && (
+                <a href={latestVersion.homepage} target="_blank" className={styles.buttonLink}>
+                  <Image className={styles.linkIcon} src={LinkIcon} width={14} height={14} alt="Link icon" />
+                  {truncate(latestVersion.homepage, 35).replace("https://", "")}
+                </a>
+              )}
+              {latestVersion.repository && (
+                <a href={latestVersion.repository} target="_blank" className={styles.buttonLink}>
+                  <Image className={styles.linkIcon} src={Octocat} width={14} height={14} alt="Link icon" />
 
-              {truncate(latestVersion.repository, 35).replace("https://", "")}
-            </a>
-          )}
+                  {truncate(latestVersion.repository, 35).replace("https://", "")}
+                </a>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

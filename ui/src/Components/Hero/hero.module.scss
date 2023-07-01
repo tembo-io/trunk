@@ -50,6 +50,12 @@
   }
 }
 
+@media screen and (max-width: 800px) {
+  .installCont {
+    display: none;
+  }
+}
+
 @media screen and (max-width: 1000px) {
   .installCont {
     top: calc(60%);

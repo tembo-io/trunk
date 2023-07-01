@@ -10,7 +10,30 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  min-width: 100vw;
 }
+
+.headerLeft {
+  display: flex;
+}
+.headerSearchCont {
+  margin-left: 20px;
+}
+@media screen and (max-width: 800px) {
+  .headerLeft {
+    justify-content: space-between;
+    flex: 1;
+  }
+  .headerSearchCont {
+    display: none;
+  }
+}
+
+.navSubRow {
+  display: flex;
+  align-items: center;
+}
+
 .title {
   color: $black;
   font-family: $inter;
@@ -44,4 +67,49 @@
   font-family: $inter;
   font-size: 14px;
   font-weight: 700;
+  margin-left: $spacing-s;
+}
+@media screen and (max-width: 1024px) {
+  .ctaCont {
+    display: none;
+  }
+}
+
+.menuButton {
+  display: none;
+  text-decoration: none;
+  // color: #ffffff;
+  padding: 0 0 0 20px;
+  background-color: transparent;
+  border: 1px solid red;
+  font-size: 1rem;
+  letter-spacing: 0.75px;
+  cursor: pointer;
+  @media screen and (max-width: 850px) {
+    display: block;
+  }
+}
+
+.linksCont {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  @media screen and (max-width: 850px) {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 1;
+    transition: all 2s ease-in-out;
+    padding-top: $spacing-6xl;
+    background-color: green;
+  }
+}
+
+.showLinks {
+  display: flex;
 }

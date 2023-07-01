@@ -6,9 +6,18 @@ import cx from "classnames";
 const TrunkLogo = "/TrunkLogo.png";
 const SlackLogo = "/slack_logo.png";
 import Search from "../Search";
+import { Extension } from "@/types";
 
-export default function Header({ white = false, search = false, extensions = [] }) {
+interface HeaderProps {
+  white?: boolean;
+  search?: boolean;
+  extensions?: Extension[];
+}
+
+export default function Header({ white = false, search = false, extensions = [] }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
+  const [showNavLinks, setShowNavLinks] = useState(false);
+
   const headerRef = useRef(null);
   useEffect(() => {
     function handleScroll() {
@@ -29,7 +38,7 @@ export default function Header({ white = false, search = false, extensions = [] 
       className={cx(styles.header, scrolled ? styles.headerScrolled : "")}
       ref={headerRef}
     >
-      <div style={{ display: "flex" }}>
+      <div className={styles.headerLeft}>
         <Link href={"/"} shallow style={{ display: "flex", alignItems: "flex-start" }}>
           <Image
             width={108}
@@ -41,26 +50,47 @@ export default function Header({ white = false, search = false, extensions = [] 
             src={TrunkLogo}
           ></Image>
         </Link>
+        <button onClick={() => setShowNavLinks(!showNavLinks)} className={styles.menuButton}>
+          {showNavLinks ? "" : "Menu"}
+        </button>
         {search && (
-          <div style={{ marginLeft: "20px" }}>
+          <div className={styles.headerSearchCont}>
             <Search extensions={extensions}></Search>
           </div>
         )}
       </div>
-      <div style={search ? { marginLeft: "auto" } : {}}>
-        <a className={styles.navLink} href={"https://github.com/tembo-io/trunk#installation"} target="_blank">
-          Download
-        </a>
-        <a className={styles.navLink} href="https://github.com/tembo-io/trunk" target="_blank">
-          Contribute
-        </a>
-        <a className={styles.navLink} href="https://tembo-io.github.io/trunk/" target="_blank">
-          Docs
-        </a>
-        {/* TODO: Add blog */}
-        <Link className={styles.navLink} href={"/"}>
-          Blog
-        </Link>
+      {/* <div> */}
+      <div style={search ? { marginLeft: "auto", position: "relative" } : {}}>
+        <div className={cx(styles.linksCont, showNavLinks ? styles.showLinks : "")}>
+          <a
+            className={styles.navLink}
+            style={search ? { padding: "0 14px" } : {}}
+            href={"https://github.com/tembo-io/trunk#installation"}
+            target="_blank"
+          >
+            Download
+          </a>
+          <a
+            style={search ? { padding: "0 14px" } : {}}
+            className={styles.navLink}
+            href="https://github.com/tembo-io/trunk"
+            target="_blank"
+          >
+            Contribute
+          </a>
+          <a
+            style={search ? { padding: "0 14px" } : {}}
+            className={styles.navLink}
+            href="https://tembo-io.github.io/trunk/"
+            target="_blank"
+          >
+            Docs
+          </a>
+          {/* TODO: Add blog */}
+          <Link className={styles.navLink} href={"/"}>
+            Blog
+          </Link>
+        </div>
       </div>
       <a
         target="_blank"
@@ -70,6 +100,7 @@ export default function Header({ white = false, search = false, extensions = [] 
         <span className={styles.ctaText}>Join Trunk on Slack</span>
         <Image width={16} height={16} style={{ marginLeft: "10px" }} quality={20} priority alt="Slack Logo" src={SlackLogo}></Image>
       </a>
+      {/* </div> */}
     </header>
   );
 }

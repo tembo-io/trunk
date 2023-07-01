@@ -31,7 +31,7 @@ export default function ExtGrid({
   return (
     <div className={styles.container} ref={sectionTitleRef}>
       <div className={styles.sectionHeader}>
-        <h1 className={styles.interMed24}>{title}</h1>
+        <h1 className={cx(styles.interMed24, styles.title)}>{title}</h1>
         <Search extensions={extensions}></Search>
       </div>
       <div className={styles.gridContainer}>
