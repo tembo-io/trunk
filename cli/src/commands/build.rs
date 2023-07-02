@@ -42,7 +42,9 @@ pub struct BuildSettings {
 
 impl BuildCommand {
     fn settings(&self) -> Result<BuildSettings, anyhow::Error> {
-        let trunk_toml = match File::open("Trunk.toml") {
+        let path = self.path.clone();
+        let trunkfile_path = Path::new(&path.clone()).join("Trunk.toml");
+        let trunk_toml = match File::open(trunkfile_path) {
             Ok(file) => config::parse_trunk_toml(file),
             Err(_e) => {
                 println!("Trunk.toml not found");
@@ -50,7 +52,6 @@ impl BuildCommand {
             }
         }?;
 
-        let path = self.path.clone();
         let output_path = self.output_path.clone();
         // These settings can default to Trunk.toml
         let version = get_from_trunk_toml_if_not_set_on_cli(
