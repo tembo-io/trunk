@@ -31,19 +31,12 @@ enum SubCommands {
 
 #[async_trait]
 impl SubCommand for SubCommands {
-    async fn execute(&self, task: Task, _trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
-        let trunk_toml = match File::open("Trunk.toml") {
-            Ok(file) => config::parse_trunk_toml(file),
-            Err(e) => {
-                println!("Trunk.toml not found");
-                Ok(None)
-            }
-        }?;
+    async fn execute(&self, task: Task) -> Result<(), anyhow::Error> {
 
         match self {
-            SubCommands::Build(cmd) => cmd.execute(task, trunk_toml).await,
-            SubCommands::Publish(cmd) => cmd.execute(task, trunk_toml).await,
-            SubCommands::Install(cmd) => cmd.execute(task, trunk_toml).await,
+            SubCommands::Build(cmd) => cmd.execute(task).await,
+            SubCommands::Publish(cmd) => cmd.execute(task).await,
+            SubCommands::Install(cmd) => cmd.execute(task).await,
         }
     }
 }
@@ -58,7 +51,7 @@ fn main() {
 
     rt.block_on(async {
         let cli = Cli::parse();
-        let result = cli.command.execute(tm.task(), None).await;
+        let result = cli.command.execute(tm.task()).await;
         tm.wait().await;
         result
     })

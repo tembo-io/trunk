@@ -56,7 +56,7 @@ pub struct Category {
 
 #[async_trait]
 impl SubCommand for PublishCommand {
-    async fn execute(&self, _task: Task, trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
+    async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
         // Validate extension name input
         let mut slugs = Vec::new();
 

@@ -6,9 +6,11 @@ use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
 use std::fs;
+use std::fs::File;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
+use crate::config;
 
 #[derive(Args)]
 pub struct BuildCommand {
@@ -39,7 +41,16 @@ pub struct BuildSettings {
 }
 
 impl BuildCommand {
-    fn settings(&self, trunk_toml: Option<Table>) -> Result<BuildSettings, anyhow::Error> {
+    fn settings(&self) -> Result<BuildSettings, anyhow::Error> {
+
+        let trunk_toml = match File::open("Trunk.toml") {
+            Ok(file) => config::parse_trunk_toml(file),
+            Err(e) => {
+                println!("Trunk.toml not found");
+                Ok(None)
+            }
+        }?;
+
         let path = self.path.clone();
         let output_path = self.output_path.clone();
         // These settings can default to Trunk.toml
@@ -88,8 +99,8 @@ impl BuildCommand {
 
 #[async_trait]
 impl SubCommand for BuildCommand {
-    async fn execute(&self, task: Task, trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
-        let build_settings = self.settings(trunk_toml)?;
+    async fn execute(&self, task: Task) -> Result<(), anyhow::Error> {
+        let build_settings = self.settings()?;
         println!("Building from path {}", build_settings.path);
         let path = Path::new(&build_settings.path);
         if path.join("Cargo.toml").exists() {
