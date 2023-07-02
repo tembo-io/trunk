@@ -162,53 +162,49 @@ impl SubCommand for BuildCommand {
             }
         }
 
-        // Check for Makefile
-        if path.join("Makefile").exists() {
-            println!("Detected a Makefile, guessing that we are building an extension with 'make', 'make install...'");
-            // Check if version or name are missing
-            if build_settings.version.is_none() || build_settings.name.is_none() {
-                println!("Error: --version and --name are required when building a makefile based extension");
-                return Err(anyhow!(
-                    "--version and --name are required when building a makefile based extension"
-                ));
-            }
-            let mut dockerfile = String::new();
-            if build_settings.dockerfile_path.clone().is_some() {
-                let dockerfile_path_unwrapped = build_settings.dockerfile_path.clone().unwrap();
-                println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
-                dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
-            } else {
-                dockerfile = include_str!("./builders/Dockerfile.generic").to_string();
-            }
-
-            let mut install_command_split: Vec<&str> = vec![];
-            if let Some(install_command) = build_settings.install_command.as_ref() {
-                install_command_split.push("/bin/sh");
-                install_command_split.push("-c");
-                install_command_split.push(install_command);
-            } else {
-                install_command_split = vec!["make", "install"];
-            }
-            println!(
-                "Using install command {}",
-                install_command_split.clone().join(" ")
-            );
-
-            let dockerfile = dockerfile.as_str();
-            build_generic(
-                dockerfile,
-                build_settings.platform.clone(),
-                install_command_split,
-                path,
-                &build_settings.output_path,
-                build_settings.name.clone().unwrap().as_str(),
-                build_settings.version.clone().unwrap().as_str(),
-                task,
-            )
-            .await?;
-            return Ok(());
+        // Check if version or name are missing
+        if build_settings.version.is_none() || build_settings.name.is_none() {
+            return Err(anyhow!(
+                "--version and --name are required unless building a PGRX extension"
+            ));
         }
-        println!("Did not understand what to build");
-        Ok(())
+        let mut dockerfile = String::new();
+        if build_settings.dockerfile_path.clone().is_some() {
+            let dockerfile_path_unwrapped = build_settings.dockerfile_path.clone().unwrap();
+            println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
+            dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
+        } else {
+            dockerfile = include_str!("./builders/Dockerfile.generic").to_string();
+        }
+
+        let mut install_command_split: Vec<&str> = vec![];
+        if let Some(install_command) = build_settings.install_command.as_ref() {
+            install_command_split.push("/bin/sh");
+            install_command_split.push("-c");
+            install_command_split.push(install_command);
+        } else {
+            println!(
+                "WARN: Install command is not specified, guessing the command is 'make install'"
+            );
+            install_command_split = vec!["make", "install"];
+        }
+        println!(
+            "Using install command {}",
+            install_command_split.clone().join(" ")
+        );
+
+        let dockerfile = dockerfile.as_str();
+        build_generic(
+            dockerfile,
+            build_settings.platform.clone(),
+            install_command_split,
+            path,
+            &build_settings.output_path,
+            build_settings.name.clone().unwrap().as_str(),
+            build_settings.version.clone().unwrap().as_str(),
+            task,
+        )
+        .await?;
+        return Ok(());
     }
 }
