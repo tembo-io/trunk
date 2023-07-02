@@ -27,27 +27,79 @@ pub struct BuildCommand {
     install_command: Option<String>,
 }
 
+pub struct BuildSettings {
+    path: String,
+    output_path: String,
+    version: Option<String>,
+    name: Option<String>,
+    platform: Option<String>,
+    dockerfile_path: Option<String>,
+    install_command: Option<String>,
+}
+
+fn get_from_trunk_toml_if_not_set_on_cli(cli_setting: Option<String>, trunk_toml: Option<Table>, table_name: &str, key: &str) -> Option<String> {
+    match cli_setting {
+        Some(cli_setting) => Some(cli_setting),
+        None => match trunk_toml {
+            Some(table) => match table.get(table_name) {
+                Some(extension) => match extension.get(key) {
+                    Some(version) => Some(version.as_str().expect(format!("Trunk.toml: {}.{} should be a string", table_name, key).as_str()).to_string()),
+                    None => {
+                        println!("Trunk.toml: {}.{} is not set", table_name, key);
+                        None
+                    },
+                },
+                None => None,
+            },
+            None => None,
+        }
+    }
+}
+
+impl BuildCommand {
+    fn settings(&self, trunk_toml: Option<Table>) -> Result<BuildSettings, anyhow::Error> {
+        let path = self.path.clone();
+        let output_path = self.output_path.clone();
+        // These settings can default to Trunk.toml
+        let version = get_from_trunk_toml_if_not_set_on_cli(self.version.clone(), trunk_toml.clone(), "extension", "version");
+        let name = get_from_trunk_toml_if_not_set_on_cli(self.name.clone(), trunk_toml.clone(), "extension", "name");
+        let platform = get_from_trunk_toml_if_not_set_on_cli(self.platform.clone(), trunk_toml.clone(), "build", "platform");
+        let dockerfile_path = get_from_trunk_toml_if_not_set_on_cli(self.dockerfile_path.clone(), trunk_toml.clone(), "build", "dockerfile_path");
+        let install_command = get_from_trunk_toml_if_not_set_on_cli(self.install_command.clone(), trunk_toml.clone(), "build", "install_command");
+
+        Ok(BuildSettings {
+            path,
+            output_path,
+            version,
+            name,
+            platform,
+            dockerfile_path,
+            install_command,
+        })
+    }
+}
 
 #[async_trait]
 impl SubCommand for BuildCommand {
     async fn execute(&self, task: Task, trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
-        println!("Building from path {}", self.path);
-        let path = Path::new(&self.path);
+        let build_settings = self.settings(trunk_toml)?;
+        println!("Building from path {}", build_settings.path);
+        let path = Path::new(&build_settings.path);
         if path.join("Cargo.toml").exists() {
             let cargo_toml: Table =
                 toml::from_str(&std::fs::read_to_string(path.join("Cargo.toml")).unwrap()).unwrap();
             let dependencies = cargo_toml.get("dependencies").unwrap().as_table().unwrap();
             if dependencies.contains_key("pgrx") {
                 println!("Detected that we are building a pgrx extension");
-                if self.version.is_some() || self.name.is_some() {
+                if build_settings.version.is_some() || build_settings.name.is_some() {
                     return Err(anyhow!("--version and --name are collected from Cargo.toml when building pgrx extensions, please do not configure"));
                 }
 
                 build_pgrx(
-                    self.dockerfile_path.clone(),
-                    self.platform.clone(),
+                    build_settings.dockerfile_path.clone(),
+                    build_settings.platform.clone(),
                     path,
-                    &self.output_path,
+                    &build_settings.output_path,
                     cargo_toml,
                     task,
                 )
@@ -60,15 +112,15 @@ impl SubCommand for BuildCommand {
         if path.join("Makefile").exists() {
             println!("Detected a Makefile, guessing that we are building an extension with 'make', 'make install...'");
             // Check if version or name are missing
-            if self.version.is_none() || self.name.is_none() {
+            if build_settings.version.is_none() || build_settings.name.is_none() {
                 println!("Error: --version and --name are required when building a makefile based extension");
                 return Err(anyhow!(
                     "--version and --name are required when building a makefile based extension"
                 ));
             }
             let mut dockerfile = String::new();
-            if self.dockerfile_path.clone().is_some() {
-                let dockerfile_path_unwrapped = self.dockerfile_path.clone().unwrap();
+            if build_settings.dockerfile_path.clone().is_some() {
+                let dockerfile_path_unwrapped = build_settings.dockerfile_path.clone().unwrap();
                 println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
                 dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
             } else {
@@ -76,7 +128,7 @@ impl SubCommand for BuildCommand {
             }
 
             let mut install_command_split: Vec<&str> = vec![];
-            if let Some(install_command) = self.install_command.as_ref() {
+            if let Some(install_command) = build_settings.install_command.as_ref() {
                 install_command_split.push("/bin/sh");
                 install_command_split.push("-c");
                 install_command_split.push(install_command);
@@ -91,12 +143,12 @@ impl SubCommand for BuildCommand {
             let dockerfile = dockerfile.as_str();
             build_generic(
                 dockerfile,
-                self.platform.clone(),
+                build_settings.platform.clone(),
                 install_command_split,
                 path,
-                &self.output_path,
-                self.name.clone().unwrap().as_str(),
-                self.version.clone().unwrap().as_str(),
+                &build_settings.output_path,
+                build_settings.name.clone().unwrap().as_str(),
+                build_settings.version.clone().unwrap().as_str(),
                 task,
             )
             .await?;

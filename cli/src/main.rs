@@ -4,12 +4,14 @@ mod sync_utils;
 
 use std::fs::File;
 use std::io::Read;
+use std::fs;
 use crate::commands::SubCommand;
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
 use std::time::Duration;
 use tokio_task_manager::{Task, TaskManager};
 use toml::Table;
+use toml;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
