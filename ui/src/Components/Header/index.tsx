@@ -39,7 +39,7 @@ export default function Header({ white = false, search = false, extensions = [] 
       ref={headerRef}
     >
       <div className={styles.headerLeft}>
-        <Link href={"/"} shallow style={{ display: "flex", alignItems: "flex-start" }}>
+        <Link href={"/"} shallow style={{ display: "flex", alignItems: "center" }}>
           <Image
             width={108}
             height={38}
@@ -51,7 +51,7 @@ export default function Header({ white = false, search = false, extensions = [] 
           ></Image>
         </Link>
         <button onClick={() => setShowNavLinks(!showNavLinks)} className={styles.menuButton}>
-          {showNavLinks ? "" : "Menu"}
+          {showNavLinks ? "" : <span style={{ fontSize: "30px" }}>&#x2630;</span>}
         </button>
         {search && (
           <div className={styles.headerSearchCont}>
@@ -59,37 +59,28 @@ export default function Header({ white = false, search = false, extensions = [] 
           </div>
         )}
       </div>
-      {/* <div> */}
-      <div style={search ? { marginLeft: "auto", position: "relative" } : {}}>
+      <div style={search ? { marginLeft: "auto" } : {}}>
         <div className={cx(styles.linksCont, showNavLinks ? styles.showLinks : "")}>
           <a
-            className={styles.navLink}
-            style={search ? { padding: "0 14px" } : {}}
+            className={cx(styles.navLink, search ? styles.navLinkSearch : "")}
             href={"https://github.com/tembo-io/trunk#installation"}
             target="_blank"
           >
             Download
           </a>
-          <a
-            style={search ? { padding: "0 14px" } : {}}
-            className={styles.navLink}
-            href="https://github.com/tembo-io/trunk"
-            target="_blank"
-          >
+          <a className={cx(styles.navLink, search ? styles.navLinkSearch : "")} href="https://github.com/tembo-io/trunk" target="_blank">
             Contribute
           </a>
-          <a
-            style={search ? { padding: "0 14px" } : {}}
-            className={styles.navLink}
-            href="https://tembo-io.github.io/trunk/"
-            target="_blank"
-          >
+          <a className={cx(styles.navLink, search ? styles.navLinkSearch : "")} href="https://tembo-io.github.io/trunk/" target="_blank">
             Docs
           </a>
           {/* TODO: Add blog */}
           <Link className={styles.navLink} href={"/"}>
             Blog
           </Link>
+          <button onClick={() => setShowNavLinks(false)} className={styles.closeButton}>
+            Close
+          </button>
         </div>
       </div>
       <a

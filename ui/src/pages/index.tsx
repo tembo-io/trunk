@@ -41,7 +41,7 @@ export default function Home({
   categoriesForGrid: {};
 }) {
   return (
-    <>
+    <div>
       <Header extensions={extensions}></Header>
       <div className={styles.main}>
         <Hero />
@@ -50,6 +50,6 @@ export default function Home({
           <ExtGrid extensions={extensions} categories={categories} categoriesForGrid={categoriesForGrid} />
         </div>
       </div>
-    </>
+    </div>
   );
 }

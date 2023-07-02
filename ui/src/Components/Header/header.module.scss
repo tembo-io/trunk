@@ -19,13 +19,16 @@
 .headerSearchCont {
   margin-left: 20px;
 }
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 850px) {
   .headerLeft {
     justify-content: space-between;
     flex: 1;
   }
   .headerSearchCont {
     display: none;
+  }
+  .header {
+    padding: $spacing-s $spacing-m;
   }
 }
 
@@ -47,10 +50,15 @@
 }
 .navLink {
   font-family: $plex;
+  padding: $spacing-xl 0;
+  margin: $spacing-l 0;
   font-weight: 600;
   font-size: 14px;
   line-height: 18px;
   padding: 0 $spacing-2xl;
+}
+.navLinkSearch {
+  padding: 0 14px;
 }
 
 .ctaCont {
@@ -79,9 +87,10 @@
   display: none;
   text-decoration: none;
   // color: #ffffff;
-  padding: 0 0 0 20px;
+  // padding: 0 0 0 20px;
   background-color: transparent;
-  border: 1px solid red;
+  border: none;
+  font-size: 20px;
   font-size: 1rem;
   letter-spacing: 0.75px;
   cursor: pointer;
@@ -94,7 +103,12 @@
   display: flex;
   align-items: center;
   flex-direction: row;
-  @media screen and (max-width: 850px) {
+}
+.closeButton {
+  display: none;
+}
+@media screen and (max-width: 850px) {
+  .linksCont {
     display: none;
     flex-direction: column;
     align-items: center;
@@ -104,9 +118,25 @@
     width: 100vw;
     height: 100vh;
     opacity: 1;
-    transition: all 2s ease-in-out;
     padding-top: $spacing-6xl;
-    background-color: green;
+    background-color: $light-tan;
+    z-index: 10;
+  }
+  .navLink {
+    font-size: 40px;
+    padding: $spacing-xl 0;
+    margin: $spacing-l 0;
+  }
+  .closeButton {
+    all: unset;
+
+    display: block;
+    font-family: $plex;
+    font-weight: 600;
+    font-size: 24px;
+    margin-top: auto;
+    margin-bottom: $spacing-5xl;
+    line-height: 18px;
   }
 }
 
