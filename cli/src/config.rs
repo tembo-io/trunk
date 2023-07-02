@@ -1,5 +1,5 @@
-use toml::Table;
 use std::io::Read;
+use toml::Table;
 
 pub fn get_from_trunk_toml_if_not_set_on_cli(
     cli_setting: Option<String>,
@@ -47,8 +47,8 @@ pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<Option<Table>, anyhow:
 
 #[cfg(test)]
 mod tests {
-    use crate::config::parse_trunk_toml;
     use super::*;
+    use crate::config::parse_trunk_toml;
 
     #[test]
     fn test_parse_trunk_toml_valid() {

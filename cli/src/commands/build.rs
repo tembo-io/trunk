@@ -1,6 +1,7 @@
 use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
+use crate::config::get_from_trunk_toml_if_not_set_on_cli;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
@@ -8,7 +9,6 @@ use std::fs;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
-use crate::config::get_from_trunk_toml_if_not_set_on_cli;
 
 #[derive(Args)]
 pub struct BuildCommand {

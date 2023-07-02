@@ -1,7 +1,7 @@
 mod commands;
+mod config;
 mod manifest;
 mod sync_utils;
-mod config;
 
 use crate::commands::SubCommand;
 use async_trait::async_trait;
@@ -64,4 +64,3 @@ fn main() {
     })
     .expect("error occurred");
 }
-
