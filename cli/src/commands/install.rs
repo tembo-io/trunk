@@ -13,6 +13,7 @@ use std::io::{Read, Seek, Write};
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
+use toml::Table;
 
 #[derive(Args)]
 pub struct InstallCommand {
@@ -51,7 +52,7 @@ pub enum InstallError {
 
 #[async_trait]
 impl SubCommand for InstallCommand {
-    async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
+    async fn execute(&self, _task: Task, trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
         let installed_pg_config = which::which("pg_config").ok();
         let pg_config = self
             .pg_config

@@ -29,7 +29,7 @@ pub struct BuildCommand {
 
 #[async_trait]
 impl SubCommand for BuildCommand {
-    async fn execute(&self, task: Task) -> Result<(), anyhow::Error> {
+    async fn execute(&self, task: Task, trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
         println!("Building from path {}", self.path);
         let path = Path::new(&self.path);
         if path.join("Cargo.toml").exists() {

@@ -12,6 +12,7 @@ use serde_json::json;
 use std::path::PathBuf;
 use std::{env, fs};
 use tokio_task_manager::Task;
+use toml::Table;
 
 #[derive(Args)]
 pub struct PublishCommand {
@@ -55,7 +56,7 @@ pub struct Category {
 
 #[async_trait]
 impl SubCommand for PublishCommand {
-    async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
+    async fn execute(&self, _task: Task, trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
         // Validate extension name input
         let mut slugs = Vec::new();
 

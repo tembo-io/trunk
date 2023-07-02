@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use tokio_task_manager::Task;
+use toml::Table;
 
 pub mod build;
 pub mod categories;
@@ -12,5 +13,5 @@ pub mod publish;
 
 #[async_trait]
 pub trait SubCommand {
-    async fn execute(&self, task: Task) -> Result<(), anyhow::Error>;
+    async fn execute(&self, task: Task, trunk_toml: Option<Table>) -> Result<(), anyhow::Error>;
 }
