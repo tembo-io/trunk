@@ -8,6 +8,7 @@ use std::fs;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
+use crate::config::get_from_trunk_toml_if_not_set_on_cli;
 
 #[derive(Args)]
 pub struct BuildCommand {
@@ -35,38 +36,6 @@ pub struct BuildSettings {
     platform: Option<String>,
     dockerfile_path: Option<String>,
     install_command: Option<String>,
-}
-
-fn get_from_trunk_toml_if_not_set_on_cli(
-    cli_setting: Option<String>,
-    trunk_toml: Option<Table>,
-    table_name: &str,
-    key: &str,
-) -> Option<String> {
-    match cli_setting {
-        Some(cli_setting) => Some(cli_setting),
-        None => match trunk_toml {
-            Some(table) => match table.get(table_name) {
-                Some(extension) => match extension.get(key) {
-                    Some(version) => Some(
-                        version
-                            .as_str()
-                            .expect(
-                                format!("Trunk.toml: {}.{} should be a string", table_name, key)
-                                    .as_str(),
-                            )
-                            .to_string(),
-                    ),
-                    None => {
-                        println!("Trunk.toml: {}.{} is not set", table_name, key);
-                        None
-                    }
-                },
-                None => None,
-            },
-            None => None,
-        },
-    }
 }
 
 impl BuildCommand {

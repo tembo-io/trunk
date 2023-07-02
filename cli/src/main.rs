@@ -1,6 +1,7 @@
 mod commands;
 mod manifest;
 mod sync_utils;
+mod config;
 
 use crate::commands::SubCommand;
 use async_trait::async_trait;
@@ -32,7 +33,7 @@ enum SubCommands {
 impl SubCommand for SubCommands {
     async fn execute(&self, task: Task, _trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
         let trunk_toml = match File::open("Trunk.toml") {
-            Ok(file) => parse_trunk_toml(file),
+            Ok(file) => config::parse_trunk_toml(file),
             Err(e) => {
                 println!("Trunk.toml not found");
                 Ok(None)
@@ -43,18 +44,6 @@ impl SubCommand for SubCommands {
             SubCommands::Build(cmd) => cmd.execute(task, trunk_toml).await,
             SubCommands::Publish(cmd) => cmd.execute(task, trunk_toml).await,
             SubCommands::Install(cmd) => cmd.execute(task, trunk_toml).await,
-        }
-    }
-}
-
-fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<Option<Table>, anyhow::Error> {
-    let mut body = String::new();
-    reader.read_to_string(&mut body)?;
-    match toml::from_str::<Table>(&body) {
-        Ok(table) => Ok(Some(table)),
-        Err(e) => {
-            println!("Trunk.toml is not valid toml");
-            Err(e.into())
         }
     }
 }
@@ -76,36 +65,3 @@ fn main() {
     .expect("error occurred");
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse_trunk_toml_valid() {
-        let toml = r#"
-        [extension]
-        name = "pg_cron"
-        version = "1.5.2"
-
-        [build]
-        dockerfile = "Dockerfile"
-        install_command = "cd pg_cron && make install"
-        "#;
-        let result = parse_trunk_toml(toml.as_bytes()).unwrap();
-        let table = result.expect("Expected a table");
-        assert_eq!(table["extension"]["name"].as_str().unwrap(), "pg_cron");
-        assert_eq!(table["extension"]["version"].as_str().unwrap(), "1.5.2");
-        assert_eq!(table["build"]["dockerfile"].as_str().unwrap(), "Dockerfile");
-        assert_eq!(
-            table["build"]["install_command"].as_str().unwrap(),
-            "cd pg_cron && make install"
-        );
-    }
-
-    #[test]
-    fn test_parse_trunk_toml_invalid() {
-        let toml = "this is not valid toml";
-        let result = parse_trunk_toml(toml.as_bytes());
-        assert!(result.is_err());
-    }
-}
