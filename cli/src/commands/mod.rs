@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use tokio_task_manager::Task;
-use toml::Table;
 
 pub mod build;
 pub mod categories;

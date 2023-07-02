@@ -13,7 +13,6 @@ use std::io::{Read, Seek, Write};
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
-use toml::Table;
 
 #[derive(Args)]
 pub struct InstallCommand {

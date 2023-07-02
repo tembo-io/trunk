@@ -1,6 +1,7 @@
 use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
+use crate::config;
 use crate::config::get_from_trunk_toml_if_not_set_on_cli;
 use anyhow::anyhow;
 use async_trait::async_trait;
@@ -10,7 +11,6 @@ use std::fs::File;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
-use crate::config;
 
 #[derive(Args)]
 pub struct BuildCommand {
@@ -42,10 +42,9 @@ pub struct BuildSettings {
 
 impl BuildCommand {
     fn settings(&self) -> Result<BuildSettings, anyhow::Error> {
-
         let trunk_toml = match File::open("Trunk.toml") {
             Ok(file) => config::parse_trunk_toml(file),
-            Err(e) => {
+            Err(_e) => {
                 println!("Trunk.toml not found");
                 Ok(None)
             }
@@ -80,7 +79,7 @@ impl BuildCommand {
         );
         let install_command = get_from_trunk_toml_if_not_set_on_cli(
             self.install_command.clone(),
-            trunk_toml.clone(),
+            trunk_toml,
             "build",
             "install_command",
         );

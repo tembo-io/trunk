@@ -12,7 +12,6 @@ use serde_json::json;
 use std::path::PathBuf;
 use std::{env, fs};
 use tokio_task_manager::Task;
-use toml::Table;
 
 #[derive(Args)]
 pub struct PublishCommand {

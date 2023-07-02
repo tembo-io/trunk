@@ -15,10 +15,9 @@ pub fn get_from_trunk_toml_if_not_set_on_cli(
                     Some(version) => Some(
                         version
                             .as_str()
-                            .expect(
-                                format!("Trunk.toml: {}.{} should be a string", table_name, key)
-                                    .as_str(),
-                            )
+                            .unwrap_or_else(|| {
+                                panic!("Trunk.toml: {}.{} should be a string", table_name, key)
+                            })
                             .to_string(),
                     ),
                     None => {
@@ -47,7 +46,7 @@ pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<Option<Table>, anyhow:
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+
     use crate::config::parse_trunk_toml;
 
     #[test]

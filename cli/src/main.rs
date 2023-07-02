@@ -6,13 +6,9 @@ mod sync_utils;
 use crate::commands::SubCommand;
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
-use std::fs;
-use std::fs::File;
-use std::io::Read;
+
 use std::time::Duration;
 use tokio_task_manager::{Task, TaskManager};
-use toml;
-use toml::Table;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -32,7 +28,6 @@ enum SubCommands {
 #[async_trait]
 impl SubCommand for SubCommands {
     async fn execute(&self, task: Task) -> Result<(), anyhow::Error> {
-
         match self {
             SubCommands::Build(cmd) => cmd.execute(task).await,
             SubCommands::Publish(cmd) => cmd.execute(task).await,
