@@ -4,3 +4,5 @@ postgres/**
 postgres
 .trunk
 .trunk/**
+pgsql-http/**
+pgsql-http

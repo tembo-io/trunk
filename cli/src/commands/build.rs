@@ -27,6 +27,7 @@ pub struct BuildCommand {
     install_command: Option<String>,
 }
 
+
 #[async_trait]
 impl SubCommand for BuildCommand {
     async fn execute(&self, task: Task, trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
