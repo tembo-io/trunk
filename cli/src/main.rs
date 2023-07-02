@@ -2,16 +2,16 @@ mod commands;
 mod manifest;
 mod sync_utils;
 
-use std::fs::File;
-use std::io::Read;
-use std::fs;
 use crate::commands::SubCommand;
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
+use std::fs;
+use std::fs::File;
+use std::io::Read;
 use std::time::Duration;
 use tokio_task_manager::{Task, TaskManager};
-use toml::Table;
 use toml;
+use toml::Table;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -31,8 +31,7 @@ enum SubCommands {
 #[async_trait]
 impl SubCommand for SubCommands {
     async fn execute(&self, task: Task, _trunk_toml: Option<Table>) -> Result<(), anyhow::Error> {
-
-        let trunk_toml = match File::open("Trunk.toml"){
+        let trunk_toml = match File::open("Trunk.toml") {
             Ok(file) => parse_trunk_toml(file),
             Err(e) => {
                 println!("Trunk.toml not found");
@@ -97,7 +96,10 @@ mod tests {
         assert_eq!(table["extension"]["name"].as_str().unwrap(), "pg_cron");
         assert_eq!(table["extension"]["version"].as_str().unwrap(), "1.5.2");
         assert_eq!(table["build"]["dockerfile"].as_str().unwrap(), "Dockerfile");
-        assert_eq!(table["build"]["install_command"].as_str().unwrap(), "cd pg_cron && make install");
+        assert_eq!(
+            table["build"]["install_command"].as_str().unwrap(),
+            "cd pg_cron && make install"
+        );
     }
 
     #[test]

@@ -37,22 +37,35 @@ pub struct BuildSettings {
     install_command: Option<String>,
 }
 
-fn get_from_trunk_toml_if_not_set_on_cli(cli_setting: Option<String>, trunk_toml: Option<Table>, table_name: &str, key: &str) -> Option<String> {
+fn get_from_trunk_toml_if_not_set_on_cli(
+    cli_setting: Option<String>,
+    trunk_toml: Option<Table>,
+    table_name: &str,
+    key: &str,
+) -> Option<String> {
     match cli_setting {
         Some(cli_setting) => Some(cli_setting),
         None => match trunk_toml {
             Some(table) => match table.get(table_name) {
                 Some(extension) => match extension.get(key) {
-                    Some(version) => Some(version.as_str().expect(format!("Trunk.toml: {}.{} should be a string", table_name, key).as_str()).to_string()),
+                    Some(version) => Some(
+                        version
+                            .as_str()
+                            .expect(
+                                format!("Trunk.toml: {}.{} should be a string", table_name, key)
+                                    .as_str(),
+                            )
+                            .to_string(),
+                    ),
                     None => {
                         println!("Trunk.toml: {}.{} is not set", table_name, key);
                         None
-                    },
+                    }
                 },
                 None => None,
             },
             None => None,
-        }
+        },
     }
 }
 
@@ -61,11 +74,36 @@ impl BuildCommand {
         let path = self.path.clone();
         let output_path = self.output_path.clone();
         // These settings can default to Trunk.toml
-        let version = get_from_trunk_toml_if_not_set_on_cli(self.version.clone(), trunk_toml.clone(), "extension", "version");
-        let name = get_from_trunk_toml_if_not_set_on_cli(self.name.clone(), trunk_toml.clone(), "extension", "name");
-        let platform = get_from_trunk_toml_if_not_set_on_cli(self.platform.clone(), trunk_toml.clone(), "build", "platform");
-        let dockerfile_path = get_from_trunk_toml_if_not_set_on_cli(self.dockerfile_path.clone(), trunk_toml.clone(), "build", "dockerfile_path");
-        let install_command = get_from_trunk_toml_if_not_set_on_cli(self.install_command.clone(), trunk_toml.clone(), "build", "install_command");
+        let version = get_from_trunk_toml_if_not_set_on_cli(
+            self.version.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "version",
+        );
+        let name = get_from_trunk_toml_if_not_set_on_cli(
+            self.name.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "name",
+        );
+        let platform = get_from_trunk_toml_if_not_set_on_cli(
+            self.platform.clone(),
+            trunk_toml.clone(),
+            "build",
+            "platform",
+        );
+        let dockerfile_path = get_from_trunk_toml_if_not_set_on_cli(
+            self.dockerfile_path.clone(),
+            trunk_toml.clone(),
+            "build",
+            "dockerfile_path",
+        );
+        let install_command = get_from_trunk_toml_if_not_set_on_cli(
+            self.install_command.clone(),
+            trunk_toml.clone(),
+            "build",
+            "install_command",
+        );
 
         Ok(BuildSettings {
             path,
