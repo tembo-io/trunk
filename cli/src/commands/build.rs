@@ -16,8 +16,8 @@ use toml::Table;
 pub struct BuildCommand {
     #[arg(short = 'p', long = "path", default_value = ".")]
     path: String,
-    #[arg(short = 'o', long = "output-path", default_value = "./.trunk")]
-    output_path: String,
+    #[arg(short = 'o', long = "output-path")]
+    output_path: Option<String>,
     #[arg(short = 'v', long = "version")]
     version: Option<String>,
     #[arg(short = 'n', long = "name")]
@@ -42,6 +42,9 @@ pub struct BuildSettings {
 
 impl BuildCommand {
     fn settings(&self) -> Result<BuildSettings, anyhow::Error> {
+        // path cannot be set from Trunk.toml, since --path can also
+        // be used to specify the path to the directory that includes a
+        // Trunk.toml file.
         let path = self.path.clone();
         let trunkfile_path = Path::new(&path.clone()).join("Trunk.toml");
         let trunk_toml = match File::open(trunkfile_path) {
@@ -52,20 +55,34 @@ impl BuildCommand {
             }
         }?;
 
+        // If output_path is not specified, default to .trunk directory in
+        // the directory specified by --path
         let output_path = self.output_path.clone();
-        // These settings can default to Trunk.toml
-        let version = get_from_trunk_toml_if_not_set_on_cli(
-            self.version.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "version",
-        );
+        let output_path = match output_path {
+            Some(output_path) => output_path,
+            None => {
+                let output_path = Path::new(&path).join(".trunk");
+                output_path
+                    .to_str()
+                    .expect("Failed trying to specify a subdirectory .trunk of the --path argument")
+                    .to_string()
+            }
+        };
+
         let name = get_from_trunk_toml_if_not_set_on_cli(
             self.name.clone(),
             trunk_toml.clone(),
             "extension",
             "name",
         );
+
+        let version = get_from_trunk_toml_if_not_set_on_cli(
+            self.version.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "version",
+        );
+
         let platform = get_from_trunk_toml_if_not_set_on_cli(
             self.platform.clone(),
             trunk_toml.clone(),

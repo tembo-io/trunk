@@ -12,14 +12,19 @@ pub fn get_from_trunk_toml_if_not_set_on_cli(
         None => match trunk_toml {
             Some(table) => match table.get(table_name) {
                 Some(extension) => match extension.get(key) {
-                    Some(value) => Some(
-                        value
+                    Some(value) => {
+                        let result = value
                             .as_str()
                             .unwrap_or_else(|| {
                                 panic!("Trunk.toml: {}.{} should be a string", table_name, key)
                             })
-                            .to_string(),
-                    ),
+                            .to_string();
+                        println!(
+                            "Trunk.toml: using build setting {}.{}: {}",
+                            table_name, key, result
+                        );
+                        Some(result)
+                    }
                     None => {
                         println!("Trunk.toml: {}.{} is not set", table_name, key);
                         None
