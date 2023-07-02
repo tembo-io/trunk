@@ -1,4 +1,5 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, RefObject } from "react";
+
 import styles from "./extGrid.module.scss";
 import { truncate } from "../../stringHelpers";
 import cx from "classnames";
@@ -17,7 +18,7 @@ export default function ExtGrid({
   categoriesForGrid: CategoriesForGrid;
 }) {
   const router = useRouter();
-  const sectionTitleRef = useRef(null);
+  const sectionTitleRef: RefObject<HTMLDivElement> = useRef(null);
   const title = router.query.cat ? categoriesForGrid[router.query.cat as string]?.displayName : "All Extensions";
 
   const filteredList = router.query.cat ? extensions.filter((ext) => ext.categories.includes(title)) : extensions;
