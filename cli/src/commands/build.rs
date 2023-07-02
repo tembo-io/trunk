@@ -72,18 +72,37 @@ impl BuildCommand {
             "build",
             "platform",
         );
-        let dockerfile_path = get_from_trunk_toml_if_not_set_on_cli(
-            self.dockerfile_path.clone(),
-            trunk_toml.clone(),
-            "build",
-            "dockerfile_path",
-        );
+
         let install_command = get_from_trunk_toml_if_not_set_on_cli(
             self.install_command.clone(),
-            trunk_toml,
+            trunk_toml.clone(),
             "build",
             "install_command",
         );
+
+        // Dockerfile is handled slightly differently in Trunk.toml as the CLI.
+        // On CLI, the argument is --dockerfile_path, and it means the path relative
+        // to the current working directory where the command line argument is executed.
+        // In Trunk.toml, the field is called "dockerfile", and it means the file relative
+        // to the Trunk.toml file.
+        let dockerfile_path = match self.dockerfile_path.clone() {
+            Some(path) => Some(path),
+            None => match get_from_trunk_toml_if_not_set_on_cli(
+                None,
+                trunk_toml.clone(),
+                "build",
+                "dockerfile",
+            ) {
+                Some(trunk_toml_dockerfile) => Some(
+                    Path::new(&path.clone())
+                        .join(trunk_toml_dockerfile)
+                        .to_str()
+                        .expect("Failed to convert build.dockerfile to string")
+                        .to_string(),
+                ),
+                None => None,
+            },
+        };
 
         Ok(BuildSettings {
             path,
