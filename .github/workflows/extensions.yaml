@@ -49,7 +49,7 @@ jobs:
         with:
           contains_the_file: Trunk.toml
           changed_relative_to_ref: ${{ steps.versions.outputs.changed_relative_to_ref }}
-          ignore_dirs: ".tembo"
+          ignore_dirs: ".tembo cli"
 
   build:
     name: Build extensions
