@@ -161,7 +161,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }: { params: { ext: string } }) {
-  const GITHUB_TOKEN = "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";
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
   const octokit = new Octokit({
     auth: process.env.TOKEN,
@@ -174,6 +174,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
     let extension = null;
     let repoRes = null;
     let repoDescription = "";
+    let readmeJson = "";
 
     try {
       const allExtRes = await fetch(`https://registry.pgtrunk.io/extensions/all`);
@@ -198,39 +199,43 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
       const repo = latestVersion.repository;
       const noGh = repo.split("https://github.com/")[1];
       const split = noGh.split("/");
-      const apiUrl =
+      const githubReadmeUrl =
         split.length === 2
           ? `https://api.github.com/repos/${split[0]}/${split[1]}/readme`
           : `https://api.github.com/repos/${split[0]}/${split[1]}/readme/${split[2]}`;
 
-      const repoUrl = `https://api.github.com/repos/${split[0]}/${split[1]}`;
+      const githubRepoUrl = `https://api.github.com/repos/${split[0]}/${split[1]}`;
 
       try {
-        repoRes = await fetch(repoUrl, {
+        repoRes = await fetch(githubRepoUrl, {
           headers: {
             Authorization: `token ${GITHUB_TOKEN}`,
           },
         });
+        const repoJson = repoRes ? await repoRes.json() : null;
+        repoDescription = repoJson?.description ?? "";
         console.log("********** GOT REPO **********");
       } catch (error: any) {
         console.log("********** ERROR FETCHING REPO **********", error.message, repo);
         repoRes = null;
       }
 
-      const repoJson = repoRes ? await repoRes.json() : null;
-      repoDescription = repoJson?.description ?? "";
-
       try {
-        const readmeRes = await fetch(apiUrl, {
+        const readmeRes = await fetch(githubReadmeUrl, {
           headers: {
             Authorization: `token ${GITHUB_TOKEN}`,
           },
         });
-        const readmeJson = await readmeRes.json();
-        readme = readmeJson ? Buffer.from(readmeJson.content, "base64").toString("utf-8") : "";
+        readmeJson = await readmeRes.json();
       } catch (error: any) {
         readme = "";
-        console.log("********** README FETCH ERROR **********", error.message, apiUrl);
+        console.log("********** README FETCH ERROR **********", error.message, githubReadmeUrl);
+      }
+
+      try {
+        readme = readmeJson ? Buffer.from(readmeJson.content, "base64").toString("utf-8") : "";
+      } catch (error: any) {
+        console.log("********** README PARSE ERROR **********", error.message, githubReadmeUrl);
       }
     }
     return { props: { extension, readme, repoDescription, allExtensions } };
