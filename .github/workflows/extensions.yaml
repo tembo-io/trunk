@@ -1,15 +1,11 @@
 name: Build and publish extensions
 
 on:
-  # Before running on main, should
-  # configure running build + push
-  # only for changed extensions
-  #
-  # push:
-  #   branches:
-  #   - "main"
-  #   paths:
-  #   - "contrib/**"
+  push:
+    branches:
+    - "main"
+    paths:
+    - "contrib/**"
   pull_request:
     branches:
     - "main"
@@ -25,19 +21,35 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Find commit to compare with
+        id: versions
+        run: |
+          set -xe
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
+          # On main branch, the diff should compare to the previous commit hash.
+          # On PR, the diff should compare with main branch.
+          if [ "${BRANCH_NAME}" == "main" ]; then
+            changed_relative_to_ref=$(git show --quiet HEAD^1 | grep commit | cut -d" " -f2)
+          else
+            changed_relative_to_ref="origin/${{ github.base_ref || 'not-a-branch' }}"
+          fi
+          echo "changed_relative_to_ref=${changed_relative_to_ref}" >> $GITHUB_OUTPUT
       - name: Check out the coredb repo to reuse some actions
         uses: actions/checkout@v3
         with:
-          repository: coredb-io/coredb
-          path: ./.coredb
-          ref: 84664df742ce9774a3029e08111940f9f1fb345e
+          repository: tembo-io/tembo
+          path: ./.tembo
+          ref: 21a43bbd64936b6b7fe7b080c2bfbd82df31fe2c
       - name: Find directories with Dockerfiles that changed
         id: find_directories
-        uses: ./.coredb/.github/actions/find-changed-directories
+        uses: ./.tembo/.github/actions/find-changed-directories
         with:
           contains_the_file: Trunk.toml
-          changed_relative_to_branch: ${{ github.base_ref || 'not-a-branch' }}
-          ignore_dirs: ".coredb"
+          changed_relative_to_ref: ${{ steps.versions.outputs.changed_relative_to_ref }}
+          ignore_dirs: ".tembo"
 
   build:
     name: Build extensions
