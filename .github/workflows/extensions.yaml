@@ -1,0 +1,77 @@
+name: Build and publish extensions
+
+on:
+  # Before running on main, should
+  # configure running build + push
+  # only for changed extensions
+  #
+  # push:
+  #   branches:
+  #   - "main"
+  #   paths:
+  #   - "contrib/**"
+  pull_request:
+    branches:
+    - "main"
+    paths:
+    - "contrib/**"
+
+jobs:
+  find_directories:
+    name: Find changed extensions
+    runs-on: ubuntu-20.04
+    outputs:
+      directories: ${{ steps.find_directories.outputs.build_matrix }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Check out the coredb repo to reuse some actions
+        uses: actions/checkout@v3
+        with:
+          repository: coredb-io/coredb
+          path: ./.coredb
+          ref: 84664df742ce9774a3029e08111940f9f1fb345e
+      - name: Find directories with Dockerfiles that changed
+        id: find_directories
+        uses: ./.coredb/.github/actions/find-changed-directories
+        with:
+          contains_the_file: Trunk.toml
+          changed_relative_to_branch: ${{ github.base_ref || 'not-a-branch' }}
+          ignore_dirs: ".coredb"
+
+  build:
+    name: Build extensions
+    runs-on:
+      - self-hosted
+      - dind
+      - large-8x8
+    needs:
+      - find_directories
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.find_directories.outputs.directories) }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install system dependencies
+        run: |
+          set -xe
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libssl-dev
+      - name: Install minimal, stable rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "${{ matrix.name }}-extensions"
+      - name: Install Trunk
+        run: |
+          set -xe
+          cargo install --path ./cli
+          trunk --version
+      - name: Build the extension
+        run: cd ${{ matrix.path }} && trunk build
+      # TODO: on main branch, publish the extension
+      # - name: Publish the extension
+      #   run: cd ${{ matrix.path }} && trunk ...
