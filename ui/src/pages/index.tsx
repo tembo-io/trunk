@@ -16,6 +16,8 @@ export const getStaticProps: GetStaticProps<{
     const cats: Category[] = await catRes.json();
     const exts: Extension[] = await extRes.json();
 
+    console.log("********** GOT EXT IN INDEX!!!!! **********", exts.length);
+
     const sortedData = cats.sort((a, b) => (a.name < b.name ? -1 : 1));
 
     const categoriesForGrid: CategoriesForGrid = {};
