@@ -405,7 +405,7 @@ pub async fn package_installed_extension_files(
 
     // Open stream to docker for copying files
     // Is there some way to copy from both sharedir and pkglibdir,
-    // then combine the steams instead of scanning the whole /usr directory?
+    // then combine the streams instead of scanning the whole /usr directory?
     // Looping over everything in that directory makes this way slower.
     let options_usrdir = Some(DownloadFromContainerOptions { path: "/usr" });
     let file_stream = docker.download_from_container(container_id, options_usrdir);

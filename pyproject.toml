@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "trunk"
 version = "0.1.0"
-description = "Depdencies for Trunk MkDocs"
+description = "Dependencies for Trunk MkDocs"
 authors = ["Coredb Admin <admin@coredb.io>"]
 readme = "README.md"
 
