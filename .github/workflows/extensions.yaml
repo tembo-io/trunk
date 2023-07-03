@@ -84,6 +84,7 @@ jobs:
           trunk --version
       - name: Build the extension
         run: cd ${{ matrix.path }} && trunk build
-      # TODO: on main branch, publish the extension
+      # TODO: publish extension
       # - name: Publish the extension
+      #   if: ${{ github.ref == 'refs/heads/main' }}
       #   run: cd ${{ matrix.path }} && trunk ...
