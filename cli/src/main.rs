@@ -1,10 +1,12 @@
 mod commands;
+mod config;
 mod manifest;
 mod sync_utils;
 
 use crate::commands::SubCommand;
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
+
 use std::time::Duration;
 use tokio_task_manager::{Task, TaskManager};
 

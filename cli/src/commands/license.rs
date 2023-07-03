@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 use anyhow::Error;
 use ignore::Error as IgnoreError;
 use std::path::Path;
