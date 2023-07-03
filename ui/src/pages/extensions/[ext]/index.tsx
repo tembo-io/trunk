@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import { LRUCache } from "lru-cache";
 import type { InferGetStaticPropsType, GetStaticProps } from "next";
 import { Extension } from "@/types";
 import ReactMarkdown from "react-markdown";
 import styles from "./extension.module.scss";
 import cx from "classnames";
 import remarkGfm from "remark-gfm";
-// import "github-markdown-css";
 
 import { truncate } from "@/stringHelpers";
 import { formatDateString } from "@/formatDate";
@@ -16,16 +14,11 @@ const LinkIcon = "/LinkIcon.png";
 import Header from "@/Components/Header";
 const CopyIcon = "/copy.png";
 import { useRouter } from "next/router";
-import { App, Octokit } from "octokit";
-
-const cache = new LRUCache({
-  max: 200,
-  ttl: 60 * 60 * 100,
-});
 
 export default function Page({ extension, readme, repoDescription, allExtensions }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [showFeedback, setShowFeedback] = useState(false);
   const router = useRouter();
+
   useEffect(() => {
     if (showFeedback) {
       const timer = setTimeout(() => {
@@ -51,6 +44,10 @@ export default function Page({ extension, readme, repoDescription, allExtensions
         <h1>Loading...</h1>
       </div>
     );
+  }
+
+  if (!allExtensions || allExtensions.length === 0) {
+    console.log("ALL EXTENSIONS MISSING DATA");
   }
 
   const latestVersion: Extension = extension[extension.length - 1];
@@ -151,7 +148,6 @@ export async function getStaticPaths() {
 
     const trimmedList = paths.slice(0, 5);
     console.log("********** BUILT PATHS **********");
-    // return { paths: [{ params: { ext:  } }], fallback: false };
     return { paths, fallback: true };
     // return { paths: [], fallback: true };
   } catch (error) {
@@ -162,20 +158,13 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }: { params: { ext: string } }) {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-
-  const octokit = new Octokit({
-    auth: process.env.TOKEN,
-  });
-
+  let allExtensions = [];
+  let readme = "";
+  let extension = null;
+  let repoRes = null;
+  let repoDescription = "";
+  let readmeJson: { content: string } = { content: "" };
   try {
-    const cacheKey = "trunkData";
-    let allExtensions = [];
-    let readme = "";
-    let extension = null;
-    let repoRes = null;
-    let repoDescription = "";
-    let readmeJson = "";
-
     try {
       const allExtRes = await fetch(`https://registry.pgtrunk.io/extensions/all`);
       allExtensions = await allExtRes.json();
@@ -187,15 +176,12 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
     try {
       const extRes = await fetch(`https://registry.pgtrunk.io/extensions/detail/${params.ext}`);
       extension = await extRes.json();
-      console.log("********** GOT EXT DETAIL **********");
     } catch (error) {
       console.log("********** ERROR FETCHING DETAIL FROM TRUNK **********", params.ext);
       extension = null;
     }
     const latestVersion: Extension = extension ? extension[extension.length - 1] : null;
-    console.log("********** EXTENSION **********");
-    if (extension && latestVersion?.repository) {
-      console.log("********** GETTING REPO **********");
+    if (extension && latestVersion?.repository && latestVersion.repository.includes("github.com")) {
       const repo = latestVersion.repository;
       const noGh = repo.split("https://github.com/")[1];
       const split = noGh.split("/");
@@ -214,7 +200,6 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
         });
         const repoJson = repoRes ? await repoRes.json() : null;
         repoDescription = repoJson?.description ?? "";
-        console.log("********** GOT REPO **********");
       } catch (error: any) {
         console.log("********** ERROR FETCHING REPO **********", error.message, repo);
         repoRes = null;
@@ -235,12 +220,25 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
       try {
         readme = readmeJson ? Buffer.from(readmeJson.content, "base64").toString("utf-8") : "";
       } catch (error: any) {
-        console.log("********** README PARSE ERROR **********", error.message, githubReadmeUrl);
+        try {
+          if (split[2] === "tree") {
+            const readmeRes = await fetch(`https://api.github.com/repos/${split[0]}/${split[1]}/readme`, {
+              headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+              },
+            });
+            readmeJson = await readmeRes.json();
+            readme = readmeJson ? Buffer.from(readmeJson.content, "base64").toString("utf-8") : "";
+          }
+        } catch (error: any) {
+          console.log("********** README PARSE ERROR **********", error.message, githubReadmeUrl);
+        }
       }
     }
+
     return { props: { extension, readme, repoDescription, allExtensions } };
   } catch (error: any) {
-    console.log("********** STATIC PROPS ERROR **********", error.message, params);
-    return { props: { extension: null, readme: "", repoDescription: "" } };
+    console.log("********** STATIC PROPS ERROR **********", error.message, params, extension);
+    return { props: { extension: null, readme: "", repoDescription: "", allExtensions: [] } };
   }
 }
