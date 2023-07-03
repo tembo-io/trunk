@@ -39,6 +39,7 @@ export default function Search({ extensions }: { extensions: Extension[] }) {
       setShowResults(false);
     } else if (event.key === "Enter") {
       if (selectedItemIndex > -1) {
+        setShowResults(false);
         router.push(`/extensions/${filteredList[selectedItemIndex].name}`);
       } else {
         // router.push(`/search?q=${query}`);
