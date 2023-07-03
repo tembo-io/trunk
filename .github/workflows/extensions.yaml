@@ -27,8 +27,7 @@ jobs:
         id: versions
         run: |
           set -xe
-          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          echo "BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
           # On main branch, the diff should compare to the previous commit hash.
           # On PR, the diff should compare with main branch.
           if [ "${BRANCH_NAME}" == "main" ]; then
