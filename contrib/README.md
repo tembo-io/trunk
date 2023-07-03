@@ -1,5 +1,6 @@
 # Trunk extensions directory
 
+
 ## Adding extensions
 
 - Install trunk, latest version
