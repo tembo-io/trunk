@@ -203,6 +203,7 @@
   .container {
     flex-direction: column-reverse;
     padding: $spacing-l;
+    max-width: 100vw;
   }
 
   .markdownCont {
