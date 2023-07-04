@@ -1,5 +1,5 @@
 import type { InferGetStaticPropsType, GetStaticProps } from "next";
-import Image from "next/image";
+import Head from "next/head";
 import styles from "./index.module.scss";
 import Hero from "../Components/Hero";
 import Categories from "../Components/Categories";
@@ -44,6 +44,10 @@ export default function Home({
 }) {
   return (
     <div>
+      <Head>
+        <title>Trunk</title>
+        <meta name="description" content="Trunk is an open-source package installer and registry for PostgreSQL extensions." />
+      </Head>
       <Header extensions={extensions}></Header>
       <div className={styles.main}>
         <Hero />

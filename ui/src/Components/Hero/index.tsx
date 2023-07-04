@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import cx from "classnames";
 import Image from "next/image";
 import styles from "./hero.module.scss";
-const BgImage = "/bg_text.png";
+import BgImage from "../../public/bg_text.png";
 
 export default function Hero() {
   const [showFeedback, setShowFeedback] = useState(false);
@@ -49,6 +49,7 @@ export default function Hero() {
         className={styles.image}
         src={BgImage}
         alt={"background image"}
+        placeholder="blur"
       />
     </div>
   );

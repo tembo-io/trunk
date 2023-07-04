@@ -41,7 +41,7 @@ export default function Header({ white = false, search = false, extensions = [] 
       <div className={styles.headerLeft}>
         <Link href={"/"} shallow style={{ display: "flex", alignItems: "center" }}>
           <Image
-            width={108}
+            width={102}
             height={38}
             style={{ marginRight: "10px", minWidth: "108px", minHeight: "38px" }}
             quality={90}

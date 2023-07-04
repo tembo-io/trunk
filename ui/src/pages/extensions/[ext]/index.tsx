@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { useState, useEffect } from "react";
 import type { InferGetStaticPropsType, GetStaticProps } from "next";
 import { Extension } from "@/types";
@@ -63,6 +64,13 @@ export default function Page({ extension, readme, repoDescription, allExtensions
   };
   return (
     <div className={styles.pageCont}>
+      <Head>
+        <title>{`Trunk - ${latestVersion.name ?? ""}`}</title>
+        <meta
+          name="description"
+          content={repoDescription ? repoDescription : "Trunk is an open-source package installer and registry for PostgreSQL extensions."}
+        />
+      </Head>
       <Header search extensions={allExtensions} white />
       <div className={styles.extHeaderRow}>
         <div style={{ maxWidth: "100%" }}>
