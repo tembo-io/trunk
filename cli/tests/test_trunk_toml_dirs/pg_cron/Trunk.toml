@@ -1,0 +1,7 @@
+[extension]
+name = "pg_cron"
+version = "1.5.2"
+
+[build]
+dockerfile = "Dockerfile"
+install_command = "cd pg_cron && make install"

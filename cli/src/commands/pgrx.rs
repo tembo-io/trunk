@@ -217,7 +217,7 @@ pub async fn build_pgrx(
                 "cp",
                 "--backup",
                 "--verbose",
-                format!("{}", license).as_str(),
+                license.to_string().as_str(),
                 "/usr/licenses/",
             ],
             Some(vec!["VERSION_CONTROL=numbered"]),

@@ -19,7 +19,7 @@ pub async fn connect(url: &str) -> Result<Pool<Postgres>, errors::ExtensionRegis
     let options = conn_options(url)?;
     let pgp = PgPoolOptions::new()
         .acquire_timeout(std::time::Duration::from_secs(10))
-        .max_connections(5)
+        .max_connections(15)
         .connect_with(options)
         .await?;
     Ok(pgp)

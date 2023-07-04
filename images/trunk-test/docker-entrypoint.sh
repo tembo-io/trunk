@@ -335,7 +335,7 @@ _main() {
 			docker_setup_db
 			docker_process_init_files /docker-entrypoint-initdb.d/*
 
-			# ensure we copy the lastest configuration over
+			# ensure we copy the latest configuration over
 			update_postgresql_conf
 
 			docker_temp_server_stop
