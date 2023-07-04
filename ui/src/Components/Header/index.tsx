@@ -43,7 +43,7 @@ export default function Header({ white = false, search = false, extensions = [] 
           <Image
             width={102}
             height={38}
-            style={{ marginRight: "10px", minWidth: "108px", minHeight: "38px" }}
+            style={{ marginRight: "10px", minWidth: "102px", minHeight: "38px" }}
             quality={90}
             priority
             alt="Trunk Logo"
