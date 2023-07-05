@@ -1,0 +1,20 @@
+[extension]
+name = "pgcrypto"
+version = "1.3.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/pgcrypto"
+license = "PostgreSQL"
+description = "The pgcrypto module provides cryptographic functions for PostgreSQL."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/pgcrypto.html"
+categories = "Security"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pgcrypto && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
