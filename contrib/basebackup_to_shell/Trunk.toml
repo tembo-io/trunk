@@ -1,0 +1,21 @@
+[extension]
+name = "basebackup_to_shell"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/basebackup_to_shell"
+license = "PostgreSQL"
+description = "basebackup_to_shell adds a custom basebackup target called shell."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/basebackup-to-shell.html"
+categories = "Tooling/Admin"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/basebackup_to_shell && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+

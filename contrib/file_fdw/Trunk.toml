@@ -1,0 +1,20 @@
+[extension]
+name = "file_fdw"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/file_fdw"
+license = "PostgreSQL"
+description = "Access data files in the server's file system."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/file-fdw.html"
+categories = "Connectors"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/file_fdw && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

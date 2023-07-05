@@ -1,0 +1,20 @@
+[extension]
+name = "earthdistance"
+version = "1.1.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/earthdistance"
+license = "PostgreSQL"
+description = "The earthdistance module provides two different approaches to calculating great circle distances on the surface of the Earth."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/earthdistance.html"
+categories = "Analytics"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/earthdistance && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

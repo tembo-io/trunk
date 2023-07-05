@@ -1,0 +1,20 @@
+[extension]
+name = "btree_gist"
+version = "1.7.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/btree_gist"
+license = "PostgreSQL"
+description = "btree_gist provides sample GIST operator classes that implement B-tree equivalent behavior."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/btree-gist.html"
+categories = "Index/Table Optimization"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/btree_gist && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

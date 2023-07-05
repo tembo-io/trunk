@@ -1,0 +1,21 @@
+[extension]
+name = "basic_archive"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/basic_archive"
+license = "PostgreSQL"
+description = "This module copies completed WAL segment files to the specified directory."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/basic-archive.html"
+categories = "Tooling/Admin"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/basic_archive && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+

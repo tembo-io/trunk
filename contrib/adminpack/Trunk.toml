@@ -1,0 +1,20 @@
+[extension]
+name = "adminpack"
+version = "2.1.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/adminpack"
+license = "PostgreSQL"
+description = "adminpack provides a number of support functions which pgAdmin and other administration and management tools can use to provide additional functionality, such as remote management of server log files."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/adminpack.html"
+categories = "Tooling/Admin"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/adminpack && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

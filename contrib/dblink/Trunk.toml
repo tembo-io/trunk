@@ -1,0 +1,20 @@
+[extension]
+name = "dblink"
+version = "1.2.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/dblink"
+license = "PostgreSQL"
+description = "Executes a query in a remote database."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/contrib-dblink-function.html"
+categories = "Connectors"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/dblink && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
