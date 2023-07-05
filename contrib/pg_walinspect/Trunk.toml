@@ -1,0 +1,20 @@
+[extension]
+name = "pg_walinspect"
+version = "1.1.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/pg_walinspect"
+license = "PostgreSQL"
+description = "Provides SQL functions that allow you to inspect the contents of write-ahead log of a running PostgreSQL database cluster at a low level."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/pgwalinspect.html"
+categories = "Metrics"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pg_walinspect && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
