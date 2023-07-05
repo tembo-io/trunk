@@ -20,7 +20,7 @@ pub fn get_from_trunk_toml_if_not_set_on_cli(
                             })
                             .to_string();
                         println!(
-                            "Trunk.toml: using build setting {}.{}: {}",
+                            "Trunk.toml: using setting {}.{}: {}",
                             table_name, key, result
                         );
                         Some(result)

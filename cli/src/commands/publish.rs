@@ -9,15 +9,18 @@ use reqwest::header::{HeaderMap, AUTHORIZATION};
 use reqwest::StatusCode;
 use serde::Deserialize;
 use serde_json::json;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::{env, fs};
+use std::fs::File;
 use tokio_task_manager::Task;
+use crate::config;
+use crate::config::get_from_trunk_toml_if_not_set_on_cli;
 
 #[derive(Args)]
 pub struct PublishCommand {
-    name: String,
+    name: Option<String>,
     #[arg(long = "version", short = 'v')]
-    version: String,
+    version: Option<String>,
     #[arg(long = "file", short = 'f')]
     file: Option<PathBuf>,
     #[arg(long = "description", short = 'd')]
@@ -31,7 +34,7 @@ pub struct PublishCommand {
     #[arg(
         long = "registry",
         short = 'r',
-        default_value = "https://registry.pgtrunk.io"
+        default_value = "https://trunk-registry.cdb-dev.com" // TODO(ianstanton) revert
     )]
     registry: String,
     #[arg(long = "repository", short = 'R')]
@@ -53,13 +56,131 @@ pub struct Category {
     pub slug: String,
 }
 
+pub struct PublishSettings {
+    name: Option<String>,
+    version: Option<String>,
+    file: Option<PathBuf>,
+    description: Option<String>,
+    documentation: Option<String>,
+    homepage: Option<String>,
+    license: Option<String>,
+    registry: Option<String>,
+    repository: Option<String>,
+    category: Option<Vec<String>>,
+}
+
+impl PublishCommand {
+    fn settings(&self) -> Result<PublishSettings, anyhow::Error> {
+        // path cannot be set from Trunk.toml, since --path can also
+        // be used to specify the path to the directory that includes a
+        // Trunk.toml file.
+        let path = ".".to_string();
+        let trunkfile_path = Path::new(&path.clone()).join("Trunk.toml");
+        let trunk_toml = match File::open(trunkfile_path) {
+            Ok(file) => config::parse_trunk_toml(file),
+            Err(_e) => {
+                println!("Trunk.toml not found");
+                Ok(None)
+            }
+        }?;
+
+        let name = get_from_trunk_toml_if_not_set_on_cli(
+            self.name.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "name",
+        );
+
+        let version = get_from_trunk_toml_if_not_set_on_cli(
+            self.version.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "version",
+        );
+
+        // file
+
+
+        // description
+        let description = get_from_trunk_toml_if_not_set_on_cli(
+            self.description.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "description",
+        );
+
+        // documentation
+        let documentation = get_from_trunk_toml_if_not_set_on_cli(
+            self.documentation.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "documentation",
+        );
+
+        // homepage
+        let homepage = get_from_trunk_toml_if_not_set_on_cli(
+            self.homepage.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "homepage",
+        );
+
+        // license
+        let license = get_from_trunk_toml_if_not_set_on_cli(
+            self.license.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "license",
+        );
+
+        // registry
+        let registry = get_from_trunk_toml_if_not_set_on_cli(
+            Some(self.registry.clone()),
+            trunk_toml.clone(),
+            "extension",
+            "registry",
+        );
+
+        // repository
+        let repository = get_from_trunk_toml_if_not_set_on_cli(
+            self.repository.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "repository",
+        );
+
+        // categories
+        // let category = get_from_trunk_toml_if_not_set_on_cli(
+        //     self.category.clone(),
+        //     trunk_toml.clone(),
+        //     "extension",
+        //     "category",
+        // );
+
+
+        Ok(PublishSettings {
+            version,
+            file: None,
+            description,
+            documentation,
+            homepage,
+            license,
+            registry,
+            repository,
+            name,
+            category: None,
+        })
+    }
+}
+
 #[async_trait]
 impl SubCommand for PublishCommand {
     async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
+        let publish_settings = self.settings()?;
         // Validate extension name input
         let mut slugs = Vec::new();
 
-        check_input(&self.name)?;
+        check_input(&publish_settings.name)?;
         // Validate categories input if provided
         if self.category.is_some() {
             let response = reqwest::get(&format!("{}/categories/all", self.registry)).await?;
@@ -104,7 +225,7 @@ impl SubCommand for PublishCommand {
                 // <extension_name>-<version>.tar.gz.
                 // Error if file is not found
                 let mut path = PathBuf::new();
-                let _ = &path.push(format!("./{}-{}.tar.gz", self.name, self.version));
+                let _ = &path.push(format!("./{}-{}.tar.gz", self.name.is_some(), self.version.is_some()));
                 let name = path.file_name().unwrap().to_str().unwrap().to_owned();
                 let f = fs::read(path.clone())?;
                 (f, name)
@@ -147,8 +268,10 @@ impl SubCommand for PublishCommand {
     }
 }
 
-pub fn check_input(input: &str) -> Result<(), PublishError> {
-    let valid = input
+pub fn check_input(input: &Option<String>) -> Result<(), PublishError> {
+    let str = input.as_deref();
+    let valid = str
+        .unwrap() // TODO(ianstanton) revert
         .as_bytes()
         .iter()
         .all(|&c| c.is_ascii_alphanumeric() || c == b'_');
