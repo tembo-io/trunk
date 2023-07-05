@@ -1,0 +1,20 @@
+[extension]
+name = "intagg"
+version = "1.1.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/intagg"
+license = "PostgreSQL"
+description = "The intagg module provides an integer aggregator and an enumerator."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/intagg.html"
+categories = "Data/Transformations"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/intagg && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
