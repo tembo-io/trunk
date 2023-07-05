@@ -1,3 +1,4 @@
+import Head from "next/head";
 import "@/globals.scss";
 import type { AppProps } from "next/app";
 import { Inter, IBM_Plex_Mono } from "next/font/google";
@@ -7,8 +8,13 @@ export const plex_mono = IBM_Plex_Mono({ weight: ["700", "400"], subsets: ["lati
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <main className={`${plex_mono.variable} ${inter.variable}`}>
-      <Component {...pageProps} />
-    </main>
+    <>
+      <Head>
+        <link rel="shortcut icon" href="/favicon.ico" />
+      </Head>
+      <main className={`${plex_mono.variable} ${inter.variable}`}>
+        <Component {...pageProps} />
+      </main>
+    </>
   );
 }
