@@ -1,6 +1,8 @@
 use super::SubCommand;
 use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
+use crate::config;
+use crate::config::get_from_trunk_toml_if_not_set_on_cli;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
@@ -9,12 +11,10 @@ use reqwest::header::{HeaderMap, AUTHORIZATION};
 use reqwest::StatusCode;
 use serde::Deserialize;
 use serde_json::json;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
-use std::fs::File;
 use tokio_task_manager::Task;
-use crate::config;
-use crate::config::get_from_trunk_toml_if_not_set_on_cli;
 
 #[derive(Args)]
 pub struct PublishCommand {
@@ -31,10 +31,7 @@ pub struct PublishCommand {
     homepage: Option<String>,
     #[arg(long = "license", short = 'l')]
     license: Option<String>,
-    #[arg(
-        long = "registry",
-        short = 'r',
-    )]
+    #[arg(long = "registry", short = 'r')]
     registry: Option<String>,
     #[arg(long = "repository", short = 'R')]
     repository: Option<String>,
@@ -99,7 +96,6 @@ impl PublishCommand {
 
         // file
 
-
         // description
         let description = get_from_trunk_toml_if_not_set_on_cli(
             self.description.clone(),
@@ -143,9 +139,7 @@ impl PublishCommand {
                 "registry",
             ) {
                 Some(trunk_toml_registry) => trunk_toml_registry,
-                None => {
-                    "https://registry.pgtrunk.io".to_string()
-                },
+                None => "https://registry.pgtrunk.io".to_string(),
             },
         };
 
@@ -164,7 +158,6 @@ impl PublishCommand {
         //     "extension",
         //     "category",
         // );
-
 
         Ok(PublishSettings {
             version,
@@ -191,7 +184,8 @@ impl SubCommand for PublishCommand {
         check_input(&publish_settings.name)?;
         // Validate categories input if provided
         if self.category.is_some() {
-            let response = reqwest::get(&format!("{}/categories/all", publish_settings.registry)).await?;
+            let response =
+                reqwest::get(&format!("{}/categories/all", publish_settings.registry)).await?;
             match response.status() {
                 StatusCode::OK => {
                     let response_body = response.text().await?;
@@ -233,7 +227,11 @@ impl SubCommand for PublishCommand {
                 // <extension_name>-<version>.tar.gz.
                 // Error if file is not found
                 let mut path = PathBuf::new();
-                let _ = &path.push(format!("./{}-{}.tar.gz", self.name.is_some(), self.version.is_some()));
+                let _ = &path.push(format!(
+                    "./{}-{}.tar.gz",
+                    self.name.is_some(),
+                    self.version.is_some()
+                ));
                 let name = path.file_name().unwrap().to_str().unwrap().to_owned();
                 let f = fs::read(path.clone())?;
                 (f, name)
