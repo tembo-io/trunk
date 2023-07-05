@@ -1,0 +1,21 @@
+[extension]
+name = "auth_delay"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/auth_delay"
+license = "PostgreSQL"
+description = "auth_delay causes the server to pause briefly before reporting authentication failure, to make brute-force attacks on database passwords more difficult."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/auth-delay.html"
+categories = "Security"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/auth_delay && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+

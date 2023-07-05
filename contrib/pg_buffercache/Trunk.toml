@@ -1,0 +1,20 @@
+[extension]
+name = "pg_buffercache"
+version = "1.4.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/pg_buffercache"
+license = "PostgreSQL"
+description = "The pg_buffercache module provides a means for examining what's happening in the shared buffer cache in real time."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/pgbuffercache.html"
+categories = "Metrics"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pg_buffercache && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

@@ -1,0 +1,20 @@
+[extension]
+name = "old_snapshot"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/old_snapshot"
+license = "PostgreSQL"
+description = "The old_snapshot module allows inspection of the server state that is used to implement old_snapshot_threshold."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/oldsnapshot.html"
+categories = "Metrics"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/old_snapshot && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

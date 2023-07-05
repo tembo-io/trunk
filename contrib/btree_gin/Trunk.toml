@@ -1,0 +1,20 @@
+[extension]
+name = "btree_gin"
+version = "1.3.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/btree_gin"
+license = "PostgreSQL"
+description = "btree_gin provides sample GIN operator classes that implement B-tree equivalent behavior."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/btree-gin.html"
+categories = "Index/Table Optimization"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/btree_gin && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

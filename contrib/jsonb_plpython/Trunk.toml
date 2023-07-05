@@ -1,0 +1,20 @@
+[extension]
+name = "jsonb_plpython3u"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/jsonb_plpython"
+license = "PostgreSQL"
+description = "Transforms the jsonb type for the PL/Python language."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/datatype-json.html"
+categories = "Data/Transformations"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/jsonb_plpython && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

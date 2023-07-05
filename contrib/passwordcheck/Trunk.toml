@@ -1,0 +1,20 @@
+[extension]
+name = "passwordcheck"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/passwordcheck"
+license = "PostgreSQL"
+description = "The passwordcheck module checks users' passwords whenever they are set with CREATE ROLE or ALTER ROLE."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/passwordcheck.html"
+categories = "Security"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/passwordcheck && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

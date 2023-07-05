@@ -1,0 +1,20 @@
+[extension]
+name = "fuzzystrmatch"
+version = "1.2.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/fuzzystrmatch"
+license = "PostgreSQL"
+description = "The fuzzystrmatch module provides several functions to determine similarities and distance between strings."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/fuzzystrmatch.html"
+categories = "Search"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/fuzzystrmatch && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

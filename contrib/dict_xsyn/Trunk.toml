@@ -1,0 +1,20 @@
+[extension]
+name = "dict_xsyn"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/dict_xsyn"
+license = "PostgreSQL"
+description = "This dictionary type replaces words with groups of their synonyms."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/dict-xsyn.html"
+categories = "Search"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/dict_xsyn && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

@@ -1,0 +1,20 @@
+[extension]
+name = "pg_freespacemap"
+version = "1.2.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/pg_freespacemap"
+license = "PostgreSQL"
+description = "The pg_freespacemap module provides a means for examining the free space map (FSM)."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/pgfreespacemap.html"
+categories = "Metrics"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pg_freespacemap && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

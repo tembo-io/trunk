@@ -1,0 +1,21 @@
+[extension]
+name = "auto_explain"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/auto_explain"
+license = "PostgreSQL"
+description = "The auto_explain module provides a means for logging execution plans of slow statements automatically, without having to run EXPLAIN by hand."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/auto-explain.html"
+categories = "Auditing/Logging"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/auto_explain && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+

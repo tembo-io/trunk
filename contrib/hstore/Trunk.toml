@@ -1,0 +1,20 @@
+[extension]
+name = "hstore"
+version = "1.8.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/hstore"
+license = "PostgreSQL"
+description = "hstore data type for storing sets of key/value pairs within a single PostgreSQL value."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/hstore.html"
+categories = "Data/Transformations"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/hstore && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
