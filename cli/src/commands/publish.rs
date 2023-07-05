@@ -53,8 +53,8 @@ pub struct Category {
 }
 
 pub struct PublishSettings {
-    name: Option<String>,
-    version: Option<String>,
+    name: String,
+    version: String,
     file: Option<PathBuf>,
     description: Option<String>,
     documentation: Option<String>,
@@ -80,19 +80,37 @@ impl PublishCommand {
             }
         }?;
 
-        let name = get_from_trunk_toml_if_not_set_on_cli(
-            self.name.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "name",
-        );
+        let name = match self.name.clone() {
+            Some(name) => name,
+            None => match get_from_trunk_toml_if_not_set_on_cli(
+                None,
+                trunk_toml.clone(),
+                "extension",
+                "name",
+            ) {
+                Some(trunk_toml_name) => trunk_toml_name,
+                None => panic!(
+                    "Extension name must be provided. Please specify the extension name \
+                     as the first argument, or under extension.name in Trunk.toml"
+                ),
+            },
+        };
 
-        let version = get_from_trunk_toml_if_not_set_on_cli(
-            self.version.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "version",
-        );
+        let version = match self.version.clone() {
+            Some(version) => version,
+            None => match get_from_trunk_toml_if_not_set_on_cli(
+                None,
+                trunk_toml.clone(),
+                "extension",
+                "version",
+            ) {
+                Some(trunk_toml_version) => trunk_toml_version,
+                None => panic!(
+                    "Extension version must be provided. Please specify the extension version \
+                     with --version, or under extension.version in Trunk.toml"
+                ),
+            },
+        };
 
         // file
 
@@ -129,8 +147,7 @@ impl PublishCommand {
         );
 
         // registry
-        let registry = self.registry.clone();
-        let registry = match registry {
+        let registry = match self.registry.clone() {
             Some(registry) => registry,
             None => match get_from_trunk_toml_if_not_set_on_cli(
                 None,
@@ -274,10 +291,8 @@ impl SubCommand for PublishCommand {
     }
 }
 
-pub fn check_input(input: &Option<String>) -> Result<(), PublishError> {
-    let str = input.as_deref();
-    let valid = str
-        .unwrap() // TODO(ianstanton) revert
+pub fn check_input(input: &String) -> Result<(), PublishError> {
+    let valid = input
         .as_bytes()
         .iter()
         .all(|&c| c.is_ascii_alphanumeric() || c == b'_');
