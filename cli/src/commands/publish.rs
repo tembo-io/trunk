@@ -34,9 +34,8 @@ pub struct PublishCommand {
     #[arg(
         long = "registry",
         short = 'r',
-        default_value = "https://trunk-registry.cdb-dev.com" // TODO(ianstanton) revert
     )]
-    registry: String,
+    registry: Option<String>,
     #[arg(long = "repository", short = 'R')]
     repository: Option<String>,
     #[arg(long = "category", short = 'c')]
@@ -64,7 +63,7 @@ pub struct PublishSettings {
     documentation: Option<String>,
     homepage: Option<String>,
     license: Option<String>,
-    registry: Option<String>,
+    registry: String,
     repository: Option<String>,
     category: Option<Vec<String>>,
 }
@@ -134,12 +133,21 @@ impl PublishCommand {
         );
 
         // registry
-        let registry = get_from_trunk_toml_if_not_set_on_cli(
-            Some(self.registry.clone()),
-            trunk_toml.clone(),
-            "extension",
-            "registry",
-        );
+        let registry = self.registry.clone();
+        let registry = match registry {
+            Some(registry) => registry,
+            None => match get_from_trunk_toml_if_not_set_on_cli(
+                None,
+                trunk_toml.clone(),
+                "extension",
+                "registry",
+            ) {
+                Some(trunk_toml_registry) => trunk_toml_registry,
+                None => {
+                    "https://registry.pgtrunk.io".to_string()
+                },
+            },
+        };
 
         // repository
         let repository = get_from_trunk_toml_if_not_set_on_cli(
@@ -183,7 +191,7 @@ impl SubCommand for PublishCommand {
         check_input(&publish_settings.name)?;
         // Validate categories input if provided
         if self.category.is_some() {
-            let response = reqwest::get(&format!("{}/categories/all", self.registry)).await?;
+            let response = reqwest::get(&format!("{}/categories/all", publish_settings.registry)).await?;
             match response.status() {
                 StatusCode::OK => {
                     let response_body = response.text().await?;
@@ -195,7 +203,7 @@ impl SubCommand for PublishCommand {
                 }
                 _ => {
                     // Fall back to local file if we fail to fetch valid slugs from registry
-                    println!("Error fetching valid category slugs from {}/categories/all. Falling back to local definitions in categories.rs", self.registry);
+                    println!("Error fetching valid category slugs from {}/categories/all. Falling back to local definitions in categories.rs", publish_settings.registry);
                     slugs = VALID_CATEGORY_SLUGS
                         .to_vec()
                         .into_iter()
@@ -207,7 +215,7 @@ impl SubCommand for PublishCommand {
             let categories = self.category.clone().unwrap();
             for category in categories {
                 if !slugs.contains(&category) {
-                    return Err(anyhow!("Invalid category slug: {}. \nValid category slugs: {:?} \nMore details can be found at {}/categories/all", category, slugs, self.registry));
+                    return Err(anyhow!("Invalid category slug: {}. \nValid category slugs: {:?} \nMore details can be found at {}/categories/all", category, slugs, publish_settings.registry));
                 }
             }
         }
@@ -254,7 +262,7 @@ impl SubCommand for PublishCommand {
             .part("metadata", metadata)
             .part("file", file_part);
         let client = reqwest::Client::new();
-        let url = format!("{}/extensions/new", self.registry);
+        let url = format!("{}/extensions/new", publish_settings.registry);
         let res = client
             .post(url)
             .multipart(form)
