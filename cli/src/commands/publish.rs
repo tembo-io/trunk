@@ -262,16 +262,16 @@ impl SubCommand for PublishCommand {
             }
             None => {
                 // If no file is specified, read file from working dir with format
-                // <extension_name>-<version>.tar.gz.
+                // .trunk/<extension_name>-<version>.tar.gz.
                 // Error if file is not found
                 let mut path = PathBuf::new();
                 let _ = &path.push(format!(
-                    "./{}-{}.tar.gz",
-                    self.name.is_some(),
-                    self.version.is_some()
+                    ".trunk/{}-{}.tar.gz",
+                    publish_settings.name,
+                    publish_settings.version
                 ));
                 let name = path.file_name().unwrap().to_str().unwrap().to_owned();
-                let f = fs::read(path.clone())?;
+                let f = fs::read(path.clone()).expect(&*format!("Could not find file {:?}", path.as_os_str()));
                 (f, name)
             }
         };
