@@ -62,7 +62,7 @@ pub struct PublishSettings {
     license: Option<String>,
     registry: String,
     repository: Option<String>,
-    category: Option<Vec<String>>,
+    categories: Option<Vec<String>>,
 }
 
 impl PublishCommand {
@@ -169,12 +169,35 @@ impl PublishCommand {
         );
 
         // categories
-        // let category = get_from_trunk_toml_if_not_set_on_cli(
-        //     self.category.clone(),
-        //     trunk_toml.clone(),
-        //     "extension",
-        //     "category",
-        // );
+        let categories = match self.category.clone() {
+            Some(categories) => Some(categories),
+            None => {
+                match trunk_toml.clone() {
+                    Some(table) => match table.get("extension") {
+                        Some(extension) => match extension.get("categories") {
+                            Some(value) => {
+                                let result = value
+                                    .as_array()
+                                    .unwrap_or_else(|| {
+                                        panic!("Trunk.toml: extension.categories should be an array of strings")
+                                    });
+                                let mut v: Vec<String> = Vec::new();
+                                for i in result {
+                                    let s = i.as_str();
+                                    let s = s.unwrap().to_string();
+                                    v.push(s);
+                                }
+                                println!("Trunk.toml: using setting extension.categories: {:?}", v);
+                                Some(v)
+                            }
+                            None => None,
+                        },
+                        None => None,
+                    },
+                    None => None,
+                }
+            }
+        };
 
         Ok(PublishSettings {
             version,
@@ -186,7 +209,7 @@ impl PublishCommand {
             registry,
             repository,
             name,
-            category: None,
+            categories,
         })
     }
 }
