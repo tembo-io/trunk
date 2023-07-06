@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The intarray module provides a number of useful functions and operators for manipulating null-free arrays of integers."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/intarray.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

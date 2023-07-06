@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The pg_buffercache module provides a means for examining what's happening in the shared buffer cache in real time."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgbuffercache.html"
-categories = "Metrics"
+categories = ["metrics"]
 
 [build]
 postgres_version = "15"

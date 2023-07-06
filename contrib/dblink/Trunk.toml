@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Executes a query in a remote database."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/contrib-dblink-function.html"
-categories = "Connectors"
+categories = ["connectors"]
 
 [build]
 postgres_version = "15"

@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "sepgsql is a loadable module that supports label-based mandatory access control (MAC) based on SELinux security policy."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/sepgsql.html"
-categories = "Security"
+categories = ["security"]
 
 [build]
 postgres_version = "15"

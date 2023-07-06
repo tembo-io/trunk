@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The auto_explain module provides a means for logging execution plans of slow statements automatically, without having to run EXPLAIN by hand."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/auto-explain.html"
-categories = "Auditing/Logging"
+categories = ["auditing_logging"]
 
 [build]
 postgres_version = "15"

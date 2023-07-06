@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "btree_gist provides sample GIST operator classes that implement B-tree equivalent behavior."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/btree-gist.html"
-categories = "Index/Table Optimization"
+categories = ["index_table_optimizations"]
 
 [build]
 postgres_version = "15"

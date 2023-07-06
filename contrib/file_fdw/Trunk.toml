@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Access data files in the server's file system."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/file-fdw.html"
-categories = "Connectors"
+categories = ["connectors"]
 
 [build]
 postgres_version = "15"

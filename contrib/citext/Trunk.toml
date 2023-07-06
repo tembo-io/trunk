@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The citext module provides a case-insensitive character string type, citext."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/citext.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

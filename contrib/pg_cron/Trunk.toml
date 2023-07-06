@@ -5,7 +5,7 @@ repository = "https://github.com/citusdata/pg_cron"
 license = "PostgreSQL"
 description = "Job scheduler for PostgreSQL."
 homepage = "https://www.citusdata.com/"
-categories = "Orchestration"
+categories = ["orchestration"]
 
 [build]
 postgres_version = "15"

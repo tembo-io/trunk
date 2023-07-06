@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The isn module provides data types for the following international product numbering standards: EAN13, UPC, ISBN (books), ISMN (music), and ISSN (serials)."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/isn.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

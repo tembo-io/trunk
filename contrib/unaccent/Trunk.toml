@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "unaccent is a text search dictionary that removes accents (diacritic signs) from lexemes."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/unaccent.html"
-categories = "Search"
+categories = ["search"]
 
 [build]
 postgres_version = "15"

@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The pg_freespacemap module provides a means for examining the free space map (FSM)."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgfreespacemap.html"
-categories = "Metrics"
+categories = ["metrics"]
 
 [build]
 postgres_version = "15"

@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "This dictionary type replaces words with groups of their synonyms."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/dict-xsyn.html"
-categories = "Search"
+categories = ["search"]
 
 [build]
 postgres_version = "15"

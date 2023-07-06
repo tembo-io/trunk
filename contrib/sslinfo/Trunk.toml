@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The sslinfo module provides information about the SSL certificate that the current client provided when connecting to PostgreSQL."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/sslinfo.html"
-categories = "Security"
+categories = ["security"]
 
 [build]
 postgres_version = "15"

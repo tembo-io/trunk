@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The pgrowlocks module provides a function to show row locking information for a specified table."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgrowlocks.html"
-categories = "Metrics"
+categories = ["metrics"]
 
 [build]
 postgres_version = "15"
