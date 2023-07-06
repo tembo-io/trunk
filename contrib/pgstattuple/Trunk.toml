@@ -1,0 +1,20 @@
+[extension]
+name = "pgstattuple"
+version = "1.5.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/pgstattuple"
+license = "PostgreSQL"
+description = "The pgstattuple module provides various functions to obtain tuple-level statistics."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/pgstattuple.html"
+categories = "Metrics"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pgstattuple && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

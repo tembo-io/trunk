@@ -1,0 +1,20 @@
+[extension]
+name = "tsm_system_time"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/tsm_system_time"
+license = "PostgreSQL"
+description = "The tsm_system_time module provides the table sampling method SYSTEM_TIME."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/tsm-system-time.html"
+categories = "Data/Transformations"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/tsm_system_time && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
