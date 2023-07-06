@@ -51,7 +51,6 @@ pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<Option<Table>, anyhow:
 
 #[cfg(test)]
 mod tests {
-
     use crate::config::parse_trunk_toml;
 
     #[test]
@@ -65,7 +64,7 @@ mod tests {
         description = "Run periodic jobs in PostgreSQL"
         homepage = "https://github.com/citusdata/pg_cron"
         documentation = "https://github.com/citusdata/pg_cron"
-        categories = ["debugging", "analytics"]
+        categories = ["analytics", "debugging"]
         registry = "https://my.dummy.registry.dev"
 
 
@@ -97,7 +96,14 @@ mod tests {
             table["extension"]["documentation"].as_str().unwrap(),
             "https://github.com/citusdata/pg_cron"
         );
-        // assert_eq!(table["extension"]["categories"].as_array().unwrap(), "[\"analytics\", \"debugging\"]");
+        let categories = table["extension"]["categories"].as_array().unwrap();
+        let mut v: Vec<String> = Vec::new();
+        for i in categories {
+            let s = i.as_str();
+            let s = s.unwrap().to_string();
+            v.push(s);
+        }
+        assert_eq!(v, vec!("analytics", "debugging"));
         assert_eq!(
             table["extension"]["registry"].as_str().unwrap(),
             "https://my.dummy.registry.dev"
