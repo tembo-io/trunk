@@ -267,11 +267,11 @@ impl SubCommand for PublishCommand {
                 let mut path = PathBuf::new();
                 let _ = &path.push(format!(
                     ".trunk/{}-{}.tar.gz",
-                    publish_settings.name,
-                    publish_settings.version
+                    publish_settings.name, publish_settings.version
                 ));
                 let name = path.file_name().unwrap().to_str().unwrap().to_owned();
-                let f = fs::read(path.clone()).expect(&*format!("Could not find file {:?}", path.as_os_str()));
+                let f = fs::read(path.clone())
+                    .expect(&*format!("Could not find file {:?}", path.as_os_str()));
                 (f, name)
             }
         };
