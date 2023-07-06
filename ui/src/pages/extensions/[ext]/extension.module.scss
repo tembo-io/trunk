@@ -1,0 +1,268 @@
+@import "../../../variables.scss";
+.pageCont {
+  background-color: $light-tan;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  justify-content: center;
+}
+.container {
+  //   min-width: 100%;
+  //   max-width: 100vw;
+  // background-color: $light-tan;
+  display: flex;
+  flex-direction: row;
+  //   justify-content: center;
+  //   position: relative;
+  min-height: 100vh;
+  //   width: fit-content;
+  // width: 100%;
+  // margin: 0 $spacing-5xl;
+  //   overflow: auto;
+  //   min-width: fit-content;
+  max-width: 90vw;
+}
+
+.markdownCont {
+  // width: calc(100vw / 10 * 7);
+  //   flex: 1 1 auto;
+  // margin: 0 $spacing-5xl;
+  flex: 3;
+  //   max-width: 200px;
+}
+.markdown {
+  border-radius: 24px;
+  padding: $spacing-4xl;
+}
+
+.infoSection {
+  //   position: sticky;
+  //   max-width: 300px;
+  //   min-width: 250px;
+  //   flex: 1;
+  //   height: fit-content;
+  margin-left: $spacing-5xl;
+  // flex: 1 1 auto;
+  // max-width: 300px;
+  flex: 1;
+  //   min-width: 225px;
+}
+
+.extHeaderRow {
+  background-color: $light-tan;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: $spacing-8xl $spacing-5xl $spacing-4xl $spacing-5xl;
+  width: 100%;
+}
+.title {
+  font-family: $inter;
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+}
+.installText {
+  font-family: $inter;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.description {
+  font-family: $inter;
+  font-size: 18px;
+  font-weight: 400;
+  color: $dark-grey;
+  margin: 0;
+  padding: 0;
+  max-width: 600px;
+}
+.readme {
+  //   padding: $spacing-5xl;
+  //   max-width: 70%;
+  border-radius: 24px;
+}
+
+.infoRow {
+  padding: $spacing-m 0;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid $dark-tan;
+  font-family: $inter;
+  font-weight: 400;
+  font-size: 16px;
+}
+.buttonLink {
+  display: block;
+  // width: 100%;
+  border-radius: 44px;
+  padding: $spacing-s;
+  margin: $spacing-m 0;
+  background-color: $black;
+  color: $white;
+  font-family: $plex;
+  text-decoration: underline;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.linkText {
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: $white;
+  font-family: $plex;
+  text-decoration: underline;
+}
+.linkIcon {
+  margin: 0 $spacing-s;
+}
+.details {
+  font-family: $inter;
+  font-size: 22px;
+  padding-top: $spacing-m;
+}
+.about {
+  font-family: $inter;
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: $spacing-xl;
+}
+.installRow {
+  background-color: $white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 250px;
+  padding: $spacing-xs;
+  padding-left: $spacing-m;
+  border-radius: 44px;
+  border: 1px solid $dark-tan;
+  margin-top: $spacing-xs;
+  position: relative;
+}
+.copyButton {
+  border: none;
+  background-color: $black;
+  color: $white;
+  font-family: $inter;
+  padding: $spacing-s;
+  border-radius: 44px;
+  cursor: pointer;
+  margin-left: $spacing-l;
+  &:active {
+    transform: translateY(2px);
+  }
+}
+
+.installCode {
+  font-family: $plex;
+  font-size: 14px;
+  font-weight: 400;
+}
+.installDropdown {
+  font-family: $inter;
+  font-weight: 700;
+  font-size: 14px;
+}
+.getTrunk {
+  font-family: $inter;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: $spacing-s;
+}
+.installDesc {
+  font-family: $inter;
+  color: $dark-grey;
+  font-size: 16px;
+  max-width: 500px;
+  text-align: center;
+  margin-top: $spacing-m;
+  font-weight: 500;
+}
+.buttonFeedback {
+  position: absolute;
+  top: -40px;
+  right: 0px;
+  font-weight: 700;
+  background-color: $black;
+  color: $white;
+  font-family: $inter;
+  padding: $spacing-s $spacing-m;
+  border-radius: 44px;
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+}
+.showButtonFeedback {
+  opacity: 1;
+}
+@media screen and (max-width: 1000px) {
+  .container {
+    flex-direction: column-reverse;
+    padding: $spacing-l;
+    max-width: 100vw;
+  }
+
+  .markdownCont {
+    width: 100%;
+    flex: 1;
+  }
+  .infoDetails {
+    display: flex;
+    // flex-direction: row;
+    flex-wrap: wrap;
+    // background-color: green;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .infoSection {
+    max-width: 100%;
+    margin-left: $spacing-xl;
+  }
+  .infoRow {
+    // border: 1px solid red;
+    flex-direction: column;
+    // margin: 0 $spacing-3xl;
+  }
+  .buttonLinkCont {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+  .buttonLink {
+    margin: $spacing-m;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .extHeaderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: $spacing-8xl $spacing-l 0 $spacing-l;
+  }
+  .installCont {
+    margin-top: $spacing-xl;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .infoSection {
+    max-width: 100%;
+    margin: 0;
+  }
+  .infoDetails {
+    flex-direction: column;
+  }
+  .buttonLinkCont {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .buttonLink {
+    margin: $spacing-m 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}

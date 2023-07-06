@@ -1,0 +1,92 @@
+@import "../../variables.scss";
+.inputCont {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  min-width: 350px;
+}
+
+@media screen and (max-width: 800px) {
+  .inputCont {
+    min-width: 100%;
+  }
+}
+.input {
+  padding: 4px 20px;
+  height: $spacing-5xl;
+  display: flex;
+  flex: 1;
+  max-width: 500px;
+  border-radius: 44px;
+  border: 1px solid $dark-tan;
+  margin-left: 10px;
+}
+.searchButton {
+  cursor: pointer;
+  border: none;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: $black;
+  color: $white;
+  height: $spacing-4xl;
+  width: $spacing-7xl;
+  border-radius: 44px;
+}
+
+.searchCont {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 100%;
+  max-width: 500px;
+  //   min-height: 100px;
+  max-height: 500px;
+  overflow-x: scroll;
+  padding: 20px;
+  border: 1px solid $dark-tan;
+  background-color: $white;
+  border-radius: 24px;
+}
+.resultList {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+.resultItem {
+  // border-bottom: 1px solid $dark-tan;
+  padding: 20px 20px 0 20px;
+  border-radius: 14px;
+}
+.extName {
+  font-family: $inter;
+}
+.extDesc {
+  font-family: $inter;
+  color: $grey;
+  font-size: 12px;
+  margin-top: $spacing-xs;
+}
+.extLink {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.extCategory {
+  font-family: $inter;
+  font-size: 12px;
+  border-radius: 14px;
+  color: $grey;
+  background-color: $dark-tan;
+  padding: $spacing-xs $spacing-s;
+  margin-left: $spacing-xs;
+}
+.line {
+  margin-top: 30px;
+  border-color: $dark-tan;
+  box-shadow: none;
+  border-style: solid;
+}
