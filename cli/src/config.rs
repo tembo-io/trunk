@@ -60,6 +60,14 @@ mod tests {
         [extension]
         name = "pg_cron"
         version = "1.5.2"
+        repository = "https://github.com/citusdata/pg_cron"
+        license = "PostgreSQL"
+        description = "Run periodic jobs in PostgreSQL"
+        homepage = "https://github.com/citusdata/pg_cron"
+        documentation = "https://github.com/citusdata/pg_cron"
+        categories = ["debugging", "analytics"]
+        registry = "https://my.dummy.registry.dev"
+
 
         [build]
         dockerfile = "Dockerfile"
@@ -69,6 +77,14 @@ mod tests {
         let table = result.expect("Expected a table");
         assert_eq!(table["extension"]["name"].as_str().unwrap(), "pg_cron");
         assert_eq!(table["extension"]["version"].as_str().unwrap(), "1.5.2");
+        assert_eq!(table["extension"]["repository"].as_str().unwrap(), "https://github.com/citusdata/pg_cron");
+        assert_eq!(table["extension"]["license"].as_str().unwrap(), "PostgreSQL");
+        assert_eq!(table["extension"]["description"].as_str().unwrap(), "Run periodic jobs in PostgreSQL");
+        assert_eq!(table["extension"]["homepage"].as_str().unwrap(), "https://github.com/citusdata/pg_cron");
+        assert_eq!(table["extension"]["documentation"].as_str().unwrap(), "https://github.com/citusdata/pg_cron");
+        // assert_eq!(table["extension"]["categories"].as_array().unwrap(), "[\"analytics\", \"debugging\"]");
+        assert_eq!(table["extension"]["registry"].as_str().unwrap(), "https://my.dummy.registry.dev");
+
         assert_eq!(table["build"]["dockerfile"].as_str().unwrap(), "Dockerfile");
         assert_eq!(
             table["build"]["install_command"].as_str().unwrap(),
