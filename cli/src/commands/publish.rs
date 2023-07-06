@@ -171,32 +171,30 @@ impl PublishCommand {
         // categories
         let categories = match self.category.clone() {
             Some(categories) => Some(categories),
-            None => {
-                match trunk_toml.clone() {
-                    Some(table) => match table.get("extension") {
-                        Some(extension) => match extension.get("categories") {
-                            Some(value) => {
-                                let result = value
+            None => match trunk_toml.clone() {
+                Some(table) => match table.get("extension") {
+                    Some(extension) => match extension.get("categories") {
+                        Some(value) => {
+                            let result = value
                                     .as_array()
                                     .unwrap_or_else(|| {
                                         panic!("Trunk.toml: extension.categories should be an array of strings")
                                     });
-                                let mut v: Vec<String> = Vec::new();
-                                for i in result {
-                                    let s = i.as_str();
-                                    let s = s.unwrap().to_string();
-                                    v.push(s);
-                                }
-                                println!("Trunk.toml: using setting extension.categories: {:?}", v);
-                                Some(v)
+                            let mut v: Vec<String> = Vec::new();
+                            for i in result {
+                                let s = i.as_str();
+                                let s = s.unwrap().to_string();
+                                v.push(s);
                             }
-                            None => None,
-                        },
+                            println!("Trunk.toml: using setting extension.categories: {:?}", v);
+                            Some(v)
+                        }
                         None => None,
                     },
                     None => None,
-                }
-            }
+                },
+                None => None,
+            },
         };
 
         Ok(PublishSettings {
@@ -223,7 +221,7 @@ impl SubCommand for PublishCommand {
 
         check_input(&publish_settings.name)?;
         // Validate categories input if provided
-        if self.category.is_some() {
+        if publish_settings.categories.is_some() {
             let response =
                 reqwest::get(&format!("{}/categories/all", publish_settings.registry)).await?;
             match response.status() {
@@ -246,7 +244,7 @@ impl SubCommand for PublishCommand {
                 }
             }
 
-            let categories = self.category.clone().unwrap();
+            let categories = publish_settings.categories.clone().unwrap();
             for category in categories {
                 if !slugs.contains(&category) {
                     return Err(anyhow!("Invalid category slug: {}. \nValid category slugs: {:?} \nMore details can be found at {}/categories/all", category, slugs, publish_settings.registry));
@@ -293,7 +291,7 @@ impl SubCommand for PublishCommand {
             "homepage": self.homepage,
             "license": self.license,
             "repository": self.repository,
-            "categories": self.category
+            "categories": publish_settings.categories
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
         let form = reqwest::multipart::Form::new()
