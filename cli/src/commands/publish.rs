@@ -284,13 +284,13 @@ impl SubCommand for PublishCommand {
             .file_name(name)
             .headers(headers.clone());
         let m = json!({
-            "name": self.name,
-            "vers": self.version,
-            "description": self.description,
-            "documentation": self.documentation,
-            "homepage": self.homepage,
-            "license": self.license,
-            "repository": self.repository,
+            "name": publish_settings.name,
+            "vers": publish_settings.version,
+            "description": publish_settings.description,
+            "documentation": publish_settings.documentation,
+            "homepage": publish_settings.homepage,
+            "license": publish_settings.license,
+            "repository": publish_settings.repository,
             "categories": publish_settings.categories
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
