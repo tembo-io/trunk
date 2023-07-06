@@ -121,7 +121,10 @@ impl PublishCommand {
                             });
                             let mut path = PathBuf::new();
                             let _ = &path.push(result);
-                            println!("Trunk.toml: using setting extension.file: {}", path.to_str().unwrap());
+                            println!(
+                                "Trunk.toml: using setting extension.file: {}",
+                                path.to_str().unwrap()
+                            );
                             Some(path)
                         }
                         None => None,
