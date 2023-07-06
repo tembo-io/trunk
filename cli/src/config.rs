@@ -37,6 +37,42 @@ pub fn get_from_trunk_toml_if_not_set_on_cli(
     }
 }
 
+pub fn get_string_vec_from_trunk_toml_if_not_set_on_cli(
+    cli_setting: Option<Vec<String>>,
+    trunk_toml: Option<Table>,
+    table_name: &str,
+    key: &str,
+) -> Option<Vec<String>> {
+    match cli_setting {
+        Some(cli_setting) => Some(cli_setting),
+        None => match trunk_toml.clone() {
+            Some(table) => match table.get(table_name) {
+                Some(extension) => match extension.get(key) {
+                    Some(value) => {
+                        let result = value.as_array().unwrap_or_else(|| {
+                            panic!(
+                                "Trunk.toml: {}.{} should be an array of strings",
+                                table_name, key
+                            )
+                        });
+                        let mut v: Vec<String> = Vec::new();
+                        for i in result {
+                            let s = i.as_str();
+                            let s = s.unwrap().to_string();
+                            v.push(s);
+                        }
+                        println!("Trunk.toml: using setting {}.{}: {:?}", table_name, key, v);
+                        Some(v)
+                    }
+                    None => None,
+                },
+                None => None,
+            },
+            None => None,
+        },
+    }
+}
+
 pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<Option<Table>, anyhow::Error> {
     let mut body = String::new();
     reader.read_to_string(&mut body)?;

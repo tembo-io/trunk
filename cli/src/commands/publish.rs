@@ -2,7 +2,9 @@ use super::SubCommand;
 use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
 use crate::config;
-use crate::config::get_from_trunk_toml_if_not_set_on_cli;
+use crate::config::{
+    get_from_trunk_toml_if_not_set_on_cli, get_string_vec_from_trunk_toml_if_not_set_on_cli,
+};
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use clap::Args;
@@ -190,33 +192,12 @@ impl PublishCommand {
         );
 
         // categories
-        let categories = match self.category.clone() {
-            Some(categories) => Some(categories),
-            None => match trunk_toml.clone() {
-                Some(table) => match table.get("extension") {
-                    Some(extension) => match extension.get("categories") {
-                        Some(value) => {
-                            let result = value
-                                    .as_array()
-                                    .unwrap_or_else(|| {
-                                        panic!("Trunk.toml: extension.categories should be an array of strings")
-                                    });
-                            let mut v: Vec<String> = Vec::new();
-                            for i in result {
-                                let s = i.as_str();
-                                let s = s.unwrap().to_string();
-                                v.push(s);
-                            }
-                            println!("Trunk.toml: using setting extension.categories: {:?}", v);
-                            Some(v)
-                        }
-                        None => None,
-                    },
-                    None => None,
-                },
-                None => None,
-            },
-        };
+        let categories = get_string_vec_from_trunk_toml_if_not_set_on_cli(
+            self.category.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "categories",
+        );
 
         Ok(PublishSettings {
             version,
