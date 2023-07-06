@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "test_decoding receives WAL through the logical decoding mechanism and decodes it into text representations of the operations performed."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/test-decoding.html"
-categories = ["cdc"]
+categories = ["change_data_capture"]
 
 [build]
 postgres_version = "15"
