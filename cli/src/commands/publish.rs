@@ -3,7 +3,7 @@ use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
 use crate::config;
 use crate::config::get_from_trunk_toml_if_not_set_on_cli;
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use clap::Args;
 use reqwest::header::CONTENT_TYPE;
@@ -67,9 +67,6 @@ pub struct PublishSettings {
 
 impl PublishCommand {
     fn settings(&self) -> Result<PublishSettings, anyhow::Error> {
-        // path cannot be set from Trunk.toml, since --path can also
-        // be used to specify the path to the directory that includes a
-        // Trunk.toml file.
         let path = ".".to_string();
         let trunkfile_path = Path::new(&path.clone()).join("Trunk.toml");
         let trunk_toml = match File::open(trunkfile_path) {
@@ -90,7 +87,7 @@ impl PublishCommand {
             ) {
                 Some(trunk_toml_name) => trunk_toml_name,
                 None => panic!(
-                    "Extension name must be provided. Please specify the extension name \
+                    "Extension name must be provided when publishing. Please specify the extension name \
                      as the first argument, or under extension.name in Trunk.toml"
                 ),
             },
@@ -106,13 +103,34 @@ impl PublishCommand {
             ) {
                 Some(trunk_toml_version) => trunk_toml_version,
                 None => panic!(
-                    "Extension version must be provided. Please specify the extension version \
+                    "Extension version must be provided when publishing. Please specify the extension version \
                      with --version, or under extension.version in Trunk.toml"
                 ),
             },
         };
 
         // file
+        let file = match self.file.clone() {
+            Some(file) => Some(file),
+            None => match trunk_toml.clone() {
+                Some(table) => match table.get("extension") {
+                    Some(extension) => match extension.get("file") {
+                        Some(value) => {
+                            let result = value.as_str().unwrap_or_else(|| {
+                                panic!("Trunk.toml: extension.file should be a string")
+                            });
+                            let mut path = PathBuf::new();
+                            let _ = &path.push(result);
+                            println!("Trunk.toml: using setting extension.file: {}", path.to_str().unwrap());
+                            Some(path)
+                        }
+                        None => None,
+                    },
+                    None => None,
+                },
+                None => None,
+            },
+        };
 
         // description
         let description = get_from_trunk_toml_if_not_set_on_cli(
@@ -199,7 +217,7 @@ impl PublishCommand {
 
         Ok(PublishSettings {
             version,
-            file: None,
+            file,
             description,
             documentation,
             homepage,
@@ -252,12 +270,13 @@ impl SubCommand for PublishCommand {
             }
         }
 
-        let (file, name) = match &self.file {
+        let (file, name) = match &publish_settings.file {
             Some(..) => {
                 // If file is specified, use it
-                let path = self.file.clone().unwrap();
+                let path = publish_settings.file.clone().unwrap();
                 let name = path.file_name().unwrap().to_str().unwrap().to_owned();
-                let f = fs::read(self.file.clone().unwrap())?;
+                let f = fs::read(publish_settings.file.clone().unwrap())
+                    .context(format!("Could not find file '{}'", path.to_str().unwrap()))?;
                 (f, name)
             }
             None => {
@@ -271,7 +290,7 @@ impl SubCommand for PublishCommand {
                 ));
                 let name = path.file_name().unwrap().to_str().unwrap().to_owned();
                 let f = fs::read(path.clone())
-                    .expect(&*format!("Could not find file {:?}", path.as_os_str()));
+                    .context(format!("Could not find file '{}'", path.to_str().unwrap()))?;
                 (f, name)
             }
         };
