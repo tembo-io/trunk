@@ -1,0 +1,20 @@
+[extension]
+name = "tcn"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/tcn"
+license = "PostgreSQL"
+description = "The tcn module provides a trigger function that notifies listeners of changes to any table on which it is attached."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/tcn.html"
+categories = "Auditing/Logging"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/tcn && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
