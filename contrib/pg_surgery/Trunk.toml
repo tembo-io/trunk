@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The pg_surgery module provides various functions to perform surgery on a damaged relation."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgsurgery.html"
-categories = "Debugging"
+categories = ["debugging"]
 
 [build]
 postgres_version = "15"

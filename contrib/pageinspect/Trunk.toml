@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The pageinspect module provides functions that allow you to inspect the contents of database pages at a low level."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pageinspect.html"
-categories = "Metrics"
+categories = ["metrics"]
 
 [build]
 postgres_version = "15"

@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The tsm_system_rows module provides the table sampling method SYSTEM_ROWS."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/tsm-system-rows.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

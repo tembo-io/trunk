@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Foreign-data wrapper postgres_fdw, which can be used to access data stored in external PostgreSQL servers."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/postgres-fdw.html"
-categories = "Connectors"
+categories = ["connectors"]
 
 [build]
 postgres_version = "15"

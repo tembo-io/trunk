@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The passwordcheck module checks users' passwords whenever they are set with CREATE ROLE or ALTER ROLE."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/passwordcheck.html"
-categories = "Security"
+categories = ["security"]
 
 [build]
 postgres_version = "15"

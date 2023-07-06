@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The pg_visibility module provides a means for examining the visibility map (VM) and page-level visibility information of a table."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgvisibility.html"
-categories = "Metrics"
+categories = ["metrics"]
 
 [build]
 postgres_version = "15"

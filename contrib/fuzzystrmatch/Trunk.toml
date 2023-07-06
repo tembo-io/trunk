@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The fuzzystrmatch module provides several functions to determine similarities and distance between strings."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/fuzzystrmatch.html"
-categories = "Search"
+categories = ["search"]
 
 [build]
 postgres_version = "15"

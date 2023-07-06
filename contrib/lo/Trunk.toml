@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The lo module provides support for managing Large Objects."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/lo.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

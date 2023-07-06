@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Provides SQL functions that allow you to inspect the contents of write-ahead log of a running PostgreSQL database cluster at a low level."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgwalinspect.html"
-categories = "Metrics"
+categories = ["metrics"]
 
 [build]
 postgres_version = "15"

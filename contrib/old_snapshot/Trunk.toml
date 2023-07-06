@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The old_snapshot module allows inspection of the server state that is used to implement old_snapshot_threshold."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/oldsnapshot.html"
-categories = "Metrics"
+categories = ["metrics"]
 
 [build]
 postgres_version = "15"

@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Transforms the hstore type for the PL/Python language."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/hstore.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"
