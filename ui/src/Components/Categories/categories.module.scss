@@ -2,13 +2,13 @@
 .container {
   display: flex;
   flex-direction: column;
-  width: 220px;
+  width: 250px;
   position: sticky;
   top: $spacing-6xl;
   height: 100%;
-  margin: 0 $spacing-7xl;
+  margin: 0 $spacing-5xl;
   align-self: flex-start;
-  padding-top: $spacing-m/2;
+  padding-top: $spacing-s;
   padding-bottom: $spacing-l;
 }
 @media screen and (max-width: 1024px) {
@@ -18,7 +18,7 @@
 }
 
 .listItem {
-  margin: $spacing-m/2 0;
+  margin: $spacing-s 0;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
