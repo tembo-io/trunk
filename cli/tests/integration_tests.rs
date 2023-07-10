@@ -311,6 +311,14 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
     assert!(std::path::Path::new(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str()).exists());
+    // assert any license files are included
+    let output = Command::new("tar")
+        .arg("-tvf")
+        .arg(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str())
+        .output()
+        .expect("failed to run tar command");
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("licenses/LICENSE"));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 

@@ -15,7 +15,7 @@ use tokio_task_manager::Task;
 use crate::commands::containers::{
     build_image, exec_in_container, package_installed_extension_files, run_temporary_container,
 };
-use crate::commands::license::find_licenses;
+use crate::commands::license::{copy_licenses, find_licenses};
 
 #[derive(Error, Debug)]
 pub enum GenericBuildError {
@@ -77,15 +77,6 @@ pub async fn build_generic(
     build_args.insert("EXTENSION_NAME", extension_name);
     build_args.insert("EXTENSION_VERSION", extension_version);
 
-    // Search for license files to include
-    let licenses = find_licenses(path)?;
-    let mut trimmed_licenses: Vec<String> = Vec::new();
-    // Trim path prefix
-    for license in licenses {
-        let trimmed = license.trim_start_matches(&format!("{}/", path.to_str().unwrap()));
-        trimmed_licenses.push(trimmed.parse().unwrap());
-    }
-
     let image_name_prefix = "make_builder_".to_string();
 
     let docker = Docker::connect_with_local_defaults()?;
@@ -108,115 +99,9 @@ pub async fn build_generic(
     let _exec_output =
         exec_in_container(docker.clone(), &temp_container.id, install_command, None).await?;
 
+    // Search for license files to include
     println!("Determining license files to include...");
-    let license_output = exec_in_container(
-        docker.clone(),
-        &temp_container.id,
-        vec![
-            "find",
-            ".",
-            "-name",
-            "*[.-]LICEN[CS]E*",
-            "-o",
-            "-name",
-            "AGPL-*[0-9]*",
-            "-o",
-            "-name",
-            "APACHE-*[0-9]*",
-            "-o",
-            "-name",
-            "BSD-*[0-9]*",
-            "-o",
-            "-name",
-            "CC-BY-*",
-            "-o",
-            "-name",
-            "COPYING",
-            "-o",
-            "-name",
-            "COPYING[.-]*",
-            "-o",
-            "-name",
-            "COPYRIGHT",
-            "-o",
-            "-name",
-            "COPYRIGHT[.-]*",
-            "-o",
-            "-name",
-            "EULA",
-            "-o",
-            "-name",
-            "EULA[.-]*",
-            "-o",
-            "-name",
-            "GFDL-*[0-9]*",
-            "-o",
-            "-name",
-            "GNU-*[0-9]*",
-            "-o",
-            "-name",
-            "GPL-*[0-9]*",
-            "-o",
-            "-name",
-            "LGPL-*[0-9]*",
-            "-o",
-            "-name",
-            "LICEN[CS]E",
-            "-o",
-            "-name",
-            "LICEN[CS]E[.-]*",
-            "-o",
-            "-name",
-            "MIT-*[0-9]*",
-            "-o",
-            "-name",
-            "MPL-*[0-9]*",
-            "-o",
-            "-name",
-            "NOTICE",
-            "-o",
-            "-name",
-            "NOTICE[.-]*",
-            "-o",
-            "-name",
-            "OFL-*[0-9]*",
-            "-o",
-            "-name",
-            "PATENTS",
-            "-o",
-            "-name",
-            "PATENTS[.-]*",
-            "-o",
-            "-name",
-            "UNLICEN[CS]E",
-            "-o",
-            "-name",
-            "UNLICEN[CS]E[.-]*",
-            "-o",
-            "-name",
-            "agpl[.-]*",
-            "-o",
-            "-name",
-            "gpl[.-]*",
-            "-o",
-            "-name",
-            "lgpl[.-]*",
-            "-o",
-            "-name",
-            "licen[cs]e",
-            "-o",
-            "-name",
-            "licen[cs]e.*",
-        ],
-        None,
-    )
-    .await?;
-
-    let values = license_output.split('\n');
-
-    for v in values {
-        println!("SPLIT: {}", v)
-    }
+    let license_vec = find_licenses(docker.clone(), &temp_container.id).await?;
 
     // Create directory /usr/licenses/
     let _exec_output = exec_in_container(
@@ -232,21 +117,13 @@ pub async fn build_generic(
     // ❯ tar -tvf .trunk/pg_stat_statements-1.10.0.tar.gz | grep -i copyright
     //     -rw-r--r-- 0/0            4362 2023-05-15 19:28 COPYRIGHT
     //     -rw-r--r-- 0/0            1192 2023-05-15 19:28 COPYRIGHT.~1~
-    for license in trimmed_licenses {
-        let _exec_output = exec_in_container(
-            docker.clone(),
-            &temp_container.id,
-            vec![
-                "cp",
-                "--backup",
-                "--verbose",
-                license.to_string().as_str(),
-                "/usr/licenses/",
-            ],
-            Some(vec!["VERSION_CONTROL=numbered"]),
-        )
-        .await?;
-    }
+    copy_licenses(
+        license_vec,
+        &temp_container.id,
+        docker.clone(),
+        Some(vec!["VERSION_CONTROL=numbered"]),
+    )
+    .await?;
 
     // output_path is the locally output path
     fs::create_dir_all(output_path)?;
