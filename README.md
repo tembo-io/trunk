@@ -74,7 +74,7 @@ Installing pgmq 0.5.0
 [+] extension/pgmq.control => /usr/share/postgresql/15
 ```
 
-## Trunk Registry - https://pgtrunk.io
+## Trunk Registry - https://pgt.dev
 The Trunk registry serves as the community's hub for Postgres extensions of all kinds. The Trunk CLI installs extensions and
 their dependencies as compiled artifacts from this registry.
 
