@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The earthdistance module provides two different approaches to calculating great circle distances on the surface of the Earth."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/earthdistance.html"
-categories = "Analytics"
+categories = ["analytics"]
 
 [build]
 postgres_version = "15"

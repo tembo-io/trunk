@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "bloom provides an index access method based on Bloom filters."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/bloom.html"
-categories = "Index/Table Optimization"
+categories = ["index_table_optimizations"]
 
 [build]
 postgres_version = "15"

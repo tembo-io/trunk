@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The uuid-ossp module provides functions to generate universally unique identifiers (UUIDs) using one of several standard algorithms."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/uuid-ossp.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The intagg module provides an integer aggregator and an enumerator."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/intagg.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

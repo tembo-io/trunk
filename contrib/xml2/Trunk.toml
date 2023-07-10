@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The xml2 module provides XPath querying and XSLT functionality."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/xml2.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

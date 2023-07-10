@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "transform between bool and plperl/plperlu"
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/plperl-funcs.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

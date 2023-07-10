@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "adminpack provides a number of support functions which pgAdmin and other administration and management tools can use to provide additional functionality, such as remote management of server log files."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/adminpack.html"
-categories = "Tooling/Admin"
+categories = ["tooling_admin"]
 
 [build]
 postgres_version = "15"

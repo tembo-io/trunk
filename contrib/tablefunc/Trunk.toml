@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The tablefunc module includes various functions that return tables (that is, multiple rows)."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/tablefunc.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

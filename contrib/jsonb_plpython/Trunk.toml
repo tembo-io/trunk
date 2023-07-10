@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Transforms the jsonb type for the PL/Python language."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/datatype-json.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

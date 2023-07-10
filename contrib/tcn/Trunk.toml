@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The tcn module provides a trigger function that notifies listeners of changes to any table on which it is attached."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/tcn.html"
-categories = "Auditing/Logging"
+categories = ["auditing_logging"]
 
 [build]
 postgres_version = "15"

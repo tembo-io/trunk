@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The pgcrypto module provides cryptographic functions for PostgreSQL."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgcrypto.html"
-categories = "Security"
+categories = ["security"]
 
 [build]
 postgres_version = "15"

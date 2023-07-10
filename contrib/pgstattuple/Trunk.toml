@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The pgstattuple module provides various functions to obtain tuple-level statistics."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgstattuple.html"
-categories = "Metrics"
+categories = ["metrics"]
 
 [build]
 postgres_version = "15"

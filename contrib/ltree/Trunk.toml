@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "This module implements a data type ltree for representing labels of data stored in a hierarchical tree-like structure."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/ltree.html"
-categories = "Index/Table Optimization"
+categories = ["index_table_optimizations"]
 
 [build]
 postgres_version = "15"

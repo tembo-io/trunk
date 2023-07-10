@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "basebackup_to_shell adds a custom basebackup target called shell."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/basebackup-to-shell.html"
-categories = "Tooling/Admin"
+categories = ["tooling_admin"]
 
 [build]
 postgres_version = "15"

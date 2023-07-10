@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Dictionary to control the indexing of integers (signed and unsigned)."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/dict-int.html"
-categories = "Search"
+categories = ["search"]
 
 [build]
 postgres_version = "15"

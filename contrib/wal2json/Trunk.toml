@@ -4,7 +4,7 @@ version = "2.5.0"
 repository = "https://github.com/eulerto/wal2json"
 license = "BSD-3-Clause"
 description = "wal2json is an output plugin for logical decoding."
-categories = "CDC"
+categories = ["change_data_capture"]
 
 [build]
 postgres_version = "15"

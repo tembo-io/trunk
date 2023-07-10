@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "hstore data type for storing sets of key/value pairs within a single PostgreSQL value."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/hstore.html"
-categories = "Data/Transformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"
