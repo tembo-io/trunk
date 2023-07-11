@@ -1,7 +1,7 @@
 ARG PG_VERSION=15
-FROM quay.io/coredb/c-builder:pg${PG_VERSION}
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.9.7
 USER root
-
+# quay.io/coredb/pgrx-builder:pg15-pgrx0.9.7
 # Extension build dependencies
 RUN apt-get update && apt-get install -y \
 	build-essential \
@@ -23,6 +23,12 @@ RUN apt-get update && apt-get install -y \
 	libpython3-dev \
 	pkg-config
 
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+# Set default Rust version
+RUN /root/.cargo/bin/rustup default stable
+
 # Clone repository
 RUN git clone https://github.com/postgresml/postgresml.git
 
@@ -34,6 +40,5 @@ RUN cd postgresml && \
 	git checkout ${RELEASE} && \
 	cd pgml-extension
 
-#	./configure --with-python && \
-#	cd contrib/postgresml && \
-#	make
+
+
