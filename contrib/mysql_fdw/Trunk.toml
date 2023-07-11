@@ -1,5 +1,5 @@
 [extension]
-name = "mysql_fdq"
+name = "mysql_fdw"
 version = "1.2.0"
 repository = "https://github.com/EnterpriseDB/mysql_fdw"
 license = "Copyright"
