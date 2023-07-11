@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
 	libxml2-utils \
 	xsltproc \
 	ccache \
+	systemtap-sdt-dev \
 	python3-dev
 
 # Clone repository
