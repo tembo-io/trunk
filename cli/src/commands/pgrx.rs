@@ -16,7 +16,7 @@ use tokio::sync::mpsc;
 
 use tokio::task::JoinError;
 
-use crate::commands::license::find_licenses;
+use crate::commands::license::{copy_licenses, find_licenses};
 use tokio_task_manager::Task;
 use toml::Value;
 
@@ -131,14 +131,6 @@ pub async fn build_pgrx(
         .ok_or(PgrxBuildError::ManifestError(
             "Could not find pgrx dependency info in Cargo.toml".to_string(),
         ))?;
-    // Search for license files to include
-    let licenses = find_licenses(path)?;
-    let mut trimmed_licenses: Vec<String> = Vec::new();
-    // Trim path prefix
-    for license in licenses {
-        let trimmed = license.trim_start_matches(&format!("{}/", path.to_str().unwrap()));
-        trimmed_licenses.push(trimmed.parse().unwrap());
-    }
 
     println!("Detected pgrx version range {}", &pgrx_range);
 
@@ -194,7 +186,10 @@ pub async fn build_pgrx(
     )
     .await?;
 
+    // Search for license files to include
     println!("Determining license files to include...");
+    let license_vec = find_licenses(docker.clone(), &temp_container.id).await?;
+
     // Create directory /usr/licenses/
     let _exec_output = exec_in_container(
         docker.clone(),
@@ -209,21 +204,13 @@ pub async fn build_pgrx(
     // ❯ tar -tvf .trunk/pg_stat_statements-1.10.0.tar.gz | grep -i copyright
     //     -rw-r--r-- 0/0            4362 2023-05-15 19:28 COPYRIGHT
     //     -rw-r--r-- 0/0            1192 2023-05-15 19:28 COPYRIGHT.~1~
-    for license in trimmed_licenses {
-        let _exec_output = exec_in_container(
-            docker.clone(),
-            &temp_container.id,
-            vec![
-                "cp",
-                "--backup",
-                "--verbose",
-                license.to_string().as_str(),
-                "/usr/licenses/",
-            ],
-            Some(vec!["VERSION_CONTROL=numbered"]),
-        )
-        .await?;
-    }
+    copy_licenses(
+        license_vec,
+        &temp_container.id,
+        docker.clone(),
+        Some(vec!["VERSION_CONTROL=numbered"]),
+    )
+    .await?;
 
     // output_path is the locally output path
     fs::create_dir_all(output_path)?;
