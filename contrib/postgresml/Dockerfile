@@ -34,6 +34,7 @@ RUN git clone https://github.com/postgresml/postgresml.git
 
 ARG RELEASE=v2.7.1
 
+# Build the extension
 RUN cd postgresml && \
 	git submodule update --init --recursive && \
 	git fetch origin ${RELEASE} && \
