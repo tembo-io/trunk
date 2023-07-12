@@ -1,0 +1,20 @@
+[extension]
+name = "pltclu"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/src/pl/tcl"
+description = "The PL/Tclu procedural language for PostgreSQL."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/pltcl-overview.html"
+categories = ["procedural_languages"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    make -C postgres/src/pl/tcl install
+    set -x
+    mv /usr/local/pgsql/share/extension/pltclu* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/pltcl* /usr/lib/postgresql/15/lib
+"""
+

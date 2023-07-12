@@ -1,0 +1,19 @@
+[extension]
+name = "tds_fdw"
+version = "2.0.3"
+repository = "https://github.com/tds-fdw/tds_fdw"
+license = "Copyright"
+description = "A PostgreSQL foreign data wrapper to connect to TDS databases (Sybase and Microsoft SQL Server)."
+documentation = "https://github.com/tds-fdw/tds_fdw"
+categories = ["connectors"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/tds_fdw && make USE_PGXS=1 install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

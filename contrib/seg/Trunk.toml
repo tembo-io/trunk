@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Data type seg for representing line segments, or floating point intervals."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/seg.html"
-categories = "Data/Transformamtions"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"

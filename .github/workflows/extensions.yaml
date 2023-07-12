@@ -61,6 +61,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.find_directories.outputs.directories) }}
+    env:
+      TRUNK_API_TOKEN: ${{ secrets.TRUNK_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - name: Install system dependencies
@@ -83,7 +85,6 @@ jobs:
           trunk --version
       - name: Build the extension
         run: cd ${{ matrix.path }} && trunk build
-      # TODO: publish extension
-      # - name: Publish the extension
-      #   if: ${{ github.ref == 'refs/heads/main' }}
-      #   run: cd ${{ matrix.path }} && trunk ...
+      - name: Publish the extension
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: cd ${{ matrix.path }} && trunk publish

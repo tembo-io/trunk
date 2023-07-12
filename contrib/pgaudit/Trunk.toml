@@ -1,0 +1,20 @@
+[extension]
+name = "pgaudit"
+version = "1.7.0"
+repository = "https://github.com/pgaudit/pgaudit"
+license = "PostgreSQL"
+description = "The PostgreSQL Audit Extension (pgAudit) provides detailed session and/or object audit logging via the standard PostgreSQL logging facility."
+homepage = "https://www.pgaudit.org/"
+documentation = "https://github.com/pgaudit/pgaudit/blob/master/README.md"
+categories = ["auditing_logging"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pgaudit && make USE_PGXS=1 install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
