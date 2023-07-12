@@ -22,6 +22,7 @@ RUN git clone https://github.com/postgres/postgres.git
 
 ARG PG_VERSION=15
 
+# Build extension
 RUN cd postgres && \
 	git fetch origin REL_${PG_VERSION}_STABLE && \
 	git checkout REL_${PG_VERSION}_STABLE && \
