@@ -13,8 +13,9 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-	cargo install cargo-pgrx --version "0.9.7" --locked && \
-	cargo pgrx init --pg15 /usr/bin/pg_config && \
-	cargo pgrx package
+    cd postgresml/pgml-extension &&
+    cargo pgrx init --pg15 /usr/bin/pg_config && \
+    cargo pgrx package
+    mv target/release/pgml-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/pgml-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
 """
-
