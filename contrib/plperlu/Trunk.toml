@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Th PL/Perlu procedural language for PostgreSQL."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/plperl-trusted.html"
-categories = ["procedural_language"]
+categories = ["procedural_languages"]
 
 [build]
 postgres_version = "15"
