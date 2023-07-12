@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Transforms the ltree type for the PL/Python language."
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/ltree.html"
-categories = "Data/Tranformations"
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"
