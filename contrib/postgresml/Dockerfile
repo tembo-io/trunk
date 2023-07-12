@@ -38,7 +38,6 @@ RUN cd postgresml && \
 	git submodule update --init --recursive && \
 	git fetch origin ${RELEASE} && \
 	git checkout ${RELEASE} && \
-	cd pgml-extension
-
-
-
+	cd pgml-extension && \
+    cargo pgrx init --pg15 /usr/bin/pg_config && \
+    cargo pgrx package
