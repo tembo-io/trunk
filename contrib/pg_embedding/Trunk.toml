@@ -1,0 +1,20 @@
+[extension]
+name = "embedding"
+version = "0.1.0"
+repository = "https://github.com/neondatabase/pg_embedding"
+license = "PostgreSQL"
+description = "The pg_embedding extension enables the use of the Hierarchical Navigable Small World (HNSW) algorithm for vector similarity search in PostgreSQL."
+homepage = "https://neon.tech/"
+documentation = "https://github.com/neondatabase/pg_embedding"
+categories = ["machine_learning"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pg_embedding && make USE_PGXS=1 install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
