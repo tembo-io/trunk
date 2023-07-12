@@ -1,0 +1,19 @@
+[extension]
+name = "oracle_fdw"
+version = "1.2.0"
+repository = "https://github.com/laurenz/oracle_fdw"
+license = "Copyright"
+description = "PostgreSQL Foreign Data Wrapper for Oracle."
+documentation = "https://github.com/laurenz/oracle_fdw"
+categories = ["connectors"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/oracle_fdw && make USE_PGXS=1 install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
