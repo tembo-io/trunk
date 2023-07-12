@@ -55,7 +55,7 @@ jobs:
     runs-on:
       - self-hosted
       - dind
-      - xlarge-16x16
+      - large-8x8
     needs:
       - find_directories
     strategy:

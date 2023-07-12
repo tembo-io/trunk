@@ -125,7 +125,7 @@ pub async fn run_temporary_container(
     let config = Config {
         image: Some(image.to_string()),
         entrypoint: Some(vec!["sleep".to_string()]),
-        cmd: Some(vec!["300".to_string()]),
+        cmd: Some(vec!["600".to_string()]),
         user: Some("root".to_string()),
         host_config: Some(host_config),
         ..Default::default()
