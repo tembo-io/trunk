@@ -1,0 +1,20 @@
+[extension]
+name = "moddatetime"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/spi"
+license = "PostgreSQL"
+description = "Functions for Tracking Last Modification Time."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/contrib-spi.html"
+categories = ["auditing_logging"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/spi && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/moddatetime* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/moddatetime* /usr/lib/postgresql/15/lib
+    """
