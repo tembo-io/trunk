@@ -1,0 +1,20 @@
+[extension]
+name = "pg_proctab"
+version = "0.0.10"
+repository = "https://gitlab.com/pg_proctab/pg_proctab/-/tree/main/"
+license = "Copyright"
+description = "Access operating system process table."
+homepage = "https://pg_proctab.gitlab.io/"
+documentation = "https://gitlab.com/pg_proctab/pg_proctab/-/tree/main/"
+categories = ["metrics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pg_proctab && make USE_PGXS=1 install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
