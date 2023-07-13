@@ -55,7 +55,7 @@ export default function Header({ white = false, search = false, extensions = [] 
         </button>
         {search && (
           <div className={styles.headerSearchCont}>
-            <Search extensions={extensions}></Search>
+            <Search />
           </div>
         )}
       </div>

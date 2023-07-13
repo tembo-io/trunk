@@ -1,0 +1,21 @@
+[extension]
+name = "postgis_tiger_geocoder"
+version = "3.3.3"
+repository = "https://github.com/postgis/postgis"
+license = "GPL-2.0"
+description = "A plpgsql based geocoder written to work with the TIGER (Topologically Integrated Geographic Encoding and Referencing system ) / Line and Master Address database export released by the US Census Bureau."
+homepage = "http://postgis.net/"
+documentation = "https://postgis.net/docs/Extras.html"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgis-3.3.3/extensions/postgis_tiger_geocoder && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+

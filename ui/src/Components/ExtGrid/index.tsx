@@ -33,7 +33,7 @@ export default function ExtGrid({
     <div className={styles.container} ref={sectionTitleRef}>
       <div className={styles.sectionHeader}>
         <h1 className={cx(styles.interMed24, styles.title)}>{title}</h1>
-        <Search extensions={extensions}></Search>
+        <Search />
       </div>
       <div className={styles.gridContainer}>
         {filteredList.map((ext) => (
