@@ -1,7 +1,7 @@
 [extension]
 name = "pg_proctab"
 version = "0.0.10"
-repository = "https://gitlab.com/pg_proctab/pg_proctab/-/tree/main/"
+repository = "https://gitlab.com/pg_proctab/pg_proctab"
 license = "Copyright"
 description = "Access operating system process table."
 homepage = "https://pg_proctab.gitlab.io/"
