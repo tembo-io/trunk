@@ -152,7 +152,14 @@ impl SubCommand for BuildCommand {
                     if build_settings.name
                         != Some(cargo_name.unwrap().as_str().unwrap().to_string())
                     {
-                        return Err(anyhow!("name in Trunk.toml must match name in Cargo.toml"));
+                        return Err(anyhow!(
+                            "User-provided name must match name in Cargo.toml\n \
+                             User-provided name: {}\n \
+                             Cargo.toml name: {}\n\
+                            ",
+                            build_settings.name.unwrap(),
+                            cargo_name.unwrap().as_str().unwrap().to_string()
+                        ));
                     }
                 }
                 // if Trunk.toml version is some, check if it matches Cargo.toml vesrion
@@ -163,7 +170,12 @@ impl SubCommand for BuildCommand {
                         != Some(cargo_version.unwrap().as_str().unwrap().to_string())
                     {
                         return Err(anyhow!(
-                            "version in Trunk.toml must match version in Cargo.toml"
+                            "User-provided version must match version in Cargo.toml\n \
+                             User-provided version: {}\n \
+                             Cargo.toml version: {}\n\
+                            ",
+                            build_settings.version.unwrap(),
+                            cargo_version.unwrap().as_str().unwrap().to_string()
                         ));
                     }
                 }

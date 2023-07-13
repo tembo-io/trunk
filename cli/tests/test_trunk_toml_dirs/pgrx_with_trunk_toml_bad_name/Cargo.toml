@@ -1,5 +1,5 @@
 [package]
-name = "wrong_name"
+name = "test_pgrx_extension"
 version = "0.0.0"
 edition = "2021"
 publish = false

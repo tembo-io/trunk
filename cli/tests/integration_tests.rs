@@ -97,6 +97,52 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
+fn build_pgrx_extension_bad_name() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/test_pgrx_{}", rng.gen_range(0..1000000));
+
+    // Construct a path relative to the current file's directory
+    let mut extension_path = std::path::PathBuf::from(file!());
+    extension_path.pop(); // Remove the file name from the path
+    extension_path.push("test_pgrx_extension");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(extension_path.as_os_str());
+    cmd.arg("--name");
+    cmd.arg("bad_name");
+    cmd.arg("--output-path");
+    cmd.arg(output_dir.clone());
+    cmd.assert().code(101);
+
+    Ok(())
+}
+
+#[test]
+fn build_pgrx_extension_bad_version() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/test_pgrx_{}", rng.gen_range(0..1000000));
+
+    // Construct a path relative to the current file's directory
+    let mut extension_path = std::path::PathBuf::from(file!());
+    extension_path.pop(); // Remove the file name from the path
+    extension_path.push("test_pgrx_extension");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(extension_path.as_os_str());
+    cmd.arg("--version");
+    cmd.arg("0.0.1");
+    cmd.arg("--output-path");
+    cmd.arg(output_dir.clone());
+    cmd.assert().code(101);
+
+    Ok(())
+}
+
+#[test]
 fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::thread_rng();
     let output_dir = format!("/tmp/pg_tle_test_{}", rng.gen_range(0..1000000));
