@@ -145,7 +145,7 @@ impl SubCommand for BuildCommand {
             let dependencies = cargo_toml.get("dependencies").unwrap().as_table().unwrap();
             if dependencies.contains_key("pgrx") {
                 println!("Detected that we are building a pgrx extension");
-                // if Trunk.toml name is some, check if it matches Cargo.toml name
+                // if user provides name, check that it matches Cargo.toml name
                 if build_settings.name.is_some() {
                     let package = cargo_toml.get("package");
                     let cargo_name = package.unwrap().get("name");
@@ -162,7 +162,7 @@ impl SubCommand for BuildCommand {
                         ));
                     }
                 }
-                // if Trunk.toml version is some, check if it matches Cargo.toml vesrion
+                // if user provides version, check that it matches Cargo.toml version
                 if build_settings.version.is_some() {
                     let package = cargo_toml.get("package");
                     let cargo_version = package.unwrap().get("version");
