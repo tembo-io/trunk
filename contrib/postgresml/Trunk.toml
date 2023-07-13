@@ -1,5 +1,5 @@
 [extension]
-name = "pgml"
+name = "postgresml"
 version = "2.7.1"
 repository = "https://github.com/postgresml/postgresml"
 license = "MIT"
