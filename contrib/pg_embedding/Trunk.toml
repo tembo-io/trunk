@@ -1,5 +1,5 @@
 [extension]
-name = "embedding"
+name = "pg_embedding"
 version = "0.1.0"
 repository = "https://github.com/neondatabase/pg_embedding"
 license = "PostgreSQL"
