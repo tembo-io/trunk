@@ -1,0 +1,21 @@
+[extension]
+name = "address_standardizer_3"
+version = "3.3.3"
+repository = "https://github.com/postgis/postgis"
+license = "GPL-2.0"
+description = "The address standardizer is a single line address parser that takes an input address and normalizes it based on a set of rules stored in a table and helper lex and gaz tables."
+homepage = "http://postgis.net/"
+documentation = "https://postgis.net/docs/Extras.html"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgis-3.3.3/extensions/address_standardizer && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+
