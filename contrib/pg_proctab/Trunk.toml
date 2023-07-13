@@ -5,7 +5,7 @@ repository = "https://gitlab.com/pg_proctab/pg_proctab"
 license = "Copyright"
 description = "Access operating system process table."
 homepage = "https://pg_proctab.gitlab.io/"
-documentation = "https://gitlab.com/pg_proctab/pg_proctab/-/tree/main/"
+documentation = "https://gitlab.com/pg_proctab/pg_proctab"
 categories = ["metrics"]
 
 [build]
