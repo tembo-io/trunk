@@ -1,5 +1,5 @@
 [extension]
-name = "address_standardizer_3"
+name = "address_standardizer"
 version = "3.3.3"
 repository = "https://github.com/postgis/postgis"
 license = "GPL-2.0"
