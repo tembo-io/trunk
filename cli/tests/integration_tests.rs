@@ -363,3 +363,53 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+#[test]
+fn build_pgrx_with_trunk_toml_bad_name() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!(
+        "/tmp/test_pgrx_with_trunk_toml_bad_name_{}",
+        rng.gen_range(0..1000000)
+    );
+
+    // Construct a path relative to the current file's directory
+    let mut trunkfile_path = std::path::PathBuf::from(file!());
+    trunkfile_path.pop(); // Remove the file name from the path
+    trunkfile_path.push("test_trunk_toml_dirs");
+    trunkfile_path.push("pgrx_with_trunk_toml_bad_name");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(trunkfile_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(output_dir.clone());
+    cmd.assert().code(101);
+
+    Ok(())
+}
+
+#[test]
+fn build_pgrx_with_trunk_toml_bad_version() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!(
+        "/tmp/test_pgrx_with_trunk_toml_bad_version_{}",
+        rng.gen_range(0..1000000)
+    );
+
+    // Construct a path relative to the current file's directory
+    let mut trunkfile_path = std::path::PathBuf::from(file!());
+    trunkfile_path.pop(); // Remove the file name from the path
+    trunkfile_path.push("test_trunk_toml_dirs");
+    trunkfile_path.push("pgrx_with_trunk_toml_bad_version");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(trunkfile_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(output_dir.clone());
+    cmd.assert().code(101);
+
+    Ok(())
+}
