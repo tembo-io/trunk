@@ -1,0 +1,21 @@
+[extension]
+name = "postgis"
+version = "3.3.3"
+repository = "https://github.com/postgis/postgis"
+license = "GPL-2.0"
+description = "PostGIS geometry and geography spatial types and functions."
+homepage = "http://postgis.net/"
+documentation = "http://postgis.net/"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgis-3.3.3/extensions/postgis && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+
