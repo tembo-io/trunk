@@ -145,8 +145,39 @@ impl SubCommand for BuildCommand {
             let dependencies = cargo_toml.get("dependencies").unwrap().as_table().unwrap();
             if dependencies.contains_key("pgrx") {
                 println!("Detected that we are building a pgrx extension");
-                if build_settings.version.is_some() || build_settings.name.is_some() {
-                    return Err(anyhow!("--version and --name are collected from Cargo.toml when building pgrx extensions, please do not configure"));
+                // if user provides name, check that it matches Cargo.toml name
+                if build_settings.name.is_some() {
+                    let package = cargo_toml.get("package");
+                    let cargo_name = package.unwrap().get("name");
+                    if build_settings.name
+                        != Some(cargo_name.unwrap().as_str().unwrap().to_string())
+                    {
+                        return Err(anyhow!(
+                            "User-provided name must match name in Cargo.toml\n \
+                             User-provided name: {}\n \
+                             Cargo.toml name: {}\n\
+                            ",
+                            build_settings.name.unwrap(),
+                            cargo_name.unwrap().as_str().unwrap().to_string()
+                        ));
+                    }
+                }
+                // if user provides version, check that it matches Cargo.toml version
+                if build_settings.version.is_some() {
+                    let package = cargo_toml.get("package");
+                    let cargo_version = package.unwrap().get("version");
+                    if build_settings.version
+                        != Some(cargo_version.unwrap().as_str().unwrap().to_string())
+                    {
+                        return Err(anyhow!(
+                            "User-provided version must match version in Cargo.toml\n \
+                             User-provided version: {}\n \
+                             Cargo.toml version: {}\n\
+                            ",
+                            build_settings.version.unwrap(),
+                            cargo_version.unwrap().as_str().unwrap().to_string()
+                        ));
+                    }
                 }
 
                 build_pgrx(
