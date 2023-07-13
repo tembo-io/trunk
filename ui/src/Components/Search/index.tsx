@@ -5,16 +5,23 @@ import cx from "classnames";
 import styles from "./search.module.scss";
 import { Extension } from "@/types";
 import { truncate } from "@/stringHelpers";
+import useExtList from "@/hooks/useExtList";
 
-export default function Search({ extensions }: { extensions: Extension[] }) {
+export default function Search() {
   const [searchString, setSearchString] = useState("");
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
   const [showresults, setShowResults] = useState(false);
   const router = useRouter();
-  const filteredList = extensions.filter(
-    (ext) =>
-      ext.name.toLowerCase().includes(searchString.toLowerCase()) || ext.description.toLowerCase().includes(searchString.toLowerCase())
-  );
+  const { extensions, isLoading, isError }: { extensions: Extension[]; isLoading: boolean; isError: boolean } = useExtList();
+
+  const filteredList =
+    isLoading || isError
+      ? []
+      : extensions.filter(
+          (ext) =>
+            ext.name.toLowerCase().includes(searchString.toLowerCase()) ||
+            ext.description.toLowerCase().includes(searchString.toLowerCase())
+        );
   const resultContainerRef: RefObject<HTMLInputElement> = useRef(null);
 
   useEffect(() => {
@@ -52,7 +59,7 @@ export default function Search({ extensions }: { extensions: Extension[] }) {
       <input
         type="text"
         className={cx(styles.input, styles.interReg16)}
-        placeholder={`Search ${extensions.length} extensions`}
+        placeholder={`Search ${isLoading || isError ? "" : extensions.length} extensions`}
         value={searchString}
         onKeyDown={handleKeyDown}
         onChange={(e) => {
