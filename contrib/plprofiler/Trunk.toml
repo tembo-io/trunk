@@ -1,0 +1,19 @@
+[extension]
+name = "plprofiler"
+version = "4.2.0"
+repository = "https://github.com/bigsql/plprofiler"
+license = "Copyright"
+description = "The plprofiler is an extension for the PostgreSQL database system to create performance profiles of PL/pgSQL functions and stored procedures."
+documentation = "https://github.com/bigsql/plprofiler"
+categories = ["metrics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/plprofiler && make USE_PGXS=1 install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
