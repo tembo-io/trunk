@@ -13,6 +13,7 @@
   grid-gap: 24px;
 }
 .extCard {
+  all: unset;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -20,6 +21,7 @@
   border: 1px solid $dark-tan;
   padding: $spacing-xl;
   border-radius: $spacing-xl;
+  cursor: pointer;
 }
 .titleRow {
   display: flex;
@@ -45,6 +47,7 @@
 }
 
 .catBubble {
+  all: unset;
   font-family: $inter;
   font-size: 12px;
   border-radius: 14px;
@@ -53,6 +56,12 @@
   padding: $spacing-xs $spacing-s;
   width: fit-content;
   margin-top: auto;
+  border: 1px solid $dark-tan;
+  &:hover {
+    cursor: pointer;
+    background-color: $med-tan;
+    border: 1px solid $dark-tan;
+  }
 }
 .description {
   color: $dark-grey;

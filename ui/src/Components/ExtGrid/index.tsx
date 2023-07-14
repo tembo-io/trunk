@@ -41,17 +41,17 @@ export default function ExtGrid({
       </div>
       <div className={styles.gridContainer}>
         {filteredList.map((ext) => (
-          <Link href={`/extensions/${ext.name}`} key={ext.name} className={styles.extCard}>
+          <button onClick={() => router.push(`/extensions/${ext.name}`)} key={ext.name} className={styles.extCard}>
             <div className={styles.titleRow}>
               <p className={styles.interMed16}>{ext.name}</p>
             </div>
             <p className={cx(styles.interReg12, styles.description)}>{truncate(ext.description)}</p>
             {ext?.categories[0] && (
-              <Link href={`/?cat=${getCategorySlug(ext.categories[0])}`} className={styles.catBubble}>
+              <Link href={`/?cat=${getCategorySlug(ext.categories[0])}`} onClick={(e) => e.stopPropagation()} className={styles.catBubble}>
                 {ext.categories[0]}
               </Link>
             )}
-          </Link>
+          </button>
         ))}
       </div>
     </div>
