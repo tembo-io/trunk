@@ -1,0 +1,18 @@
+[extension]
+name = "rdkit"
+version = "4.3.0"
+repository = "https://github.com/rdkit/rdkit/tree/master/Code/PgSQL/rdkit"
+license = "BSD-3-Clause"
+description = "Cheminformatics functionality for PostgreSQL."
+homepage = "https://www.rdkit.org/"
+documentation = "https://www.rdkit.org/docs/index.html"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    sh rdkit-Release_2023_03_2/build/Code/PgSQL/rdkit/pgsql_install.sh
+    """
+
