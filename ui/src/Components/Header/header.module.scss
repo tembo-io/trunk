@@ -129,14 +129,17 @@
   }
   .closeButton {
     all: unset;
-
     display: block;
-    font-family: $plex;
+    font-family: $inter;
     font-weight: 600;
-    font-size: 24px;
-    margin-top: auto;
-    margin-bottom: $spacing-5xl;
+    font-size: 30px;
+    // margin-top: auto;
+    // margin-bottom: $spacing-5xl;
     line-height: 18px;
+    position: absolute;
+    padding: 20px;
+    top: 3vw;
+    right: 3vw;
   }
 }
 
