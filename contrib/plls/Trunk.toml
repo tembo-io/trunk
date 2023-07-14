@@ -1,0 +1,19 @@
+[extension]
+name = "plls"
+version = "3.1.7"
+repository = "https://github.com/plv8/plv8"
+license = "Copyright"
+description = "PL/LiveScript (v8) trusted procedural language."
+documentation = "https://plv8.github.io/"
+categories = ["procedural_languages"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd plv8 && make install
+    find /usr/share/postgresql/15/extension -type f -iname '*plv8*' -exec rm {} +
+    find /usr/share/postgresql/15/extension -type f -iname '*coffee*' -exec rm {} +
+    find /usr/lib/postgresql/15/lib -type f -iname '*coffee*' -exec rm {} +
+"""
