@@ -11,4 +11,5 @@ pub struct ExtensionUpload {
     pub license: Option<String>,
     pub repository: Option<String>,
     pub categories: Option<Vec<String>>,
+    pub postgres_version: i32
 }
