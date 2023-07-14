@@ -16,7 +16,7 @@ import Header from "@/Components/Header";
 const CopyIcon = "/copy.png";
 import { useRouter } from "next/router";
 
-export default function Page({ extension, readme, repoDescription, allExtensions }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Page({ extension, readme, repoDescription }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [showFeedback, setShowFeedback] = useState(false);
   const router = useRouter();
 
@@ -47,10 +47,6 @@ export default function Page({ extension, readme, repoDescription, allExtensions
     );
   }
 
-  if (!allExtensions || allExtensions.length === 0) {
-    console.log("ALL EXTENSIONS MISSING DATA");
-  }
-
   const latestVersion: Extension = extension[extension.length - 1];
   const installText = `trunk install ${latestVersion.name}` ?? "";
 
@@ -71,7 +67,7 @@ export default function Page({ extension, readme, repoDescription, allExtensions
           content={repoDescription ? repoDescription : "Trunk is an open-source package installer and registry for PostgreSQL extensions."}
         />
       </Head>
-      <Header search extensions={allExtensions} white />
+      <Header search white />
       <div className={styles.extHeaderRow}>
         <div style={{ maxWidth: "100%" }}>
           <h1 className={styles.title}>{latestVersion.name ?? ""}</h1>
@@ -154,7 +150,6 @@ export async function getStaticPaths() {
       params: { ext: ext.name },
     }));
 
-    const trimmedList = paths.slice(0, 5);
     console.log("********** BUILT PATHS **********");
     return { paths, fallback: true };
     // return { paths: [], fallback: true };
@@ -166,21 +161,12 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }: { params: { ext: string } }) {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  let allExtensions = [];
   let readme = "";
   let extension = null;
   let repoRes = null;
   let repoDescription = "";
   let readmeJson: { content: string } = { content: "" };
   try {
-    try {
-      const allExtRes = await fetch(`https://registry.pgtrunk.io/extensions/all`);
-      allExtensions = await allExtRes.json();
-    } catch (error: any) {
-      console.log("********** ERROR GETTING ALL EXTS: **********", error.message);
-      allExtensions = [];
-    }
-
     try {
       const extRes = await fetch(`https://registry.pgtrunk.io/extensions/detail/${params.ext}`);
       extension = await extRes.json();
@@ -244,9 +230,9 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
       }
     }
 
-    return { props: { extension, readme, repoDescription, allExtensions } };
+    return { props: { extension, readme, repoDescription } };
   } catch (error: any) {
     console.log("********** STATIC PROPS ERROR **********", error.message, params, extension);
-    return { props: { extension: null, readme: "", repoDescription: "", allExtensions: [] } };
+    return { props: { extension: null, readme: "", repoDescription: "" } };
   }
 }
