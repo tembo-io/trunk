@@ -84,3 +84,18 @@
     margin-top: $spacing-2xl;
   }
 }
+
+.showCategoriesButton {
+  display: none;
+  @media screen and (max-width: 1024px) {
+    all: unset;
+    margin-top: $spacing-m;
+    font-family: $plex;
+    text-decoration: underline;
+    font-size: 20px;
+    border-bottom: 1px solid $dark-tan;
+    padding-bottom: $spacing-m;
+    width: 100%;
+    text-align: center;
+  }
+}

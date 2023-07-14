@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { InferGetStaticPropsType, GetStaticProps } from "next";
 import Head from "next/head";
 import styles from "./index.module.scss";
@@ -42,6 +43,12 @@ export default function Home({
   extensions: Extension[];
   categoriesForGrid: {};
 }) {
+  const [showMobileCategories, setShowMobileCategories] = useState(false);
+
+  const showMobileCategoriesHandler = () => {
+    window.scrollTo({ top: 0 });
+    setShowMobileCategories(true);
+  };
   return (
     <div>
       <Head>
@@ -52,8 +59,13 @@ export default function Home({
       <div className={styles.main}>
         <Hero />
         <div className={styles.body}>
-          <Categories categories={categories} />
-          <ExtGrid extensions={extensions} categories={categories} categoriesForGrid={categoriesForGrid} />
+          <Categories categories={categories} showMobile={showMobileCategories} toggleCategoryMenu={setShowMobileCategories} />
+          <ExtGrid
+            extensions={extensions}
+            categories={categories}
+            categoriesForGrid={categoriesForGrid}
+            setshowMobileCategories={showMobileCategoriesHandler}
+          />
         </div>
       </div>
     </div>

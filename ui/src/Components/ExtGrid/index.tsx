@@ -1,4 +1,4 @@
-import { useRef, useEffect, RefObject } from "react";
+import { useRef, useEffect, RefObject, Dispatch, SetStateAction, MouseEventHandler } from "react";
 
 import styles from "./extGrid.module.scss";
 import { truncate } from "../../stringHelpers";
@@ -12,10 +12,12 @@ export default function ExtGrid({
   extensions,
   categories,
   categoriesForGrid,
+  setshowMobileCategories,
 }: {
   extensions: Extension[];
   categories: Category[];
   categoriesForGrid: CategoriesForGrid;
+  setshowMobileCategories?: MouseEventHandler<HTMLButtonElement>;
 }) {
   const router = useRouter();
   const sectionTitleRef: RefObject<HTMLDivElement> = useRef(null);
@@ -37,6 +39,9 @@ export default function ExtGrid({
     <div className={styles.container} ref={sectionTitleRef}>
       <div className={styles.sectionHeader}>
         <h1 className={cx(styles.interMed24, styles.title)}>{title}</h1>
+        <button className={styles.showCategoriesButton} onClick={setshowMobileCategories}>
+          Categories
+        </button>
         <Search />
       </div>
       <div className={styles.gridContainer}>
