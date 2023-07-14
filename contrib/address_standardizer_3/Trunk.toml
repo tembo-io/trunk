@@ -15,7 +15,6 @@ dockerfile = "Dockerfile"
 install_command = """
     cd postgis-3.3.3/extensions/address_standardizer && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
-
+    find /usr/share/postgresql/15/extension -type f -iname '*data*' -exec rm {} +
+    find /usr/lib/postgresql/15/lib -type f -iname '*data*' -exec rm {} +
+"""
