@@ -1,0 +1,21 @@
+[extension]
+name = "pgrouting"
+version = "3.5.0"
+repository = "https://github.com/pgRouting/pgrouting"
+license = "GPL-2.0"
+description = "pgRouting extends the PostGIS / PostgreSQL geospatial database to provide geospatial routing functionality."
+homepage = "https://pgrouting.org/"
+documentation = "https://docs.pgrouting.org/latest/en/index.html"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgrouting/build && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+
