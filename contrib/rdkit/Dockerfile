@@ -19,11 +19,7 @@ RUN apt-get update && apt-get install -y \
  libboost-all-dev \
  libeigen3-dev \
  libfreetype6-dev \
- python3-pip \
  postgresql-server-dev-all
-
-# Install numpy with pip
-RUN pip3 install numpy
 
 ARG RELEASE=Release_2023_03_2
 ARG RDBASE=rdkit-${RELEASE}
