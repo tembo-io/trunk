@@ -14,7 +14,7 @@ interface HeaderProps {
   extensions?: Extension[];
 }
 
-export default function Header({ white = false, search = false, extensions = [] }: HeaderProps) {
+export default function Header({ white = false, search = false }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [showNavLinks, setShowNavLinks] = useState(false);
 
