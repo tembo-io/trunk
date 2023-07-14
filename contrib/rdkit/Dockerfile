@@ -17,7 +17,6 @@ RUN apt-get update && apt-get install -y \
  cmake \
  gcc \
  libboost-all-dev \
- libeigen3-dev \
  libfreetype6-dev \
  postgresql-server-dev-all
 
