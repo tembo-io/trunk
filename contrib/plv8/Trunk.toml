@@ -1,0 +1,14 @@
+[extension]
+name = "plv8"
+version = "3.1.7"
+repository = "https://github.com/plv8/plv8"
+license = "Copyright"
+description = "V8 Engine Javascript Procedural Language add-on for PostgreSQL"
+documentation = "https://plv8.github.io/"
+categories = ["procedural_languages"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cd plv8 && make install"
