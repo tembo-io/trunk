@@ -1,0 +1,189 @@
+Executing in container: "mkdir /usr/licenses/"
+Executing in container: "cp --backup --verbose ./postgres/contrib/rdkit/Code/GraphMol/MolDraw2D/Qt/Demo/LICENSE /usr/licenses/"
+'./postgres/contrib/rdkit/Code/GraphMol/MolDraw2D/Qt/Demo/LICENSE' -> '/usr/licenses/LICENSE'
+
+Executing in container: "cp --backup --verbose ./postgres/contrib/rdkit/Code/GraphMol/ChemReactions/license.txt /usr/licenses/"
+'./postgres/contrib/rdkit/Code/GraphMol/ChemReactions/license.txt' -> '/usr/licenses/license.txt'
+
+Executing in container: "cp --backup --verbose ./postgres/contrib/rdkit/External/catch/catch/LICENSE.txt /usr/licenses/"
+'./postgres/contrib/rdkit/External/catch/catch/LICENSE.txt' -> '/usr/licenses/LICENSE.txt'
+
+Executing in container: "cp --backup --verbose ./postgres/contrib/rdkit/External/RingFamilies/RingDecomposerLib/LICENSE /usr/licenses/"
+'./postgres/contrib/rdkit/External/RingFamilies/RingDecomposerLib/LICENSE' -> '/usr/licenses/LICENSE' (backup: '/usr/licenses/LICENSE.~1~')
+
+Executing in container: "cp --backup --verbose ./postgres/contrib/rdkit/External/CoordGen/coordgen/LICENSE /usr/licenses/"
+'./postgres/contrib/rdkit/External/CoordGen/coordgen/LICENSE' -> '/usr/licenses/LICENSE' (backup: '/usr/licenses/LICENSE.~2~')
+
+Executing in container: "cp --backup --verbose ./postgres/contrib/rdkit/External/CoordGen/maeparser/LICENSE.txt /usr/licenses/"
+'./postgres/contrib/rdkit/External/CoordGen/maeparser/LICENSE.txt' -> '/usr/licenses/LICENSE.txt' (backup: '/usr/licenses/LICENSE.txt.~1~')
+
+Executing in container: "cp --backup --verbose ./postgres/contrib/rdkit/External/rapidjson-1.1.0/bin/jsonschema/LICENSE /usr/licenses/"
+'./postgres/contrib/rdkit/External/rapidjson-1.1.0/bin/jsonschema/LICENSE' -> '/usr/licenses/LICENSE' (backup: '/usr/licenses/LICENSE.~3~')
+
+Executing in container: "cp --backup --verbose ./postgres/contrib/rdkit/External/rapidjson-1.1.0/license.txt /usr/licenses/"
+'./postgres/contrib/rdkit/External/rapidjson-1.1.0/license.txt' -> '/usr/licenses/license.txt' (backup: '/usr/licenses/license.txt.~1~')
+
+Executing in container: "cp --backup --verbose ./postgres/contrib/rdkit/license.txt /usr/licenses/"
+'./postgres/contrib/rdkit/license.txt' -> '/usr/licenses/license.txt' (backup: '/usr/licenses/license.txt.~2~')
+
+Executing in container: "cp --backup --verbose ./postgres/src/backend/regex/COPYRIGHT /usr/licenses/"
+'./postgres/src/backend/regex/COPYRIGHT' -> '/usr/licenses/COPYRIGHT'
+
+Executing in container: "cp --backup --verbose ./postgres/COPYRIGHT /usr/licenses/"
+'./postgres/COPYRIGHT' -> '/usr/licenses/COPYRIGHT' (backup: '/usr/licenses/COPYRIGHT.~1~')
+
+Executing in container: "uname -m"
+x86_64
+
+Executing in container: "pg_config --sharedir"
+/usr/share/postgresql/15
+
+Executing in container: "pg_config --pkglibdir"
+/usr/lib/postgresql/15/lib
+
+Executing in container: "pg_config --sharedir"
+/usr/share/postgresql/15
+
+Executing in container: "pg_config --pkglibdir"
+/usr/lib/postgresql/15/lib
+
+WARNING: file /app/postgres/contrib/rdkit/rdkit/DataManip/Metric/rdMetricMatrixCalc.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/SimDivFilters/rdSimDivPickers.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/ML/Cluster/Clustering.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/ML/InfoTheory/rdInfoTheory.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/ML/Data/cQuantize.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/rdBase.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/DistanceGeometry/DistGeom.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/ForceField/rdForceField.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Numerics/rdAlignment.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMolInterchange.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMolEnumerator.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdmolops.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMolCatalog.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdPartialCharges.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdForceFieldHelpers.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMolAlign.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMolChemicalFeatures.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdCoordGen.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdDeprotect.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdFingerprintGenerator.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdmolfiles.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMHFPFingerprint.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdDepictor.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMolTransforms.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMolDescriptors.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdtrajectory.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdChemicalFeatures.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdqueries.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdchem.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/Draw/rdMolDraw2D.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/Scaffolds/rdScaffoldNetwork.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdSubstructLibrary.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMolHash.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdMMPA.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdShapeHelpers.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdChemReactions.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdGeneralizedSubstruct.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdAbbreviations.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdSLNParse.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/MolStandardize/rdMolStandardize.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdCIPLabeler.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdFMCS.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdReducedGraphs.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdDistGeom.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdfragcatalog.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdfiltercatalog.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdRGroupDecomposition.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Chem/rdTautomerQuery.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/DataStructs/cDataStructs.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/rdkit/Geometry/rdGeometry.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitReducedGraphs.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitAlignment.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitDepictor.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitGenericGroups.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitDescriptors.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitSubgraphs.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMolCatalog.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitForceFieldHelpers.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMolHash.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMolInterchange.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitSubstructMatch.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMolStandardize.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitChemReactions.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitDistGeometry.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitDeprotect.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitRDGeneral.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitSmilesParse.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitChemicalFeatures.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitDistGeomHelpers.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitSLNParse.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMolDraw2D.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitRDGeometryLib.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitCIPLabeler.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitDataStructs.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitFMCS.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMolAlign.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitForceField.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitGeneralizedSubstruct.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitFragCatalog.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMolTransforms.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitRDStreams.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitGraphMol.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitFingerprints.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitSimDivPickers.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitcoordgen.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitCatalogs.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMMPA.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKithc.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitFilterCatalog.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitO3AAlign.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitShapeHelpers.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitga.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitScaffoldNetwork.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitEigenSolvers.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMolEnumerator.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitMolChemicalFeatures.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitInfoTheory.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitRingDecomposerLib.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitRDBoost.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitRGroupDecomposition.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitChemTransforms.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitFileParsers.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitPartialCharges.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitmaeparser.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitTautomerQuery.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitAbbreviations.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitSubstructLibrary.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitTrajectory.so is not in pkglibdir or sharedir
+WARNING: file /app/postgres/contrib/rdkit/lib/libRDKitOptimizer.so is not in pkglibdir or sharedir
+Sharedir files:
+Pkglibdir files:
+License files:
+	COPYRIGHT
+	COPYRIGHT.~1~
+	LICENSE.txt
+	LICENSE.~2~
+	license.txt
+	license.txt.~1~
+	LICENSE
+	LICENSE.txt.~1~
+	LICENSE.~1~
+	LICENSE.~3~
+	license.txt.~2~
+
+Creating package at: ./.trunk/rdkit-4.4.0.tar.gz
+Create Trunk bundle:
+	licenses/COPYRIGHT
+	licenses/COPYRIGHT.~1~
+	licenses/LICENSE
+	licenses/LICENSE.txt
+	licenses/LICENSE.txt.~1~
+	licenses/LICENSE.~1~
+	licenses/LICENSE.~2~
+	licenses/LICENSE.~3~
+	licenses/license.txt
+	licenses/license.txt.~1~
+	licenses/license.txt.~2~
+	manifest.json
+Packaged to ./.trunk/rdkit-4.4.0.tar.gz
+
