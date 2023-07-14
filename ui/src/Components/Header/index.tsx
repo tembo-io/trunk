@@ -79,7 +79,7 @@ export default function Header({ white = false, search = false, extensions = [] 
             Blog
           </Link>
           <button onClick={() => setShowNavLinks(false)} className={styles.closeButton}>
-            Close
+            &#x2715;
           </button>
         </div>
       </div>

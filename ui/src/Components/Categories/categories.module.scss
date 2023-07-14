@@ -13,6 +13,14 @@
 }
 @media screen and (max-width: 1024px) {
   .container {
+    position: absolute;
+    z-index: 5;
+    background-color: $dark-tan;
+    margin: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 3vw;
     display: none;
   }
 }
@@ -35,4 +43,28 @@
 .activeCat {
   background-color: $black;
   color: $white;
+}
+
+.mobileTitle {
+  font-family: $inter;
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 18px;
+  padding: $spacing-l;
+}
+
+.closeMenu {
+  all: unset;
+  padding: $spacing-l;
+  font-size: 30px;
+}
+.mobileCategories {
+  display: none;
+
+  @media screen and (max-width: 1024px) {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
