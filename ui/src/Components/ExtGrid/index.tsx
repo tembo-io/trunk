@@ -52,7 +52,12 @@ export default function ExtGrid({
             </div>
             <p className={cx(styles.interReg12, styles.description)}>{truncate(ext.description)}</p>
             {ext?.categories[0] && (
-              <Link href={`/?cat=${getCategorySlug(ext.categories[0])}`} onClick={(e) => e.stopPropagation()} className={styles.catBubble}>
+              <Link
+                href={`/?cat=${getCategorySlug(ext.categories[0])}`}
+                shallow
+                onClick={(e) => e.stopPropagation()}
+                className={styles.catBubble}
+              >
                 {ext.categories[0]}
               </Link>
             )}
