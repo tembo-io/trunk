@@ -20,27 +20,22 @@ RUN apt-get update && apt-get install -y \
  libeigen3-dev \
  libfreetype6-dev \
  python3-pip \
- postgresql-server-dev-15
+ postgresql-server-dev-all
 
 # Install numpy with pip
 RUN pip3 install numpy
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-ARG PG_VERSION=15
-
-# Build extension
-RUN cd postgres && \
-    git fetch origin REL_${PG_VERSION}_STABLE && \
-    git checkout REL_${PG_VERSION}_STABLE && \
-    ./configure && \
-    cd contrib && \
-    git clone https://github.com/rdkit/rdkit.git
+ARG RELEASE=Release_2023_03_2
+ARG RDBASE=rdkit-${RELEASE}
 
 # Build and Install RDKit
-RUN cd postgres/contrib/rdkit && \
+RUN wget https://github.com/rdkit/rdkit/archive/${RELEASE}.tar.gz && \
+    tar xvf ${RELEASE}.tar.gz && \
+    cd ${RDBASE} && \
     mkdir build && \
     cd build && \
-    cmake .. && \
-    make
+    cmake -DRDK_BUILD_PGSQL=ON \
+    -DRDK_BUILD_PYTHON_WRAPPERS=OFF \
+    -DRDK_BUILD_CPP_TESTS=OFF \
+    -DPostgreSQL_CONFIG_DIR=/usr/bin .. && \
+    make -j8

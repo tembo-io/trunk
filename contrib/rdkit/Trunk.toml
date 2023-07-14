@@ -1,6 +1,6 @@
 [extension]
 name = "rdkit"
-version = "4.4.0"
+version = "4.3.0"
 repository = "https://github.com/rdkit/rdkit/tree/master/Code/PgSQL/rdkit"
 license = "BSD-3-Clause"
 description = "Cheminformatics functionality for PostgreSQL."
@@ -13,9 +13,6 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    cd postgres/contrib/rdkit/build && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    sh rdkit-Release_2023_03_2/build/Code/PgSQL/rdkit/pgsql_install.sh
     """
 
