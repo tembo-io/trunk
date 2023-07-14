@@ -29,6 +29,10 @@ export default function ExtGrid({
     }
   }, [router.query.cat]);
 
+  const getCategorySlug = (categoryName: string) => {
+    return categories.find((cat) => cat.name === categoryName)?.slug;
+  };
+
   return (
     <div className={styles.container} ref={sectionTitleRef}>
       <div className={styles.sectionHeader}>
@@ -42,7 +46,11 @@ export default function ExtGrid({
               <p className={styles.interMed16}>{ext.name}</p>
             </div>
             <p className={cx(styles.interReg12, styles.description)}>{truncate(ext.description)}</p>
-            {ext?.categories[0] && <div className={styles.catBubble}>{ext.categories[0]}</div>}
+            {ext?.categories[0] && (
+              <Link href={`/?cat=${getCategorySlug(ext.categories[0])}`} className={styles.catBubble}>
+                {ext.categories[0]}
+              </Link>
+            )}
           </Link>
         ))}
       </div>
