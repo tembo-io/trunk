@@ -1,0 +1,21 @@
+[extension]
+name = "pg_trgm"
+version = "1.6.0"
+repository = "https://github.com/postgres/postgres/tree/master/contrib/pg_trgm"
+license = "PostgreSQL"
+description = "Text similarity measurement and index searching based on trigrams."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/pgtrgm.html"
+categories = ["search"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pg_trgm && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+
