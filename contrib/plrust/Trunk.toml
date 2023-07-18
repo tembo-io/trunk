@@ -1,0 +1,28 @@
+[extension]
+name = "plrust"
+version = "1.2.3"
+repository = "https://github.com/tcdi/plrust"
+license = "PostgreSQL"
+description = "A Rust procedural language handler for PostgreSQL."
+homepage = "https://www.tcdi.com/"
+documentation = "https://tcdi.github.io/plrust/"
+categories = ["procedural_languages"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+	cd ~/.cargo/bin
+	pwd
+	ls -la	
+	mv /app/plrust/build/bin/plrustc ~/.cargo/bin/
+	cd /app/plrust/plrust
+	PG_VER=15
+	STD_TARGETS="x86_64-postgres-linux-gnu "
+	./build
+"""
+
+#    cd plrust cargo pgrx install --release --features trusted -c /usr/bin/pg_config
+#    mv target/release/pgml-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+#    mv target/release/pgml-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
