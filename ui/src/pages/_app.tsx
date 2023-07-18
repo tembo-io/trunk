@@ -11,6 +11,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
+        <script defer data-domain="pgt.dev" src="https://plausible.io/js/script.js"></script>
       </Head>
       <main className={`${plex_mono.variable} ${inter.variable}`}>
         <Component {...pageProps} />
