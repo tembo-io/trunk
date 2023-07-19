@@ -1,5 +1,5 @@
 [extension]
-name = "pgsql-http"
+name = "pgsql_http"
 version = "1.5.0"
 repository = "https://github.com/pramsey/pgsql-http"
 license = "MIT"
