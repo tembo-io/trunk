@@ -20,6 +20,7 @@ RUN git clone https://github.com/hydradatabase/hydra
 
 ARG PG_VERSION=15
 
-RUN cd hydra/columnar && \
+RUN cd hydra/columnar &&  \
+    git checkout 0.3.0-alpha && \
     make
 
