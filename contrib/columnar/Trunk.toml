@@ -2,12 +2,11 @@
 name = "hydra_columnar"
 version = "0.3.0-alpha"
 repository = "https://github.com/hydradatabase/hydra"
-
-license = "MIT"
-description = "PostgreSQL plain credential checker"
-homepage = "https://www.migops.com/"
+license = "GNU AGPL"
+description = "Columnar storage for Postgres"
+homepage = "https://www.hydra.so"
 documentation = "https://github.com/hydradatabase/hydra"
-categories = ["tooling_admin"]
+categories = ["analytics"]
 
 [build]
 postgres_version = "15"
