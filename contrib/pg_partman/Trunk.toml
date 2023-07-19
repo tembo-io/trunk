@@ -1,0 +1,19 @@
+[extension]
+name = "pg_partman"
+version = "4.7.3"
+repository = "https://github.com/pgpartman/pg_partman"
+license = "PostgreSQL"
+description = "Extension to manage partitioned tables by time or ID."
+documentation = "https://github.com/pgpartman/pg_partman"
+categories = ["orchestration"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_partman && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
