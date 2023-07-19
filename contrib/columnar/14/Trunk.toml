@@ -1,6 +1,6 @@
 [extension]
 name = "hydra_columnar"
-version = "0.3.0-alpha"
+version = "0.3.0"
 repository = "https://github.com/hydradatabase/hydra"
 license = "GNU AGPL"
 description = "Columnar storage for Postgres"
@@ -9,7 +9,7 @@ documentation = "https://github.com/hydradatabase/hydra"
 categories = ["analytics"]
 
 [build]
-postgres_version = "15"
+postgres_version = "14"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
