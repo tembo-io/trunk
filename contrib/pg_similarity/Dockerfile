@@ -7,6 +7,4 @@ RUN git clone https://github.com/eulerto/pg_similarity.git
 ARG RELEASE=master
 
 RUN cd pg_similarity && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
     make
