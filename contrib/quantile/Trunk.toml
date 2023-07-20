@@ -2,7 +2,7 @@
 name = "quantile"
 version = "1.1.7"
 repository = "https://github.com/tvondra/quantile"
-license = "Copyright"
+license = "BSD-2-Clause"
 description = "This extension provides three simple aggregate functions to compute quantiles."
 documentation = "https://github.com/tvondra/quantile"
 categories = ["analytics"]
