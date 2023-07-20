@@ -1,0 +1,19 @@
+[extension]
+name = "quantile"
+version = "1.1.7"
+repository = "https://github.com/tvondra/quantile"
+license = "Copyright"
+description = "This extension provides three simple aggregate functions to compute quantiles."
+documentation = "https://github.com/tvondra/quantile"
+categories = ["analytics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd quantile && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
