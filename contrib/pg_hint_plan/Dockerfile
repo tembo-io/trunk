@@ -2,11 +2,11 @@ ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 # Clone repository
-RUN git clone https://github.com/RafiaSabih/pg_mon.git
+RUN git clone https://github.com/ossc-db/pg_hint_plan.git
 
-ARG RELEASE=master
+ARG RELEASE=REL15_1_5_0
 
-RUN cd pg_mon && \
+RUN cd pg_hint_plan && \
     git fetch origin ${RELEASE} && \
     git checkout ${RELEASE} && \
     make

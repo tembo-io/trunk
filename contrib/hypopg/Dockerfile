@@ -2,11 +2,11 @@ ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 # Clone repository
-RUN git clone https://github.com/RafiaSabih/pg_mon.git
+RUN git clone https://github.com/HypoPG/hypopg.git
 
-ARG RELEASE=master
+ARG RELEASE=1.4.0
 
-RUN cd pg_mon && \
+RUN cd hypopg && \
     git fetch origin ${RELEASE} && \
     git checkout ${RELEASE} && \
     make
