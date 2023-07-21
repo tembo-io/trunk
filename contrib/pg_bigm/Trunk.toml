@@ -1,0 +1,20 @@
+[extension]
+name = "pg_bigm"
+version = "1.2.0"
+repository = "https://github.com/pgbigm/pg_bigm"
+license = "PostgreSQL"
+description = "This module allows a user to create 2-gram (bigram) index for faster full text search."
+homepage = "https://pgbigm.osdn.jp/index_en.html"
+documentation = "https://pgbigm.osdn.jp/index_en.html#document"
+categories = ["index_table_optimizations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pg_bigm && make USE_PGXS=1 install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
