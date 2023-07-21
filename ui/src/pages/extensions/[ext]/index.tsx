@@ -115,10 +115,6 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
               <span className={styles.infoTitle}>License</span>
               <span className={styles.infoValue}>{latestVersion.license}</span>
             </div>
-            <div className={styles.infoRow}>
-              <span className={styles.infoTitle}>Owner</span>
-              <span className={styles.infoValue}>{latestVersion.owners[0].userName}</span>
-            </div>
             <div className={styles.buttonLinkCont}>
               {latestVersion.homepage && (
                 <a href={latestVersion.homepage} target="_blank" className={styles.buttonLink}>
