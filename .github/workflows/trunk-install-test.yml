@@ -40,11 +40,11 @@ jobs:
           failures=()
           for line in $lines
           do
-                if [[ line == *"ERROR"* ]]; then
-                        failures+=("line")
+                if [[ $line == *"ERROR"* ]]; then
+                        failures+=("$line")
                 fi
           done
-          echo "FAILURES: \n$failures"
+          echo "FAILURES: \n"
           for failure in "${failures[@]}"
           do
                 echo $failure
