@@ -37,7 +37,7 @@ jobs:
           trunk-install.sh | tee /tmp/output.txt
           file='/tmp/output.txt'
           lines=$(cat $file)
-          failures=()
+          failures=("")
           for line in $lines
           do
                 if [[ $line == *"ERROR"* ]]; then
