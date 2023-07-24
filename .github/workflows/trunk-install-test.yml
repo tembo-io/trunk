@@ -35,5 +35,19 @@ jobs:
           sleep 5
           curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > /tmp/extensions.txt
           trunk-install.sh | tee /tmp/output.txt
+          file='/tmp/output.txt'
+          lines=$(cat $file)
+          failures=()
+          for line in $lines
+          do
+                if [[ line == *"ERROR"* ]]; then
+                        failures+=("line")
+                fi
+          done
+          echo "FAILURES: \n$failures"
+          for failure in "${failures[@]}"
+          do
+                echo $failure
+          done
 #          grep -q ERROR /tmp/output.txt
 #          if [ $? -eq 1 ] ; then exit 1 ; else echo nope ; fi
