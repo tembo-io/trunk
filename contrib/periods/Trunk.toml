@@ -3,7 +3,7 @@ name = "periods"
 version = "1.2.0"
 repository = "https://github.com/xocolatl/periods"
 license = "PostgreSQL"
-description = "his extension recreates the behavior defined in SQL:2016 (originally in SQL:2011) around periods and tables with SYSTEM VERSIONING."
+description = "This extension recreates the behavior defined in SQL:2016 (originally in SQL:2011) around periods and tables with SYSTEM VERSIONING."
 documentation = "https://github.com/xocolatl/periods"
 categories = ["data_transformations"]
 
