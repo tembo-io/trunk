@@ -72,6 +72,7 @@ RUN mkdir -p /usr/share/postgresql/${PG_MAJOR}/extension && chmod 775 /usr/share
 RUN chown -R postgres:postgres /usr/lib/postgresql/${PG_MAJOR} /usr/share/postgresql/extension
 COPY docker-entrypoint.sh /usr/local/bin/
 COPY trunk-install.sh /usr/local/bin/
+COPY results.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER postgres

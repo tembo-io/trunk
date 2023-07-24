@@ -17,7 +17,7 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
-    container: quay.io/tembo/trunk-test:5267ea9
+    container: quay.io/tembo/trunk-test:0.0.5
     env:
       PGHOST: "localhost"
       PGPORT: "5432"
@@ -35,19 +35,6 @@ jobs:
           sleep 5
           curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > /tmp/extensions.txt
           trunk-install.sh | tee /tmp/output.txt
-          file='/tmp/output.txt'
-          lines=$(cat $file)
-          failures=("")
-          for line in $lines
-          do
-                if [[ $line == *"ERROR"* ]]; then
-                        failures+=("$line")
-                fi
-          done
-          echo "FAILURES: \n"
-          for failure in "${failures[@]}"
-          do
-                echo $failure
-          done
+          results.sh
 #          grep -q ERROR /tmp/output.txt
 #          if [ $? -eq 1 ] ; then exit 1 ; else echo nope ; fi
