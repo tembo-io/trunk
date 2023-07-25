@@ -424,6 +424,72 @@
     },
     "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)\n                    "
   },
+  "48a96a05f91d89cfd30f0cd3b119f0690a53d71d82ad9d40a5b0a07941fc31c9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "downloads",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "description",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "homepage",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "documentation",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "repository",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM extensions"
+  },
   "49a41631cfe21efe58022e6e4026e6f3d388d8bb12ac478dbf30addab78d430e": {
     "describe": {
       "columns": [
@@ -673,11 +739,6 @@
           "name": "links",
           "ordinal": 12,
           "type_info": "Varchar"
-        },
-        {
-          "name": "postgres_version",
-          "ordinal": 13,
-          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -693,8 +754,7 @@
         true,
         true,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
@@ -704,72 +764,6 @@
       }
     },
     "query": "SELECT *\n                FROM versions\n                WHERE \n                    extension_id = $1\n                    and num = $2"
-  },
-  "7cc69acf039075253b7224f17a7038e9f25d9974875b2d0d3c75983afc2c77fb": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "downloads",
-          "ordinal": 4,
-          "type_info": "Int4"
-        },
-        {
-          "name": "description",
-          "ordinal": 5,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "homepage",
-          "ordinal": 6,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "documentation",
-          "ordinal": 7,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "repository",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "SELECT * FROM extensions order by name asc"
   },
   "7d372fca1ed8b3cd12573033e0329361636b95ffb41b9e13be2844755ab37a75": {
     "describe": {
@@ -838,11 +832,6 @@
           "name": "links",
           "ordinal": 12,
           "type_info": "Varchar"
-        },
-        {
-          "name": "postgres_version",
-          "ordinal": 13,
-          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -858,8 +847,7 @@
         true,
         true,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
