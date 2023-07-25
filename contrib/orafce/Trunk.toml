@@ -1,0 +1,19 @@
+[extension]
+name = "orafce"
+version = "4.4.0"
+repository = "https://github.com/orafce/orafce"
+license = "0BSD"
+description = "Functions and operators that emulate a subset of functions and packages from the Oracle RDBMS."
+documentation = "https://github.com/orafce/orafce"
+categories = ["connectors"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd orafce && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
