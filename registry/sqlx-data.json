@@ -673,11 +673,6 @@
           "name": "links",
           "ordinal": 12,
           "type_info": "Varchar"
-        },
-        {
-          "name": "postgres_version",
-          "ordinal": 13,
-          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -693,8 +688,7 @@
         true,
         true,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
@@ -838,11 +832,6 @@
           "name": "links",
           "ordinal": 12,
           "type_info": "Varchar"
-        },
-        {
-          "name": "postgres_version",
-          "ordinal": 13,
-          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -858,8 +847,7 @@
         true,
         true,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
