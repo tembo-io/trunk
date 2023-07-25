@@ -1,0 +1,19 @@
+[extension]
+name = "pgcozy"
+version = "1.0.0"
+repository = "https://github.com/vventirozos/pgcozy"
+license = "PostgreSQL"
+description = "Extension for pre-warming shared buffers according to previous pg_buffercache snapshots for PostgreSQL."
+documentation = "https://github.com/vventirozos/pgcozy"
+categories = ["index_table_optimizations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgcozy && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
