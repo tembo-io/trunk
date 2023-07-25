@@ -87,7 +87,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
       </div>
       <div className={styles.container}>
         {readme && (
-          <div className={styles.markdownCont}>
+          <div className={styles.markdownCont} style={{ maxWidth: "70%" }}>
             {/* <div className={cx("markdown-body", styles.markdown)}>hi</div> */}
             <ReactMarkdown className={cx("markdown-body", styles.markdown)} rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
               {readme}
