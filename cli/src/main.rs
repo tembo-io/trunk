@@ -23,6 +23,7 @@ enum SubCommands {
     Build(commands::build::BuildCommand),
     Publish(commands::publish::PublishCommand),
     Install(commands::install::InstallCommand),
+    Test(commands::test::TestCommand),
 }
 
 #[async_trait]
@@ -32,6 +33,7 @@ impl SubCommand for SubCommands {
             SubCommands::Build(cmd) => cmd.execute(task).await,
             SubCommands::Publish(cmd) => cmd.execute(task).await,
             SubCommands::Install(cmd) => cmd.execute(task).await,
+            SubCommands::Test(cmd) => cmd.execute(task).await,
         }
     }
 }
