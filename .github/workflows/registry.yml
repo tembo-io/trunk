@@ -49,11 +49,11 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v3
-      - name: Install minimal nightly with clippy and rustfmt
+      - name: Install minimal stable with clippy and rustfmt
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: stable
           components: rustfmt, clippy
       - name: Install system dependencies
         run: |
@@ -65,7 +65,7 @@ jobs:
         with:
           prefix-key: "lint"
       - name: Cargo format
-        run: cargo +nightly fmt --all --check
+        run: cargo fmt --all --check
       - name: Run migrations
         run: cargo sqlx migrate run
       - name: Migrations check
