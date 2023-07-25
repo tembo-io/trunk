@@ -15,9 +15,9 @@ do
 done
 failure_count=${#failed_extensions[@]}
 percent=$(awk "BEGIN { pc=100*${failure_count}/${extension_count}; i=int(pc); print (pc-i<0.5)?i:i+1 }")
-printf "*** FAILURE COUNT ***: \n"
+printf "***FAILURE COUNT***\n"
 echo "$failure_count / $extension_count ($percent%)"
-printf "\n\n*** FAILED EXTENSIONS ***:\n"
+printf "\n\n***FAILED EXTENSIONS***\n"
 for failed in "${failed_extensions[@]}"
 do
       echo $failed
