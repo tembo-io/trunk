@@ -1,0 +1,19 @@
+[extension]
+name = "weighted_mean"
+version = "1.0.1"
+repository = "https://github.com/Kozea/weighted_mean"
+license = "Copyright"
+description = "A simple weighted mean aggregate function for postgresql."
+documentation = "https://github.com/Kozea/weighted_mean"
+categories = ["analytics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd weighted_mean && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
