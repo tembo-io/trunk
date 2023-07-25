@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import styles from "./extension.module.scss";
 import cx from "classnames";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from 'rehype-raw'
 
 import { truncate } from "@/stringHelpers";
 import { formatDateString } from "@/formatDate";
@@ -88,7 +89,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
         {readme && (
           <div className={styles.markdownCont}>
             {/* <div className={cx("markdown-body", styles.markdown)}>hi</div> */}
-            <ReactMarkdown className={cx("markdown-body", styles.markdown)} remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown className={cx("markdown-body", styles.markdown)} rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
               {readme}
             </ReactMarkdown>
           </div>
