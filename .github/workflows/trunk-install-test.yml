@@ -17,7 +17,7 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
-    container: quay.io/tembo/trunk-test:0.0.6
+    container: quay.io/tembo/trunk-test:0.0.7
     env:
       PGHOST: "localhost"
       PGPORT: "5432"
@@ -35,6 +35,5 @@ jobs:
           sleep 5
           curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > /tmp/extensions.txt
           trunk-install.sh | tee /tmp/output.txt
-#          results.sh
 #          grep -q ERROR /tmp/output.txt
 #          if [ $? -eq 1 ] ; then exit 1 ; else echo nope ; fi

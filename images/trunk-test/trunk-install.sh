@@ -2,6 +2,7 @@
 failure_count=0
 failed_extensions=()
 file='/tmp/extensions.txt'
+extension_count=$(<$file wc -l)
 lines=$(cat $file)
 for line in $lines
 do
@@ -14,8 +15,8 @@ do
         fi
         printf "\n\n"
 done
-echo "*** FAILURE COUNT ***: $failure_count"
-printf "\n*** FAILED EXTENSIONS ***:\n"
+printf "*** FAILURE COUNT ***: \n$failure_count / $extension_count"
+printf "\n\n*** FAILED EXTENSIONS ***:\n"
 for failed in "${failed_extensions[@]}"
 do
       echo $failed
