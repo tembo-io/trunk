@@ -1,0 +1,19 @@
+[extension]
+name = "pg_dbms_job"
+version = "1.5.0"
+repository = "https://github.com/MigOpsRepos/pg_dbms_job"
+license = "PostgreSQL"
+description = "Extension to add Oracle DBMS_JOB full compatibility to PostgreSQL."
+documentation = "https://github.com/MigOpsRepos/pg_dbms_job"
+categories = ["orchestration"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_dbms_job && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
