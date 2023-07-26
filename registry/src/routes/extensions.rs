@@ -5,13 +5,14 @@ use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use crate::extensions::{add_extension_owner, check_input, extension_owners, latest_license};
+use crate::repository::Repository;
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
 use crate::views::user_info::UserInfo;
 use actix_multipart::Multipart;
 use actix_web::http::header::AUTHORIZATION;
-use actix_web::{error, get, post, web, HttpResponse};
+use actix_web::{delete, error, get, post, web, HttpResponse};
 use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
@@ -348,6 +349,7 @@ pub async fn get_version_history(
     let rows = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1", id)
         .fetch_all(&mut tx)
         .await?;
+
     for row in rows.iter() {
         let data = json!(
         {
@@ -369,4 +371,23 @@ pub async fn get_version_history(
     // Return results in response
     let json = serde_json::to_string_pretty(&versions)?;
     Ok(HttpResponse::Ok().body(json))
+}
+
+#[delete("/extensions/{extension_name}")]
+pub async fn delete_extension(
+    repo: web::Data<Repository>,
+    path: web::Path<String>,
+    // TODO(vrmiguel): auth
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    let ext_name = path.into_inner();
+
+    let extension_id = repo
+        .extension_id(&ext_name)
+        .await?
+        .ok_or(ExtensionRegistryError::ResourceNotFound)?;
+
+    // Remove all information related to this extension
+    repo.purge_extension(extension_id).await?;
+
+    Ok(HttpResponse::Ok().finish())
 }
