@@ -1,6 +1,6 @@
 [extension]
 name = "pg_qualstats"
-version = "2.1.0"
+version = "2.0.4"
 repository = "https://github.com/powa-team/pg_qualstats"
 license = "Copyright"
 description = "pg_qualstats is a PostgreSQL extension keeping statistics on predicates found in WHERE statements and JOIN clauses."
