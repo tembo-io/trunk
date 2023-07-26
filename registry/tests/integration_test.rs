@@ -3,17 +3,14 @@ use actix_web::{web, App};
 #[cfg(test)]
 mod tests {
     use super::*;
-    use actix_web::body::{to_bytes, BoxBody, MessageBody};
+    use actix_web::body::to_bytes;
     use actix_web::test;
     use actix_web::web::Bytes;
-    use futures::FutureExt;
-    use log::debug;
-    use serde_json::json;
     use sqlx;
     use trunk_registry::connect;
     use trunk_registry::routes::categories::get_all_categories;
     use trunk_registry::routes::download::download;
-    use trunk_registry::routes::extensions::{get_all_extensions, get_version_history};
+    use trunk_registry::routes::extensions::get_all_extensions;
     use trunk_registry::routes::root::ok;
     use trunk_registry::routes::token::new_token;
     use trunk_registry::token::check_token_input;

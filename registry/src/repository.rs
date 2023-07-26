@@ -7,6 +7,9 @@ use crate::{conn_options, errors};
 /// Queries related to removing an extension from the DB
 mod remove_extension;
 
+/// Queries related to adding or altering categories
+mod category;
+
 /// Abstracts over database interactions
 #[derive(Clone)]
 pub struct Repository {
@@ -47,7 +50,11 @@ impl Repository {
         self.drop_extension_owner(extension_id as i32).await?;
 
         // Remove what categories this extension used to be in
-        self.drop_extension_category(extension_id as i32).await?;
+        let affected_categories = self.drop_extension_category(extension_id as i32).await?;
+
+        for category_id in affected_categories {
+            self.decrease_extension_count(category_id as i64).await?;
+        }
 
         Ok(())
     }
