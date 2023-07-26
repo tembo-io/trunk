@@ -1,0 +1,20 @@
+[extension]
+name = "pg_permissions"
+version = "1.1.0"
+repository = "https://github.com/cybertec-postgresql/pg_permissions"
+license = "Copyright"
+description = "A simple set of views to see ALL permissions in a PostgreSQL database."
+homepage = "https://www.cybertec-postgresql.com/en/"
+documentation = "https://github.com/cybertec-postgresql/pg_permissions"
+categories = ["tooling_admin"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_permissions && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

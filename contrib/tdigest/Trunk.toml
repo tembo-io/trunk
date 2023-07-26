@@ -1,0 +1,19 @@
+[extension]
+name = "tdigest"
+version = "1.4.0"
+repository = "https://github.com/tvondra/tdigest"
+license = "PostgreSQL"
+description = "PostgreSQL extension for estimating percentiles using t-digest."
+documentation = "https://github.com/tvondra/tdigest"
+categories = ["analytics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd tdigest && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

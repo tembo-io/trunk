@@ -1,0 +1,19 @@
+[extension]
+name = "pg_financial"
+version = "1.0.1"
+repository = "https://github.com/intgr/pg_financial"
+license = "PostgreSQL"
+description = "PostgreSQL extension with functions and aggregates for financial calculations."
+documentation = "https://github.com/intgr/pg_financial"
+categories = ["analytics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_financial && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
