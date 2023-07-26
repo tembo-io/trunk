@@ -5,6 +5,7 @@ use actix_web::http::header::ToStrError;
 use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::put_object::PutObjectError;
 use std::str::Utf8Error;
+use std::string::FromUtf8Error;
 use thiserror::Error;
 use url::ParseError;
 
@@ -65,4 +66,10 @@ pub enum ExtensionRegistryError {
 
     #[error("to str error: {0}")]
     ToStrError(#[from] ToStrError),
+
+    #[error("failed to convert bytes to UTF-8: {0}")]
+    Utf8Error(#[from] FromUtf8Error),
+
+    #[error("received malformed JWT")]
+    MalformedJwt,
 }
