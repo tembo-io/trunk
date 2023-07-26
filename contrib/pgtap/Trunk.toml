@@ -1,6 +1,6 @@
 [extension]
 name = "pgtap"
-version = "1.2.1"
+version = "1.2.0"
 repository = "https://github.com/theory/pgtap"
 license = "Copyright"
 description = "Unit testing for PostgreSQL."
