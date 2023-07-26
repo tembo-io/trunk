@@ -53,7 +53,7 @@ fn b64_decode(b64_encoded: &str) -> Result<String, ExtensionRegistryError> {
     let bytes = general_purpose::URL_SAFE_NO_PAD
         .decode(b64_encoded)
         .map_err(|_| ExtensionRegistryError::TokenError("invalid base64".to_owned()))?;
-    Ok(std::str::from_utf8(&bytes)?.to_owned())
+    Ok(String::from_utf8(bytes)?)
 }
 
 pub fn decode_claims(jwt: &str) -> Result<Claims, ExtensionRegistryError> {
