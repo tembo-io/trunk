@@ -1,0 +1,19 @@
+[extension]
+name = "pglogical_ticker"
+version = "1.4.1"
+repository = "https://github.com/enova/pglogical_ticker"
+license = "MIT"
+description = "Time-based replication delay for pglogical."
+documentation = "https://github.com/enova/pglogical_ticker"
+categories = ["change_data_capture"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pglogical_ticker && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
