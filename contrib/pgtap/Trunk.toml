@@ -1,0 +1,20 @@
+[extension]
+name = "pgtap"
+version = "1.2.1"
+repository = "https://github.com/theory/pgtap"
+license = "Copyright"
+description = "Unit testing for PostgreSQL."
+homepage = "https://pgtap.org/"
+documentation = "https://pgtap.org/documentation.html"
+categories = ["tooling_admin"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgtap && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
