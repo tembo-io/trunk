@@ -41,7 +41,7 @@ pub async fn new_token(
             ",
         claims.sub,
         claims.userName,
-        token_sha
+        &token_sha
     )
     .execute(&mut tx)
     .await?;
