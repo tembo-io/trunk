@@ -4,7 +4,7 @@ FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 # Clone repository
 RUN git clone https://github.com/powa-team/pg_qualstats.git
 
-ARG RELEASE=master
+ARG RELEASE=2.0.4
 
 RUN cd pg_qualstats && \
     git fetch origin ${RELEASE} && \
