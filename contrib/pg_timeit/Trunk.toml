@@ -1,0 +1,19 @@
+[extension]
+name = "pg_timeit"
+version = "1.0.0"
+repository = "https://github.com/joelonsql/pg-timeit"
+license = "MIT"
+description = "PostgreSQL extension that provides high-accuracy timing of SQL expressions."
+documentation = "https://github.com/joelonsql/pg-timeit"
+categories = ["metrics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg-timeit && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
