@@ -1,0 +1,20 @@
+[extension]
+name = "pg_ivm"
+version = "1.5.0"
+repository = "https://github.com/sraoss/pg_ivm"
+license = "PostgreSQL"
+description = "IVM (Incremental View Maintenance) implementation as a PostgreSQL extension"
+homepage = "https://www.sraoss.co.jp/index_en/"
+documentation = "https://github.com/sraoss/pg_ivm"
+categories = ["change_data_capture"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_ivm && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
