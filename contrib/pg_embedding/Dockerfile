@@ -28,4 +28,5 @@ RUN cd postgres && \
 	cd contrib && \
 	git clone https://github.com/neondatabase/pg_embedding.git && \
 	cd pg_embedding && \
+    git checkout 710f44d && \
 	make USE_PGXS=1
