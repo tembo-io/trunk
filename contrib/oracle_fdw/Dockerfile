@@ -34,12 +34,12 @@ RUN mkdir /opt/oracle && \
 # Clone repository
 RUN git clone https://github.com/postgres/postgres.git
 
-ARG PG_VERSION=15
+ARG PG_RELEASE=REL_15_3
 
 # Build extension
 RUN cd postgres && \
-	git fetch origin REL_${PG_VERSION}_STABLE && \
-	git checkout REL_${PG_VERSION}_STABLE && \
+	git fetch origin ${PG_RELEASE} && \
+	git checkout ${PG_RELEASE} && \
 	./configure --without-ldap && \
 	cd contrib && \
 	git clone https://github.com/laurenz/oracle_fdw.git && \
