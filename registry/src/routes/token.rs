@@ -57,9 +57,11 @@ fn b64_decode(b64_encoded: &str) -> Result<String, ExtensionRegistryError> {
 }
 
 pub fn decode_claims(jwt: &str) -> Result<Claims, ExtensionRegistryError> {
-    let parts: Vec<&str> = jwt.split('.').collect();
-    let payload = parts[1];
+    let mut parts = jwt.split('.');
+    let payload = parts.nth(1).ok_or(ExtensionRegistryError::MalformedJwt)?;
+
     let decoded_payload = b64_decode(payload)?;
     let claims: Claims = serde_json::from_str(&decoded_payload)?;
+
     Ok(claims)
 }
