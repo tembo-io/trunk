@@ -1,0 +1,19 @@
+[extension]
+name = "postgresql_unit"
+version = "7.0.0"
+repository = "https://github.com/df7cb/postgresql-unit"
+license = "Copyright"
+description = "SI Units for PostgreSQL."
+documentation = "https://github.com/df7cb/postgresql-unit"
+categories = ["analytics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgresql-unit && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
