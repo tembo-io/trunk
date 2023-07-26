@@ -1,6 +1,6 @@
 [extension]
 name = "supautils"
-version = "0.1.0"
+version = "1.7.3"
 repository = "https://github.com/supabase/supautils"
 license = "Apache-2.0"
 description = "PostgreSQL extension that prevents doing ALTER/DROP/GRANT on a set of reserved roles."
