@@ -291,7 +291,7 @@ pub async fn get_all_extensions(
 
     // Create a database transaction
     let mut tx = conn.begin().await?;
-    let rows = sqlx::query!("SELECT * FROM extensions")
+    let rows = sqlx::query!("SELECT * FROM extensions order by name asc")
         .fetch_all(&mut tx)
         .await?;
     for row in rows.iter() {
