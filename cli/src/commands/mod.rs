@@ -9,6 +9,7 @@ pub mod install;
 pub mod license;
 mod pgrx;
 pub mod publish;
+pub mod search;
 pub mod test;
 
 #[async_trait]

@@ -28,6 +28,8 @@ enum SubCommands {
     Install(commands::install::InstallCommand),
     /// Test a Postgres extension (coming soon)
     Test(commands::test::TestCommand),
+    /// Search for an extension
+    Search(commands::search::SearchCommand),
 }
 
 #[async_trait]
@@ -38,6 +40,7 @@ impl SubCommand for SubCommands {
             SubCommands::Publish(cmd) => cmd.execute(task).await,
             SubCommands::Install(cmd) => cmd.execute(task).await,
             SubCommands::Test(cmd) => cmd.execute(task).await,
+            SubCommands::Search(cmd) => cmd.execute(task).await,
         }
     }
 }
