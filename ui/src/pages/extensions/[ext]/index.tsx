@@ -168,8 +168,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
       const extRes = await fetch(`https://registry.pgtrunk.io/extensions/detail/${params.ext}`);
       extension = await extRes.json();
     } catch (error) {
-      console.log("********** ERROR FETCHING DETAIL FROM TRUNK **********", params.ext);
-      extension = null;
+      return Promise.reject(Error(`Failed to fetch '${params.ext}' from Trunk: ${error}`));
     }
     const latestVersion: Extension = extension ? extension[extension.length - 1] : null;
     if (extension && latestVersion?.repository && latestVersion.repository.includes("github.com")) {
@@ -192,8 +191,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
         const repoJson = repoRes ? await repoRes.json() : null;
         repoDescription = repoJson?.description ?? "";
       } catch (error: any) {
-        console.log("********** ERROR FETCHING REPO **********", error.message, repo);
-        repoRes = null;
+        return Promise.reject(Error(`Failed to fetch repository '${repo}' from GitHub: ${error.message}`));
       }
 
       try {
@@ -204,8 +202,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
         });
         readmeJson = await readmeRes.json();
       } catch (error: any) {
-        readme = "";
-        console.log("********** README FETCH ERROR **********", error.message, githubReadmeUrl);
+        return Promise.reject(Error(`Failed to fetch README at '${githubReadmeUrl}': ${error.message}`));
       }
 
       try {
@@ -222,7 +219,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
             readme = readmeJson ? Buffer.from(readmeJson.content, "base64").toString("utf-8") : "";
           }
         } catch (error: any) {
-          console.log("********** README PARSE ERROR **********", error.message, githubReadmeUrl);
+          return Promise.reject(Error(`Failed to parse README at '${githubReadmeUrl}': ${error.message}`));
         }
       }
     }
