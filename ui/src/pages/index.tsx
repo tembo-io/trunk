@@ -14,25 +14,54 @@ export const getStaticProps: GetStaticProps<{
     const catRes = await fetch("https://registry.pgtrunk.io/categories/all");
     const extRes = await fetch("https://registry.pgtrunk.io/extensions/all");
 
+    // 🐈‍
     const cats: Category[] = await catRes.json();
     const exts: Extension[] = await extRes.json();
 
-    console.log("********** GOT EXT IN INDEX!!!!! **********", exts.length);
+    console.log(`info: Got ${exts.length} extensions in index.tsx`);
 
-    const sortedData = cats.sort((a, b) => (a.name < b.name ? -1 : 1));
+    const sortedCategories = moveFeaturedCategoryToStart(cats.sort((a, b) => (a.name < b.name ? -1 : 1)));
+    const sortedExtensions = sortExtensionsByFeatured(exts);
 
     const categoriesForGrid: CategoriesForGrid = {};
     cats.forEach((cat: Category) => {
       categoriesForGrid[cat.slug] = { displayName: cat.name };
     });
 
-    return { props: { categories: sortedData, extensions: exts, categoriesForGrid } };
+    return { props: { categories: sortedCategories, extensions: sortedExtensions, categoriesForGrid } };
   } catch (error) {
     console.log("ERROR LOADING DATA: ", error);
 
     return { props: { categories: [], extensions: [], categoriesForGrid: {} } };
   }
 };
+
+// TODO(vrmiguel): find a way to do this in-place?
+function sortExtensionsByFeatured(extensions: Extension[]): Extension[] {
+  const featuredExtensions = extensions.filter(extension =>
+    extension.categories.includes('Featured')
+  );
+
+  console.log(`Featured: ${featuredExtensions}`);
+
+  const nonFeaturedExtensions = extensions.filter(
+    extension => !extension.categories.includes('Featured')
+  );
+
+  return [...featuredExtensions, ...nonFeaturedExtensions];
+}
+
+function moveFeaturedCategoryToStart(categories: Category[]): Category[] {
+  const featuredCategoryIndex = categories.findIndex(category => category.slug === 'featured');
+
+  if (featuredCategoryIndex !== -1) {
+    // Move it to the start of the array
+    const featuredCategory = categories.splice(featuredCategoryIndex, 1)[0];
+    categories.unshift(featuredCategory);
+  }
+
+  return categories;
+}
 
 export default function Home({
   categories,
