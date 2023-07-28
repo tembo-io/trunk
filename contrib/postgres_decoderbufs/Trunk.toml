@@ -1,0 +1,19 @@
+[extension]
+name = "postgres_decoderbufs"
+version = "1.7.0"
+repository = "https://github.com/debezium/postgres-decoderbufs"
+license = "MIT"
+description = "A PostgreSQL logical decoder output plugin to deliver data as Protocol Buffers."
+documentation = "https://github.com/debezium/postgres-decoderbufs"
+categories = ["change_data_capture"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres-decoderbufs && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
