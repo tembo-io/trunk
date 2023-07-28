@@ -87,7 +87,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
       </div>
       <div className={styles.container}>
         {readme && (
-          <div className={styles.markdownCont} style={{ maxWidth: "70%" }}>
+          <div className={styles.markdownCont} style={{ minWidth: "70%", maxWidth: "70%" }}>
             {/* <div className={cx("markdown-body", styles.markdown)}>hi</div> */}
             <ReactMarkdown className={cx("markdown-body", styles.markdown)} rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
               {readme}
@@ -156,13 +156,85 @@ export async function getStaticPaths() {
   }
 }
 
-export async function getStaticProps({ params }: { params: { ext: string } }) {
+async function getReadmeAndDescription(repositoryUrl: string): Promise<{ description: string, readme: string }> {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  const markdownRegex = /.*\.md/;
+  let readme;
+  let githubReadmeUrl;
+  let readmeFileName;
+  let readmeBase64Contents;
+  let description;
+  let isContrib = false;
+  
+  const noGh = repositoryUrl.split("https://github.com/")[1];
+  const split = noGh.split("/");
+  
+  if (split.length === 2) {
+    githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme`;
+  } else if (split[2] === "tree") {
+    isContrib = true;
+    githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme`;
+  } else {
+    githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme/${split[2]}`;
+  }
+
+  const githubRepoUrl = `https://api.github.com/repos/${split[0]}/${split[1]}`;  
+
+  const descriptionProm: Promise<{ description: string }> = fetch(githubRepoUrl, {
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+    },
+  }).then((resp) => resp.json());
+
+
+  const readmeProm: Promise<{ name: string, content: string }> = fetch(githubReadmeUrl, {
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+    },
+  }).then((resp) => resp.json());
+
+  if (!readmeFileName) {
+    console.log(`Undefined file name on ${repositoryUrl}`);
+  }
+
+  try {
+    const [descriptionJson, readmeJson] =  await Promise.all([descriptionProm, readmeProm]);
+    description = descriptionJson.description;
+    readmeFileName = readmeJson.name;
+    readmeBase64Contents = readmeJson.content;
+
+    // If this README is Markdown..
+    if(isContrib || markdownRegex.test(readmeFileName)) {
+      // Decode its base64 contents
+
+      readme = Buffer.from(readmeBase64Contents, "base64").toString("utf-8");
+    } else {
+      // Get the HTML-converted contents.
+      // With the `application/vnd.github.html` header,
+      // the GitHub API returns the README converted to
+      // HTML
+      const readmeRes = await fetch(githubReadmeUrl, {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.html"
+        },
+      });
+      readme = await readmeRes.text();
+    }
+  } catch (err) {
+    return Promise.reject(Error(`Fetching GitHub API failed: ${err}`));
+  }
+
+  return {
+    description,
+    readme,
+  }
+}
+
+export async function getStaticProps({ params }: { params: { ext: string } }) {
   let readme = "";
   let extension = null;
-  let repoRes = null;
   let repoDescription = "";
-  let readmeJson: { content: string } = { content: "" };
   try {
     try {
       const extRes = await fetch(`https://registry.pgtrunk.io/extensions/detail/${params.ext}`);
@@ -173,54 +245,14 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
     const latestVersion: Extension = extension ? extension[extension.length - 1] : null;
     if (extension && latestVersion?.repository && latestVersion.repository.includes("github.com")) {
       const repo = latestVersion.repository;
-      const noGh = repo.split("https://github.com/")[1];
-      const split = noGh.split("/");
-      const githubReadmeUrl =
-        split.length === 2
-          ? `https://api.github.com/repos/${split[0]}/${split[1]}/readme`
-          : `https://api.github.com/repos/${split[0]}/${split[1]}/readme/${split[2]}`;
-
-      const githubRepoUrl = `https://api.github.com/repos/${split[0]}/${split[1]}`;
 
       try {
-        repoRes = await fetch(githubRepoUrl, {
-          headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-          },
-        });
-        const repoJson = repoRes ? await repoRes.json() : null;
-        repoDescription = repoJson?.description ?? "";
-      } catch (error: any) {
-        return Promise.reject(Error(`Failed to fetch repository '${repo}' from GitHub: ${error.message}`));
-      }
-
-      try {
-        const readmeRes = await fetch(githubReadmeUrl, {
-          headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-          },
-        });
-        readmeJson = await readmeRes.json();
-      } catch (error: any) {
-        return Promise.reject(Error(`Failed to fetch README at '${githubReadmeUrl}': ${error.message}`));
-      }
-
-      try {
-        readme = readmeJson ? Buffer.from(readmeJson.content, "base64").toString("utf-8") : "";
-      } catch (error: any) {
-        try {
-          if (split[2] === "tree") {
-            const readmeRes = await fetch(`https://api.github.com/repos/${split[0]}/${split[1]}/readme`, {
-              headers: {
-                Authorization: `token ${GITHUB_TOKEN}`,
-              },
-            });
-            readmeJson = await readmeRes.json();
-            readme = readmeJson ? Buffer.from(readmeJson.content, "base64").toString("utf-8") : "";
-          }
-        } catch (error: any) {
-          return Promise.reject(Error(`Failed to parse README at '${githubReadmeUrl}': ${error.message}`));
-        }
+        const apiJson = await getReadmeAndDescription(repo);
+        readme = apiJson.readme;
+        repoDescription = apiJson.description;
+      } catch (err) {
+        console.log(`getReadme failed: ${err}`);
+        return Promise.reject(Error(`getReadmeAndDescription failed: ${err}`));
       }
     }
 
