@@ -87,7 +87,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
       </div>
       <div className={styles.container}>
         {readme && (
-          <div className={styles.markdownCont} style={{ maxWidth: "70%" }}>
+          <div className={styles.markdownCont} style={{ minWidth: "70%", maxWidth: "70%" }}>
             {/* <div className={cx("markdown-body", styles.markdown)}>hi</div> */}
             <ReactMarkdown className={cx("markdown-body", styles.markdown)} rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
               {readme}
@@ -160,16 +160,23 @@ async function getReadmeAndDescription(repositoryUrl: string): Promise<{ descrip
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   const markdownRegex = /.*\.md/;
   let readme;
+  let githubReadmeUrl;
   let readmeFileName;
   let readmeBase64Contents;
   let description;
+  let isContrib = false;
   
   const noGh = repositoryUrl.split("https://github.com/")[1];
   const split = noGh.split("/");
-  const githubReadmeUrl =
-    split.length === 2
-      ? `https://api.github.com/repos/${split[0]}/${split[1]}/readme`
-      : `https://api.github.com/repos/${split[0]}/${split[1]}/readme/${split[2]}`;
+  
+  if (split.length === 2) {
+    githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme`;
+  } else if (split[2] === "tree") {
+    isContrib = true;
+    githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme`;
+  } else {
+    githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme/${split[2]}`;
+  }
 
   const githubRepoUrl = `https://api.github.com/repos/${split[0]}/${split[1]}`;  
 
@@ -195,29 +202,27 @@ async function getReadmeAndDescription(repositoryUrl: string): Promise<{ descrip
     description = descriptionJson.description;
     readmeFileName = readmeJson.name;
     readmeBase64Contents = readmeJson.content;
-  } catch (err) {
-    return Promise.reject(`Fetching GitHub API failed: {err}`);
-  }
 
-  // If this README is Markdown..
-  if(markdownRegex.test(readmeFileName)) {
-    // Decode its base64 contents
-    
-    console.log("It's Markdown!", readmeFileName);
-    readme = Buffer.from(readmeBase64Contents, "base64").toString("utf-8");
-  } else {
-    console.log("It's not Markdown!", readmeFileName);
-    // Get the HTML-converted contents.
-    // With the `application/vnd.github.html` header,
-    // the GitHub API returns the README converted to
-    // HTML
-    const readmeRes = await fetch(githubReadmeUrl, {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github.html"
-      },
-    });
-    readme = await readmeRes.text();
+    // If this README is Markdown..
+    if(isContrib || markdownRegex.test(readmeFileName)) {
+      // Decode its base64 contents
+
+      readme = Buffer.from(readmeBase64Contents, "base64").toString("utf-8");
+    } else {
+      // Get the HTML-converted contents.
+      // With the `application/vnd.github.html` header,
+      // the GitHub API returns the README converted to
+      // HTML
+      const readmeRes = await fetch(githubReadmeUrl, {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.html"
+        },
+      });
+      readme = await readmeRes.text();
+    }
+  } catch (err) {
+    return Promise.reject(Error(`Fetching GitHub API failed: ${err}`));
   }
 
   return {
@@ -247,6 +252,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
         repoDescription = apiJson.description;
       } catch (err) {
         console.log(`getReadme failed: ${err}`);
+        return Promise.reject(Error(`getReadmeAndDescription failed: ${err}`));
       }
     }
 
