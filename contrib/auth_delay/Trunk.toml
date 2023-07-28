@@ -1,6 +1,6 @@
 [extension]
 name = "auth_delay"
-version = "1.0.0"
+version = "15.3.0"
 repository = "https://github.com/postgres/postgres/tree/master/contrib/auth_delay"
 license = "PostgreSQL"
 description = "auth_delay causes the server to pause briefly before reporting authentication failure, to make brute-force attacks on database passwords more difficult."

@@ -48,6 +48,18 @@
     },
     "query": "SELECT * FROM categories"
   },
+  "00e47bbd59d3b7c8bf522874ee92efe5d929da89c7a810d6ecda63f91aace768": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "DELETE FROM extensions\n             WHERE id = $1"
+  },
   "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
     "describe": {
       "columns": [
@@ -919,5 +931,61 @@
       }
     },
     "query": "SELECT category_id FROM extensions_categories WHERE extension_id = $1"
+  },
+  "96580469248d5d6ece759276b0bf46cd3444339140cfac659388a846b1584402": {
+    "describe": {
+      "columns": [
+        {
+          "name": "category_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM extensions_categories\n                 WHERE extension_id = $1\n                 RETURNING category_id\n                 "
+  },
+  "a355d51ccf9b49a96bf62078f00fb982ba11a3026d8b9f120d948b6c5e40d317": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM versions\n             WHERE extension_id = $1"
+  },
+  "bdd38a42eae77d1ff93284a7a26973190408d533f19a7972bd9932c7204f5e33": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM extension_owners\n             WHERE extension_id = $1"
+  },
+  "f29a9769c67e94ef0eb534c3ea009496dc13426c6d46f545ada1f9ebc9def26b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "\n            UPDATE categories\n            SET extension_count = extension_count + 1\n            WHERE id = $1\n            "
   }
 }

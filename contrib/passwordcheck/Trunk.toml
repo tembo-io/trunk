@@ -1,6 +1,6 @@
 [extension]
 name = "passwordcheck"
-version = "1.0.0"
+version = "15.3.0"
 repository = "https://github.com/postgres/postgres/tree/master/contrib/passwordcheck"
 license = "PostgreSQL"
 description = "The passwordcheck module checks users' passwords whenever they are set with CREATE ROLE or ALTER ROLE."

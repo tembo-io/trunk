@@ -96,5 +96,6 @@ pub async fn get_extension_id(
     let id = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
         .fetch_one(conn.as_ref())
         .await?;
+
     Ok(id.id)
 }
