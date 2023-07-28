@@ -6,7 +6,7 @@ lines=$(cat $file)
 for line in $lines
 do
         trunk install $line
-        psql -c "create extension \"$line\" cascade;" | grep -i error | grep -v 'already exists' &> /dev/null
+        psql -c "create extension if not exists \"$line\" cascade;"
         if [ $? -ne 0 ]; then
             echo "CREATE EXTENSION command failed"
             failed_extensions+=("$line")
