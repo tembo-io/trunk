@@ -1,8 +1,8 @@
-use super::Repository;
+use super::Registry;
 
 type CategoryId = i32;
 
-impl Repository {
+impl Registry {
     /// Remove an entry from the `versions` table given the related extension ID
     pub async fn drop_extension_version(&self, extension_id: i32) -> Result<(), sqlx::Error> {
         sqlx::query!(

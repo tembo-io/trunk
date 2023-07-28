@@ -12,11 +12,11 @@ mod category;
 
 /// Abstracts over database interactions
 #[derive(Clone)]
-pub struct Repository {
+pub struct Registry {
     pool: Pool<Postgres>,
 }
 
-impl Repository {
+impl Registry {
     /// Connect to Postgres parsing URL options
     pub async fn connect(url: &str) -> Result<Self, errors::ExtensionRegistryError> {
         let options = conn_options(url)?;

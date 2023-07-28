@@ -1,6 +1,6 @@
-use super::Repository;
+use super::Registry;
 
-impl Repository {
+impl Registry {
     /// Increase the extension count for the given category
     pub async fn increase_extension_count(&self, category_id: i64) -> Result<(), sqlx::Error> {
         sqlx::query!(

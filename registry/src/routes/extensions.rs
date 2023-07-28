@@ -5,7 +5,7 @@ use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use crate::extensions::{add_extension_owner, check_input, extension_owners, latest_license};
-use crate::repository::Repository;
+use crate::repository::Registry;
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
@@ -375,19 +375,19 @@ pub async fn get_version_history(
 
 #[delete("/extensions/{extension_name}")]
 pub async fn delete_extension(
-    repo: web::Data<Repository>,
+    registry: web::Data<Registry>,
     path: web::Path<String>,
     // TODO(vrmiguel): auth
 ) -> Result<HttpResponse, ExtensionRegistryError> {
     let ext_name = path.into_inner();
 
-    let extension_id = repo
+    let extension_id = registry
         .extension_id(&ext_name)
         .await?
         .ok_or(ExtensionRegistryError::ResourceNotFound)?;
 
     // Remove all information related to this extension
-    repo.purge_extension(extension_id).await?;
+    registry.purge_extension(extension_id).await?;
 
     Ok(HttpResponse::Ok().finish())
 }
