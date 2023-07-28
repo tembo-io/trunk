@@ -1,0 +1,18 @@
+[extension]
+name = "pgmq"
+version = "0.10.0"
+repository = "https://github.com/tembo-io/pgmq"
+license = "PostgreSQL"
+description = "A lightweight distributed message queue."
+documentation = "https://github.com/tembo-io/pgmq"
+categories = ["orchestration"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgmq
+    mv target/release/pgmq-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/pgmq-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+    """
