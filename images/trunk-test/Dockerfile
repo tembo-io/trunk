@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     libpq-dev \
     wget \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 STOPSIGNAL SIGINT
@@ -48,11 +49,6 @@ RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
     apt-get update && \
     apt-get upgrade -y
-
-# Install postgres and some extensions
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
 
 # Install extension dependencies
 RUN apt-get update && apt-get install -y \
