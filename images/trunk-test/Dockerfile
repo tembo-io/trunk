@@ -61,6 +61,7 @@ RUN apt-get update && apt-get install -y \
     libgeos-dev \
     libproj-dev \
     libjson-c-dev \
+    libprotobuf-c-dev \
     libxml2-dev \
     libboost-serialization1.74-dev \
     libhiredis-dev \
