@@ -1,6 +1,6 @@
 [extension]
 name = "pg_embedding"
-version = "0.1.0"
+version = "0.2.0"
 repository = "https://github.com/neondatabase/pg_embedding"
 license = "PostgreSQL"
 description = "The pg_embedding extension enables the use of the Hierarchical Navigable Small World (HNSW) algorithm for vector similarity search in PostgreSQL."
