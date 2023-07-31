@@ -59,6 +59,7 @@ RUN apt-get update && apt-get install -y \
     libmysqlclient-dev \
     libtcl8.6 \
     libgeos-dev \
+    libproj-dev \
     libboost-serialization1.74-dev \
     libhiredis-dev \
     libsybdb5 \
