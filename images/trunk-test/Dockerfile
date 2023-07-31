@@ -51,8 +51,18 @@ RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-
 
 # Install postgres and some extensions
 RUN apt-get update && apt-get install -y \
-        build-essential \
-        && rm -rf /var/lib/apt/lists/*
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install extension dependencies
+RUN apt-get update && apt-get install -y \
+    libmysqlclient-dev \
+    libtcl8.6 \
+    libgeos-dev \
+    libboost-serialization1.74-dev \
+    libhiredis-dev \
+    libsybdb5 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Build Postgres from source
 RUN curl https://ftp.postgresql.org/pub/source/v15.3/postgresql-15.3.tar.bz2 -o postgresql-15.3.tar.bz2
