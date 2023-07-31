@@ -60,6 +60,8 @@ RUN apt-get update && apt-get install -y \
     libtcl8.6 \
     libgeos-dev \
     libproj-dev \
+    libjson-c-dev \
+    libxml2-dev \
     libboost-serialization1.74-dev \
     libhiredis-dev \
     libsybdb5 \
