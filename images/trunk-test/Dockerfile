@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     libreadline-dev \
     zlib1g-dev \
     libpq-dev \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 STOPSIGNAL SIGINT
@@ -42,6 +43,11 @@ RUN set -eux; \
 ENV LANG en_US.utf8
 
 RUN mkdir /docker-entrypoint-initdb.d
+
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    apt-get update && \
+    apt-get upgrade -y
 
 # Install postgres and some extensions
 RUN apt-get update && apt-get install -y \
