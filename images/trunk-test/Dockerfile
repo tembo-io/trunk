@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     libpq-dev \
     wget \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 STOPSIGNAL SIGINT
@@ -49,10 +50,19 @@ RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-
     apt-get update && \
     apt-get upgrade -y
 
-# Install postgres and some extensions
+# Install extension dependencies
 RUN apt-get update && apt-get install -y \
-        build-essential \
-        && rm -rf /var/lib/apt/lists/*
+    libmysqlclient-dev \
+    libtcl8.6 \
+    libgeos-dev \
+    libproj-dev \
+    libjson-c-dev \
+    libprotobuf-c-dev \
+    libxml2-dev \
+    libboost-serialization1.74-dev \
+    libhiredis-dev \
+    libsybdb5 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Build Postgres from source
 RUN curl https://ftp.postgresql.org/pub/source/v15.3/postgresql-15.3.tar.bz2 -o postgresql-15.3.tar.bz2
