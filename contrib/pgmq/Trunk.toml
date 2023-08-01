@@ -1,6 +1,6 @@
 [extension]
 name = "pgmq"
-version = "0.10.0"
+version = "0.10.1"
 repository = "https://github.com/tembo-io/pgmq"
 license = "PostgreSQL"
 description = "A lightweight distributed message queue."
