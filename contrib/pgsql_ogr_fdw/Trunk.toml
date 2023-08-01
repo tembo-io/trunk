@@ -1,0 +1,19 @@
+[extension]
+name = "pgsql_ogr_fdw"
+version = "1.1.0"
+repository = "https://github.com/pramsey/pgsql-ogr-fdw"
+license = "MIT"
+description = "PostgreSQL foreign data wrapper for OGR."
+documentation = "https://github.com/pramsey/pgsql-ogr-fdw"
+categories = ["connectors"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgsql-ogr-fdw && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
