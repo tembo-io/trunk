@@ -139,6 +139,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
 }
 
 export async function getStaticPaths() {
+  console.log(`${process.env.NEXT_PUBLIC_API_BASE_URL}/extensions/all`)
   try {
     const extRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/extensions/all`);
     const extensions = await extRes.json();
