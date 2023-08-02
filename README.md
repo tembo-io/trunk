@@ -50,10 +50,10 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ❯ trunk publish pgmq \
 --version 0.5.0 \
 --description "Message Queue for postgres" \
---documentation "https://tembo-io.github.io/coredb/extensions/pgmq" \
---repository "https://github.com/tembo-io/coredb" \
+--documentation "https://github.com/tembo-io/pgmq" \
+--repository "https://github.com/tembo-io/pgmq" \
 --license "Apache-2.0" \
---homepage "https://www.coredb.io"
+--homepage "https://www.tembo.io"
 ```
 
 ### `trunk install`
@@ -87,8 +87,6 @@ their dependencies as compiled artifacts from this registry.
 Trunk is in active development, and we look forward to the contributions the Postgres community has to offer.
 If you're interested in contributing, please open a pull request, issue, or reach out:
 
-- [Discord](https://discord.com/channels/1060568981725003789/1089363774357647370)
-- [Twitter](https://twitter.com/coredb_io)
+- [Slack](https://join.slack.com/t/trunk-crew/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg)
+- [Twitter](https://twitter.com/tembo_io)
 - Email us at [hello@tembo.io](mailto:hello@tembo.io)
-
-[Discord]: https://discord.com/channels/1060568981725003789/1089363774357647370
