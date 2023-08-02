@@ -11,8 +11,8 @@ export const getStaticProps: GetStaticProps<{
   categories: Category[];
 }> = async () => {
   try {
-    const catRes = await fetch("https://registry.pgtrunk.io/categories/all");
-    const extRes = await fetch("https://registry.pgtrunk.io/extensions/all");
+    const catRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/categories/all`);
+    const extRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/extensions/all`);
 
     // 🐈‍
     const cats: Category[] = await catRes.json();

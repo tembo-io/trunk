@@ -140,7 +140,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
 
 export async function getStaticPaths() {
   try {
-    const extRes = await fetch(`https://registry.pgtrunk.io/extensions/all`);
+    const extRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/extensions/all`);
     const extensions = await extRes.json();
 
     const paths = extensions.map((ext: Extension) => ({
@@ -219,7 +219,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
   let repoDescription = "";
   try {
     try {
-      const extRes = await fetch(`https://registry.pgtrunk.io/extensions/detail/${params.ext}`);
+      const extRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/extensions/detail/${params.ext}`);
       extension = await extRes.json();
     } catch (error) {
       return Promise.reject(Error(`Failed to fetch '${params.ext}' from Trunk: ${error}`));
