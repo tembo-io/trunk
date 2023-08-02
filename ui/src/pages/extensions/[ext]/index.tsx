@@ -87,7 +87,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
       </div>
       <div className={styles.container}>
         {readme && (
-          <div className={styles.markdownCont} style={{ minWidth: "70%", maxWidth: "70%" }}>
+          <div className={styles.markdownCont} style={{ minWidth: "70%" }}>
             {/* <div className={cx("markdown-body", styles.markdown)}>hi</div> */}
             <ReactMarkdown className={cx("markdown-body", styles.markdown)} rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
               {readme}
@@ -192,10 +192,6 @@ async function getReadmeAndDescription(repositoryUrl: string): Promise<{ descrip
       Authorization: `token ${GITHUB_TOKEN}`,
     },
   }).then((resp) => resp.json());
-
-  if (!readmeFileName) {
-    console.log(`Undefined file name on ${repositoryUrl}`);
-  }
 
   try {
     const [descriptionJson, readmeJson] =  await Promise.all([descriptionProm, readmeProm]);
