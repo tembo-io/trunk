@@ -4,7 +4,7 @@ use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use crate::uploader::extension_location;
 use actix_web::{get, web, HttpResponse};
-use log::info;
+use tracing::info;
 use sqlx::{Pool, Postgres};
 
 /// Handles the `GET /extensions/:extension_name/:version/download` route.

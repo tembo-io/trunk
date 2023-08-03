@@ -1,7 +1,7 @@
 use crate::errors::ExtensionRegistryError;
 use crate::views::user_info::UserInfo;
 use actix_web::web::Data;
-use log::error;
+use tracing::error;
 use rand::{distributions::Uniform, rngs::OsRng, Rng};
 use reqwest::header::HeaderValue;
 use sha2::Digest;
