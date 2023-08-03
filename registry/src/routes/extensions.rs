@@ -17,9 +17,9 @@ use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
-use log::{error, info};
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
+use tracing::{error, info};
 
 const MAX_SIZE: usize = 15000000; // max payload size is 15M
 

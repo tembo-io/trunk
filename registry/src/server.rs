@@ -17,13 +17,17 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
         .service(routes::download::download)
         .service(
             web::scope("/token")
-                .wrap(ClerkMiddleware::new(clerk_cfg, None))
+                .wrap(ClerkMiddleware::new(clerk_cfg.clone(), None))
                 .service(new_token),
+        )
+        .service(
+            web::scope("/admin")
+                .wrap(ClerkMiddleware::new(clerk_cfg, None))
+                .service(routes::root::auth_ok),
         );
 }
 
 pub async fn server() -> std::io::Result<()> {
-    env_logger::init();
     // load configurations from environment
     let cfg = config::Config::default();
     let aws_config = aws_config::load_from_env().await;
