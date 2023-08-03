@@ -23,7 +23,8 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
         .service(
             web::scope("/admin")
                 .wrap(ClerkMiddleware::new(clerk_cfg, None))
-                .service(routes::root::auth_ok),
+                .service(routes::root::auth_ok)
+                .service(routes::extensions::delete_extension),
         );
 }
 
