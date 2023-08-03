@@ -22,7 +22,9 @@ RUN apt-get update && apt-get install -y \
 	libopenblas-dev \
 	libpython3-dev \
 	pkg-config \
-	gcc-multilib
+	crossbuild-essential-arm64 \
+	crossbuild-essential-amd64
+#	gcc-multilib \
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -31,23 +33,25 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN /root/.cargo/bin/rustup default stable
 
 RUN rustup component add llvm-tools-preview rustc-dev && \
-	rustup target install x86_64-unknown-linux-gnu
+	rustup target install x86_64-unknown-linux-gnu && \
+	rustup target install aarch64-unknown-linux-gnu
 
 # Clone repository
 RUN git clone https://github.com/tcdi/plrust.git
 
 ARG RELEASE=v1.2.3
 
+RUN ls -la $PGRX_HOME
+
 # Build the extension
 RUN cd plrust && \
 	git fetch origin ${RELEASE} && \
 	git checkout ${RELEASE} && \
 	cd plrustc && \
-	./build.sh
-
-#RUN mv app/plrust/build/bin/plrustc /app/.cargo/bin/ && \
-#	cd /app/plrust/plrust && \
-#	PG_VER=15 && \
-#	STD_TARGETS="x86_64-postgres-linux-gnu " && \
-#	./build
-
+	./build.sh && \
+	mv /app/plrust/build/bin/plrustc ~/.cargo/bin/ && \
+	cd /app/plrust/plrust && \
+	PG_VER=15 && \
+	STD_TARGETS="x86_64-postgres-linux-gnu " && \
+	./build && \
+	cargo pgrx install --release --features trusted -c /usr/bin/pg_config
