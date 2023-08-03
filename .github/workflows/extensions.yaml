@@ -56,6 +56,8 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
+    container: quay.io/tembo/trunk-test:0.0.18
+
     needs:
       - find_directories
     strategy:
@@ -63,6 +65,12 @@ jobs:
       matrix: ${{ fromJson(needs.find_directories.outputs.directories) }}
     env:
       TRUNK_API_TOKEN: ${{ secrets.TRUNK_AUTH_TOKEN }}
+      PGHOST: "localhost"
+      PGPORT: "5432"
+      PGDATABASE: "postgres"
+      PGUSER: "postgres"
+      PGPASSWORD: "postgres"
+      POSTGRES_PASSWORD: "password"
     steps:
       - uses: actions/checkout@v3
       - name: Install system dependencies
