@@ -1,11 +1,11 @@
 use crate::errors::ExtensionRegistryError;
 use crate::views::user_info::UserInfo;
 use actix_web::web::Data;
-use tracing::error;
 use rand::{distributions::Uniform, rngs::OsRng, Rng};
 use reqwest::header::HeaderValue;
 use sha2::Digest;
 use sqlx::{Pool, Postgres};
+use tracing::error;
 
 const TOKEN_LENGTH: usize = 32;
 

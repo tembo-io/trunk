@@ -1,7 +1,7 @@
 use crate::errors::ExtensionRegistryError;
 use actix_web::web::Data;
-use tracing::{debug, info};
 use sqlx::{Pool, Postgres};
+use tracing::{debug, info};
 
 // Update categories for a given extension
 pub async fn update_extension_categories(
