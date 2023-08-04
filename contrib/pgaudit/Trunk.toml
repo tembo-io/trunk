@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "The PostgreSQL Audit Extension (pgAudit) provides detailed session and/or object audit logging via the standard PostgreSQL logging facility."
 homepage = "https://www.pgaudit.org/"
 documentation = "https://github.com/pgaudit/pgaudit/blob/master/README.md"
-categories = ["featured", "auditing_logging"]
+categories = ["auditing_logging"]
 
 [build]
 postgres_version = "15"
