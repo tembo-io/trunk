@@ -41,7 +41,9 @@ RUN git clone https://github.com/tcdi/plrust.git
 
 ARG RELEASE=v1.2.3
 
-RUN ls -la $PGRX_HOME
+# RUN ls -la $PGRX_HOME
+
+# RUN find / -name ".cargo/bin" -type d
 
 # Build the extension
 RUN cd plrust && \
@@ -49,7 +51,7 @@ RUN cd plrust && \
 	git checkout ${RELEASE} && \
 	cd plrustc && \
 	./build.sh && \
-	mv /app/plrust/build/bin/plrustc ~/.cargo/bin/ && \
+	mv /app/plrust/build/bin/plrustc /app/.cargo/bin && \
 	cd /app/plrust/plrust && \
 	PG_VER=15 && \
 	STD_TARGETS="x86_64-postgres-linux-gnu " && \
