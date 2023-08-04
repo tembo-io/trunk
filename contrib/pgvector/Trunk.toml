@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Open-source vector similarity search for Postgres"
 homepage = "https://github.com/pgvector/pgvector"
 documentation = "https://github.com/pgvector/pgvector"
-categories = ["machine_learning"]
+categories = ["featured", "machine_learning"]
 
 [build]
 postgres_version = "15"
