@@ -25,9 +25,16 @@ export default function ExtGrid({
 
   const filteredList = router.query.cat ? extensions.filter((ext) => ext.categories.includes(title)) : extensions;
 
+  // Scroll to the start of the extensions panel
+  function scrollToPanel() {
+    if (sectionTitleRef.current) {
+      window.scrollTo({ top: sectionTitleRef.current.offsetTop - 35, behavior: "smooth" });
+    }
+  }
+
   useEffect(() => {
     if (sectionTitleRef.current && router.query.cat) {
-      window.scrollTo({ top: sectionTitleRef.current.offsetTop - 35, behavior: "smooth" });
+      scrollToPanel();
     }
   }, [router.query.cat]);
 
@@ -42,7 +49,7 @@ export default function ExtGrid({
         <button className={styles.showCategoriesButton} onClick={setshowMobileCategories}>
           Categories
         </button>
-        <Search />
+        <Search doOnClick={scrollToPanel}/>
       </div>
       <div className={styles.gridContainer}>
         {filteredList.map((ext) => (
