@@ -1,0 +1,20 @@
+[extension]
+name = "postgresql_hll"
+version = "2.16.0"
+repository = "https://github.com/citusdata/postgresql-hll"
+license = "Apache-2.0"
+description = "HyperLogLog data structures as a native data type."
+homepage = "https://www.citusdata.com/"
+documentation = "https://github.com/citusdata/postgresql-hll"
+categories = ["analytics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgresql-hll && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

@@ -1,0 +1,19 @@
+[extension]
+name = "random"
+version = "1.0.0"
+repository = "https://github.com/tvondra/random"
+license = "PostgreSQL"
+description = "Random data generator extension."
+documentation = "https://github.com/tvondra/random"
+categories = ["analytics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd random && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

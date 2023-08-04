@@ -1,0 +1,20 @@
+[extension]
+name = "set_user"
+version = "4.0.1"
+repository = "https://github.com/pgaudit/set_user"
+license = "PostgreSQL"
+description = "PostgreSQL extension allowing privilege escalation with enhanced logging and control."
+homepage = "https://www.pgaudit.org/"
+documentation = "https://github.com/pgaudit/set_user"
+categories = ["tooling_admin"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd set_user && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

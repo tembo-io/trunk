@@ -1,5 +1,5 @@
 FROM rust:1.70.0-slim-bookworm as builder
-ARG TRUNK_VER=0.6.0
+ARG TRUNK_VER=0.8.3
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL sparse
 RUN apt update && apt install -y pkg-config libssl-dev
 RUN cargo install --version $TRUNK_VER pg-trunk
@@ -27,6 +27,8 @@ RUN apt-get update && apt-get install -y \
     libreadline-dev \
     zlib1g-dev \
     libpq-dev \
+    wget \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 STOPSIGNAL SIGINT
@@ -43,10 +45,25 @@ ENV LANG en_US.utf8
 
 RUN mkdir /docker-entrypoint-initdb.d
 
-# Install postgres and some extensions
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    apt-get update && \
+    apt-get upgrade -y
+
+# Install extension dependencies
 RUN apt-get update && apt-get install -y \
-        build-essential \
-        && rm -rf /var/lib/apt/lists/*
+    libmysqlclient-dev \
+    libtcl8.6 \
+    libgeos-dev \
+    libproj-dev \
+    libjson-c-dev \
+    libprotobuf-c-dev \
+    libxml2-dev \
+    libboost-serialization1.74-dev \
+    libhiredis-dev \
+    libsybdb5 \
+    libpython3.10-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Build Postgres from source
 RUN curl https://ftp.postgresql.org/pub/source/v15.3/postgresql-15.3.tar.bz2 -o postgresql-15.3.tar.bz2

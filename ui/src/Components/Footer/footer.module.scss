@@ -1,0 +1,25 @@
+@import "../../variables.scss";
+.footer {
+  height: 60px;
+  background-color: black;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 10px;
+}
+.link {
+  color: $white;
+  font-family: $inter;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+.small {
+  font-size: 0.7rem;
+  margin-right: 10px;
+}
+.image {
+  margin-right: 5px;
+}

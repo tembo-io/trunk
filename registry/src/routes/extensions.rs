@@ -1,24 +1,27 @@
 //! Functionality related to publishing a new extension or version of an extension.
 
+use actix_web_httpauth::extractors::bearer::BearerAuth;
+
 use crate::categories::{get_categories_for_extension, update_extension_categories};
 use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use crate::extensions::{add_extension_owner, check_input, extension_owners, latest_license};
+use crate::repository::Registry;
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
 use crate::views::user_info::UserInfo;
 use actix_multipart::Multipart;
 use actix_web::http::header::AUTHORIZATION;
-use actix_web::{error, get, post, web, HttpResponse};
+use actix_web::{delete, error, get, post, web, HttpResponse};
 use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
-use log::{error, info};
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
+use tracing::{error, info};
 
 const MAX_SIZE: usize = 15000000; // max payload size is 15M
 
@@ -291,7 +294,7 @@ pub async fn get_all_extensions(
 
     // Create a database transaction
     let mut tx = conn.begin().await?;
-    let rows = sqlx::query!("SELECT * FROM extensions")
+    let rows = sqlx::query!("SELECT * FROM extensions order by name asc")
         .fetch_all(&mut tx)
         .await?;
     for row in rows.iter() {
@@ -348,6 +351,7 @@ pub async fn get_version_history(
     let rows = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1", id)
         .fetch_all(&mut tx)
         .await?;
+
     for row in rows.iter() {
         let data = json!(
         {
@@ -369,4 +373,24 @@ pub async fn get_version_history(
     // Return results in response
     let json = serde_json::to_string_pretty(&versions)?;
     Ok(HttpResponse::Ok().body(json))
+}
+
+#[tracing::instrument(skip(registry, _auth))]
+#[delete("/extensions/{extension_name}")]
+pub async fn delete_extension(
+    registry: web::Data<Registry>,
+    path: web::Path<String>,
+    _auth: BearerAuth,
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    let ext_name = path.into_inner();
+
+    let extension_id = registry
+        .extension_id(&ext_name)
+        .await?
+        .ok_or(ExtensionRegistryError::ResourceNotFound)?;
+
+    // Remove all information related to this extension
+    registry.purge_extension(extension_id).await?;
+
+    Ok(HttpResponse::Ok().finish())
 }

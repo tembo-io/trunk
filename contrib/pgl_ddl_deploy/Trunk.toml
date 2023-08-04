@@ -1,0 +1,19 @@
+[extension]
+name = "pgl_ddl_deploy"
+version = "2.1.0"
+repository = "https://github.com/enova/pgl_ddl_deploy"
+license = "MIT"
+description = "Transparent Logical DDL Replication."
+documentation = "https://github.com/enova/pgl_ddl_deploy"
+categories = ["orchestration"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgl_ddl_deploy && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

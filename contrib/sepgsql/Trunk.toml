@@ -1,6 +1,6 @@
 [extension]
 name = "sepgsql"
-version = "1.0.0"
+version = "15.3.0"
 repository = "https://github.com/postgres/postgres/tree/master/contrib/sepgsql"
 license = "PostgreSQL"
 description = "sepgsql is a loadable module that supports label-based mandatory access control (MAC) based on SELinux security policy."

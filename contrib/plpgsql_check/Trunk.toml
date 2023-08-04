@@ -1,0 +1,19 @@
+[extension]
+name = "plpgsql_check"
+version = "2.3.0"
+repository = "https://github.com/okbob/plpgsql_check"
+license = "Copyright"
+description = "Linter tool for the PostgreSQL language plpgsql."
+documentation = "https://github.com/okbob/plpgsql_check"
+categories = ["debugging"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd plpgsql_check && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

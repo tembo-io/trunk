@@ -1,0 +1,19 @@
+[extension]
+name = "count_distinct"
+version = "3.0.2"
+repository = "https://github.com/tvondra/count_distinct"
+license = "BSD-2-Clause"
+description = "An extension with alternative to COUNT(DISTINCT ...) aggregate in PostgreSQL."
+documentation = "https://github.com/tvondra/count_distinct"
+categories = ["query_optimizations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd count_distinct && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

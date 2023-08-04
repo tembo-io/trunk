@@ -1,0 +1,20 @@
+[extension]
+name = "pg_currency"
+version = "0.0.3"
+repository = "https://github.com/adjust/pg-currency"
+license = "MIT"
+description = "1 Byte Currency ISO type for PostgreSQL."
+homepage = "https://www.adjust.com/"
+documentation = "https://github.com/adjust/pg-currency"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg-currency && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

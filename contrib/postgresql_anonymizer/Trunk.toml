@@ -1,0 +1,19 @@
+[extension]
+name = "postgresql_anonymizer"
+version = "1.1.0"
+repository = "https://gitlab.com/dalibo/postgresql_anonymizer"
+license = "Apache-2.0"
+description = "Support for Roaring Bitmaps."
+documentation = "https://github.com/ChenHuajun/pg_roaringbitmap"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgresql_anonymizer && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
