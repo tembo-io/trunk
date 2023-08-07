@@ -1,5 +1,6 @@
 //! Functionality related to publishing a new extension or version of an extension.
 
+use actix_web::web::Json;
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 
 use crate::categories::{get_categories_for_extension, update_extension_categories};
@@ -8,6 +9,7 @@ use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use crate::extensions::{add_extension_owner, check_input, extension_owners, latest_license};
 use crate::repository::Registry;
+use crate::routes::forms::{SearchForm, SearchResult};
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
 use crate::views::extension_publish::ExtensionUpload;
@@ -373,6 +375,19 @@ pub async fn get_version_history(
     // Return results in response
     let json = serde_json::to_string_pretty(&versions)?;
     Ok(HttpResponse::Ok().body(json))
+}
+
+#[tracing::instrument(skip(registry))]
+#[get("search/extensions/")]
+pub async fn search_extensions(
+    registry: web::Data<Registry>,
+    form: web::Json<SearchForm>
+) -> Result<Json<Vec<SearchResult>>, ExtensionRegistryError> {    
+    let search_terms = form.into_inner().search_terms;
+    
+    let result = registry.search_for_terms(&search_terms).await?;
+
+    Ok(Json(result))
 }
 
 #[tracing::instrument(skip(registry, _auth))]
