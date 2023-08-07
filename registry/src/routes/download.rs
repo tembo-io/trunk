@@ -4,8 +4,8 @@ use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use crate::uploader::extension_location;
 use actix_web::{get, web, HttpResponse};
-use log::info;
 use sqlx::{Pool, Postgres};
+use tracing::info;
 
 /// Handles the `GET /extensions/:extension_name/:version/download` route.
 /// This returns a URL to the location where the extension is stored.
