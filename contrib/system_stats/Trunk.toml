@@ -1,0 +1,19 @@
+[extension]
+name = "system_stats"
+version = "1.0.0"
+repository = "https://github.com/EnterpriseDB/system_stats"
+license = "Copyright"
+description = "Expose system metrics such as CPU, memory and disk information."
+documentation = "https://github.com/EnterpriseDB/system_stats"
+categories = ["metrics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd system_stats && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
