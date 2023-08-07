@@ -62,6 +62,7 @@ RUN apt-get update && apt-get install -y \
     libboost-serialization1.74-dev \
     libhiredis-dev \
     libsybdb5 \
+    libpython3.10-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Build Postgres from source
