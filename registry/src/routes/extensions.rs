@@ -381,10 +381,10 @@ pub async fn get_version_history(
 #[get("search/extensions/")]
 pub async fn search_extensions(
     registry: web::Data<Registry>,
-    form: web::Json<SearchForm>
-) -> Result<Json<Vec<SearchResult>>, ExtensionRegistryError> {    
+    form: web::Json<SearchForm>,
+) -> Result<Json<Vec<SearchResult>>, ExtensionRegistryError> {
     let search_terms = form.into_inner().search_terms;
-    
+
     let result = registry.search_for_terms(&search_terms).await?;
 
     Ok(Json(result))

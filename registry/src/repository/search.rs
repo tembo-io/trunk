@@ -6,7 +6,10 @@ use super::Registry;
 
 impl Registry {
     /// Remove an entry from the `versions` table given the related extension ID
-    pub async fn search_for_terms<S: AsRef<str>>(&self, terms: &[S]) -> Result<Vec<SearchResult>, sqlx::Error> {
+    pub async fn search_for_terms<S: AsRef<str>>(
+        &self,
+        terms: &[S],
+    ) -> Result<Vec<SearchResult>, sqlx::Error> {
         let mut search_results = Vec::with_capacity(5);
 
         for term in terms {
@@ -14,16 +17,15 @@ impl Registry {
                 "SELECT name, description FROM extensions
                  WHERE name ILIKE '%' || $1 || '%'
                  OR description ILIKE '%' || $1 || '%'",
-                 term.as_ref()
-            ).fetch_all(&self.pool)
+                term.as_ref()
+            )
+            .fetch_all(&self.pool)
             .await?;
 
             if row.is_empty().not() {
-                search_results.extend(row.into_iter().map(|row| {
-                    SearchResult {
-                        name: row.name.unwrap(),
-                        description: row.description.unwrap(),
-                    }
+                search_results.extend(row.into_iter().map(|row| SearchResult {
+                    name: row.name.unwrap(),
+                    description: row.description.unwrap(),
                 }))
             }
         }
