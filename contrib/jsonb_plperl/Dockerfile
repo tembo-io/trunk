@@ -20,8 +20,10 @@ RUN apt-get update && apt-get install -y \
 # Clone repository
 RUN git clone https://github.com/postgres/postgres.git
 
+# Set project version
 ARG PG_RELEASE=REL_15_3
 
+# Build extension
 RUN cd postgres && \
 	git fetch origin ${PG_RELEASE} && \
 	git checkout ${PG_RELEASE} && \
