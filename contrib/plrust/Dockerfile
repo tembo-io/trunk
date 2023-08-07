@@ -46,12 +46,11 @@ RUN cd plrust && \
 	git checkout ${RELEASE} && \
 	cd plrustc && \
 	./build.sh && \
-	cd ..
-
-RUN	mv /app/plrust/build/bin/plrustc /app/plrust/.cargo/bin && \
+	cd .. && \
+ 	mv /app/plrust/build/bin/plrustc /app/plrust/.cargo/bin && \
 	cd /app/plrust/plrust && \
 	PG_VER=15 && \
 	STD_TARGETS="x86_64-postgres-linux-gnu " && \
 	./build && \
-    cargo pgrx init --pg15 /usr/bin/pg_config && \
-    cargo pgrx package --features trusted -c /usr/bin/pg_config
+ 	cargo pgrx init --pg15 /usr/bin/pg_config && \
+  	cargo pgrx package --features trusted -c /usr/bin/pg_config
