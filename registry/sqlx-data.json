@@ -48,6 +48,18 @@
     },
     "query": "SELECT * FROM categories"
   },
+  "00e47bbd59d3b7c8bf522874ee92efe5d929da89c7a810d6ecda63f91aace768": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "DELETE FROM extensions\n             WHERE id = $1"
+  },
   "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
     "describe": {
       "columns": [
@@ -424,72 +436,6 @@
     },
     "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)\n                    "
   },
-  "48a96a05f91d89cfd30f0cd3b119f0690a53d71d82ad9d40a5b0a07941fc31c9": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "downloads",
-          "ordinal": 4,
-          "type_info": "Int4"
-        },
-        {
-          "name": "description",
-          "ordinal": 5,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "homepage",
-          "ordinal": 6,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "documentation",
-          "ordinal": 7,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "repository",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "SELECT * FROM extensions"
-  },
   "49a41631cfe21efe58022e6e4026e6f3d388d8bb12ac478dbf30addab78d430e": {
     "describe": {
       "columns": [
@@ -765,6 +711,72 @@
     },
     "query": "SELECT *\n                FROM versions\n                WHERE \n                    extension_id = $1\n                    and num = $2"
   },
+  "7cc69acf039075253b7224f17a7038e9f25d9974875b2d0d3c75983afc2c77fb": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "downloads",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "description",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "homepage",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "documentation",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "repository",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM extensions order by name asc"
+  },
   "7d372fca1ed8b3cd12573033e0329361636b95ffb41b9e13be2844755ab37a75": {
     "describe": {
       "columns": [
@@ -919,5 +931,61 @@
       }
     },
     "query": "SELECT category_id FROM extensions_categories WHERE extension_id = $1"
+  },
+  "96580469248d5d6ece759276b0bf46cd3444339140cfac659388a846b1584402": {
+    "describe": {
+      "columns": [
+        {
+          "name": "category_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM extensions_categories\n                 WHERE extension_id = $1\n                 RETURNING category_id\n                 "
+  },
+  "a355d51ccf9b49a96bf62078f00fb982ba11a3026d8b9f120d948b6c5e40d317": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM versions\n             WHERE extension_id = $1"
+  },
+  "bdd38a42eae77d1ff93284a7a26973190408d533f19a7972bd9932c7204f5e33": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM extension_owners\n             WHERE extension_id = $1"
+  },
+  "f29a9769c67e94ef0eb534c3ea009496dc13426c6d46f545ada1f9ebc9def26b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "\n            UPDATE categories\n            SET extension_count = extension_count + 1\n            WHERE id = $1\n            "
   }
 }

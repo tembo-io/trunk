@@ -1,0 +1,19 @@
+[extension]
+name = "postgresql_logfdw"
+version = "1.4.0"
+repository = "https://github.com/aws/postgresql-logfdw"
+license = "Apache-2.0"
+description = "Foreign-data wrapper for Postgres log file access."
+documentation = "https://github.com/aws/postgresql-logfdw"
+categories = ["connectors"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgresql-logfdw && make USE_PGXS=1 install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

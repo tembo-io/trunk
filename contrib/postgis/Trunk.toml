@@ -6,7 +6,7 @@ license = "GPL-2.0"
 description = "PostGIS geometry and geography spatial types and functions."
 homepage = "http://postgis.net/"
 documentation = "http://postgis.net/"
-categories = ["data_transformations"]
+categories = ["featured", "data_transformations"]
 
 [build]
 postgres_version = "15"

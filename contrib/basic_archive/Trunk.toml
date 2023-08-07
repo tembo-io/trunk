@@ -1,6 +1,6 @@
 [extension]
 name = "basic_archive"
-version = "1.0.0"
+version = "15.3.0"
 repository = "https://github.com/postgres/postgres/tree/master/contrib/basic_archive"
 license = "PostgreSQL"
 description = "This module copies completed WAL segment files to the specified directory."

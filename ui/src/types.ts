@@ -21,6 +21,7 @@ export type Category = {
   name: string;
   extension_count: number;
 };
+
 export type CategoriesForGrid = {
   [key: string]: {
     displayName: string;

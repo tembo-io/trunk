@@ -1,0 +1,19 @@
+[extension]
+name = "sequential_uuids"
+version = "1.0.2"
+repository = "https://github.com/tvondra/sequential-uuids"
+license = "MIT"
+description = "Generator of sequential UUIDs."
+documentation = "https://github.com/tvondra/sequential-uuids"
+categories = ["index_table_optimizations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd sequential-uuids && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

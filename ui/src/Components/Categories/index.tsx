@@ -28,7 +28,16 @@ export default function Categories({
       {categories
         .filter((item) => item.extension_count > 0)
         .map((item) => (
-          <Link onClick={() => toggleCategoryMenu(false)} shallow href={`/?cat=${item.slug}`} key={item.slug} className={styles.listItem}>
+          <Link
+            onClick={() => toggleCategoryMenu(false)}
+            shallow href={
+              // Allow 'untoggling' a category: if we're already in the selected
+              // category, go back home
+              (() => cat === item.slug ? "/" : `/?cat=${item.slug}`)()
+            }
+            key={item.slug}
+            className={styles.listItem}
+          >
             <p className={styles.interMed16}>{item.name}</p>
             <span className={cx(styles.catCount, styles.interReg12, cat === item.slug ? styles.activeCat : "")}>
               {item.extension_count}

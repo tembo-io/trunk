@@ -1,0 +1,19 @@
+[extension]
+name = "aggs_for_vecs"
+version = "1.3.0"
+repository = "https://github.com/pjungwir/aggs_for_vecs"
+license = "MIT"
+description = "An extension offering various aggregate functions like min, max, avg, and var_samp that operate on arrays instead of scalars."
+documentation = "https://github.com/pjungwir/aggs_for_vecs"
+categories = ["analytics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd aggs_for_vecs && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

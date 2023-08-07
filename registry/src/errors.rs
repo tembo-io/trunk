@@ -4,12 +4,23 @@ use actix_web::error;
 use actix_web::http::header::ToStrError;
 use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::put_object::PutObjectError;
+use reqwest::StatusCode;
 use std::str::Utf8Error;
+use std::string::FromUtf8Error;
 use thiserror::Error;
 use url::ParseError;
 
 // Use default implementation for `error_response()` method
-impl error::ResponseError for ExtensionRegistryError {}
+impl actix_web::error::ResponseError for ExtensionRegistryError {
+    fn status_code(&self) -> reqwest::StatusCode {
+        match self {
+            ExtensionRegistryError::ErrorBadRequest(_) => StatusCode::BAD_REQUEST,
+            ExtensionRegistryError::AuthorizationError(_) => StatusCode::UNAUTHORIZED,
+            ExtensionRegistryError::ResourceNotFound => StatusCode::NOT_FOUND,
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+}
 
 #[derive(Error, Debug)]
 pub enum ExtensionRegistryError {
@@ -65,4 +76,13 @@ pub enum ExtensionRegistryError {
 
     #[error("to str error: {0}")]
     ToStrError(#[from] ToStrError),
+
+    #[error("failed to convert bytes to UTF-8: {0}")]
+    Utf8Error(#[from] FromUtf8Error),
+
+    #[error("received malformed JWT")]
+    MalformedJwt,
+
+    #[error("resource not found")]
+    ResourceNotFound,
 }

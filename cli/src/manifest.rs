@@ -36,6 +36,7 @@ impl PackagedFile {
 
 /// Package manifest
 #[derive(Serialize, Deserialize, Debug)]
+#[cfg_attr(test, derive(Default))]
 pub struct Manifest {
     #[serde(rename = "name")]
     pub extension_name: String,
@@ -49,12 +50,17 @@ pub struct Manifest {
 
 impl Manifest {
     pub fn merge(&mut self, other: Self) {
-        if let Some(files) = other.files {
-            self.files.replace(files);
+        match &mut self.files {
+            Some(current_files) => {
+                if let Some(files_to_insert) = other.files {
+                    current_files.extend(files_to_insert);
+                }
+            }
+            None => self.files = other.files,
         }
     }
 
-    pub fn add_file<P: AsRef<Path> + Into<PathBuf>>(&mut self, path: P) -> &mut PackagedFile {
+    pub fn add_file<P: AsRef<Path>>(&mut self, path: P) -> &mut PackagedFile {
         let files = match self.files {
             None => {
                 self.files.replace(HashMap::new());
@@ -62,10 +68,60 @@ impl Manifest {
             }
             Some(ref mut files) => files,
         };
-        files.insert(
-            path.as_ref().to_path_buf(),
-            PackagedFile::from(path.as_ref()),
-        );
+        files.insert(path.as_ref().to_owned(), PackagedFile::from(path.as_ref()));
+
         files.get_mut(path.as_ref()).unwrap()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use crate::manifest::PackagedFile;
+
+    use super::Manifest;
+
+    #[test]
+    fn adds_files_to_manifest() {
+        let mut manifest = Manifest::default();
+        assert!(manifest.files.is_none());
+
+        manifest.add_file("/etc/some/file.control");
+        manifest.add_file("./another/file");
+        manifest.add_file("shared_rustc.so");
+        manifest.add_file("program.bc");
+        manifest.add_file("delete_prod_bank.sql");
+        manifest.add_file("licenses");
+
+        for (path, file_kind) in manifest.files.unwrap() {
+            match file_kind {
+                PackagedFile::ControlFile {} => {
+                    assert_eq!(path, Path::new("/etc/some/file.control"))
+                }
+                PackagedFile::SqlFile {} => assert_eq!(path, Path::new("delete_prod_bank.sql")),
+                PackagedFile::SharedObject {} => assert_eq!(path, Path::new("shared_rustc.so")),
+                PackagedFile::Bitcode {} => assert_eq!(path, Path::new("program.bc")),
+                PackagedFile::Extra {} => assert_eq!(path, Path::new("./another/file")),
+                PackagedFile::LicenseFile {} => assert_eq!(path, Path::new("licenses")),
+            }
+        }
+    }
+
+    #[test]
+    fn merges_manifests() {
+        let mut manifest_1 = Manifest::default();
+        let mut manifest_2 = Manifest::default();
+
+        manifest_1.add_file("manifest.json");
+        manifest_2.add_file("pgmq.control");
+
+        // Merge manifest_2 into manifest_1
+        manifest_1.merge(manifest_2);
+
+        let files = manifest_1.files.unwrap();
+
+        assert!(files.contains_key(Path::new("manifest.json")));
+        assert!(files.contains_key(Path::new("pgmq.control")));
     }
 }
