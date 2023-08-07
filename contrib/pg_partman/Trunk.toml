@@ -5,7 +5,7 @@ repository = "https://github.com/pgpartman/pg_partman"
 license = "PostgreSQL"
 description = "Extension to manage partitioned tables by time or ID."
 documentation = "https://github.com/pgpartman/pg_partman"
-categories = ["orchestration"]
+categories = ["featured", "orchestration"]
 
 [build]
 postgres_version = "15"
