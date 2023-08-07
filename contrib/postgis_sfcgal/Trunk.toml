@@ -1,0 +1,20 @@
+[extension]
+name = "postgis_sfcgal"
+version = "3.3.3"
+repository = "https://github.com/postgis/postgis"
+license = "GPL-2.0"
+description = "PostGIS SFCGAL functions."
+homepage = "http://postgis.net/"
+documentation = "https://postgis.net/docs/manual-3.3/reference.html#reference_sfcgal"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgis-3.3.3/sfcgal && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
