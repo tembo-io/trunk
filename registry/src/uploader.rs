@@ -5,7 +5,7 @@ use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::put_object::{PutObjectError, PutObjectOutput};
 use aws_sdk_s3::primitives::ByteStream;
 use aws_sdk_s3::types::ServerSideEncryption::Aes256;
-use log::{debug, info};
+use tracing::{debug, info};
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
 const CACHE_CONTROL_IMMUTABLE: &str = "public,max-age=31536000,immutable";
