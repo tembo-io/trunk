@@ -46,9 +46,7 @@ RUN cd plrust && \
 	git checkout ${RELEASE} && \
 	cd plrustc && \
 	./build.sh && \
-	cd .. && \
-	pwd && \
-	ls -la
+	cd ..
 
 RUN	mv /app/plrust/build/bin/plrustc /app/plrust/.cargo/bin && \
 	cd /app/plrust/plrust && \
