@@ -7,12 +7,14 @@ import Categories from "../Components/Categories";
 import ExtGrid from "../Components/ExtGrid";
 import { Category, CategoriesForGrid, Extension } from "@/types";
 import Header from "@/Components/Header";
+
+const REGISTRY_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://registry.pgtrunk.io";
 export const getStaticProps: GetStaticProps<{
   categories: Category[];
 }> = async () => {
   try {
-    const catRes = await fetch("https://registry.pgtrunk.io/categories/all");
-    const extRes = await fetch("https://registry.pgtrunk.io/extensions/all");
+    const catRes = await fetch(`${REGISTRY_URL}/categories/all`);
+    const extRes = await fetch(`${REGISTRY_URL}/extensions/all`);
 
     // 🐈‍
     const cats: Category[] = await catRes.json();
