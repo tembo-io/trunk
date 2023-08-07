@@ -12,7 +12,7 @@ pub mod token;
 pub mod uploader;
 pub mod views;
 
-use log::LevelFilter;
+use tracing::log::LevelFilter;
 use url::{ParseError, Url};
 
 // Connect to postgresql server

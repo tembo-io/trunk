@@ -17,7 +17,7 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
-    container: quay.io/tembo/trunk-test:0.0.17
+    container: quay.io/tembo/trunk-test:0.0.18
     env:
       PGHOST: "localhost"
       PGPORT: "5432"

@@ -7,10 +7,15 @@ import { Extension } from "@/types";
 import { truncate } from "@/stringHelpers";
 import useExtList from "@/hooks/useExtList";
 
-export default function Search() {
+
+interface SearchProps {
+  doOnClick?: () => void;
+}
+
+const Search: React.FC<SearchProps> = ({ doOnClick }) => {
   const [searchString, setSearchString] = useState("");
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
-  const [showresults, setShowResults] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   const router = useRouter();
   const { extensions, isLoading, isError }: { extensions: Extension[]; isLoading: boolean; isError: boolean } = useExtList();
 
@@ -22,8 +27,9 @@ export default function Search() {
             ext.name.toLowerCase().includes(searchString.toLowerCase()) ||
             ext.description.toLowerCase().includes(searchString.toLowerCase())
         );
+  
   const resultContainerRef: RefObject<HTMLInputElement> = useRef(null);
-
+  
   useEffect(() => {
     document.addEventListener("click", handleClick);
     return () => {
@@ -67,9 +73,14 @@ export default function Search() {
           setSelectedItemIndex(-1);
         }}
         onFocus={() => setShowResults(true)}
+        onClick={() => {
+          if (doOnClick) {
+            doOnClick()
+          }
+        }}
       />
       <button className={cx(styles.interBold14, styles.searchButton)}>Search</button>
-      {showresults && searchString.length > 0 && (
+      {showResults && searchString.length > 0 && (
         <div className={styles.searchCont}>
           <ul className={styles.resultList}>
             {filteredList.map((ext, index) => (
@@ -90,3 +101,5 @@ export default function Search() {
     </div>
   );
 }
+
+export default Search;

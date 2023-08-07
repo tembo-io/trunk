@@ -1,0 +1,19 @@
+[extension]
+name = "plr"
+version = "8.4.5"
+repository = "https://github.com/postgres-plr/plr"
+license = "GPL-2.0"
+description = "R Procedural Language for PostgreSQL"
+documentation = "https://github.com/postgres-plr/plr/blob/master/userguide.md"
+categories = ["procedural_languages"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd plr && make USE_PGXS=1 install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
