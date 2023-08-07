@@ -1,5 +1,7 @@
 //! Functionality related to publishing a new extension or version of an extension.
 
+use actix_web_httpauth::extractors::bearer::BearerAuth;
+
 use crate::categories::{get_categories_for_extension, update_extension_categories};
 use crate::config::Config;
 use crate::download::latest_version;
@@ -17,9 +19,9 @@ use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
-use log::{error, info};
 use serde_json::{json, Value};
 use sqlx::{Pool, Postgres};
+use tracing::{error, info};
 
 const MAX_SIZE: usize = 15000000; // max payload size is 15M
 
@@ -373,11 +375,12 @@ pub async fn get_version_history(
     Ok(HttpResponse::Ok().body(json))
 }
 
+#[tracing::instrument(skip(registry, _auth))]
 #[delete("/extensions/{extension_name}")]
 pub async fn delete_extension(
     registry: web::Data<Registry>,
     path: web::Path<String>,
-    // TODO(vrmiguel): auth
+    _auth: BearerAuth,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
     let ext_name = path.into_inner();
 

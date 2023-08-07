@@ -7,15 +7,16 @@ import styles from "./extension.module.scss";
 import cx from "classnames";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
-
 import { truncate } from "@/stringHelpers";
 import { formatDateString } from "@/formatDate";
 import Image from "next/image";
+import Header from "@/Components/Header";
+import { useRouter } from "next/router";
+
 const Octocat = "/OctocatIcon.png";
 const LinkIcon = "/LinkIcon.png";
-import Header from "@/Components/Header";
 const CopyIcon = "/copy.png";
-import { useRouter } from "next/router";
+const REGISTRY_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://registry.pgtrunk.io";
 
 export default function Page({ extension, readme, repoDescription }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [showFeedback, setShowFeedback] = useState(false);
@@ -87,7 +88,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
       </div>
       <div className={styles.container}>
         {readme && (
-          <div className={styles.markdownCont} style={{ minWidth: "70%", maxWidth: "70%" }}>
+          <div className={styles.markdownCont} style={{ minWidth: "70%" }}>
             {/* <div className={cx("markdown-body", styles.markdown)}>hi</div> */}
             <ReactMarkdown className={cx("markdown-body", styles.markdown)} rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
               {readme}
@@ -140,7 +141,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
 
 export async function getStaticPaths() {
   try {
-    const extRes = await fetch(`https://registry.pgtrunk.io/extensions/all`);
+    const extRes = await fetch(`${REGISTRY_URL}/extensions/all`);
     const extensions = await extRes.json();
 
     const paths = extensions.map((ext: Extension) => ({
@@ -156,14 +157,13 @@ export async function getStaticPaths() {
   }
 }
 
-async function getReadmeAndDescription(repositoryUrl: string): Promise<{ description: string, readme: string }> {
+async function getReadme(repositoryUrl: string): Promise<string> {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   const markdownRegex = /.*\.md/;
   let readme;
   let githubReadmeUrl;
   let readmeFileName;
   let readmeBase64Contents;
-  let description;
   let isContrib = false;
   
   const noGh = repositoryUrl.split("https://github.com/")[1];
@@ -178,28 +178,14 @@ async function getReadmeAndDescription(repositoryUrl: string): Promise<{ descrip
     githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme/${split[2]}`;
   }
 
-  const githubRepoUrl = `https://api.github.com/repos/${split[0]}/${split[1]}`;  
-
-  const descriptionProm: Promise<{ description: string }> = fetch(githubRepoUrl, {
-    headers: {
-      Authorization: `token ${GITHUB_TOKEN}`,
-    },
-  }).then((resp) => resp.json());
-
-
   const readmeProm: Promise<{ name: string, content: string }> = fetch(githubReadmeUrl, {
     headers: {
       Authorization: `token ${GITHUB_TOKEN}`,
     },
   }).then((resp) => resp.json());
 
-  if (!readmeFileName) {
-    console.log(`Undefined file name on ${repositoryUrl}`);
-  }
-
   try {
-    const [descriptionJson, readmeJson] =  await Promise.all([descriptionProm, readmeProm]);
-    description = descriptionJson.description;
+    const readmeJson = await readmeProm;
     readmeFileName = readmeJson.name;
     readmeBase64Contents = readmeJson.content;
 
@@ -225,10 +211,7 @@ async function getReadmeAndDescription(repositoryUrl: string): Promise<{ descrip
     return Promise.reject(Error(`Fetching GitHub API failed: ${err}`));
   }
 
-  return {
-    description,
-    readme,
-  }
+  return readme;
 }
 
 export async function getStaticProps({ params }: { params: { ext: string } }) {
@@ -237,7 +220,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
   let repoDescription = "";
   try {
     try {
-      const extRes = await fetch(`https://registry.pgtrunk.io/extensions/detail/${params.ext}`);
+      const extRes = await fetch(`${REGISTRY_URL}/extensions/detail/${params.ext}`);
       extension = await extRes.json();
     } catch (error) {
       return Promise.reject(Error(`Failed to fetch '${params.ext}' from Trunk: ${error}`));
@@ -247,9 +230,8 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
       const repo = latestVersion.repository;
 
       try {
-        const apiJson = await getReadmeAndDescription(repo);
-        readme = apiJson.readme;
-        repoDescription = apiJson.description;
+        readme = await getReadme(repo);
+        repoDescription = latestVersion.description;
       } catch (err) {
         console.log(`getReadme failed: ${err}`);
         return Promise.reject(Error(`getReadmeAndDescription failed: ${err}`));

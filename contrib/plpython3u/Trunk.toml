@@ -1,0 +1,21 @@
+[extension]
+name = "plpython3u"
+version = "1.0.0"
+repository = "https://github.com/postgres/postgres/tree/master/src/pl/plpython"
+license = "PostgreSQL"
+description = "Th PL/Python3U untrusted procedural language for PostgreSQL."
+homepage = "https://www.postgresql.org"
+documentation = "https://www.postgresql.org/docs/current/plpython.html"
+categories = ["procedural_languages"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    make -C postgres/src/pl/plpython install
+    set -x
+    mv /usr/local/pgsql/share/extension/plpython* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/plpython* /usr/lib/postgresql/15/lib
+"""
+
