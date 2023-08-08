@@ -56,7 +56,9 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
-    container: quay.io/tembo/trunk-test:0.0.20
+    container:
+      image: quay.io/tembo/trunk-test:0.0.20
+      options: --user root
     needs:
       - find_directories
     strategy:
@@ -65,7 +67,7 @@ jobs:
     env:
       TRUNK_API_TOKEN: ${{ secrets.TRUNK_AUTH_TOKEN }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.5.3
       - name: Install system dependencies
         run: |
           set -xe
