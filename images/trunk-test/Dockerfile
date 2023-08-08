@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     wget \
     build-essential \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 STOPSIGNAL SIGINT
