@@ -85,7 +85,7 @@ export default function Header({ white = false, search = false }: HeaderProps) {
       </div>
       <a
         target="_blank"
-        href="https://join.slack.com/t/trunk-crew/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg"
+        href="https://join.slack.com/t/trunk-community/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg"
         className={styles.ctaCont}
       >
         <span className={styles.ctaText}>Join Trunk on Slack</span>
