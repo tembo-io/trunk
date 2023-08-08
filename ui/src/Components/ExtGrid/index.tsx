@@ -80,7 +80,7 @@ const CategoryTags: React.FC<CategoryTagSearchProps> = ({ extension, categories 
     return extension.categories.slice(0, 2);
   }
 
-  return <div>
+  return <div className={styles.categoryTags}>
     {atMostTwoCategories().map((category, index) => (
         <Link
           key={index}
