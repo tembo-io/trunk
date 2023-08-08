@@ -80,8 +80,6 @@ COPY ./postgresql.conf /usr/share/postgresql/${PG_MAJOR}/postgresql.conf.sample
 # Remove pre-installed pg_config
 RUN rm /usr/bin/pg_config
 
-RUN mkdir /_w && chmod 777 /_w
-
 # cache extensions and shared libraries
 RUN mkdir /tmp/pg_sharedir && \
         mkdir /tmp/pg_pkglibdir && \
