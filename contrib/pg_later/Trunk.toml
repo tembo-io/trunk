@@ -1,0 +1,19 @@
+[extension]
+name = "pg_later"
+version = "0.0.8"
+repository = "https://github.com/tembo-io/pg_later"
+license = "PostgreSQL"
+description = "Execute SQL now and get the results later."
+homepage = "https://tembo.io/"
+documentation = "https://github.com/tembo-io/pg_later"
+categories = ["query_optimizations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_later
+    mv target/release/pg_later-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/pg_later-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+"""
