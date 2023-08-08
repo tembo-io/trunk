@@ -7,15 +7,16 @@ import styles from "./extension.module.scss";
 import cx from "classnames";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
-
 import { truncate } from "@/stringHelpers";
 import { formatDateString } from "@/formatDate";
 import Image from "next/image";
+import Header from "@/Components/Header";
+import { useRouter } from "next/router";
+
 const Octocat = "/OctocatIcon.png";
 const LinkIcon = "/LinkIcon.png";
-import Header from "@/Components/Header";
 const CopyIcon = "/copy.png";
-import { useRouter } from "next/router";
+const REGISTRY_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://registry.pgtrunk.io";
 
 export default function Page({ extension, readme, repoDescription }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [showFeedback, setShowFeedback] = useState(false);
@@ -140,7 +141,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
 
 export async function getStaticPaths() {
   try {
-    const extRes = await fetch(`https://registry.pgtrunk.io/extensions/all`);
+    const extRes = await fetch(`${REGISTRY_URL}/extensions/all`);
     const extensions = await extRes.json();
 
     const paths = extensions.map((ext: Extension) => ({
@@ -219,7 +220,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
   let repoDescription = "";
   try {
     try {
-      const extRes = await fetch(`https://registry.pgtrunk.io/extensions/detail/${params.ext}`);
+      const extRes = await fetch(`${REGISTRY_URL}/extensions/detail/${params.ext}`);
       extension = await extRes.json();
     } catch (error) {
       return Promise.reject(Error(`Failed to fetch '${params.ext}' from Trunk: ${error}`));
