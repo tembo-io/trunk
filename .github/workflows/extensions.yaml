@@ -72,7 +72,7 @@ jobs:
         run: |
           set -xe
           apt-get update
-          apt-get install -y pkg-config libssl-dev
+          apt-get install -y pkg-config libssl-dev gosu
       - name: Install minimal, stable rust
         uses: actions-rs/toolchain@v1
         with:
