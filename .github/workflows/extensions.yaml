@@ -56,7 +56,7 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
-    container: quay.io/tembo/trunk-test:0.0.19
+    container: quay.io/tembo/trunk-test:0.0.20
     needs:
       - find_directories
     strategy:
