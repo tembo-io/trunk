@@ -97,6 +97,7 @@ jobs:
       - name: Install the extension
         run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
       - name: Enable the extension
+        if: ${{ github.ref != 'refs/heads/main' }}
         run: |
           docker-entrypoint.sh postgres &
           sleep 5
