@@ -6,6 +6,7 @@
 
 [![version](https://img.shields.io/crates/v/pg-trunk?label=CLI&logo=rust)](https://crates.io/crates/pg-trunk)
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
+[![Static Badge](https://img.shields.io/badge/%40trunk-community?logo=slack&label=slack)](https://trunk-community.slack.com)
 
 Trunk is an open source package manager and registry for Postgres extensions. Use the Trunk CLI to build, publish
 and install Postgres extensions _of all kinds_.
