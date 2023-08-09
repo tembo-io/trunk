@@ -38,7 +38,7 @@ impl PackagedFile {
 #[derive(Serialize, Deserialize, Debug)]
 #[cfg_attr(test, derive(Default))]
 pub struct Manifest {
-    #[serde(rename = "name")]
+    pub name: String,
     pub extension_name: String,
     #[serde(rename = "version")]
     pub extension_version: String,

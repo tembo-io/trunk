@@ -66,15 +66,16 @@ pub async fn build_generic(
     install_command: Vec<&str>,
     path: &Path,
     output_path: &str,
+    name: &str,
     extension_name: &str,
     extension_version: &str,
     _task: Task,
 ) -> Result<(), GenericBuildError> {
-    println!("Building with name {}", &extension_name);
+    println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
 
     let mut build_args = HashMap::new();
-    build_args.insert("EXTENSION_NAME", extension_name);
+    build_args.insert("EXTENSION_NAME", name);
     build_args.insert("EXTENSION_VERSION", extension_version);
 
     let image_name_prefix = "make_builder_".to_string();
@@ -132,6 +133,7 @@ pub async fn build_generic(
         docker.clone(),
         &temp_container.id,
         output_path,
+        name,
         extension_name,
         extension_version,
     )

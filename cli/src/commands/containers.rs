@@ -355,9 +355,11 @@ pub async fn package_installed_extension_files(
     docker: Docker,
     container_id: &str,
     package_path: &str,
+    name: &str,
     extension_name: &str,
     extension_version: &str,
 ) -> Result<(), anyhow::Error> {
+    let name = name.to_owned();
     let extension_name = extension_name.to_owned();
     let extension_version = extension_version.to_owned();
 
@@ -395,7 +397,7 @@ pub async fn package_installed_extension_files(
     let licensedir = "/usr/licenses".to_owned();
 
     // In this function, we open and work with .tar only, then we finalize the package with a .gz in a separate call
-    let package_path = format!("{package_path}/{extension_name}-{extension_version}.tar.gz");
+    let package_path = format!("{package_path}/{name}-{extension_version}.tar.gz");
     println!("Creating package at: {package_path}");
     let file = File::create(&package_path)?;
 
@@ -418,6 +420,7 @@ pub async fn package_installed_extension_files(
             flate2::Compression::default(),
         ));
         let mut manifest = Manifest {
+            name,
             extension_name,
             extension_version,
             manifest_version: 2,
