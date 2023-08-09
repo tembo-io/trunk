@@ -134,10 +134,9 @@ impl BuildCommand {
 }
 
 fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
-    if path.is_some() {
-        let dockerfile_path_unwrapped = path.unwrap();
-        println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
-        return Ok(fs::read_to_string(dockerfile_path_unwrapped.as_str())?);
+    if let Some(dockerfile_path) = path {
+        println!("Using Dockerfile at {}", &dockerfile_path);
+        return Ok(fs::read_to_string(dockerfile_path.as_str())?);
     } else {
         return Ok(include_str!("./builders/Dockerfile.generic").to_string());
     }
