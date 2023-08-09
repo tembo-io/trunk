@@ -86,6 +86,16 @@ fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     Ok(pgrx_version)
 }
 
+fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
+    if path.is_some() {
+        let dockerfile_path_unwrapped = path.unwrap();
+        println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
+        return Ok(fs::read_to_string(dockerfile_path_unwrapped.as_str())?);
+    } else {
+        return Ok(include_str!("./builders/Dockerfile.pgrx").to_string());
+    }
+}
+
 pub async fn build_pgrx(
     dockerfile_path: Option<String>,
     platform: Option<String>,
@@ -140,15 +150,8 @@ pub async fn build_pgrx(
     println!("Using pgrx version {pgrx_version}");
 
     println!("Building pgrx extension at path {}", &path.display());
-    let mut dockerfile = String::new();
-    if dockerfile_path.is_some() {
-        let dockerfile_path_unwrapped = dockerfile_path.unwrap();
-        println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
-        dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
-    } else {
-        dockerfile = include_str!("./builders/Dockerfile.pgrx").to_string();
-    }
-    let dockerfile = dockerfile.as_str();
+
+    let dockerfile = get_dockerfile(dockerfile_path).unwrap();
 
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", extension_name);
@@ -163,7 +166,7 @@ pub async fn build_pgrx(
         platform.clone(),
         docker.clone(),
         &image_name_prefix,
-        dockerfile,
+        &dockerfile,
         path,
         build_args,
     )
