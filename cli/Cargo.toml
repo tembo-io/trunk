@@ -1,6 +1,6 @@
 [package]
 name = "pg-trunk"
-version = "0.8.6"
+version = "0.8.7"
 edition = "2021"
 authors = ["Steven Miller", "Ian Stanton", "Vinícius Miguel"]
 description = "A package manager for PostgreSQL extensions"
@@ -35,7 +35,12 @@ tar = "0.4.38"
 tee_readwrite = "0.1.0"
 tempfile = "3.4.0"
 thiserror = "1.0.38"
-tokio = { version = "1.26.0", features = ["rt","rt-multi-thread","macros","sync"] }
+tokio = { version = "1.26.0", features = [
+    "rt",
+    "rt-multi-thread",
+    "macros",
+    "sync",
+] }
 tokio-stream = "0.1.12"
 tokio-task-manager = "0.2.0"
 toml = "0.7.2"
