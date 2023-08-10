@@ -336,7 +336,7 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
         fs::remove_dir_all(repo_dir.clone()).unwrap();
     }
     let repo = Repository::clone(repo_url, &repo_dir).unwrap();
-    let refname = "REL_15_2";
+    let refname = "REL_15_3";
     let (object, reference) = repo.revparse_ext(refname).expect("Object not found");
     repo.checkout_tree(&object, None)
         .expect("Failed to checkout");
@@ -563,6 +563,96 @@ fn build_pgrx_with_trunk_toml_bad_version() -> Result<(), Box<dyn std::error::Er
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
     cmd.assert().code(101);
+
+    Ok(())
+}
+
+// Test for extension with no control file
+#[test]
+fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/auto_explain_test_{}", rng.gen_range(0..1000000));
+
+    let current_file_path = Path::new(file!()).canonicalize().unwrap();
+    // Example of a C extension requires another build-time requirement
+    let repo_url = "https://github.com/postgres/postgres.git";
+    let repo_dir_path = current_file_path.parent().unwrap().join("postgres");
+    let repo_dir = repo_dir_path;
+    if repo_dir.exists() {
+        fs::remove_dir_all(repo_dir.clone()).unwrap();
+    }
+    let repo = Repository::clone(repo_url, &repo_dir).unwrap();
+    let refname = "REL_15_3";
+    let (object, reference) = repo.revparse_ext(refname).expect("Object not found");
+    repo.checkout_tree(&object, None)
+        .expect("Failed to checkout");
+    match reference {
+        // gref is an actual reference like branches or tags
+        Some(gref) => repo.set_head(gref.name().unwrap()),
+        // this is a commit, not a reference
+        None => repo.set_head_detached(object.id()),
+    }
+        .expect("Failed to set HEAD");
+
+    // Construct a path relative to the current file's directory
+    let mut extension_path = std::path::PathBuf::from(file!());
+    extension_path.pop(); // Remove the file name from the path
+    extension_path.push("postgres");
+
+    let mut dockerfile_path = std::path::PathBuf::from(file!());
+    dockerfile_path.pop(); // Remove the file name from the path
+    dockerfile_path.push("test_builders");
+    dockerfile_path.push("Dockerfile.auto_explain");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(extension_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(output_dir.clone());
+    cmd.arg("--dockerfile");
+    cmd.arg(dockerfile_path.clone());
+    cmd.arg("--install-command");
+    cmd.arg("cd contrib/auto_explain && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib");
+    cmd.arg("--version");
+    cmd.arg("15.3.0");
+    cmd.arg("--name");
+    cmd.arg("auto_explain");
+    cmd.assert().code(0);
+    assert!(
+        std::path::Path::new(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str())
+            .exists()
+    );
+    // assert any license files are included
+    let output = Command::new("tar")
+        .arg("-tvf")
+        .arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str())
+        .output()
+        .expect("failed to run tar command");
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("licenses/COPYRIGHT"));
+    assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
+
+    // assert extension_name is in manifest.json
+    let _extract = Command::new("tar")
+        .arg("-xvf")
+        .arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str())
+        .arg("-C")
+        .arg(format!("{output_dir}").as_str())
+        .output()
+        .expect("failed to run tar command");
+
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    assert!(stdout.contains("\"extension_name\": \"auto_explain\""));
+
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
+
+    // assert extension name is present in stdout
 
     Ok(())
 }

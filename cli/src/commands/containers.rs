@@ -413,7 +413,6 @@ pub async fn package_installed_extension_files(
     let file_stream = docker.download_from_container(container_id, options_usrdir);
 
     // If extension_name parameter is none, check for control file and fetch extension_name
-    // TODO(ianstanton) Handle case where there is no control file
     if extension_name.is_none() {
         for s in sharedir_list.clone() {
             if s.contains(".control") {
@@ -425,6 +424,12 @@ pub async fn package_installed_extension_files(
                 extension_name = Some(n.to_owned());
             }
         }
+    }
+
+    // If extension_name is still none, we can assume no control file was found
+    if extension_name.is_none() {
+        println!("No control file found for extension {}", &name);
+        extension_name = Some(name.clone())
     }
 
     // Create a sync task within the tokio runtime to copy the file from docker to tar
