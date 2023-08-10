@@ -107,6 +107,17 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"test_pgrx_extension\""));
 
+    // assert post installation steps contain correct CREATE EXTENSION command
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str());
+    cmd.arg("test_pgrx_extension");
+    let output = cmd.output()?;
+    let stdout = String::from_utf8(output.stdout)?;
+    cmd.assert().code(0);
+    assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
+
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
@@ -315,6 +326,18 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     assert!(stdout.contains("\"name\": \"pgsql_http\""));
     assert!(stdout.contains("\"extension_name\": \"http\""));
 
+    // assert post installation steps contain correct CREATE EXTENSION command
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str());
+    cmd.arg("pgsql_http");
+    let output = cmd.output()?;
+    let stdout = String::from_utf8(output.stdout)?;
+    cmd.assert().code(0);
+    assert!(!stdout.contains("CREATE EXTENSION IF NOT EXISTS pgsql_http CASCADE;"));
+    assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS http CASCADE;"));
+
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
@@ -406,8 +429,6 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
-    // assert extension name is present in stdout
-
     Ok(())
 }
 
@@ -454,6 +475,17 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
+
+    // assert post installation steps contain correct CREATE EXTENSION command
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str());
+    cmd.arg("pg_cron");
+    let output = cmd.output()?;
+    let stdout = String::from_utf8(output.stdout)?;
+    cmd.assert().code(0);
+    assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -510,6 +542,18 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
+
+    // assert post installation steps contain correct CREATE EXTENSION command
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str());
+    cmd.arg("test_pgrx_extension");
+    let output = cmd.output()?;
+    let stdout = String::from_utf8(output.stdout)?;
+    cmd.assert().code(0);
+    assert!(!stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
+    assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -650,8 +694,6 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
-
-    // assert extension name is present in stdout
 
     Ok(())
 }
