@@ -592,7 +592,7 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
         // this is a commit, not a reference
         None => repo.set_head_detached(object.id()),
     }
-        .expect("Failed to set HEAD");
+    .expect("Failed to set HEAD");
 
     // Construct a path relative to the current file's directory
     let mut extension_path = std::path::PathBuf::from(file!());
@@ -620,8 +620,7 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("auto_explain");
     cmd.assert().code(0);
     assert!(
-        std::path::Path::new(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str())
-            .exists()
+        std::path::Path::new(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str()).exists()
     );
     // assert any license files are included
     let output = Command::new("tar")
