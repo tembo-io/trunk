@@ -59,6 +59,8 @@ fn install_manifest_v1_extension() -> Result<(), Box<dyn std::error::Error>> {
     );
     assert!(std::path::Path::new(format!("{pkglibdir}/my_extension.so").as_str()).exists());
     Ok(())
+
+    // assert extension_name is in output
 }
 
 #[test]
@@ -92,6 +94,8 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/LICENSE.txt"));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
+
+    // assert extension_name is in manifest.json
 
     Ok(())
 }
@@ -199,6 +203,8 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
+    // assert extension_name is in manifest.json
+
     Ok(())
 }
 
@@ -263,6 +269,8 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     assert!(stdout.contains("licenses/LICENSE.md"));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
+
+    // assert extension_name is in manifest.json
 
     Ok(())
 }
@@ -335,6 +343,10 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
+    // assert extension name is present in stdout
+
+    // assert extension_name is in manifest.json
+
     Ok(())
 }
 
@@ -367,6 +379,8 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/LICENSE"));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
+
+    // assert extension_name is in manifest.json
 
     Ok(())
 }
@@ -406,6 +420,8 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/LICENSE.txt"));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
+
+    // assert extension_name is in manifest.json
 
     Ok(())
 }

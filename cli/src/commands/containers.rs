@@ -15,6 +15,7 @@ use std::path::Path;
 use crate::commands::generic_build::GenericBuildError;
 use crate::manifest::Manifest;
 use crate::sync_utils::{ByteStreamSyncReceiver, ByteStreamSyncSender};
+use fancy_regex::Regex;
 use futures_util::stream::StreamExt;
 use hyper::Body;
 use rand::Rng;
@@ -356,11 +357,10 @@ pub async fn package_installed_extension_files(
     container_id: &str,
     package_path: &str,
     name: &str,
-    extension_name: &str,
+    mut extension_name: Option<String>,
     extension_version: &str,
 ) -> Result<(), anyhow::Error> {
     let name = name.to_owned();
-    let extension_name = extension_name.to_owned();
     let extension_version = extension_version.to_owned();
 
     let target_arch =
@@ -411,6 +411,20 @@ pub async fn package_installed_extension_files(
     // Looping over everything in that directory makes this way slower.
     let options_usrdir = Some(DownloadFromContainerOptions { path: "/usr" });
     let file_stream = docker.download_from_container(container_id, options_usrdir);
+
+    // If extension_name parameter is none, check for control file and fetch extension_name
+    if extension_name.is_none() {
+        for s in sharedir_list.clone() {
+            if s.contains(".control") {
+                println!("Fetching extension_name from control file: {}", s);
+                let re = Regex::new(r"([^/]+)(?=\.\w+$)")?;
+                let ext = re.find(&*s)?;
+                let n = ext.unwrap().as_str();
+                println!("Using extension_name: {}", n);
+                extension_name = Some(n.to_owned());
+            }
+        }
+    }
 
     // Create a sync task within the tokio runtime to copy the file from docker to tar
     let tar_handle = task::spawn_blocking(move || {

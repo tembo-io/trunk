@@ -67,7 +67,7 @@ pub async fn build_generic(
     path: &Path,
     output_path: &str,
     name: &str,
-    extension_name: &str,
+    extension_name: Option<String>,
     extension_version: &str,
     _task: Task,
 ) -> Result<(), GenericBuildError> {

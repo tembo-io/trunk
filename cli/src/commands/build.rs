@@ -197,7 +197,7 @@ impl SubCommand for BuildCommand {
                     build_settings.platform.clone(),
                     path,
                     &build_settings.output_path,
-                    build_settings.extension_name.clone().unwrap().as_str(),
+                    build_settings.extension_name,
                     cargo_toml,
                     task,
                 )
@@ -245,7 +245,7 @@ impl SubCommand for BuildCommand {
             path,
             &build_settings.output_path,
             build_settings.name.clone().unwrap().as_str(),
-            build_settings.extension_name.clone().unwrap().as_str(),
+            build_settings.extension_name,
             build_settings.version.clone().unwrap().as_str(),
             task,
         )

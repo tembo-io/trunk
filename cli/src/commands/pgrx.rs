@@ -91,7 +91,7 @@ pub async fn build_pgrx(
     platform: Option<String>,
     path: &Path,
     output_path: &str,
-    extension_name: &str,
+    extension_name: Option<String>,
     cargo_toml: toml::Table,
     _task: Task,
 ) -> Result<(), PgrxBuildError> {
