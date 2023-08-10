@@ -353,10 +353,16 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     // Example of a C extension requires another build-time requirement
     let repo_url = "https://github.com/postgres/postgres.git";
     // clone and checkout ref v1.5.0
-    let repo_dir_path = current_file_path.parent().unwrap().join("postgres_pg_stat_statements");
+    let repo_dir_path = current_file_path
+        .parent()
+        .unwrap()
+        .join("postgres_pg_stat_statements");
     let repo_dir = repo_dir_path;
     if repo_dir.exists() {
-        println!("Repo directory {:?} already exists. Deleting.", repo_dir.to_str());
+        println!(
+            "Repo directory {:?} already exists. Deleting.",
+            repo_dir.to_str()
+        );
         fs::remove_dir_all(repo_dir.clone())?;
     }
     let repo = Repository::clone(repo_url, &repo_dir).unwrap();
@@ -621,10 +627,16 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     let current_file_path = Path::new(file!()).canonicalize().unwrap();
     // Example of a C extension requires another build-time requirement
     let repo_url = "https://github.com/postgres/postgres.git";
-    let repo_dir_path = current_file_path.parent().unwrap().join("postgres_auto_explain");
+    let repo_dir_path = current_file_path
+        .parent()
+        .unwrap()
+        .join("postgres_auto_explain");
     let repo_dir = repo_dir_path;
     if repo_dir.exists() {
-        println!("Repo directory {:?} already exists. Deleting.", repo_dir.to_str());
+        println!(
+            "Repo directory {:?} already exists. Deleting.",
+            repo_dir.to_str()
+        );
         fs::remove_dir_all(repo_dir.clone())?;
     }
     let repo = Repository::clone(repo_url, &repo_dir).unwrap();
