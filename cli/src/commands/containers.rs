@@ -300,7 +300,6 @@ pub async fn build_image(
 
     let build_args = build_args.clone();
     let image_name = image_name.to_owned();
-    let mut platform_value = String::new();
 
     let mut options = BuildImageOptions {
         dockerfile: "Dockerfile",
@@ -312,7 +311,7 @@ pub async fn build_image(
     };
 
     if platform.is_some() {
-        platform_value = platform.unwrap();
+        let platform_value = platform.as_ref().unwrap();
         options.platform = platform_value.as_str();
     }
 

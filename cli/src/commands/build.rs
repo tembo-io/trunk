@@ -145,6 +145,15 @@ impl BuildCommand {
     }
 }
 
+fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
+    if let Some(dockerfile_path) = path {
+        println!("Using Dockerfile at {}", &dockerfile_path);
+        return Ok(fs::read_to_string(dockerfile_path.as_str())?);
+    } else {
+        return Ok(include_str!("./builders/Dockerfile.generic").to_string());
+    }
+}
+
 #[async_trait]
 impl SubCommand for BuildCommand {
     async fn execute(&self, task: Task) -> Result<(), anyhow::Error> {
@@ -212,14 +221,8 @@ impl SubCommand for BuildCommand {
                 "--version and --name are required unless building a PGRX extension"
             ));
         }
-        let mut dockerfile = String::new();
-        if build_settings.dockerfile_path.clone().is_some() {
-            let dockerfile_path_unwrapped = build_settings.dockerfile_path.clone().unwrap();
-            println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
-            dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
-        } else {
-            dockerfile = include_str!("./builders/Dockerfile.generic").to_string();
-        }
+
+        let dockerfile: String = get_dockerfile(build_settings.dockerfile_path.clone()).unwrap();
 
         let mut install_command_split: Vec<&str> = vec![];
         if let Some(install_command) = build_settings.install_command.as_ref() {
