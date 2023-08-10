@@ -413,6 +413,7 @@ pub async fn package_installed_extension_files(
     let file_stream = docker.download_from_container(container_id, options_usrdir);
 
     // If extension_name parameter is none, check for control file and fetch extension_name
+    // TODO(ianstanton) Handle case where there is no control file
     if extension_name.is_none() {
         for s in sharedir_list.clone() {
             if s.contains(".control") {

@@ -59,8 +59,6 @@ fn install_manifest_v1_extension() -> Result<(), Box<dyn std::error::Error>> {
     );
     assert!(std::path::Path::new(format!("{pkglibdir}/my_extension.so").as_str()).exists());
     Ok(())
-
-    // assert extension_name is in output
 }
 
 #[test]
@@ -92,10 +90,25 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
-    // delete the temporary file
-    std::fs::remove_dir_all(output_dir)?;
 
     // assert extension_name is in manifest.json
+    let _extract = Command::new("tar")
+        .arg("-xvf")
+        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
+        .arg("-C")
+        .arg(format!("{output_dir}").as_str())
+        .output()
+        .expect("failed to run tar command");
+
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    assert!(stdout.contains("\"extension_name\": \"test_pgrx_extension\""));
+
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
 
     Ok(())
 }
@@ -200,10 +213,24 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/LICENSE"));
     assert!(stdout.contains("licenses/NOTICE"));
 
+    // assert extension_name is in manifest.json
+    let _extract = Command::new("tar")
+        .arg("-xvf")
+        .arg(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str())
+        .arg("-C")
+        .arg(format!("{output_dir}").as_str())
+        .output()
+        .expect("failed to run tar command");
+
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    assert!(stdout.contains("\"extension_name\": \"pg_tle\""));
+
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
-
-    // assert extension_name is in manifest.json
 
     Ok(())
 }
@@ -256,21 +283,38 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     cmd.arg("--version");
     cmd.arg("1.5.0");
     cmd.arg("--name");
-    cmd.arg("http");
+    cmd.arg("pgsql_http");
     cmd.assert().code(0);
-    assert!(std::path::Path::new(format!("{output_dir}/http-1.5.0.tar.gz").as_str()).exists());
+    assert!(std::path::Path::new(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str()).exists());
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
-        .arg(format!("{output_dir}/http-1.5.0.tar.gz").as_str())
+        .arg(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str())
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.md"));
-    // delete the temporary file
-    std::fs::remove_dir_all(output_dir)?;
 
     // assert extension_name is in manifest.json
+    let _extract = Command::new("tar")
+        .arg("-xvf")
+        .arg(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str())
+        .arg("-C")
+        .arg(format!("{output_dir}").as_str())
+        .output()
+        .expect("failed to run tar command");
+
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    // Note - name and extension_name are different here
+    assert!(stdout.contains("\"name\": \"pgsql_http\""));
+    assert!(stdout.contains("\"extension_name\": \"http\""));
+
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
 
     Ok(())
 }
@@ -340,12 +384,27 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/COPYRIGHT"));
     assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
+
+    // assert extension_name is in manifest.json
+    let _extract = Command::new("tar")
+        .arg("-xvf")
+        .arg(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
+        .arg("-C")
+        .arg(format!("{output_dir}").as_str())
+        .output()
+        .expect("failed to run tar command");
+
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    assert!(stdout.contains("\"extension_name\": \"pg_stat_statements\""));
+
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
     // assert extension name is present in stdout
-
-    // assert extension_name is in manifest.json
 
     Ok(())
 }
@@ -377,10 +436,25 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE"));
-    // delete the temporary file
-    std::fs::remove_dir_all(output_dir)?;
 
     // assert extension_name is in manifest.json
+    let _extract = Command::new("tar")
+        .arg("-xvf")
+        .arg(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str())
+        .arg("-C")
+        .arg(format!("{output_dir}").as_str())
+        .output()
+        .expect("failed to run tar command");
+
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
+
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
 
     Ok(())
 }
@@ -418,10 +492,25 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
-    // delete the temporary file
-    std::fs::remove_dir_all(output_dir)?;
 
     // assert extension_name is in manifest.json
+    let _extract = Command::new("tar")
+        .arg("-xvf")
+        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
+        .arg("-C")
+        .arg(format!("{output_dir}").as_str())
+        .output()
+        .expect("failed to run tar command");
+
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
+
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
 
     Ok(())
 }
