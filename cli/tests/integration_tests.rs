@@ -285,7 +285,9 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     cmd.arg("--name");
     cmd.arg("pgsql_http");
     cmd.assert().code(0);
-    assert!(std::path::Path::new(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str()).exists());
+    assert!(
+        std::path::Path::new(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str()).exists()
+    );
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
