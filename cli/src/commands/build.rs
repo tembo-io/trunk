@@ -22,6 +22,8 @@ pub struct BuildCommand {
     version: Option<String>,
     #[arg(short = 'n', long = "name")]
     name: Option<String>,
+    #[arg(short = 's', long = "shared-preload-libraries")]
+    shared_preload_libraries: Option<Vec<String>>,
     #[arg(short = 'P', long = "platform")]
     platform: Option<String>,
     #[arg(short = 'd', long = "dockerfile")]
@@ -35,6 +37,7 @@ pub struct BuildSettings {
     output_path: String,
     version: Option<String>,
     name: Option<String>,
+    shared_preload_libraries: Option<Vec<String>>, 
     platform: Option<String>,
     dockerfile_path: Option<String>,
     install_command: Option<String>,
@@ -69,6 +72,13 @@ impl BuildCommand {
             }
         };
 
+        let version = get_from_trunk_toml_if_not_set_on_cli(
+            self.version.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "version",
+        );
+
         let name = get_from_trunk_toml_if_not_set_on_cli(
             self.name.clone(),
             trunk_toml.clone(),
@@ -76,11 +86,11 @@ impl BuildCommand {
             "name",
         );
 
-        let version = get_from_trunk_toml_if_not_set_on_cli(
-            self.version.clone(),
+        let shared_preload_libraries: Option<Vec<String>> = get_from_trunk_toml_if_not_set_on_cli(
+            self.shared_preload_libraries.clone(),
             trunk_toml.clone(),
             "extension",
-            "version",
+            "shared_preload_libraries",
         );
 
         let platform = get_from_trunk_toml_if_not_set_on_cli(
@@ -126,6 +136,7 @@ impl BuildCommand {
             output_path,
             version,
             name,
+            shared_preload_libraries,
             platform,
             dockerfile_path,
             install_command,
