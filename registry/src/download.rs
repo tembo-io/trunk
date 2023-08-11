@@ -17,7 +17,7 @@ pub async fn latest_version(
         "SELECT num FROM versions WHERE extension_id = $1 ORDER BY created_at DESC LIMIT 1;",
         id
     )
-    .fetch_optional(&mut tx)
+    .fetch_one(&mut tx)
     .await?;
-    Ok(latest.unwrap().num.unwrap())
+    Ok(latest.num.unwrap())
 }
