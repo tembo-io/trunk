@@ -80,6 +80,26 @@
     },
     "query": "SELECT user_id\n                FROM api_tokens\n                WHERE\n                    token = $1"
   },
+  "152d01b0e157fa58129e96f5bd3e7536e393feb12f12adcafadbabebd0918fa9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "num",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT num FROM versions WHERE extension_id = $1 ORDER BY string_to_array(num, '.')::int[] DESC LIMIT 1;"
+  },
   "1d305b40cb84e8ed2a3f1ed57a9bc8375387a13936128bf91ae5f30e0ee75d5e": {
     "describe": {
       "columns": [],
@@ -547,26 +567,6 @@
       }
     },
     "query": "\n            INSERT INTO extensions(name, created_at, updated_at, description, homepage, documentation, repository)\n            VALUES ($1, (now() at time zone 'utc'), (now() at time zone 'utc'), $2, $3, $4, $5)\n            RETURNING id\n            "
-  },
-  "514adcd37018e70d0c1e0ca4c7726d6d4e733d8d3c4c893290bf87eca4452abf": {
-    "describe": {
-      "columns": [
-        {
-          "name": "max",
-          "ordinal": 0,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        null
-      ],
-      "parameters": {
-        "Left": [
-          "Int4"
-        ]
-      }
-    },
-    "query": "SELECT MAX(num) FROM versions WHERE extension_id = $1;"
   },
   "5650cfabaad409805e475fa8677e93ee489ee6e2f95d811635ec6b6ffbcce688": {
     "describe": {
