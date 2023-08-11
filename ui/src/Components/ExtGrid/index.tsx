@@ -38,10 +38,6 @@ export default function ExtGrid({
     }
   }, [router.query.cat]);
 
-  const getCategorySlug = (categoryName: string) => {
-    return categories.find((cat) => cat.name === categoryName)?.slug;
-  };
-
   return (
     <div className={styles.container} ref={sectionTitleRef}>
       <div className={styles.sectionHeader}>
@@ -58,19 +54,43 @@ export default function ExtGrid({
               <p className={styles.interMed16}>{ext.name}</p>
             </div>
             <p className={cx(styles.interReg12, styles.description)}>{truncate(ext.description)}</p>
-            {ext?.categories[0] && (
-              <Link
-                href={`/?cat=${getCategorySlug(ext.categories[0])}`}
-                shallow
-                onClick={(e) => e.stopPropagation()}
-                className={styles.catBubble}
-              >
-                {ext.categories[0]}
-              </Link>
+            {ext && (
+              <CategoryTags extension={ext} categories={categories} />
             )}
           </button>
         ))}
       </div>
     </div>
   );
+}
+
+
+interface CategoryTagSearchProps {
+  extension: Extension;
+  categories: Category[];
+}
+
+const CategoryTags: React.FC<CategoryTagSearchProps> = ({ extension, categories }) => {
+  const getCategorySlug = (categoryName: string) => {
+    return categories.find((cat) => cat.name === categoryName)?.slug;
+  };
+
+  // Take at most two categories of the extension
+  function atMostTwoCategories() {
+    return extension.categories.slice(0, 2);
+  }
+
+  return <div className={styles.categoryTags}>
+    {atMostTwoCategories().map((category, index) => (
+        <Link
+          key={index}
+          href={`/?cat=${getCategorySlug(category)}`}
+          shallow
+          onClick={(e) => e.stopPropagation()}
+          className={styles.catBubble}
+        >
+          {category}
+        </Link>
+    ))}
+  </div>;
 }
