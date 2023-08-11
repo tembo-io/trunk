@@ -427,7 +427,10 @@ pub async fn package_installed_extension_files(
 
     // If extension_name is still none, we can assume no control file was found
     if extension_name.is_none() {
-        println!("No control file found for extension {}", &name);
+        println!(
+            "No control file found. Falling back to extension name '{}'",
+            &name
+        );
         extension_name = Some(name.clone())
     }
 

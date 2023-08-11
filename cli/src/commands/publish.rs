@@ -366,7 +366,7 @@ impl SubCommand for PublishCommand {
                 );
             } else {
                 println!(
-                    "Did not find extension_name in manifest.json. Falling back to {}",
+                    "Did not find extension_name in manifest.json. Falling back to '{}'",
                     publish_settings.name.clone()
                 );
             }
