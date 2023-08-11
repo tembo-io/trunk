@@ -13,7 +13,7 @@ pub async fn latest_version(
         .fetch_one(&mut tx)
         .await?;
     let id: i32 = ext.id as i32;
-    let latest = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1 ORDER BY string_to_array(num, '.')::int[] DESC LIMIT 1;", id)
+    let latest = sqlx::query!("SELECT num FROM versions WHERE extension_id = $1 ORDER BY string_to_array(num, '.')::int[] DESC LIMIT 1;", id)
         .fetch_one(&mut tx)
         .await?;
     Ok(latest.num.unwrap())
