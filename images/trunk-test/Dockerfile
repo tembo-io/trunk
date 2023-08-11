@@ -63,6 +63,29 @@ RUN apt-get update && apt-get install -y \
     libhiredis-dev \
     libsybdb5 \
     libpython3.10-dev \
+    r-base-core \
+    openssl \
+    liblz4-1 \
+    libpcre2-8-0 \
+    libuuid1 \
+    libgroonga0 \
+    libopenblas0-pthread \
+    libcurl4 \
+    libjson-c5 \
+    libsodium23 \
+    libgcc-s1 \
+    libselinux1 \
+    librdkafka1 \
+    libgdal30 \
+    libcrypt1 \
+    liburiparser1 \
+    libfreetype6 \
+    libzstd1 \
+    zlib1g \
+    libperl5.34 \
+    libgomp1 \
+    libssl3 \
+    libsfcgal1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Build Postgres from source
