@@ -14,8 +14,11 @@ pub async fn latest_version(
         .await?;
     let id: i32 = ext.id as i32;
     // trigger
-    let latest = sqlx::query!("SELECT MAX(num) FROM versions WHERE extension_id = $1;", id)
-        .fetch_one(&mut tx)
-        .await?;
-    Ok(latest.max.unwrap())
+    let latest = sqlx::query!(
+        "SELECT num FROM versions WHERE extension_id = $1 ORDER BY created_at DESC LIMIT 1;",
+        id
+    )
+    .fetch_one(&mut tx)
+    .await?;
+    Ok(latest.num.unwrap())
 }
