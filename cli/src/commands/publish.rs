@@ -5,22 +5,22 @@ use crate::config;
 use crate::config::{
     get_from_trunk_toml_if_not_set_on_cli, get_string_vec_from_trunk_toml_if_not_set_on_cli,
 };
+use crate::manifest::Manifest;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use clap::Args;
+use flate2::read::GzDecoder;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
 use reqwest::StatusCode;
 use serde::Deserialize;
 use serde_json::json;
 use std::fs::File;
+use std::io::{Read, Seek};
 use std::path::{Path, PathBuf};
 use std::{env, fs};
-use std::io::{Read, Seek};
-use flate2::read::GzDecoder;
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
-use crate::manifest::Manifest;
 
 #[derive(Args)]
 pub struct PublishCommand {
@@ -355,10 +355,20 @@ impl SubCommand for PublishCommand {
             }
 
             if let Some(manifest) = manifest {
-                publish_settings.extension_name = Option::from(manifest.extension_name.unwrap_or(publish_settings.name.clone()));
-                println!("Found extension_name: {}", publish_settings.extension_name.clone().unwrap());
+                publish_settings.extension_name = Option::from(
+                    manifest
+                        .extension_name
+                        .unwrap_or(publish_settings.name.clone()),
+                );
+                println!(
+                    "Found extension_name: {}",
+                    publish_settings.extension_name.clone().unwrap()
+                );
             } else {
-                println!("Did not find extension_name in manifest.json. Falling back to {}", publish_settings.name.clone());
+                println!(
+                    "Did not find extension_name in manifest.json. Falling back to {}",
+                    publish_settings.name.clone()
+                );
             }
         }
 
