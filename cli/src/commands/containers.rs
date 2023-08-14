@@ -354,11 +354,13 @@ pub async fn package_installed_extension_files(
     docker: Docker,
     container_id: &str,
     package_path: &str,
+    shared_preload_libraries: Option<Vec<String>>,
     extension_name: &str,
     extension_version: &str,
 ) -> Result<(), anyhow::Error> {
     let extension_name = extension_name.to_owned();
     let extension_version = extension_version.to_owned();
+    let shared_preload_libaries = shared_preload_libraries.to_owned();
 
     let target_arch =
         exec_in_container(docker.clone(), container_id, vec!["uname", "-m"], None).await?;
@@ -420,6 +422,7 @@ pub async fn package_installed_extension_files(
             extension_name,
             extension_version,
             manifest_version: 2,
+            shared_preload_libraries,
             architecture: target_arch,
             sys: "linux".to_string(),
             files: None,

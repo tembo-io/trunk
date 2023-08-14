@@ -246,6 +246,7 @@ impl SubCommand for BuildCommand {
             path,
             &build_settings.output_path,
             build_settings.name.clone().unwrap().as_str(),
+            build_settings.shared_preload_libraries,
             build_settings.version.clone().unwrap().as_str(),
             task,
         )
