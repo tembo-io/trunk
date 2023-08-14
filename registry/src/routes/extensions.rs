@@ -160,13 +160,14 @@ pub async fn publish(
                     // Update updated_at timestamp
                     sqlx::query!(
                         "UPDATE versions
-                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2
+                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5
                     WHERE extension_id = $3
                     AND num = $4",
                         new_extension.license,
                         user_info.user_name,
                         extension_id as i32,
-                        new_extension.vers.to_string()
+                        new_extension.vers.to_string(),
+                        new_extension.extension_name
                     )
                     .execute(&mut tx)
                     .await?;
@@ -175,14 +176,15 @@ pub async fn publish(
                     // Create new record in versions table
                     sqlx::query!(
                         "
-                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)
-                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)
+                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name)
+                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6)
                     ",
                         extension_id as i32,
                         new_extension.vers.to_string(),
                         false,
                         new_extension.license,
-                        user_info.user_name
+                        user_info.user_name,
+                        new_extension.extension_name
                     )
                     .execute(&mut tx)
                     .await?;
@@ -352,10 +354,68 @@ pub async fn get_version_history(
         .fetch_all(&mut tx)
         .await?;
 
+    // TODO(ianstanton) DRY
     for row in rows.iter() {
         let data = json!(
         {
           "name": name.to_owned(),
+          "extension_name": row.extension_name.to_owned(),
+          "version": row.num,
+          "createdAt": row.created_at.to_string(),
+          "updatedAt": row.updated_at.to_string(),
+          "description": description,
+          "homepage": homepage,
+          "documentation": documentation,
+          "repository": repository,
+          "license": row.license,
+          "owners": owners,
+          "publisher": row.published_by,
+          "categories": categories
+        });
+        versions.push(data);
+    }
+    // Return results in response
+    let json = serde_json::to_string_pretty(&versions)?;
+    Ok(HttpResponse::Ok().body(json))
+}
+
+#[get("/extensions/detail/{extension_name}/{version}")]
+pub async fn get_version(
+    conn: web::Data<Pool<Postgres>>,
+    path: web::Path<(String, String)>,
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    let (name, version) = path.into_inner();
+    let mut versions: Vec<Value> = Vec::new();
+
+    // Create a database transaction
+    let mut tx = conn.begin().await?;
+    // Get extension information
+    let row = sqlx::query!("SELECT * FROM extensions WHERE name = $1", name)
+        .fetch_one(&mut tx)
+        .await?;
+    let id: i32 = row.id as i32;
+    let description = row.description.to_owned();
+    let homepage = row.homepage.to_owned();
+    let documentation = row.documentation.to_owned();
+    let repository = row.repository.to_owned();
+    let owners = extension_owners(&name, conn.clone()).await?;
+    let categories = get_categories_for_extension(id as i64, conn).await?;
+
+    // Get information for all versions of extension
+    let rows = sqlx::query!(
+        "SELECT * FROM versions WHERE extension_id = $1 AND num = $2",
+        id,
+        version
+    )
+    .fetch_all(&mut tx)
+    .await?;
+
+    // TODO(ianstanton) DRY
+    for row in rows.iter() {
+        let data = json!(
+        {
+          "name": name.to_owned(),
+          "extension_name": row.extension_name.to_owned(),
           "version": row.num,
           "createdAt": row.created_at.to_string(),
           "updatedAt": row.updated_at.to_string(),
