@@ -313,21 +313,6 @@
     },
     "query": "SELECT * FROM extension_owners WHERE extension_id = $1;"
   },
-  "316aa6ecdeb3925645b4896eb08d1b21eae530f998f401bed28bcd062f13df64": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Varchar",
-          "Varchar",
-          "Int4",
-          "Text"
-        ]
-      }
-    },
-    "query": "UPDATE versions\n                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2\n                    WHERE extension_id = $3\n                    AND num = $4"
-  },
   "36bc3613b2f0f2bf8347edc3ddc1c117a164f45f16195ff92c05f2eb764779bd": {
     "describe": {
       "columns": [
@@ -439,22 +424,6 @@
       }
     },
     "query": "SELECT user_name\n                FROM api_tokens\n                WHERE\n                    token = $1"
-  },
-  "447d8952c319e0b5cd27493a041f757fc2cace09a14f9d027dbc4ac4b345acad": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Varchar"
-        ]
-      }
-    },
-    "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)\n                    "
   },
   "49a41631cfe21efe58022e6e4026e6f3d388d8bb12ac478dbf30addab78d430e": {
     "describe": {
@@ -987,6 +956,39 @@
       }
     },
     "query": "DELETE FROM extension_owners\n             WHERE extension_id = $1"
+  },
+  "d937fc15c5fff8bf53234f5a14a3b1bec5e0d2160f5f0c4943c82ce669dd4a8a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6)\n                    "
+  },
+  "dc3b814b508759ce2eb08e207f85d3a2a030337ed0836f0968001046321b05ea": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Text",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "UPDATE versions\n                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5\n                    WHERE extension_id = $3\n                    AND num = $4"
   },
   "f29a9769c67e94ef0eb534c3ea009496dc13426c6d46f545ada1f9ebc9def26b": {
     "describe": {
