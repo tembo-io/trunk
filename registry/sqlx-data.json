@@ -685,6 +685,11 @@
           "name": "links",
           "ordinal": 12,
           "type_info": "Varchar"
+        },
+        {
+          "name": "extension_name",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -693,6 +698,7 @@
         true,
         false,
         false,
+        true,
         true,
         true,
         true,
@@ -844,6 +850,11 @@
           "name": "links",
           "ordinal": 12,
           "type_info": "Varchar"
+        },
+        {
+          "name": "extension_name",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -852,6 +863,7 @@
         true,
         false,
         false,
+        true,
         true,
         true,
         true,
