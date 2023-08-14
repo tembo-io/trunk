@@ -97,7 +97,7 @@ pub async fn build_generic(
 
     println!("Determining installation files...");
     let _exec_output =
-        exec_in_container(docker.clone(), &temp_container.id, install_command, None).await?;
+        exec_in_container(&docker, &temp_container.id, install_command, None).await?;
 
     // Search for license files to include
     println!("Determining license files to include...");
@@ -105,7 +105,7 @@ pub async fn build_generic(
 
     // Create directory /usr/licenses/
     let _exec_output = exec_in_container(
-        docker.clone(),
+        &docker,
         &temp_container.id,
         vec!["mkdir", "/usr/licenses/"],
         None,

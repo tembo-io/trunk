@@ -177,7 +177,7 @@ pub async fn build_pgrx(
 
     println!("Determining installation files...");
     let _exec_output = exec_in_container(
-        docker.clone(),
+        &docker,
         &temp_container.id,
         vec![
             "cp",
@@ -196,7 +196,7 @@ pub async fn build_pgrx(
 
     // Create directory /usr/licenses/
     let _exec_output = exec_in_container(
-        docker.clone(),
+        &docker,
         &temp_container.id,
         vec!["mkdir", "/usr/licenses/"],
         None,

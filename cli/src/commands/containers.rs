@@ -34,10 +34,10 @@ pub struct ReclaimableContainer {
 
 impl ReclaimableContainer {
     #[must_use]
-    pub fn new(name: String, docker: &Docker, task: Task) -> Self {
+    pub fn new(name: String, docker: Docker, task: Task) -> Self {
         Self {
             id: name,
-            docker: docker.clone(),
+            docker,
             task,
         }
     }
@@ -60,7 +60,7 @@ impl Drop for ReclaimableContainer {
 }
 
 pub async fn exec_in_container(
-    docker: Docker,
+    docker: &Docker,
     container_id: &str,
     command: Vec<&str>,
     env: Option<Vec<&str>>,
@@ -139,7 +139,7 @@ pub async fn run_temporary_container(
     // This will stop the container, whether we return an error or not
     Ok(ReclaimableContainer::new(
         container.id.clone(),
-        &docker,
+        docker,
         _task,
     ))
 }
@@ -148,17 +148,12 @@ pub async fn find_installed_extension_files(
     docker: Docker,
     container_id: &str,
 ) -> Result<HashMap<String, Vec<String>>, anyhow::Error> {
-    let sharedir = exec_in_container(
-        docker.clone(),
-        container_id,
-        vec!["pg_config", "--sharedir"],
-        None,
-    )
-    .await?;
+    let sharedir =
+        exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
     let sharedir = sharedir.trim();
 
     let pkglibdir = exec_in_container(
-        docker.clone(),
+        &docker,
         container_id,
         vec!["pg_config", "--pkglibdir"],
         None,
@@ -360,21 +355,15 @@ pub async fn package_installed_extension_files(
     let extension_name = extension_name.to_owned();
     let extension_version = extension_version.to_owned();
 
-    let target_arch =
-        exec_in_container(docker.clone(), container_id, vec!["uname", "-m"], None).await?;
+    let target_arch = exec_in_container(&docker, container_id, vec!["uname", "-m"], None).await?;
     let target_arch = target_arch.trim().to_string();
 
-    let sharedir = exec_in_container(
-        docker.clone(),
-        container_id,
-        vec!["pg_config", "--sharedir"],
-        None,
-    )
-    .await?;
+    let sharedir =
+        exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
     let sharedir = sharedir.trim();
 
     let pkglibdir = exec_in_container(
-        docker.clone(),
+        &docker,
         container_id,
         vec!["pg_config", "--pkglibdir"],
         None,
