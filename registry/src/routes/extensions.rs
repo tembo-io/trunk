@@ -402,9 +402,13 @@ pub async fn get_version(
     let categories = get_categories_for_extension(id as i64, conn).await?;
 
     // Get information for all versions of extension
-    let rows = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1 AND num = $2", id, version)
-        .fetch_all(&mut tx)
-        .await?;
+    let rows = sqlx::query!(
+        "SELECT * FROM versions WHERE extension_id = $1 AND num = $2",
+        id,
+        version
+    )
+    .fetch_all(&mut tx)
+    .await?;
 
     // TODO(ianstanton) DRY
     for row in rows.iter() {
