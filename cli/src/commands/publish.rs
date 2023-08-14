@@ -16,7 +16,7 @@ use reqwest::StatusCode;
 use serde::Deserialize;
 use serde_json::json;
 use std::fs::File;
-use std::io::{Read, Seek};
+use std::io::Seek;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 use tar::{Archive, EntryType};

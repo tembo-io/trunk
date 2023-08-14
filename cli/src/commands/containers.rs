@@ -204,11 +204,11 @@ pub async fn find_installed_extension_files(
     }
 
     println!("Sharedir files:");
-    for sharedir_file in sharedir_list.clone() {
+    for sharedir_file in &sharedir_list {
         println!("\t{sharedir_file}");
     }
     println!("Pkglibdir files:");
-    for pkglibdir_file in pkglibdir_list.clone() {
+    for pkglibdir_file in &pkglibdir_list {
         println!("\t{pkglibdir_file}");
     }
 
@@ -413,7 +413,7 @@ pub async fn package_installed_extension_files(
 
     // If extension_name parameter is none, check for control file and fetch extension_name
     if extension_name.is_none() {
-        for s in sharedir_list.clone() {
+        for s in &sharedir_list {
             if s.contains(".control") {
                 println!("Fetching extension_name from control file: {}", s);
                 let re = Regex::new(r"([^/]+)(?=\.\w+$)")?;
