@@ -160,13 +160,14 @@ pub async fn publish(
                     // Update updated_at timestamp
                     sqlx::query!(
                         "UPDATE versions
-                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2
+                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5
                     WHERE extension_id = $3
                     AND num = $4",
                         new_extension.license,
                         user_info.user_name,
                         extension_id as i32,
-                        new_extension.vers.to_string()
+                        new_extension.vers.to_string(),
+                        new_extension.extension_name
                     )
                     .execute(&mut tx)
                     .await?;
@@ -175,14 +176,15 @@ pub async fn publish(
                     // Create new record in versions table
                     sqlx::query!(
                         "
-                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)
-                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)
+                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name)
+                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6)
                     ",
                         extension_id as i32,
                         new_extension.vers.to_string(),
                         false,
                         new_extension.license,
-                        user_info.user_name
+                        user_info.user_name,
+                        new_extension.extension_name
                     )
                     .execute(&mut tx)
                     .await?;
@@ -356,6 +358,7 @@ pub async fn get_version_history(
         let data = json!(
         {
           "name": name.to_owned(),
+          "extension_name": row.extension_name.to_owned(),
           "version": row.num,
           "createdAt": row.created_at.to_string(),
           "updatedAt": row.updated_at.to_string(),
