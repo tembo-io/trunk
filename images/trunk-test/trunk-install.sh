@@ -7,7 +7,7 @@ for line in $lines
 do
         trunk install $line
         if [ $? -ne 0 ]; then
-            echo "CREATE EXTENSION command failed"
+            echo "trunk install command failed"
             failed_extensions+=("$line")
         fi
         printf "\n\n"
