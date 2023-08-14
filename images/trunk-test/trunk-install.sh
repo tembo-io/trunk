@@ -9,7 +9,7 @@ do
         printf "\n\n"
 done
 IFS=$'\n' extensions=(`psql -tA postgres -c 'select name from pg_available_extensions;'`)
-for ext in $extensions
+for ext in "${extensions[@]}"
 do
         psql -c "create extension if not exists \"$ext\" cascade;"
         if [ $? -ne 0 ]; then
