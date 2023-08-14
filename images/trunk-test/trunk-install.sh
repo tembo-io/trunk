@@ -6,6 +6,10 @@ lines=$(cat $file)
 for line in $lines
 do
         trunk install $line
+        if [ $? -ne 0 ]; then
+            echo "CREATE EXTENSION command failed"
+            failed_extensions+=("$line")
+        fi
         printf "\n\n"
 done
 IFS=$'\n' extensions=(`psql -tA postgres -c 'select name from pg_available_extensions;'`)
@@ -14,7 +18,7 @@ do
         psql -c "create extension if not exists \"$ext\" cascade;"
         if [ $? -ne 0 ]; then
             echo "CREATE EXTENSION command failed"
-            failed_extensions+=("$line")
+            failed_extensions+=("$ext")
         fi
         printf "\n\n"
 done
