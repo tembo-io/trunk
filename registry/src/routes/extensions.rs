@@ -354,6 +354,59 @@ pub async fn get_version_history(
         .fetch_all(&mut tx)
         .await?;
 
+    // TODO(ianstanton) DRY
+    for row in rows.iter() {
+        let data = json!(
+        {
+          "name": name.to_owned(),
+          "extension_name": row.extension_name.to_owned(),
+          "version": row.num,
+          "createdAt": row.created_at.to_string(),
+          "updatedAt": row.updated_at.to_string(),
+          "description": description,
+          "homepage": homepage,
+          "documentation": documentation,
+          "repository": repository,
+          "license": row.license,
+          "owners": owners,
+          "publisher": row.published_by,
+          "categories": categories
+        });
+        versions.push(data);
+    }
+    // Return results in response
+    let json = serde_json::to_string_pretty(&versions)?;
+    Ok(HttpResponse::Ok().body(json))
+}
+
+#[get("/extensions/detail/{extension_name}/{version}")]
+pub async fn get_version(
+    conn: web::Data<Pool<Postgres>>,
+    path: web::Path<(String, String)>,
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    let (name, version) = path.into_inner();
+    let mut versions: Vec<Value> = Vec::new();
+
+    // Create a database transaction
+    let mut tx = conn.begin().await?;
+    // Get extension information
+    let row = sqlx::query!("SELECT * FROM extensions WHERE name = $1", name)
+        .fetch_one(&mut tx)
+        .await?;
+    let id: i32 = row.id as i32;
+    let description = row.description.to_owned();
+    let homepage = row.homepage.to_owned();
+    let documentation = row.documentation.to_owned();
+    let repository = row.repository.to_owned();
+    let owners = extension_owners(&name, conn.clone()).await?;
+    let categories = get_categories_for_extension(id as i64, conn).await?;
+
+    // Get information for all versions of extension
+    let rows = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1 AND num = $2", id, version)
+        .fetch_all(&mut tx)
+        .await?;
+
+    // TODO(ianstanton) DRY
     for row in rows.iter() {
         let data = json!(
         {

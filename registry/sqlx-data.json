@@ -945,6 +945,105 @@
     },
     "query": "DELETE FROM versions\n             WHERE extension_id = $1"
   },
+  "ac75c8170d5f5bc2fa5c48cdec0ec8899a2cfd1fd679e3656fe95c19650e5bd3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "extension_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "num",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "downloads",
+          "ordinal": 5,
+          "type_info": "Int4"
+        },
+        {
+          "name": "features",
+          "ordinal": 6,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "yanked",
+          "ordinal": 7,
+          "type_info": "Bool"
+        },
+        {
+          "name": "license",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "extension_size",
+          "ordinal": 9,
+          "type_info": "Int4"
+        },
+        {
+          "name": "published_by",
+          "ordinal": 10,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "checksum",
+          "ordinal": 11,
+          "type_info": "Bpchar"
+        },
+        {
+          "name": "links",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "extension_name",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM versions WHERE extension_id = $1 AND num = $2"
+  },
   "bdd38a42eae77d1ff93284a7a26973190408d533f19a7972bd9932c7204f5e33": {
     "describe": {
       "columns": [],
