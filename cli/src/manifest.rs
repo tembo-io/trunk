@@ -51,6 +51,8 @@ pub struct Manifest {
     /// }
     /// ```
     pub dependencies: Option<HashMap<String, Vec<String>>>,
+    pub name: String,
+    pub extension_name: Option<String>,
     #[serde(rename = "version")]
     pub extension_version: String,
     pub manifest_version: i32,
