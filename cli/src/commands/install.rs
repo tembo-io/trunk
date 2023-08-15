@@ -167,7 +167,7 @@ async fn install(
 }
 
 async fn install_file(
-    extension_name: String,
+    name: String,
     file: &PathBuf,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
@@ -213,9 +213,9 @@ async fn install_file(
         let entries = archive.entries_with_seek()?;
         for this_entry in entries {
             let mut entry = this_entry?;
-            let name = entry.path()?;
+            let fname = entry.path()?;
             if entry.header().entry_type() == EntryType::file()
-                && name.clone() == Path::new("manifest.json")
+                && fname.clone() == Path::new("manifest.json")
             {
                 let manifest_json = serde_json::from_reader(entry)?;
                 // if the manifest_version key does not exist, then create it with a value of 1
@@ -245,8 +245,7 @@ async fn install_file(
                 let manifest_result = serde_json::from_value(manifest_json);
                 manifest.replace(manifest_result?);
             } else if entry.header().entry_type() == EntryType::file()
-                && name.clone().file_name()
-                    == Some(OsStr::new(format!("{extension_name}.control").as_str()))
+                && fname.clone().file_name() == Some(OsStr::new(format!("{name}.control").as_str()))
             {
                 let mut control_file = String::new();
                 entry.read_to_string(&mut control_file)?;
@@ -283,7 +282,7 @@ async fn install_file(
         let manifest_files = manifest.files.take().unwrap_or_default();
         println!(
             "Installing {} {}",
-            manifest.extension_name, manifest.extension_version
+            manifest.name, manifest.extension_version
         );
         let host_arch = if cfg!(target_arch = "aarch64") {
             "aarch64"
@@ -296,6 +295,9 @@ async fn install_file(
         } else {
             "unsupported"
         };
+
+        let extension_name = manifest.extension_name.unwrap_or("".to_string());
+
         if manifest.manifest_version > 1 && host_arch != manifest.architecture {
             println!(
                 "This package is not compatible with your architecture: {}, it is compatible with {}",
