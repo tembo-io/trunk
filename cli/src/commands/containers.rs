@@ -341,7 +341,8 @@ pub async fn build_image(
             }
         }
     }
-    Ok(image_name.to_string())
+
+    Ok(image_name)
 }
 
 // Scan sharedir and package lib dir from a Trunk builder container for files from a provided list.
