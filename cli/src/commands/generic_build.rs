@@ -66,6 +66,7 @@ pub async fn build_generic(
     install_command: Vec<&str>,
     path: &Path,
     output_path: &str,
+    shared_preload_libraries: Option<Vec<String>>,
     extension_name: &str,
     extension_version: &str,
     _task: Task,
@@ -132,6 +133,7 @@ pub async fn build_generic(
         docker.clone(),
         &temp_container.id,
         output_path,
+        shared_preload_libraries,
         extension_name,
         extension_version,
     )

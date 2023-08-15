@@ -205,6 +205,7 @@ impl SubCommand for BuildCommand {
                     build_settings.platform.clone(),
                     path,
                     &build_settings.output_path,
+                    build_settings.shared_preload_libraries,
                     cargo_toml,
                     task,
                 )

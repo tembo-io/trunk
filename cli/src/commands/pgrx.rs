@@ -100,6 +100,7 @@ pub async fn build_pgrx(
     platform: Option<String>,
     path: &Path,
     output_path: &str,
+    shared_preload_libraries: Option<Vec<String>>,
     cargo_toml: toml::Table,
     _task: Task,
 ) -> Result<(), PgrxBuildError> {
@@ -223,6 +224,7 @@ pub async fn build_pgrx(
         docker.clone(),
         &temp_container.id,
         output_path,
+        shared_preload_libraries,
         extension_name,
         extension_version,
     )
