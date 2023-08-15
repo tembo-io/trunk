@@ -367,8 +367,6 @@ fn print_post_installation_guide(manifest: &Manifest) {
     println!("\n***************************");
     println!("* POST INSTALLATION STEPS *");
     println!("***************************");
-    println!("\nEnable the extension with:");
-    println!("CREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
 
     if let Some(dependency_declaration) = &manifest.dependencies {
         println!("\n\tNeeded system-level dependencies:");
@@ -379,6 +377,9 @@ fn print_post_installation_guide(manifest: &Manifest) {
             }
         }
     }
+
+    println!("\nEnable the extension with:");
+    println!("CREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
 }
 
 fn read_dependent_extensions(contents: &str) -> Vec<String> {
