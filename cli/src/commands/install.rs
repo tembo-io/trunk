@@ -354,20 +354,26 @@ async fn install_file(
             }
         }
 
-        print_post_installation_guide(&manifest);
+        print_post_installation_guide(&extension_name, &manifest);
     } else {
         return Err(InstallError::ManifestNotFound)?;
     }
     Ok(())
 }
 
-fn print_post_installation_guide(manifest: &Manifest) {
+fn print_post_installation_guide(extension_name: &str, manifest: &Manifest) {
+    println!("\n***************************");
+    println!("* POST INSTALLATION STEPS *");
+    println!("***************************");
+    println!("\nEnable the extension with:");
+    println!("CREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
+
     if let Some(dependency_declaration) = &manifest.dependencies {
-        println!("\n\n\tDone!\nPost-installation steps:");
+        println!("\n\tNeeded system-level dependencies:");
         for (package_manager, dependencies) in dependency_declaration {
-            println!("On systems using {package_manager}:");
+            println!("\n\t* On systems using {package_manager}:");
             for dependency in dependencies {
-                println!("\t{dependency}\n");
+                println!("\t\t{dependency}\n");
             }
         }
     }
