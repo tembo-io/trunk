@@ -60,6 +60,23 @@
     },
     "query": "DELETE FROM extensions\n             WHERE id = $1"
   },
+  "02818845ee6ad5a505f06a94b0132f05214ea5e5d156094186afe6e14844da43": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6)\n            "
+  },
   "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
     "describe": {
       "columns": [
@@ -863,22 +880,6 @@
       }
     },
     "query": "\n            INSERT INTO api_tokens(user_id, user_name, token, created_at)\n            VALUES ($1, $2, $3, (now() at time zone 'utc'))\n            "
-  },
-  "8074388f776810a91f7f10165327891d51540db7952dd347245b35d49257fbe2": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Varchar"
-        ]
-      }
-    },
-    "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)\n            "
   },
   "8a3643fa646f1768ce6b3abdc949b6daade8f796a8f2b9a388f436e486425299": {
     "describe": {
