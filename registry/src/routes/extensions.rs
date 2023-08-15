@@ -238,14 +238,15 @@ pub async fn publish(
             // Create new record in versions table
             sqlx::query!(
                 "
-            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)
-            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)
+            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name)
+            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6)
             ",
                 extension_id as i32,
                 new_extension.vers.to_string(),
                 false,
                 new_extension.license,
-                user_info.user_name
+                user_info.user_name,
+                new_extension.extension_name
             )
             .execute(&mut tx)
             .await?;
