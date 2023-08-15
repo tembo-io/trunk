@@ -439,6 +439,7 @@ pub async fn package_installed_extension_files(
             architecture: target_arch,
             sys: "linux".to_string(),
             files: None,
+            dependencies: None,
         };
         // If the docker copy command starts to stream data
         println!("Create Trunk bundle:");
