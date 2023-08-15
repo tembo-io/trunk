@@ -1,5 +1,6 @@
 [extension]
 name = "pg_cron"
+extension_name = "extension_name_from_toml"
 version = "1.5.2"
 
 [build]
