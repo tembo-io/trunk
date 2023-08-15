@@ -6,6 +6,7 @@
 
 [![version](https://img.shields.io/crates/v/pg-trunk?label=CLI&logo=rust)](https://crates.io/crates/pg-trunk)
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
+[![Slack](https://img.shields.io/badge/%40trunk-community?logo=slack&label=slack)](https://join.slack.com/t/trunk-community/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg)
 
 Trunk is an open source package manager and registry for Postgres extensions. Use the Trunk CLI to build, publish
 and install Postgres extensions _of all kinds_.
@@ -83,10 +84,17 @@ their dependencies as compiled artifacts from this registry.
 - Usage metrics to provide insight into popular and well-maintained extensions
 - Version tracking and new release email notifications
 
-## Contributing
+## ✨ Contributing
 Trunk is in active development, and we look forward to the contributions the Postgres community has to offer.
-If you're interested in contributing, please open a pull request, issue, or reach out:
+If you're interested in contributing, please open a pull request, issue, or reach out!
 
 - [Slack](https://join.slack.com/t/trunk-crew/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg)
 - [Twitter](https://twitter.com/tembo_io)
 - Email us at [hello@tembo.io](mailto:hello@tembo.io)
+
+
+Thanks goes to these incredible people:
+
+<a href="https://github.com/tembo-io/trunk/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=tembo-io/trunk" />
+</a>
