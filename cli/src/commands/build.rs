@@ -2,7 +2,9 @@ use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
 use crate::config;
-use crate::config::get_from_trunk_toml_if_not_set_on_cli;
+use crate::config::{
+    get_from_trunk_toml_if_not_set_on_cli, get_string_vec_from_trunk_toml_if_not_set_on_cli,
+};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
@@ -37,7 +39,7 @@ pub struct BuildSettings {
     output_path: String,
     version: Option<String>,
     name: Option<String>,
-    shared_preload_libraries: Option<Vec<String>>, 
+    shared_preload_libraries: Option<Vec<String>>,
     platform: Option<String>,
     dockerfile_path: Option<String>,
     install_command: Option<String>,
@@ -86,7 +88,7 @@ impl BuildCommand {
             "name",
         );
 
-        let shared_preload_libraries: Option<Vec<String>> = get_from_trunk_toml_if_not_set_on_cli(
+        let shared_preload_libraries = get_string_vec_from_trunk_toml_if_not_set_on_cli(
             self.shared_preload_libraries.clone(),
             trunk_toml.clone(),
             "extension",
