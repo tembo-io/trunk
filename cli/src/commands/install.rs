@@ -296,8 +296,6 @@ async fn install_file(
             "unsupported"
         };
 
-        let extension_name = manifest.extension_name.unwrap_or("".to_string());
-
         if manifest.manifest_version > 1 && host_arch != manifest.architecture {
             println!(
                 "This package is not compatible with your architecture: {}, it is compatible with {}",
@@ -356,14 +354,16 @@ async fn install_file(
             }
         }
 
-        print_post_installation_guide(&extension_name, &manifest);
+        print_post_installation_guide(&manifest);
     } else {
         return Err(InstallError::ManifestNotFound)?;
     }
     Ok(())
 }
 
-fn print_post_installation_guide(extension_name: &str, manifest: &Manifest) {
+fn print_post_installation_guide(manifest: &Manifest) {
+    let extension_name = manifest.extension_name.as_ref().unwrap_or(&manifest.name);
+
     println!("\n***************************");
     println!("* POST INSTALLATION STEPS *");
     println!("***************************");
