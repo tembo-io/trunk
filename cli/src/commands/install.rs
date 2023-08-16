@@ -58,19 +58,20 @@ impl SubCommand for InstallCommand {
             .as_ref()
             .or_else(|| installed_pg_config.as_ref())
             .ok_or(InstallError::PgConfigNotFound)?;
-        println!("Using pg_config: {}", pg_config.to_string_lossy());
+        println!("Using pg_config: {}", pg_config.display());
 
         let package_lib_dir = std::process::Command::new(pg_config)
             .arg("--pkglibdir")
             .output()?
             .stdout;
+
         let package_lib_dir = String::from_utf8_lossy(&package_lib_dir)
             .trim_end()
             .to_string();
-        let package_lib_dir_path = std::path::PathBuf::from(&package_lib_dir);
-        let package_lib_dir = std::fs::canonicalize(package_lib_dir_path)?;
 
-        let sharedir = std::process::Command::new(pg_config.clone())
+        let package_lib_dir = std::fs::canonicalize(package_lib_dir)?;
+
+        let sharedir = std::process::Command::new(&pg_config)
             .arg("--sharedir")
             .output()?
             .stdout;
@@ -140,13 +141,13 @@ async fn install(
         // Get the last segment, which should be the file name
         let file_name = segments
             .last()
-            .ok_or(anyhow!("Cannot extract file name from URL"))?
-            .to_string();
+            .ok_or(anyhow!("Cannot extract file name from URL"))?;
 
-        let response = reqwest::get(url).await?;
         // Write the bytes of the archive to a temporary directory
         let temp_dir = tempfile::tempdir()?;
         let dest_path = temp_dir.path().join(file_name);
+
+        let response = reqwest::get(url).await?;
 
         let mut dest_file = File::create(&dest_path)?;
         // write the response body to the file
@@ -166,7 +167,7 @@ async fn install(
 }
 
 async fn install_file(
-    extension_name: String,
+    name: String,
     file: &PathBuf,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
@@ -205,15 +206,16 @@ async fn install_file(
     // Because we're going over entries with `Seek` enabled, we're not reading everything.
     let mut archive = Archive::new(&input);
 
-    let mut dependencies_to_install: Vec<String> = Vec::new();
+    // Extensions the extension being installed depends on
+    let mut dependent_extensions_to_install: Vec<String> = Vec::new();
     let mut manifest: Option<Manifest> = None;
     {
         let entries = archive.entries_with_seek()?;
         for this_entry in entries {
             let mut entry = this_entry?;
-            let name = entry.path()?;
+            let fname = entry.path()?;
             if entry.header().entry_type() == EntryType::file()
-                && name.clone() == Path::new("manifest.json")
+                && fname.clone() == Path::new("manifest.json")
             {
                 let manifest_json = serde_json::from_reader(entry)?;
                 // if the manifest_version key does not exist, then create it with a value of 1
@@ -243,17 +245,16 @@ async fn install_file(
                 let manifest_result = serde_json::from_value(manifest_json);
                 manifest.replace(manifest_result?);
             } else if entry.header().entry_type() == EntryType::file()
-                && name.clone().file_name()
-                    == Some(OsStr::new(format!("{extension_name}.control").as_str()))
+                && fname.clone().file_name() == Some(OsStr::new(format!("{name}.control").as_str()))
             {
                 let mut control_file = String::new();
                 entry.read_to_string(&mut control_file)?;
-                dependencies_to_install = read_dependencies(&control_file);
+                dependent_extensions_to_install = read_dependent_extensions(&control_file);
             }
         }
     }
-    println!("Dependencies: {dependencies_to_install:?}");
-    for dependency in dependencies_to_install {
+    println!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
+    for dependency in dependent_extensions_to_install {
         // check a control file is present in sharedir for each dependency
         let control_file_path = sharedir
             .join("extension")
@@ -281,7 +282,7 @@ async fn install_file(
         let manifest_files = manifest.files.take().unwrap_or_default();
         println!(
             "Installing {} {}",
-            manifest.extension_name, manifest.extension_version
+            manifest.name, manifest.extension_version
         );
         let host_arch = if cfg!(target_arch = "aarch64") {
             "aarch64"
@@ -294,6 +295,7 @@ async fn install_file(
         } else {
             "unsupported"
         };
+
         if manifest.manifest_version > 1 && host_arch != manifest.architecture {
             println!(
                 "This package is not compatible with your architecture: {}, it is compatible with {}",
@@ -351,13 +353,36 @@ async fn install_file(
                 }
             }
         }
+
+        print_post_installation_guide(&manifest);
     } else {
         return Err(InstallError::ManifestNotFound)?;
     }
     Ok(())
 }
 
-fn read_dependencies(contents: &str) -> Vec<String> {
+fn print_post_installation_guide(manifest: &Manifest) {
+    let extension_name = manifest.extension_name.as_ref().unwrap_or(&manifest.name);
+
+    println!("\n***************************");
+    println!("* POST INSTALLATION STEPS *");
+    println!("***************************");
+
+    if let Some(dependency_declaration) = &manifest.dependencies {
+        println!("\n\tNeeded system-level dependencies:");
+        for (package_manager, dependencies) in dependency_declaration {
+            println!("\n\t* On systems using {package_manager}:");
+            for dependency in dependencies {
+                println!("\t\t{dependency}\n");
+            }
+        }
+    }
+
+    println!("\nEnable the extension with:");
+    println!("CREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
+}
+
+fn read_dependent_extensions(contents: &str) -> Vec<String> {
     let mut dependencies: Vec<String> = Vec::new();
 
     for line in contents.lines() {
@@ -392,7 +417,7 @@ superuser = false
 requires = 'pg_partman, dep2, dep3'
 "#;
 
-        let dependencies = read_dependencies(sample_data);
+        let dependencies = read_dependent_extensions(sample_data);
         assert_eq!(dependencies, vec!["pg_partman", "dep2", "dep3"]);
     }
 
@@ -405,7 +430,7 @@ relocatable = false
 superuser = false
 "#;
 
-        let dependencies = read_dependencies(sample_data);
+        let dependencies = read_dependent_extensions(sample_data);
         assert_eq!(dependencies, Vec::<String>::new());
     }
 
@@ -419,7 +444,7 @@ superuser = false
 requires = ''
 "#;
 
-        let dependencies = read_dependencies(sample_data);
+        let dependencies = read_dependent_extensions(sample_data);
         assert_eq!(dependencies, Vec::<String>::new());
     }
 }

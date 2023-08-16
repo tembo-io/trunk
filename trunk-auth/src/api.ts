@@ -47,6 +47,7 @@ export async function sendRequest(url: string, method: string, requestBody: stri
                 Authorization: `Bearer ${bearerAuth}`
             },
             responseType: 'text',
+            data: requestBody,
         });
 
         return {

@@ -5,7 +5,7 @@ use bollard::Docker;
 
 pub async fn find_licenses(docker: Docker, container_id: &str) -> Result<Vec<String>, Error> {
     let license_output = exec_in_container(
-        docker.clone(),
+        &docker,
         &container_id,
         vec![
             "find",
@@ -122,7 +122,7 @@ pub async fn copy_licenses(
 ) -> Result<(), Error> {
     for license in licenses {
         let _exec_output = exec_in_container(
-            docker.clone(),
+            &docker,
             &container_id,
             vec![
                 "cp",

@@ -1,3 +1,4 @@
 [extension]
 name = "test_pgrx_extension"
+extension_name = "extension_name_from_toml"
 version = "0.0.0"
