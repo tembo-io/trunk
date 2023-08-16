@@ -1,6 +1,6 @@
 [extension]
 name = "pgsql_http"
-version = "1.5.1"
+version = "1.5.0"
 repository = "https://github.com/pramsey/pgsql-http"
 license = "MIT"
 description = "HTTP client for PostgreSQL, retrieve a web page from inside the database."
