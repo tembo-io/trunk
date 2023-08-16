@@ -2,9 +2,6 @@ use super::SubCommand;
 use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
 use crate::config;
-use crate::config::{
-    get_from_trunk_toml_if_not_set_on_cli, get_string_vec_from_trunk_toml_if_not_set_on_cli,
-};
 use crate::manifest::Manifest;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
@@ -76,142 +73,109 @@ pub struct PublishSettings {
 
 impl PublishCommand {
     fn settings(&self) -> Result<PublishSettings, anyhow::Error> {
-        let path = ".".to_string();
-        let trunkfile_path = Path::new(&path.clone()).join("Trunk.toml");
+        // The file path of the extension to build
+        let build_path = ".".to_string();
+        let trunkfile_path = Path::new(&build_path).join("Trunk.toml");
+
         let trunk_toml = match File::open(trunkfile_path) {
-            Ok(file) => config::parse_trunk_toml(file),
+            Ok(file) => Some(config::parse_trunk_toml(file)?),
             Err(_e) => {
                 println!("Trunk.toml not found");
-                Ok(None)
+                None
             }
-        }?;
-
-        let name = match self.name.clone() {
-            Some(name) => name,
-            None => match get_from_trunk_toml_if_not_set_on_cli(
-                None,
-                trunk_toml.clone(),
-                "extension",
-                "name",
-            ) {
-                Some(trunk_toml_name) => trunk_toml_name,
-                None => panic!(
-                    "Extension name must be provided when publishing. Please specify the extension name \
-                     as the first argument, or under extension.name in Trunk.toml"
-                ),
-            },
         };
 
-        let extension_name = get_from_trunk_toml_if_not_set_on_cli(
-            self.extension_name.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "extension_name",
-        );
-
-        let version = match self.version.clone() {
-            Some(version) => version,
-            None => match get_from_trunk_toml_if_not_set_on_cli(
-                None,
-                trunk_toml.clone(),
-                "extension",
-                "version",
-            ) {
-                Some(trunk_toml_version) => trunk_toml_version,
-                None => panic!(
-                    "Extension version must be provided when publishing. Please specify the extension version \
-                     with --version, or under extension.version in Trunk.toml"
-                ),
-            },
+        let Some(name) = self.name.as_ref().or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.name)).cloned() else {
+            panic!(
+                "Extension name must be provided when publishing. Please specify the extension name \
+                 as the first argument, or under extension.name in Trunk.toml"
+            )
         };
 
-        // file
-        let file = match self.file.clone() {
-            Some(file) => Some(file),
-            None => match trunk_toml.clone() {
-                Some(table) => match table.get("extension") {
-                    Some(extension) => match extension.get("file") {
-                        Some(value) => {
-                            let result = value.as_str().unwrap_or_else(|| {
-                                panic!("Trunk.toml: extension.file should be a string")
-                            });
-                            let mut path = PathBuf::new();
-                            let _ = &path.push(result);
-                            println!(
-                                "Trunk.toml: using setting extension.file: {}",
-                                path.to_str().unwrap()
-                            );
-                            Some(path)
-                        }
-                        None => None,
-                    },
-                    None => None,
-                },
-                None => None,
-            },
+        let extension_name = self
+            .extension_name
+            .as_ref()
+            .or_else(|| {
+                trunk_toml
+                    .as_ref()
+                    .map(|toml| toml.extension.extension_name.as_ref())
+                    .flatten()
+            })
+            .cloned();
+
+        let Some(version) = self.version.as_ref().or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.version)).cloned() else {
+            panic!(
+                "Extension version must be provided when publishing. Please specify the extension version \
+                 with --version, or under extension.version in Trunk.toml"
+            )
         };
 
-        // description
-        let description = get_from_trunk_toml_if_not_set_on_cli(
-            self.description.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "description",
-        );
+        let file = self
+            .file
+            .as_ref()
+            .or_else(|| {
+                trunk_toml.as_ref().map(|toml| {
+                    let file = &toml.extension.file;
+                    println!(
+                        "Trunk.toml: using setting `extension.file`: {}",
+                        file.display()
+                    );
+                    file.into()
+                })
+            })
+            .cloned();
 
-        // documentation
-        let documentation = get_from_trunk_toml_if_not_set_on_cli(
-            self.documentation.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "documentation",
-        );
+        let description = self
+            .description
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.description))
+            .cloned();
 
-        // homepage
-        let homepage = get_from_trunk_toml_if_not_set_on_cli(
-            self.homepage.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "homepage",
-        );
+        let documentation = self
+            .documentation
+            .as_ref()
+            .or_else(|| {
+                trunk_toml
+                    .as_ref()
+                    .map(|toml| &toml.extension.documentation)
+            })
+            .cloned();
 
-        // license
-        let license = get_from_trunk_toml_if_not_set_on_cli(
-            self.license.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "license",
-        );
+        let homepage = self
+            .homepage
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.homepage))
+            .cloned();
 
-        // registry
-        let registry = match self.registry.clone() {
-            Some(registry) => registry,
-            None => match get_from_trunk_toml_if_not_set_on_cli(
-                None,
-                trunk_toml.clone(),
-                "extension",
-                "registry",
-            ) {
-                Some(trunk_toml_registry) => trunk_toml_registry,
-                None => "https://registry.pgtrunk.io".to_string(),
-            },
-        };
+        let license = self
+            .license
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.license))
+            .cloned();
 
-        // repository
-        let repository = get_from_trunk_toml_if_not_set_on_cli(
-            self.repository.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "repository",
-        );
+        let registry = self
+            .registry
+            .as_ref()
+            .or_else(|| {
+                trunk_toml
+                    .as_ref()
+                    .map(|toml| toml.extension.registry.as_ref())
+                    .flatten()
+            })
+            .cloned()
+            .unwrap_or_else(|| "https://registry.pgtrunk.io".to_string());
 
-        // categories
-        let categories = get_string_vec_from_trunk_toml_if_not_set_on_cli(
-            self.category.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "categories",
-        );
+        let repository = self
+            .repository
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.repository))
+            .cloned();
+
+        let categories = self
+            .category
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.categories))
+            .cloned();
 
         Ok(PublishSettings {
             version,

@@ -2,7 +2,6 @@ use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
 use crate::config;
-use crate::config::get_from_trunk_toml_if_not_set_on_cli;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
@@ -49,15 +48,16 @@ impl BuildCommand {
         // path cannot be set from Trunk.toml, since --path can also
         // be used to specify the path to the directory that includes a
         // Trunk.toml file.
-        let path = self.path.clone();
-        let trunkfile_path = Path::new(&path.clone()).join("Trunk.toml");
+        let build_path = self.path.clone();
+        let trunkfile_path = Path::new(&build_path).join("Trunk.toml");
         let trunk_toml = match File::open(trunkfile_path) {
-            Ok(file) => config::parse_trunk_toml(file),
+            Ok(file) => Some(config::parse_trunk_toml(file)?),
             Err(_e) => {
                 println!("Trunk.toml not found");
-                Ok(None)
+
+                None
             }
-        }?;
+        };
 
         // If output_path is not specified, default to .trunk directory in
         // the directory specified by --path
@@ -65,7 +65,7 @@ impl BuildCommand {
         let output_path = match output_path {
             Some(output_path) => output_path,
             None => {
-                let output_path = Path::new(&path).join(".trunk");
+                let output_path = Path::new(&build_path).join(".trunk");
                 output_path
                     .to_str()
                     .expect("Failed trying to specify a subdirectory .trunk of the --path argument")
@@ -73,67 +73,59 @@ impl BuildCommand {
             }
         };
 
-        let name = get_from_trunk_toml_if_not_set_on_cli(
-            self.name.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "name",
-        );
+        let name = self
+            .name
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.name))
+            .cloned();
 
-        let extension_name = get_from_trunk_toml_if_not_set_on_cli(
-            self.extension_name.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "extension_name",
-        );
+        let extension_name = self
+            .extension_name
+            .as_ref()
+            .or_else(|| {
+                trunk_toml
+                    .as_ref()
+                    .map(|toml| toml.extension.extension_name.as_ref())
+                    .flatten()
+            })
+            .cloned();
 
-        let version = get_from_trunk_toml_if_not_set_on_cli(
-            self.version.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "version",
-        );
+        let version = self
+            .version
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.version))
+            .cloned();
 
-        let platform = get_from_trunk_toml_if_not_set_on_cli(
-            self.platform.clone(),
-            trunk_toml.clone(),
-            "build",
-            "platform",
-        );
+        let platform = self
+            .platform
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.build.platform))
+            .cloned();
 
-        let install_command = get_from_trunk_toml_if_not_set_on_cli(
-            self.install_command.clone(),
-            trunk_toml.clone(),
-            "build",
-            "install_command",
-        );
+        let install_command = self
+            .install_command
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.build.install_command))
+            .cloned();
 
         // Dockerfile is handled slightly differently in Trunk.toml as the CLI.
         // On CLI, the argument is --dockerfile_path, and it means the path relative
         // to the current working directory where the command line argument is executed.
         // In Trunk.toml, the field is called "dockerfile", and it means the file relative
         // to the Trunk.toml file.
-        let dockerfile_path = match self.dockerfile_path.clone() {
-            Some(path) => Some(path),
-            None => match get_from_trunk_toml_if_not_set_on_cli(
-                None,
-                trunk_toml.clone(),
-                "build",
-                "dockerfile",
-            ) {
-                Some(trunk_toml_dockerfile) => Some(
-                    Path::new(&path.clone())
-                        .join(trunk_toml_dockerfile)
-                        .to_str()
-                        .expect("Failed to convert build.dockerfile to string")
-                        .to_string(),
-                ),
-                None => None,
-            },
-        };
+        let dockerfile_path = self.dockerfile_path.clone().or_else(|| {
+            let dockerfile = trunk_toml?.build.dockerfile;
+
+            Some(
+                Path::new(&build_path)
+                    .join(dockerfile)
+                    .to_string_lossy()
+                    .into(),
+            )
+        });
 
         Ok(BuildSettings {
-            path,
+            path: build_path,
             output_path,
             version,
             name,

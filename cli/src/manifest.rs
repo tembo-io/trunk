@@ -34,6 +34,37 @@ impl PackagedFile {
     }
 }
 
+/// The (currently not comprehensive) definition of a Trunk.toml file
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TrunkToml {
+    pub extension: TomlExtensionData,
+    pub build: TomlBuildInfo,
+    pub dependencies: Option<HashMap<String, Vec<String>>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TomlExtensionData {
+    pub name: String,
+    pub file: PathBuf,
+    pub extension_name: Option<String>,
+    pub version: String,
+    pub repository: String,
+    pub license: String,
+    pub description: String,
+    pub homepage: String,
+    pub documentation: String,
+    pub categories: Vec<String>,
+    pub registry: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TomlBuildInfo {
+    pub postgres_version: String,
+    pub platform: String,
+    pub dockerfile: String,
+    pub install_command: String,
+}
+
 /// Package manifest
 #[derive(Serialize, Deserialize, Debug)]
 #[cfg_attr(test, derive(Default))]
