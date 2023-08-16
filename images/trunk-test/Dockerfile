@@ -86,6 +86,7 @@ RUN apt-get update && apt-get install -y \
     libgomp1 \
     libssl3 \
     libsfcgal1 \
+    openjdk-11-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Build Postgres from source

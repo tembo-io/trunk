@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 		libxml2-utils \
 		xsltproc \
 		ccache \
-    openjdk-11-jdk
+        openjdk-11-jdk
 
 RUN mkdir -p /usr/lib64 && ln -s /usr/lib/jvm/java-1.11.0-openjdk-amd64/lib/server/libjvm.so /usr/lib64/libjvm.so
 # Clone postgres repository
