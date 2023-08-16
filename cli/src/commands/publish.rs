@@ -5,22 +5,28 @@ use crate::config;
 use crate::config::{
     get_from_trunk_toml_if_not_set_on_cli, get_string_vec_from_trunk_toml_if_not_set_on_cli,
 };
+use crate::manifest::Manifest;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use clap::Args;
+use flate2::read::GzDecoder;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
 use reqwest::StatusCode;
 use serde::Deserialize;
 use serde_json::json;
 use std::fs::File;
+use std::io::Seek;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
+use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
 
 #[derive(Args)]
 pub struct PublishCommand {
     name: Option<String>,
+    #[arg(short = 'e', long = "extension_name")]
+    extension_name: Option<String>,
     #[arg(long = "version", short = 'v')]
     version: Option<String>,
     #[arg(long = "file", short = 'f')]
@@ -56,6 +62,7 @@ pub struct Category {
 
 pub struct PublishSettings {
     name: String,
+    extension_name: Option<String>,
     version: String,
     file: Option<PathBuf>,
     description: Option<String>,
@@ -94,6 +101,13 @@ impl PublishCommand {
                 ),
             },
         };
+
+        let extension_name = get_from_trunk_toml_if_not_set_on_cli(
+            self.extension_name.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "extension_name",
+        );
 
         let version = match self.version.clone() {
             Some(version) => version,
@@ -209,6 +223,7 @@ impl PublishCommand {
             registry,
             repository,
             name,
+            extension_name,
             categories,
         })
     }
@@ -217,7 +232,7 @@ impl PublishCommand {
 #[async_trait]
 impl SubCommand for PublishCommand {
     async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
-        let publish_settings = self.settings()?;
+        let mut publish_settings = self.settings()?;
         // Validate extension name input
         let mut slugs = Vec::new();
 
@@ -278,6 +293,85 @@ impl SubCommand for PublishCommand {
                 (f, name)
             }
         };
+
+        // TODO(ianstanton) DRY this up
+        // If extension_name is not provided by the user, check for value in manifest.json
+        if publish_settings.extension_name.is_none() {
+            println!("Fetching extension_name from manifest.json...");
+            // Get file path
+            let file = match &publish_settings.file {
+                Some(..) => {
+                    // If file is specified, use it
+                    publish_settings.file.clone().unwrap()
+                }
+                None => {
+                    // If no file is specified, read file from working dir with format
+                    // .trunk/<extension_name>-<version>.tar.gz.
+                    // Error if file is not found
+                    let mut path = PathBuf::new();
+                    let _ = &path.push(format!(
+                        ".trunk/{}-{}.tar.gz",
+                        publish_settings.name, publish_settings.version
+                    ));
+                    path
+                }
+            };
+
+            let f = File::open(&file)?;
+            let input = match &file
+                .extension()
+                .into_iter()
+                .filter_map(|s| s.to_str())
+                .next()
+            {
+                Some("gz") => {
+                    // unzip the archive into a temporary file
+                    let decoder = GzDecoder::new(f);
+                    let mut tempfile = tempfile::tempfile()?;
+                    use read_write_pipe::*;
+                    tempfile.write_reader(decoder)?;
+                    tempfile.rewind()?;
+                    tempfile
+                }
+                Some("tar") => f,
+                _ => return Err(InvalidExtensionName)?,
+            };
+
+            let mut archive = Archive::new(&input);
+            let mut manifest: Option<Manifest> = None;
+            {
+                let entries = archive.entries_with_seek()?;
+                for this_entry in entries {
+                    let entry = this_entry?;
+                    let fname = entry.path()?;
+                    if entry.header().entry_type() == EntryType::file()
+                        && fname.clone() == Path::new("manifest.json")
+                    {
+                        let manifest_json = serde_json::from_reader(entry)?;
+                        let manifest_result = serde_json::from_value(manifest_json);
+                        manifest.replace(manifest_result?);
+                    }
+                }
+            }
+
+            if let Some(manifest) = manifest {
+                publish_settings.extension_name = Option::from(
+                    manifest
+                        .extension_name
+                        .unwrap_or(publish_settings.name.clone()),
+                );
+                println!(
+                    "Found extension_name: {}",
+                    publish_settings.extension_name.clone().unwrap()
+                );
+            } else {
+                println!(
+                    "Did not find extension_name in manifest.json. Falling back to '{}'",
+                    publish_settings.name.clone()
+                );
+            }
+        }
+
         let mut headers = HeaderMap::new();
         headers.insert(CONTENT_TYPE, "application/octet-stream".parse().unwrap());
         // Add token header from env var
@@ -288,6 +382,7 @@ impl SubCommand for PublishCommand {
             .headers(headers.clone());
         let m = json!({
             "name": publish_settings.name,
+            "extension_name": publish_settings.extension_name,
             "vers": publish_settings.version,
             "description": publish_settings.description,
             "documentation": publish_settings.documentation,

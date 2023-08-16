@@ -15,6 +15,7 @@ use std::path::Path;
 use crate::commands::generic_build::GenericBuildError;
 use crate::manifest::Manifest;
 use crate::sync_utils::{ByteStreamSyncReceiver, ByteStreamSyncSender};
+use fancy_regex::Regex;
 use futures_util::stream::StreamExt;
 use hyper::Body;
 use rand::Rng;
@@ -34,10 +35,10 @@ pub struct ReclaimableContainer {
 
 impl ReclaimableContainer {
     #[must_use]
-    pub fn new(name: String, docker: &Docker, task: Task) -> Self {
+    pub fn new(name: String, docker: Docker, task: Task) -> Self {
         Self {
             id: name,
-            docker: docker.clone(),
+            docker,
             task,
         }
     }
@@ -60,7 +61,7 @@ impl Drop for ReclaimableContainer {
 }
 
 pub async fn exec_in_container(
-    docker: Docker,
+    docker: &Docker,
     container_id: &str,
     command: Vec<&str>,
     env: Option<Vec<&str>>,
@@ -139,7 +140,7 @@ pub async fn run_temporary_container(
     // This will stop the container, whether we return an error or not
     Ok(ReclaimableContainer::new(
         container.id.clone(),
-        &docker,
+        docker,
         _task,
     ))
 }
@@ -148,17 +149,12 @@ pub async fn find_installed_extension_files(
     docker: Docker,
     container_id: &str,
 ) -> Result<HashMap<String, Vec<String>>, anyhow::Error> {
-    let sharedir = exec_in_container(
-        docker.clone(),
-        container_id,
-        vec!["pg_config", "--sharedir"],
-        None,
-    )
-    .await?;
+    let sharedir =
+        exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
     let sharedir = sharedir.trim();
 
     let pkglibdir = exec_in_container(
-        docker.clone(),
+        &docker,
         container_id,
         vec!["pg_config", "--pkglibdir"],
         None,
@@ -203,11 +199,11 @@ pub async fn find_installed_extension_files(
     }
 
     println!("Sharedir files:");
-    for sharedir_file in sharedir_list.clone() {
+    for sharedir_file in &sharedir_list {
         println!("\t{sharedir_file}");
     }
     println!("Pkglibdir files:");
-    for pkglibdir_file in pkglibdir_list.clone() {
+    for pkglibdir_file in &pkglibdir_list {
         println!("\t{pkglibdir_file}");
     }
 
@@ -299,7 +295,6 @@ pub async fn build_image(
 
     let build_args = build_args.clone();
     let image_name = image_name.to_owned();
-    let mut platform_value = String::new();
 
     let mut options = BuildImageOptions {
         dockerfile: "Dockerfile",
@@ -311,7 +306,7 @@ pub async fn build_image(
     };
 
     if platform.is_some() {
-        platform_value = platform.unwrap();
+        let platform_value = platform.as_ref().unwrap();
         options.platform = platform_value.as_str();
     }
 
@@ -346,7 +341,8 @@ pub async fn build_image(
             }
         }
     }
-    Ok(image_name.to_string())
+
+    Ok(image_name)
 }
 
 // Scan sharedir and package lib dir from a Trunk builder container for files from a provided list.
@@ -355,27 +351,22 @@ pub async fn package_installed_extension_files(
     docker: Docker,
     container_id: &str,
     package_path: &str,
-    extension_name: &str,
+    name: &str,
+    mut extension_name: Option<String>,
     extension_version: &str,
 ) -> Result<(), anyhow::Error> {
-    let extension_name = extension_name.to_owned();
+    let name = name.to_owned();
     let extension_version = extension_version.to_owned();
 
-    let target_arch =
-        exec_in_container(docker.clone(), container_id, vec!["uname", "-m"], None).await?;
+    let target_arch = exec_in_container(&docker, container_id, vec!["uname", "-m"], None).await?;
     let target_arch = target_arch.trim().to_string();
 
-    let sharedir = exec_in_container(
-        docker.clone(),
-        container_id,
-        vec!["pg_config", "--sharedir"],
-        None,
-    )
-    .await?;
+    let sharedir =
+        exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
     let sharedir = sharedir.trim();
 
     let pkglibdir = exec_in_container(
-        docker.clone(),
+        &docker,
         container_id,
         vec!["pg_config", "--pkglibdir"],
         None,
@@ -395,7 +386,7 @@ pub async fn package_installed_extension_files(
     let licensedir = "/usr/licenses".to_owned();
 
     // In this function, we open and work with .tar only, then we finalize the package with a .gz in a separate call
-    let package_path = format!("{package_path}/{extension_name}-{extension_version}.tar.gz");
+    let package_path = format!("{package_path}/{name}-{extension_version}.tar.gz");
     println!("Creating package at: {package_path}");
     let file = File::create(&package_path)?;
 
@@ -410,6 +401,29 @@ pub async fn package_installed_extension_files(
     let options_usrdir = Some(DownloadFromContainerOptions { path: "/usr" });
     let file_stream = docker.download_from_container(container_id, options_usrdir);
 
+    // If extension_name parameter is none, check for control file and fetch extension_name
+    if extension_name.is_none() {
+        for s in &sharedir_list {
+            if s.contains(".control") {
+                println!("Fetching extension_name from control file: {}", s);
+                let re = Regex::new(r"([^/]+)(?=\.\w+$)")?;
+                let ext = re.find(&*s)?;
+                let n = ext.unwrap().as_str();
+                println!("Using extension_name: {}", n);
+                extension_name = Some(n.to_owned());
+            }
+        }
+    }
+
+    // If extension_name is still none, we can assume no control file was found
+    if extension_name.is_none() {
+        println!(
+            "No control file found. Falling back to extension name '{}'",
+            &name
+        );
+        extension_name = Some(name.clone())
+    }
+
     // Create a sync task within the tokio runtime to copy the file from docker to tar
     let tar_handle = task::spawn_blocking(move || {
         let mut archive = Archive::new(receiver);
@@ -418,12 +432,14 @@ pub async fn package_installed_extension_files(
             flate2::Compression::default(),
         ));
         let mut manifest = Manifest {
+            name,
             extension_name,
             extension_version,
             manifest_version: 2,
             architecture: target_arch,
             sys: "linux".to_string(),
             files: None,
+            dependencies: None,
         };
         // If the docker copy command starts to stream data
         println!("Create Trunk bundle:");
