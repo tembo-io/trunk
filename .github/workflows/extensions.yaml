@@ -101,7 +101,7 @@ jobs:
         run: |
           docker-entrypoint.sh postgres &
           sleep 5
-          export EXTENSION=$(psql -U postgres -c "select name from pg_available_extensions where name NOT IN ('plpgsql')";)
+          export EXTENSION=$(psql -U postgres -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql')";)
           psql -U postgres -c "create extension if not exists \"$EXTENSION\" cascade;"
       - name: Publish the extension
         if: ${{ github.ref == 'refs/heads/main' }}
