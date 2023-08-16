@@ -14,6 +14,7 @@ use toml::Table;
 
 #[derive(Args)]
 pub struct BuildCommand {
+    /// The file path of the extension to build
     #[arg(short = 'p', long = "path", default_value = ".")]
     path: String,
     #[arg(short = 'o', long = "output-path")]
@@ -22,6 +23,8 @@ pub struct BuildCommand {
     version: Option<String>,
     #[arg(short = 'n', long = "name")]
     name: Option<String>,
+    #[arg(short = 'e', long = "extension_name")]
+    extension_name: Option<String>,
     #[arg(short = 'P', long = "platform")]
     platform: Option<String>,
     #[arg(short = 'd', long = "dockerfile")]
@@ -35,6 +38,7 @@ pub struct BuildSettings {
     output_path: String,
     version: Option<String>,
     name: Option<String>,
+    extension_name: Option<String>,
     platform: Option<String>,
     dockerfile_path: Option<String>,
     install_command: Option<String>,
@@ -74,6 +78,13 @@ impl BuildCommand {
             trunk_toml.clone(),
             "extension",
             "name",
+        );
+
+        let extension_name = get_from_trunk_toml_if_not_set_on_cli(
+            self.extension_name.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "extension_name",
         );
 
         let version = get_from_trunk_toml_if_not_set_on_cli(
@@ -126,6 +137,7 @@ impl BuildCommand {
             output_path,
             version,
             name,
+            extension_name,
             platform,
             dockerfile_path,
             install_command,
@@ -194,6 +206,7 @@ impl SubCommand for BuildCommand {
                     build_settings.platform.clone(),
                     path,
                     &build_settings.output_path,
+                    build_settings.extension_name,
                     cargo_toml,
                     task,
                 )
@@ -235,6 +248,7 @@ impl SubCommand for BuildCommand {
             path,
             &build_settings.output_path,
             build_settings.name.clone().unwrap().as_str(),
+            build_settings.extension_name,
             build_settings.version.clone().unwrap().as_str(),
             task,
         )

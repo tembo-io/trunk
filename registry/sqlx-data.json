@@ -60,6 +60,23 @@
     },
     "query": "DELETE FROM extensions\n             WHERE id = $1"
   },
+  "02818845ee6ad5a505f06a94b0132f05214ea5e5d156094186afe6e14844da43": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6)\n            "
+  },
   "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
     "describe": {
       "columns": [
@@ -313,21 +330,6 @@
     },
     "query": "SELECT * FROM extension_owners WHERE extension_id = $1;"
   },
-  "316aa6ecdeb3925645b4896eb08d1b21eae530f998f401bed28bcd062f13df64": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Varchar",
-          "Varchar",
-          "Int4",
-          "Text"
-        ]
-      }
-    },
-    "query": "UPDATE versions\n                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2\n                    WHERE extension_id = $3\n                    AND num = $4"
-  },
   "36bc3613b2f0f2bf8347edc3ddc1c117a164f45f16195ff92c05f2eb764779bd": {
     "describe": {
       "columns": [
@@ -439,22 +441,6 @@
       }
     },
     "query": "SELECT user_name\n                FROM api_tokens\n                WHERE\n                    token = $1"
-  },
-  "447d8952c319e0b5cd27493a041f757fc2cace09a14f9d027dbc4ac4b345acad": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Varchar"
-        ]
-      }
-    },
-    "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)\n                    "
   },
   "49a41631cfe21efe58022e6e4026e6f3d388d8bb12ac478dbf30addab78d430e": {
     "describe": {
@@ -685,6 +671,11 @@
           "name": "links",
           "ordinal": 12,
           "type_info": "Varchar"
+        },
+        {
+          "name": "extension_name",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -693,6 +684,7 @@
         true,
         false,
         false,
+        true,
         true,
         true,
         true,
@@ -844,6 +836,11 @@
           "name": "links",
           "ordinal": 12,
           "type_info": "Varchar"
+        },
+        {
+          "name": "extension_name",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -852,6 +849,7 @@
         true,
         false,
         false,
+        true,
         true,
         true,
         true,
@@ -882,22 +880,6 @@
       }
     },
     "query": "\n            INSERT INTO api_tokens(user_id, user_name, token, created_at)\n            VALUES ($1, $2, $3, (now() at time zone 'utc'))\n            "
-  },
-  "8074388f776810a91f7f10165327891d51540db7952dd347245b35d49257fbe2": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Varchar"
-        ]
-      }
-    },
-    "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5)\n            "
   },
   "8a3643fa646f1768ce6b3abdc949b6daade8f796a8f2b9a388f436e486425299": {
     "describe": {
@@ -964,6 +946,105 @@
     },
     "query": "DELETE FROM versions\n             WHERE extension_id = $1"
   },
+  "ac75c8170d5f5bc2fa5c48cdec0ec8899a2cfd1fd679e3656fe95c19650e5bd3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "extension_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "num",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "downloads",
+          "ordinal": 5,
+          "type_info": "Int4"
+        },
+        {
+          "name": "features",
+          "ordinal": 6,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "yanked",
+          "ordinal": 7,
+          "type_info": "Bool"
+        },
+        {
+          "name": "license",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "extension_size",
+          "ordinal": 9,
+          "type_info": "Int4"
+        },
+        {
+          "name": "published_by",
+          "ordinal": 10,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "checksum",
+          "ordinal": 11,
+          "type_info": "Bpchar"
+        },
+        {
+          "name": "links",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "extension_name",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM versions WHERE extension_id = $1 AND num = $2"
+  },
   "bdd38a42eae77d1ff93284a7a26973190408d533f19a7972bd9932c7204f5e33": {
     "describe": {
       "columns": [],
@@ -975,6 +1056,39 @@
       }
     },
     "query": "DELETE FROM extension_owners\n             WHERE extension_id = $1"
+  },
+  "d937fc15c5fff8bf53234f5a14a3b1bec5e0d2160f5f0c4943c82ce669dd4a8a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6)\n                    "
+  },
+  "dc3b814b508759ce2eb08e207f85d3a2a030337ed0836f0968001046321b05ea": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Text",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "UPDATE versions\n                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5\n                    WHERE extension_id = $3\n                    AND num = $4"
   },
   "f29a9769c67e94ef0eb534c3ea009496dc13426c6d46f545ada1f9ebc9def26b": {
     "describe": {
