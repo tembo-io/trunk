@@ -85,7 +85,12 @@ impl PublishCommand {
             }
         };
 
-        let Some(name) = self.name.as_ref().or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.name)).cloned() else {
+        let Some(name) = self
+            .name
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.name))
+            .cloned()
+        else {
             panic!(
                 "Extension name must be provided when publishing. Please specify the extension name \
                  as the first argument, or under extension.name in Trunk.toml"
@@ -103,7 +108,12 @@ impl PublishCommand {
             })
             .cloned();
 
-        let Some(version) = self.version.as_ref().or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.version)).cloned() else {
+        let Some(version) = self
+            .version
+            .as_ref()
+            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.version))
+            .cloned()
+        else {
             panic!(
                 "Extension version must be provided when publishing. Please specify the extension version \
                  with --version, or under extension.version in Trunk.toml"
@@ -114,21 +124,29 @@ impl PublishCommand {
             .file
             .as_ref()
             .or_else(|| {
-                trunk_toml.as_ref().map(|toml| {
-                    let file = &toml.extension.file;
-                    println!(
-                        "Trunk.toml: using setting `extension.file`: {}",
-                        file.display()
-                    );
-                    file.into()
-                })
+                trunk_toml
+                    .as_ref()
+                    .map(|toml| {
+                        let file = toml.extension.file.as_ref()?;
+                        println!(
+                            "Trunk.toml: using setting `extension.file`: {}",
+                            file.display()
+                        );
+                        Some(file.into())
+                    })
+                    .flatten()
             })
             .cloned();
 
         let description = self
             .description
             .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.description))
+            .or_else(|| {
+                trunk_toml
+                    .as_ref()
+                    .map(|toml| toml.extension.description.as_ref())
+                    .flatten()
+            })
             .cloned();
 
         let documentation = self
@@ -137,14 +155,20 @@ impl PublishCommand {
             .or_else(|| {
                 trunk_toml
                     .as_ref()
-                    .map(|toml| &toml.extension.documentation)
+                    .map(|toml| toml.extension.documentation.as_ref())
+                    .flatten()
             })
             .cloned();
 
         let homepage = self
             .homepage
             .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.homepage))
+            .or_else(|| {
+                trunk_toml
+                    .as_ref()
+                    .map(|toml| toml.extension.homepage.as_ref())
+                    .flatten()
+            })
             .cloned();
 
         let license = self
@@ -168,7 +192,12 @@ impl PublishCommand {
         let repository = self
             .repository
             .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.repository))
+            .or_else(|| {
+                trunk_toml
+                    .as_ref()
+                    .map(|toml| toml.extension.repository.as_ref())
+                    .flatten()
+            })
             .cloned();
 
         let categories = self

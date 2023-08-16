@@ -35,50 +35,40 @@ mod tests {
 
 
         [build]
+        postgres_version = "15"
+        platform = "linux/amd64"
         dockerfile = "Dockerfile"
         install_command = "cd pg_cron && make install"
         "#;
-        //   let table = parse_trunk_toml(toml.as_bytes()).unwrap();
-        //   assert_eq!(table["extension"]["name"].as_str().unwrap(), "pg_cron");
-        //   assert_eq!(table["extension"]["version"].as_str().unwrap(), "1.5.2");
-        //   assert_eq!(
-        //       table["extension"]["repository"].as_str().unwrap(),
-        //       "https://github.com/citusdata/pg_cron"
-        //   );
-        //   assert_eq!(
-        //       table["extension"]["license"].as_str().unwrap(),
-        //       "PostgreSQL"
-        //   );
-        //   assert_eq!(
-        //       table["extension"]["description"].as_str().unwrap(),
-        //      "Run periodic jobs in PostgreSQL"
-        //  );
-        //  assert_eq!(
-        //      table["extension"]["homepage"].as_str().unwrap(),
-        //      "https://github.com/citusdata/pg_cron"
-        //  );
-        //  assert_eq!(
-        //      table["extension"]["documentation"].as_str().unwrap(),
-        //      "https://github.com/citusdata/pg_cron"
-        //  );
-        //  let categories = table["extension"]["categories"].as_array().unwrap();
-        //  let mut v: Vec<String> = Vec::new();
-        //  for i in categories {
-        //      let s = i.as_str();
-        //      let s = s.unwrap().to_string();
-        //      v.push(s);
-        //  }
-        //  assert_eq!(v, vec!("analytics", "debugging"));
-        //  assert_eq!(
-        //      table["extension"]["registry"].as_str().unwrap(),
-        //      "https://my.dummy.registry.dev"
-        //  )//;
+        let table = parse_trunk_toml(toml.as_bytes()).unwrap();
+        assert_eq!(table.extension.name, "pg_cron");
+        assert_eq!(table.extension.version, "1.5.2");
+        assert_eq!(
+            table.extension.repository.unwrap(),
+            "https://github.com/citusdata/pg_cron"
+        );
 
-        //  assert_eq!(table["build"]["dockerfile"].as_str().unwrap(), "Dockerfile");
-        //  assert_eq!(
-        //      table["build"]["install_command"].as_str().unwrap(),
-        //      "cd pg_cron && make install"
-        //  );
+        assert_eq!(table.extension.license, "PostgreSQL");
+        assert_eq!(
+            table.extension.description.unwrap(),
+            "Run periodic jobs in PostgreSQL"
+        );
+        assert_eq!(
+            table.extension.homepage.unwrap(),
+            "https://github.com/citusdata/pg_cron"
+        );
+        assert_eq!(
+            table.extension.documentation.unwrap(),
+            "https://github.com/citusdata/pg_cron"
+        );
+        let categories = table.extension.categories;
+        assert_eq!(categories, ["analytics", "debugging"]);
+        assert_eq!(
+            table.extension.registry.unwrap(),
+            "https://my.dummy.registry.dev"
+        );
+        assert_eq!(table.build.dockerfile.unwrap(), "Dockerfile");
+        assert_eq!(table.build.install_command, "cd pg_cron && make install");
     }
 
     #[test]

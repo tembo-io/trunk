@@ -34,7 +34,7 @@ impl PackagedFile {
     }
 }
 
-/// The (currently not comprehensive) definition of a Trunk.toml file
+/// The definition/schema of a Trunk.toml file
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TrunkToml {
     pub extension: TomlExtensionData,
@@ -45,23 +45,23 @@ pub struct TrunkToml {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TomlExtensionData {
     pub name: String,
-    pub file: PathBuf,
+    pub file: Option<PathBuf>,
     pub extension_name: Option<String>,
     pub version: String,
-    pub repository: String,
     pub license: String,
-    pub description: String,
-    pub homepage: String,
-    pub documentation: String,
+    pub repository: Option<String>,
+    pub description: Option<String>,
+    pub homepage: Option<String>,
+    pub documentation: Option<String>,
     pub categories: Vec<String>,
     pub registry: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TomlBuildInfo {
-    pub postgres_version: String,
+    pub postgres_version: Option<String>,
     pub platform: String,
-    pub dockerfile: String,
+    pub dockerfile: Option<String>,
     pub install_command: String,
 }
 

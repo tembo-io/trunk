@@ -114,7 +114,7 @@ impl BuildCommand {
         // In Trunk.toml, the field is called "dockerfile", and it means the file relative
         // to the Trunk.toml file.
         let dockerfile_path = self.dockerfile_path.clone().or_else(|| {
-            let dockerfile = trunk_toml?.build.dockerfile;
+            let dockerfile = trunk_toml?.build.dockerfile?;
 
             Some(
                 Path::new(&build_path)
