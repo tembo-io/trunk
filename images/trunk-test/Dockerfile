@@ -1,5 +1,5 @@
 FROM rust:1.70.0-slim-bookworm as builder
-ARG TRUNK_VER=0.8.3
+ARG TRUNK_VER=0.9.2
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL sparse
 RUN apt update && apt install -y pkg-config libssl-dev
 RUN cargo install --version $TRUNK_VER pg-trunk
@@ -84,7 +84,7 @@ RUN apt-get update && apt-get install -y \
     zlib1g \
     libperl5.34 \
     libgomp1 \
-    libssl3 \
+    libssl-dev \
     libsfcgal1 \
     openjdk-11-jdk \
     && rm -rf /var/lib/apt/lists/*
@@ -94,9 +94,65 @@ RUN ln -s /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /usr/lib/x86_6
 # Build Postgres from source
 RUN curl https://ftp.postgresql.org/pub/source/v15.3/postgresql-15.3.tar.bz2 -o postgresql-15.3.tar.bz2
 RUN tar xf postgresql-${PG_VERSION}.tar.bz2
+RUN set -eux; \
+      apt-get update && apt-get install -y \
+          libreadline-dev \
+          zlib1g-dev \
+          libpq-dev \
+          build-essential \
+          python3-dev \
+          tcl-dev \
+          libxslt1-dev \
+          libperl-dev \
+          libpam0g-dev \
+          libreadline-dev \
+          libssl-dev \
+          xz-utils \
+          libnss-wrapper \
+          llvm \
+          clang \
+          icu-devtools \
+          pkg-config \
+          libgss-dev \
+          libkrb5-dev \
+          uuid-dev \
+          gettext \
+          liblz4-dev \
+          libsystemd-dev \
+          libselinux1-dev \
+          libzstd-dev \
+      ; \
+      apt-get autoremove -y; \
+      apt-get clean -y; \
+      rm -rf /var/lib/apt/lists/*
 WORKDIR postgresql-${PG_VERSION}
-RUN ./configure --prefix=/usr/lib/postgresql/${PG_MAJOR} --datarootdir=/usr/share
-RUN make
+ENV CFLAGS "-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -fno-omit-frame-pointer"
+ENV LDFLAGS "-Wl,-z,relro -Wl,-z,now"
+RUN ./configure --prefix=/usr/lib/postgresql/${PG_MAJOR} \
+        --datarootdir=/usr/share \
+        --with-perl \
+        --with-python \
+        --with-tcl \
+        --with-pam \
+        --with-libxml \
+        --with-libxslt \
+        --with-openssl \
+        --enable-nls \
+        --enable-thread-safety \
+        --enable-debug \
+        --disable-rpath \
+        --with-uuid=e2fs \
+        --with-gnu-ld \
+        --with-gssapi \
+        --with-pgport=5432 \
+        --with-system-tzdata=/usr/share/zoneinfo \
+        --with-icu \
+        --with-llvm \
+        --with-lz4 \
+        --with-zstd \
+        --with-systemd \
+        --with-selinux
+RUN make -j$(nproc)
 RUN make install
 RUN cd .. && rm postgresql-${PG_VERSION}.tar.bz2
 
