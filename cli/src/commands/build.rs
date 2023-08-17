@@ -84,8 +84,14 @@ impl BuildCommand {
             |toml| &toml.extension.extension_name,
             &trunk_toml,
         );
-      
-        let shared_preload_libraries = cli_or_trunk_opt(&self.shared_preload_libraries, |toml| &toml.extension.shared_preload_libraries, &trunk_toml);
+
+        let shared_preload_libraries = cli_or_trunk_opt(
+            &self.shared_preload_libraries,
+            |toml| &toml.extension.shared_preload_libraries,
+            &trunk_toml,
+        );
+
+        let version = cli_or_trunk(&self.version, |toml| &toml.extension.version, &trunk_toml);
 
         let platform = cli_or_trunk(&self.platform, |toml| &toml.build.platform, &trunk_toml);
 
