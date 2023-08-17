@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use crate::manifest::TrunkToml;
+use crate::trunk_toml::TrunkToml;
 
 pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Error> {
     let mut body = String::new();

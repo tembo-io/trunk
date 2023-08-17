@@ -2,6 +2,7 @@ use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
 use crate::config;
+use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
@@ -73,40 +74,23 @@ impl BuildCommand {
             }
         };
 
-        let name = self
-            .name
-            .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.name))
-            .cloned();
+        let name = cli_or_trunk(&self.name, |toml| &toml.extension.name, &trunk_toml);
 
-        let extension_name = self
-            .extension_name
-            .as_ref()
-            .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .map(|toml| toml.extension.extension_name.as_ref())
-                    .flatten()
-            })
-            .cloned();
+        let extension_name = cli_or_trunk_opt(
+            &self.extension_name,
+            |toml| &toml.extension.extension_name,
+            &trunk_toml,
+        );
 
-        let version = self
-            .version
-            .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.version))
-            .cloned();
+        let version = cli_or_trunk(&self.version, |toml| &toml.extension.version, &trunk_toml);
 
-        let platform = self
-            .platform
-            .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.build.platform))
-            .cloned();
+        let platform = cli_or_trunk(&self.platform, |toml| &toml.build.platform, &trunk_toml);
 
-        let install_command = self
-            .install_command
-            .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.build.install_command))
-            .cloned();
+        let install_command = cli_or_trunk(
+            &self.install_command,
+            |toml| &toml.build.install_command,
+            &trunk_toml,
+        );
 
         // Dockerfile is handled slightly differently in Trunk.toml as the CLI.
         // On CLI, the argument is --dockerfile_path, and it means the path relative

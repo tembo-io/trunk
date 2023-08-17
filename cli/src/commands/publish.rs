@@ -3,6 +3,7 @@ use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
 use crate::config;
 use crate::manifest::Manifest;
+use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt};
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use clap::Args;
@@ -85,35 +86,23 @@ impl PublishCommand {
             }
         };
 
-        let Some(name) = self
-            .name
-            .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.name))
-            .cloned()
-        else {
+        let maybe_name = cli_or_trunk(&self.name, |toml| &toml.extension.name, &trunk_toml);
+        let Some(name) = maybe_name else {
             panic!(
                 "Extension name must be provided when publishing. Please specify the extension name \
                  as the first argument, or under extension.name in Trunk.toml"
             )
         };
 
-        let extension_name = self
-            .extension_name
-            .as_ref()
-            .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .map(|toml| toml.extension.extension_name.as_ref())
-                    .flatten()
-            })
-            .cloned();
+        let extension_name = cli_or_trunk_opt(
+            &self.extension_name,
+            |toml| &toml.extension.extension_name,
+            &trunk_toml,
+        );
 
-        let Some(version) = self
-            .version
-            .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.version))
-            .cloned()
-        else {
+        let maybe_version =
+            cli_or_trunk(&self.version, |toml| &toml.extension.version, &trunk_toml);
+        let Some(version) = maybe_version else {
             panic!(
                 "Extension version must be provided when publishing. Please specify the extension version \
                  with --version, or under extension.version in Trunk.toml"
@@ -138,73 +127,36 @@ impl PublishCommand {
             })
             .cloned();
 
-        let description = self
-            .description
-            .as_ref()
-            .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .map(|toml| toml.extension.description.as_ref())
-                    .flatten()
-            })
-            .cloned();
+        let description = cli_or_trunk_opt(
+            &self.description,
+            |toml| &toml.extension.description,
+            &trunk_toml,
+        );
+        let documentation = cli_or_trunk_opt(
+            &self.documentation,
+            |toml| &toml.extension.documentation,
+            &trunk_toml,
+        );
+        let homepage =
+            cli_or_trunk_opt(&self.homepage, |toml| &toml.extension.homepage, &trunk_toml);
 
-        let documentation = self
-            .documentation
-            .as_ref()
-            .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .map(|toml| toml.extension.documentation.as_ref())
-                    .flatten()
-            })
-            .cloned();
+        let license = cli_or_trunk(&self.license, |toml| &toml.extension.license, &trunk_toml);
 
-        let homepage = self
-            .homepage
-            .as_ref()
-            .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .map(|toml| toml.extension.homepage.as_ref())
-                    .flatten()
-            })
-            .cloned();
+        let registry =
+            cli_or_trunk_opt(&self.registry, |toml| &toml.extension.registry, &trunk_toml)
+                .unwrap_or_else(|| "https://registry.pgtrunk.io".to_string());
 
-        let license = self
-            .license
-            .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.license))
-            .cloned();
+        let repository = cli_or_trunk_opt(
+            &self.repository,
+            |toml| &toml.extension.repository,
+            &trunk_toml,
+        );
 
-        let registry = self
-            .registry
-            .as_ref()
-            .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .map(|toml| toml.extension.registry.as_ref())
-                    .flatten()
-            })
-            .cloned()
-            .unwrap_or_else(|| "https://registry.pgtrunk.io".to_string());
-
-        let repository = self
-            .repository
-            .as_ref()
-            .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .map(|toml| toml.extension.repository.as_ref())
-                    .flatten()
-            })
-            .cloned();
-
-        let categories = self
-            .category
-            .as_ref()
-            .or_else(|| trunk_toml.as_ref().map(|toml| &toml.extension.categories))
-            .cloned();
+        let categories = cli_or_trunk(
+            &self.category,
+            |toml| &toml.extension.categories,
+            &trunk_toml,
+        );
 
         Ok(PublishSettings {
             version,
