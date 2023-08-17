@@ -17,7 +17,7 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
-    container: quay.io/tembo/trunk-test:0.0.24
+    container: quay.io/tembo/trunk-test-tembo:0.0.0
     env:
       PGHOST: "localhost"
       PGPORT: "5432"
@@ -31,7 +31,7 @@ jobs:
         # Entrypoint is overwritten by GitHub Action. We need to execute it manually in order to start Postgres.
         # More information here https://github.com/actions/runner/issues/1964
         run: |
-          docker-entrypoint.sh postgres &
+          su postgres -c '/usr/lib/postgresql/15/bin/postgres &'
           sleep 5
           curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > /tmp/extensions.txt
           trunk-install.sh | tee /tmp/output.txt
