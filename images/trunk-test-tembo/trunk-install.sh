@@ -12,10 +12,10 @@ do
         fi
         printf "\n\n"
 done
-IFS=$'\n' extensions=(`psql psql postgres://postgres:postgres@localhost:5432 -tA postgres -c 'select name from pg_available_extensions;'`)
+IFS=$'\n' extensions=(`psql postgres://postgres:postgres@localhost:5432 -tA postgres -c 'select name from pg_available_extensions;'`)
 for ext in "${extensions[@]}"
 do
-        psql psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$ext\" cascade;"
+        psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$ext\" cascade;"
         if [ $? -ne 0 ]; then
             echo "CREATE EXTENSION command failed"
             failed_extensions+=("$ext")
