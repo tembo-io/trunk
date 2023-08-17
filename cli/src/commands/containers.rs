@@ -358,7 +358,6 @@ pub async fn package_installed_extension_files(
 ) -> Result<(), anyhow::Error> {
     let name = name.to_owned();
     let extension_version = extension_version.to_owned();
-    //    let shared_preload_libaries = shared_preload_libraries.to_owned();
 
     let target_arch = exec_in_container(&docker, container_id, vec!["uname", "-m"], None).await?;
     let target_arch = target_arch.trim().to_string();
