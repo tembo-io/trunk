@@ -494,7 +494,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
-    assert!(stdout.contains("\"shared_preload_libraries_from_toml\"")); 
+    assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
