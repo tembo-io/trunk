@@ -1,6 +1,6 @@
 [package]
 name = "pg-trunk"
-version = "0.8.7"
+version = "0.10.0"
 edition = "2021"
 authors = ["Steven Miller", "Ian Stanton", "Vinícius Miguel"]
 description = "A package manager for PostgreSQL extensions"
@@ -20,6 +20,7 @@ async-trait = "0.1.64"
 bollard = "0.14.0"
 clap = { version = "4.1.1", features = ["derive"] }
 elf = "0.7.2"
+fancy-regex = "0.11.0"
 flate2 = "1.0.25"
 futures-util = "0.3.26"
 hyper = "0.14.24"

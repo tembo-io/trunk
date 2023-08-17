@@ -1,7 +1,7 @@
 pg_tle
 pg_tle/**
 postgres/**
-postgres
+postgres*
 .trunk
 .trunk/**
 pgsql-http/**

@@ -1,3 +1,5 @@
 [extension]
 name = "test_pgrx_extension"
+extension_name = "extension_name_from_toml"
+shared_preload_libraries = ["shared_preload_libraries_from_toml"]
 version = "0.0.0"

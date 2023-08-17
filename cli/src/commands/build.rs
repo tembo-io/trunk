@@ -2,7 +2,9 @@ use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
 use crate::config;
-use crate::config::get_from_trunk_toml_if_not_set_on_cli;
+use crate::config::{
+    get_from_trunk_toml_if_not_set_on_cli, get_string_vec_from_trunk_toml_if_not_set_on_cli,
+};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
@@ -14,6 +16,7 @@ use toml::Table;
 
 #[derive(Args)]
 pub struct BuildCommand {
+    /// The file path of the extension to build
     #[arg(short = 'p', long = "path", default_value = ".")]
     path: String,
     #[arg(short = 'o', long = "output-path")]
@@ -22,6 +25,10 @@ pub struct BuildCommand {
     version: Option<String>,
     #[arg(short = 'n', long = "name")]
     name: Option<String>,
+    #[arg(short = 'e', long = "extension_name")]
+    extension_name: Option<String>,
+    #[arg(short = 's', long = "shared-preload-libraries")]
+    shared_preload_libraries: Option<Vec<String>>,
     #[arg(short = 'P', long = "platform")]
     platform: Option<String>,
     #[arg(short = 'd', long = "dockerfile")]
@@ -35,6 +42,8 @@ pub struct BuildSettings {
     output_path: String,
     version: Option<String>,
     name: Option<String>,
+    extension_name: Option<String>,
+    shared_preload_libraries: Option<Vec<String>>,
     platform: Option<String>,
     dockerfile_path: Option<String>,
     install_command: Option<String>,
@@ -69,6 +78,13 @@ impl BuildCommand {
             }
         };
 
+        let version = get_from_trunk_toml_if_not_set_on_cli(
+            self.version.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "version",
+        );
+
         let name = get_from_trunk_toml_if_not_set_on_cli(
             self.name.clone(),
             trunk_toml.clone(),
@@ -76,11 +92,18 @@ impl BuildCommand {
             "name",
         );
 
-        let version = get_from_trunk_toml_if_not_set_on_cli(
-            self.version.clone(),
+        let extension_name = get_from_trunk_toml_if_not_set_on_cli(
+            self.extension_name.clone(),
             trunk_toml.clone(),
             "extension",
-            "version",
+            "extension_name",
+        );
+
+        let shared_preload_libraries = get_string_vec_from_trunk_toml_if_not_set_on_cli(
+            self.shared_preload_libraries.clone(),
+            trunk_toml.clone(),
+            "extension",
+            "shared_preload_libraries",
         );
 
         let platform = get_from_trunk_toml_if_not_set_on_cli(
@@ -126,6 +149,8 @@ impl BuildCommand {
             output_path,
             version,
             name,
+            extension_name,
+            shared_preload_libraries,
             platform,
             dockerfile_path,
             install_command,
@@ -194,6 +219,8 @@ impl SubCommand for BuildCommand {
                     build_settings.platform.clone(),
                     path,
                     &build_settings.output_path,
+                    build_settings.extension_name,
+                    build_settings.shared_preload_libraries,
                     cargo_toml,
                     task,
                 )
@@ -235,6 +262,8 @@ impl SubCommand for BuildCommand {
             path,
             &build_settings.output_path,
             build_settings.name.clone().unwrap().as_str(),
+            build_settings.extension_name,
+            build_settings.shared_preload_libraries,
             build_settings.version.clone().unwrap().as_str(),
             task,
         )

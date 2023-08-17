@@ -1,0 +1,21 @@
+[extension]
+name = "jdbc_fdw"
+version = "1.2.0"
+repository = "https://github.com/pgspider/jdbc_fdw"
+license = "PostgreSQL"
+description = "PostgreSQL Foreign Data Wrapper for JDBC."
+documentation = "https://github.com/pgspider/jdbc_fdw"
+categories = ["connectors"]
+
+
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/jdbc_fdw && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
