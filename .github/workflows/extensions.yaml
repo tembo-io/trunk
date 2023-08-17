@@ -99,8 +99,9 @@ jobs:
       - name: Enable the extension
         if: ${{ github.ref != 'refs/heads/main' }}
         run: |
-          export EXTENSION=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements')";)
-          psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
+          ps aux
+          export EXTENSION=$(psql -U postgres -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements')";)
+          psql -U postgres -c "create extension if not exists \"$EXTENSION\" cascade;"
       - name: Publish the extension
         if: ${{ github.ref == 'refs/heads/main' }}
         run: cd ${{ matrix.path }} && trunk publish
