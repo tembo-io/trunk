@@ -58,7 +58,7 @@ jobs:
       - large-8x8
     container:
       image: quay.io/tembo/trunk-test:0.0.0-tembo
-#      options: --user root
+      options: --user root
     needs:
       - find_directories
     strategy:
