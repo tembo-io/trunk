@@ -7,5 +7,6 @@ license = "PostgreSQL"
 categories = []
 
 [build]
+dockerfile = "Dockerfile"
 install_command = "cd pg_cron && make install"
 platform = "linux/amd64"
