@@ -7,7 +7,6 @@ description = "The pgcrypto module provides cryptographic functions for PostgreS
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgcrypto.html"
 categories = ["security"]
-#trigger build
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
