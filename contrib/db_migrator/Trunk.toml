@@ -1,0 +1,20 @@
+[extension]
+name = "db_migrator"
+version = "1.0.0"
+repository = "https://github.com/cybertec-postgresql/db_migrator"
+license = "Copyright"
+description = "Functions for migrating databases from other data sources to PostgreSQL."
+homepage = "https://www.cybertec-postgresql.com/en/"
+documentation = "https://github.com/cybertec-postgresql/db_migrator"
+categories = ["connectors"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd db_migrator && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

@@ -38,11 +38,22 @@ impl PackagedFile {
 #[derive(Serialize, Deserialize, Debug)]
 #[cfg_attr(test, derive(Default))]
 pub struct Manifest {
-    #[serde(rename = "name")]
-    pub extension_name: String,
+    pub name: String,
+    pub extension_name: Option<String>,
+    /// The packages that supply the runtime dependencies for this extension, if any are needed.
+    /// Example: pgroonga depends on `libgroonga.so`, which on Ubuntu is supplied by `libgroonga-dev`
+    /// This would be defined in manifest.json as
+    ///
+    /// ```no-rust
+    /// dependencies = {
+    ///    'apt': ['libgroonga-dev'],
+    /// }
+    /// ```
+    pub dependencies: Option<HashMap<String, Vec<String>>>,
     #[serde(rename = "version")]
     pub extension_version: String,
     pub manifest_version: i32,
+    pub shared_preload_libraries: Option<Vec<String>>,
     pub sys: String,
     pub architecture: String,
     pub files: Option<HashMap<PathBuf, PackagedFile>>,

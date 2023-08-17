@@ -57,7 +57,7 @@ jobs:
       - dind
       - large-8x8
     container:
-      image: quay.io/tembo/trunk-test:0.0.18
+      image: quay.io/tembo/trunk-test-tembo:0.0.5
       options: --user root
     needs:
       - find_directories
@@ -79,19 +79,6 @@ jobs:
           set -xe
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
-      - name: Install minimal, stable rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: "${{ matrix.name }}-extensions"
-      - name: Install Trunk
-        run: |
-          set -xe
-          cargo install --path ./cli
-          trunk --version
       - name: Build the extension
         run: cd ${{ matrix.path }} && trunk build
       - name: Install the extension
@@ -99,9 +86,11 @@ jobs:
       - name: Enable the extension
         if: ${{ github.ref != 'refs/heads/main' }}
         run: |
-          docker-entrypoint.sh postgres &
+          su postgres -c '/usr/lib/postgresql/15/bin/postgres &'
           sleep 5
-          EXTENSION=$(basename ${{ matrix.path }}) && psql -U postgres -c "create extension if not exists \"$EXTENSION\" cascade;"
+          ps aux
+          export EXTENSION=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements')";)
+          psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
       - name: Publish the extension
         if: ${{ github.ref == 'refs/heads/main' }}
         run: cd ${{ matrix.path }} && trunk publish

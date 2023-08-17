@@ -63,7 +63,33 @@ RUN apt-get update && apt-get install -y \
     libhiredis-dev \
     libsybdb5 \
     libpython3.10-dev \
+    r-base-core \
+    openssl \
+    liblz4-1 \
+    libpcre2-8-0 \
+    libuuid1 \
+    libgroonga0 \
+    libopenblas0-pthread \
+    libcurl4 \
+    libjson-c5 \
+    libsodium23 \
+    libgcc-s1 \
+    libselinux1 \
+    librdkafka1 \
+    libgdal30 \
+    libcrypt1 \
+    liburiparser1 \
+    libfreetype6 \
+    libzstd1 \
+    zlib1g \
+    libperl5.34 \
+    libgomp1 \
+    libssl3 \
+    libsfcgal1 \
+    openjdk-11-jdk \
     && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /usr/lib/x86_64-linux-gnu/libjvm.so
 
 # Build Postgres from source
 RUN curl https://ftp.postgresql.org/pub/source/v15.3/postgresql-15.3.tar.bz2 -o postgresql-15.3.tar.bz2
