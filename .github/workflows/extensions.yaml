@@ -57,7 +57,7 @@ jobs:
       - dind
       - large-8x8
     container:
-      image: quay.io/tembo/trunk-test:0.0.0-tembo
+      image: quay.io/tembo/trunk-test:0.0.2-tembo
       options: --user root
     needs:
       - find_directories
@@ -79,19 +79,9 @@ jobs:
           set -xe
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
-      - name: Install minimal, stable rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "${{ matrix.name }}-extensions"
-      - name: Install Trunk
-        run: |
-          set -xe
-          cargo install --path ./cli
-          trunk --version
       - name: Build the extension
         run: cd ${{ matrix.path }} && trunk build
       - name: Install the extension
