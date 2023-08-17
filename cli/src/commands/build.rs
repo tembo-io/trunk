@@ -25,6 +25,8 @@ pub struct BuildCommand {
     name: Option<String>,
     #[arg(short = 'e', long = "extension_name")]
     extension_name: Option<String>,
+    #[arg(short = 's', long = "shared-preload-libraries")]
+    shared_preload_libraries: Option<Vec<String>>,
     #[arg(short = 'P', long = "platform")]
     platform: Option<String>,
     #[arg(short = 'd', long = "dockerfile")]
@@ -39,6 +41,7 @@ pub struct BuildSettings {
     version: Option<String>,
     name: Option<String>,
     extension_name: Option<String>,
+    shared_preload_libraries: Option<Vec<String>>,
     platform: Option<String>,
     dockerfile_path: Option<String>,
     install_command: Option<String>,
@@ -81,8 +84,8 @@ impl BuildCommand {
             |toml| &toml.extension.extension_name,
             &trunk_toml,
         );
-
-        let version = cli_or_trunk(&self.version, |toml| &toml.extension.version, &trunk_toml);
+      
+        let shared_preload_libraries = cli_or_trunk_opt(&self.shared_preload_libraries, |toml| &toml.extension.shared_preload_libraries, &trunk_toml);
 
         let platform = cli_or_trunk(&self.platform, |toml| &toml.build.platform, &trunk_toml);
 
@@ -114,6 +117,7 @@ impl BuildCommand {
             version,
             name,
             extension_name,
+            shared_preload_libraries,
             platform,
             dockerfile_path,
             install_command,
@@ -183,6 +187,7 @@ impl SubCommand for BuildCommand {
                     path,
                     &build_settings.output_path,
                     build_settings.extension_name,
+                    build_settings.shared_preload_libraries,
                     cargo_toml,
                     task,
                 )
@@ -225,6 +230,7 @@ impl SubCommand for BuildCommand {
             &build_settings.output_path,
             build_settings.name.clone().unwrap().as_str(),
             build_settings.extension_name,
+            build_settings.shared_preload_libraries,
             build_settings.version.clone().unwrap().as_str(),
             task,
         )

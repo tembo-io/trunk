@@ -68,6 +68,7 @@ pub async fn build_generic(
     output_path: &str,
     name: &str,
     extension_name: Option<String>,
+    shared_preload_libraries: Option<Vec<String>>,
     extension_version: &str,
     _task: Task,
 ) -> Result<(), GenericBuildError> {
@@ -133,6 +134,7 @@ pub async fn build_generic(
         docker.clone(),
         &temp_container.id,
         output_path,
+        shared_preload_libraries,
         name,
         extension_name,
         extension_version,
