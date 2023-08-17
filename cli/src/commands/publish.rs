@@ -74,9 +74,9 @@ pub struct PublishSettings {
 
 impl PublishCommand {
     fn settings(&self) -> Result<PublishSettings, anyhow::Error> {
-        // The file path of the extension to build
-        let build_path = ".".to_string();
-        let trunkfile_path = Path::new(&build_path).join("Trunk.toml");
+        // The file path of the extension to publish
+        let publish_path = ".";
+        let trunkfile_path = Path::new(&publish_path).join("Trunk.toml");
 
         let trunk_toml = match File::open(trunkfile_path) {
             Ok(file) => Some(config::parse_trunk_toml(file)?),
