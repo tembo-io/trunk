@@ -95,7 +95,7 @@ impl BuildCommand {
 
         let platform = cli_or_trunk(&self.platform, |toml| &toml.build.platform, &trunk_toml);
 
-        let install_command = cli_or_trunk(
+        let install_command = cli_or_trunk_opt(
             &self.install_command,
             |toml| &toml.build.install_command,
             &trunk_toml,

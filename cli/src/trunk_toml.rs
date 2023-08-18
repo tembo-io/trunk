@@ -31,7 +31,7 @@ pub struct TomlBuildInfo {
     pub postgres_version: Option<String>,
     pub platform: String,
     pub dockerfile: Option<String>,
-    pub install_command: String,
+    pub install_command: Option<String>,
 }
 
 /// Use the value supplied through the command-line, if present.
