@@ -68,7 +68,10 @@ mod tests {
             "https://my.dummy.registry.dev"
         );
         assert_eq!(table.build.dockerfile.unwrap(), "Dockerfile");
-        assert_eq!(table.build.install_command, "cd pg_cron && make install");
+        assert_eq!(
+            table.build.install_command.unwrap(),
+            "cd pg_cron && make install"
+        );
     }
 
     #[test]
