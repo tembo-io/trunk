@@ -4,7 +4,7 @@ use serde::Deserialize;
 #[derive(Deserialize, Debug)]
 pub struct ExtensionUpload {
     pub name: String,
-    pub extension_name: String,
+    pub extension_name: Option<String>,
     pub vers: semver::Version,
     pub description: Option<String>,
     pub homepage: Option<String>,
