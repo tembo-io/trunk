@@ -37,7 +37,7 @@ jobs:
           sleep 5
           curl https://registry.pgtrunk.io/extensions/all | jq -r ".[] | .name" > /tmp/extensions.txt
           trunk-install.sh | tee /tmp/output.txt
-          cat /tmp/output.txt | grep -Pzo '.*SUCCESS RATE(.*\n)*' > /tmp/results.txt
+          cat /tmp/output.txt | grep -i -A 1 'SUCCESS RATE' | grep -v 'SUCCESS RATE' > /tmp/results.txt
           export RES=$(cat /tmp/results.txt)
           echo "RESULTS=$RES" >> $GITHUB_ENV
       - name: Post to a Slack channel
