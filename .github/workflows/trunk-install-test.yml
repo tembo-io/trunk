@@ -44,6 +44,6 @@ jobs:
           # You can pass in multiple channels to post to by providing a comma-delimited list of channel IDs.
           channel-id: 'C04HD3C23NE'
           # For posting a simple plain text message
-          slack-message: "Test automated slack message from GitHub Actions
+          slack-message: "Test automated slack message from GitHub Actions"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.TRUNK_INSTALL_SLACK_BOT_TOKEN }}
