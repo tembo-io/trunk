@@ -2,7 +2,7 @@ use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
 use crate::config;
-use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt};
+use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
@@ -42,6 +42,7 @@ pub struct BuildSettings {
     name: Option<String>,
     extension_name: Option<String>,
     shared_preload_libraries: Option<Vec<String>>,
+    system_dependencies: Option<SystemDependencies>,
     platform: Option<String>,
     dockerfile_path: Option<String>,
     install_command: Option<String>,
@@ -101,17 +102,23 @@ impl BuildCommand {
             &trunk_toml,
         );
 
+        let system_dependencies = trunk_toml
+            .as_ref()
+            .map(|toml| toml.dependencies.as_ref())
+            .flatten()
+            .cloned();
+
         // Dockerfile is handled slightly differently in Trunk.toml as the CLI.
         // On CLI, the argument is --dockerfile_path, and it means the path relative
         // to the current working directory where the command line argument is executed.
         // In Trunk.toml, the field is called "dockerfile", and it means the file relative
         // to the Trunk.toml file.
         let dockerfile_path = self.dockerfile_path.clone().or_else(|| {
-            let dockerfile = trunk_toml?.build.dockerfile?;
+            let dockerfile = &trunk_toml?.build.dockerfile?;
 
             Some(
                 Path::new(&build_path)
-                    .join(dockerfile)
+                    .join(&dockerfile)
                     .to_string_lossy()
                     .into(),
             )
@@ -124,6 +131,7 @@ impl BuildCommand {
             name,
             extension_name,
             shared_preload_libraries,
+            system_dependencies,
             platform,
             dockerfile_path,
             install_command,
@@ -146,6 +154,7 @@ impl SubCommand for BuildCommand {
         let build_settings = self.settings()?;
         println!("Building from path {}", build_settings.path);
         let path = Path::new(&build_settings.path);
+
         if path.join("Cargo.toml").exists() {
             let cargo_toml: Table =
                 toml::from_str(&std::fs::read_to_string(path.join("Cargo.toml")).unwrap()).unwrap();
@@ -195,6 +204,7 @@ impl SubCommand for BuildCommand {
                     build_settings.extension_name,
                     build_settings.shared_preload_libraries,
                     cargo_toml,
+                    build_settings.system_dependencies,
                     task,
                 )
                 .await?;
@@ -237,6 +247,7 @@ impl SubCommand for BuildCommand {
             build_settings.name.clone().unwrap().as_str(),
             build_settings.extension_name,
             build_settings.shared_preload_libraries,
+            build_settings.system_dependencies,
             build_settings.version.clone().unwrap().as_str(),
             task,
         )

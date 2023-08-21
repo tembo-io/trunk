@@ -2,12 +2,14 @@ use std::{collections::HashMap, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
+pub type SystemDependencies = HashMap<String, Vec<String>>;
+
 /// The definition/schema of a Trunk.toml file
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TrunkToml {
     pub extension: TomlExtensionData,
     pub build: TomlBuildInfo,
-    pub dependencies: Option<HashMap<String, Vec<String>>>,
+    pub dependencies: Option<SystemDependencies>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
