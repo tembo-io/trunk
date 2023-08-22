@@ -3,7 +3,7 @@ use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
 use crate::config;
 use crate::manifest::Manifest;
-use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt};
+use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use clap::Args;
@@ -69,6 +69,7 @@ pub struct PublishSettings {
     license: Option<String>,
     registry: String,
     repository: Option<String>,
+    system_dependencies: Option<SystemDependencies>,
     categories: Option<Vec<String>>,
 }
 
@@ -158,6 +159,12 @@ impl PublishCommand {
             &trunk_toml,
         );
 
+        let system_dependencies = trunk_toml
+            .as_ref()
+            .map(|toml| toml.dependencies.as_ref())
+            .flatten()
+            .cloned();
+
         Ok(PublishSettings {
             version,
             file,
@@ -169,6 +176,7 @@ impl PublishCommand {
             repository,
             name,
             extension_name,
+            system_dependencies,
             categories,
         })
     }
@@ -334,6 +342,7 @@ impl SubCommand for PublishCommand {
             "homepage": publish_settings.homepage,
             "license": publish_settings.license,
             "repository": publish_settings.repository,
+            "system_dependencies": publish_settings.system_dependencies,
             "categories": publish_settings.categories
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
