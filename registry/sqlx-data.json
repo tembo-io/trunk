@@ -60,23 +60,6 @@
     },
     "query": "DELETE FROM extensions\n             WHERE id = $1"
   },
-  "02818845ee6ad5a505f06a94b0132f05214ea5e5d156094186afe6e14844da43": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Varchar",
-          "Varchar"
-        ]
-      }
-    },
-    "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6)\n            "
-  },
   "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
     "describe": {
       "columns": [
@@ -573,6 +556,24 @@
       }
     },
     "query": "SELECT id FROM extensions WHERE name = $1"
+  },
+  "6550243b823526a4f13999d39c39ed21992c445eeaaba3720808ba0ae43ed70e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Jsonb"
+        ]
+      }
+    },
+    "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb)\n            "
   },
   "69ef7c7c79e69f31731a41417a0047562f0806a7c73eb4bb98c9ed554fff3b7c": {
     "describe": {
