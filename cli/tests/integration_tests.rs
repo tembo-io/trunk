@@ -495,7 +495,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
     assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
-    assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ]\n  }"));
+    assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ],\n    \"dnf\": [\n      \"libpq-devel\"\n    ]\n  }"));
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -510,6 +510,8 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("Needed system-level dependencies:"));
     assert!(stdout.contains("On systems using apt:"));
     assert!(stdout.contains("libpq5"));
+    assert!(stdout.contains("On systems using dnf:"));
+    assert!(stdout.contains("libpq-devel"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
