@@ -375,6 +375,7 @@ pub async fn get_version_history(
           "license": row.license,
           "owners": owners,
           "publisher": row.published_by,
+          "system_dependencies": row.system_dependencies,
           "categories": categories
         });
         versions.push(data);
