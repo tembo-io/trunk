@@ -4,6 +4,7 @@ USER root
 RUN apt-get update && apt-get install -y \
     jq \
     curl \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Install extension dependencies
@@ -45,6 +46,11 @@ RUN apt-get update && apt-get install -y \
     openjdk-11-jdk \
     && rm -rf /var/lib/apt/lists/*
 RUN ln -s /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /usr/lib/x86_64-linux-gnu/libjvm.so
+RUN wget https://download.oracle.com/otn_software/linux/instantclient/1920000/instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip && \
+    unzip instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip && \
+    cp instantclient_19_20/libclntsh.so.19.1 /usr/lib/x86_64-linux-gnu/ && \
+    rm -rf instantclient_19_20 && \
+    rm instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip
 
 RUN chown -R postgres:postgres $PGDATA && \
     chmod -R 0700 $PGDATA
