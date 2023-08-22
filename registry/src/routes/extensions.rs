@@ -155,19 +155,22 @@ pub async fn publish(
             .fetch_optional(&mut tx)
             .await?;
 
+            let system_deps = serde_json::to_value(&new_extension.system_dependencies)?;
+
             match version_exists {
                 Some(_version_exists) => {
                     // Update updated_at timestamp
                     sqlx::query!(
                         "UPDATE versions
-                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5
+                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5, system_dependencies = $6::jsonb
                     WHERE extension_id = $3
                     AND num = $4",
                         new_extension.license,
                         user_info.user_name,
                         extension_id as i32,
                         new_extension.vers.to_string(),
-                        new_extension.extension_name
+                        new_extension.extension_name,
+                        system_deps
                     )
                     .execute(&mut tx)
                     .await?;
@@ -176,15 +179,16 @@ pub async fn publish(
                     // Create new record in versions table
                     sqlx::query!(
                         "
-                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name)
-                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6)
+                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies)
+                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb)
                     ",
                         extension_id as i32,
                         new_extension.vers.to_string(),
                         false,
                         new_extension.license,
                         user_info.user_name,
-                        new_extension.extension_name
+                        new_extension.extension_name,
+                        system_deps,
                     )
                     .execute(&mut tx)
                     .await?;
