@@ -18,7 +18,7 @@ jobs:
       - dind
       - large-8x8
     container:
-      image: quay.io/tembo/trunk-test-tembo:0.0.5
+      image: quay.io/tembo/trunk-test-tembo:0.0.10
       options: --user root
     env:
       PGHOST: "localhost"
@@ -41,6 +41,7 @@ jobs:
           export RES=$(cat /tmp/results.txt)
           echo "RESULTS=$RES" >> $GITHUB_ENV
       - name: Post to a Slack channel
+        if: ${{ github.ref == 'refs/heads/main' }}
         id: slack
         uses: slackapi/slack-github-action@v1.24.0
         with:
