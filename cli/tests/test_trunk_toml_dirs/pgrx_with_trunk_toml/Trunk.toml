@@ -10,3 +10,6 @@ categories = []
 [build]
 platform = "linux/amd64"
 install_command = ""
+
+[dependencies]
+apt = ["libpq5"]
