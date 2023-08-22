@@ -1,3 +1,10 @@
 [extension]
 name = "wrong_name"
 version = "0.0.0"
+repository = "https://github.com/tembo-io/trunk"
+license = "PostgreSQL"
+categories = []
+
+[build]
+platform = "linux/amd64"
+install_command = ""
