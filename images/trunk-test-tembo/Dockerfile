@@ -51,6 +51,7 @@ RUN wget https://download.oracle.com/otn_software/linux/instantclient/1920000/in
     unzip instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip && \
     cp instantclient_19_20/libclntsh.so.19.1 /usr/lib/x86_64-linux-gnu/ && \
     cp instantclient_19_20/libnnz19.so /usr/lib/x86_64-linux-gnu/ && \
+    cp instantclient_19_20/libclntshcore.so.19.1 /usr/lib/x86_64-linux-gnu/ && \
     rm -rf instantclient_19_20 && \
     rm instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip
 
