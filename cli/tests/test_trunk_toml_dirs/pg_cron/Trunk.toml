@@ -11,3 +11,7 @@ categories = []
 dockerfile = "Dockerfile"
 install_command = "cd pg_cron && make install"
 platform = "linux/amd64"
+
+[dependencies]
+apt = ["libpq5"]
+dnf = ["libpq-devel"]

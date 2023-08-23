@@ -15,6 +15,7 @@ use std::path::Path;
 use crate::commands::generic_build::GenericBuildError;
 use crate::manifest::Manifest;
 use crate::sync_utils::{ByteStreamSyncReceiver, ByteStreamSyncSender};
+use crate::trunk_toml::SystemDependencies;
 use fancy_regex::Regex;
 use futures_util::stream::StreamExt;
 use hyper::Body;
@@ -352,6 +353,7 @@ pub async fn package_installed_extension_files(
     container_id: &str,
     package_path: &str,
     shared_preload_libraries: Option<Vec<String>>,
+    system_dependencies: Option<SystemDependencies>,
     name: &str,
     mut extension_name: Option<String>,
     extension_version: &str,
@@ -441,7 +443,7 @@ pub async fn package_installed_extension_files(
             architecture: target_arch,
             sys: "linux".to_string(),
             files: None,
-            dependencies: None,
+            dependencies: system_dependencies,
         };
         // If the docker copy command starts to stream data
         println!("Create Trunk bundle:");

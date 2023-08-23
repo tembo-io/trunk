@@ -333,7 +333,6 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     // Note - name and extension_name are different here
     assert!(stdout.contains("\"name\": \"pgsql_http\""));
     assert!(stdout.contains("\"extension_name\": \"http\""));
-    println!("MANIFEST: {}", stdout);
     assert!(stdout.contains("\"pgsql_http_spl\""));
 
     // assert post installation steps contain correct CREATE EXTENSION command
@@ -495,6 +494,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
     assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
+    assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ],\n    \"dnf\": [\n      \"libpq-devel\"\n    ]\n  }"));
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -506,6 +506,11 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
+    assert!(stdout.contains("Needed system-level dependencies:"));
+    assert!(stdout.contains("On systems using apt:"));
+    assert!(stdout.contains("libpq5"));
+    assert!(stdout.contains("On systems using dnf:"));
+    assert!(stdout.contains("libpq-devel"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -563,6 +568,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
     assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
+    assert!(stdout.contains("\"libpq5\""));
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -575,7 +581,9 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     cmd.assert().code(0);
     assert!(!stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
-
+    assert!(stdout.contains("Needed system-level dependencies:"));
+    assert!(stdout.contains("On systems using apt:"));
+    assert!(stdout.contains("libpq5"));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
