@@ -1,4 +1,4 @@
 -- Add migration script here
-
-ALTER TABLE shared_preload_libraries
-ADD COLUMN name VARCHAR;
+CREATE TABLE IF NOTE EXISTS shared_preload_libraries (
+    name VARCHAR,
+);
