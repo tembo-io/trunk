@@ -8,6 +8,9 @@ homepage = "https://www.hydra.so"
 documentation = "https://github.com/hydradatabase/hydra"
 categories = ["analytics"]
 
+[dependencies]
+apt = [libc6, libzstd1, liblz4-1]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
