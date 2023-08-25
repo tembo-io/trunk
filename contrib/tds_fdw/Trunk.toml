@@ -7,6 +7,9 @@ description = "A PostgreSQL foreign data wrapper to connect to TDS databases (Sy
 documentation = "https://github.com/tds-fdw/tds_fdw"
 categories = ["connectors"]
 
+[dependencies]
+apt = [libsybdb5, libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
