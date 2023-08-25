@@ -7,6 +7,9 @@ description = "An extension offering various aggregate functions like min, max, 
 documentation = "https://github.com/pjungwir/aggs_for_vecs"
 categories = ["analytics"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
