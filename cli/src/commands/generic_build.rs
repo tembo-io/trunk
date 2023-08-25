@@ -16,6 +16,7 @@ use crate::commands::containers::{
     build_image, exec_in_container, package_installed_extension_files, run_temporary_container,
 };
 use crate::commands::license::{copy_licenses, find_licenses};
+use crate::trunk_toml::SystemDependencies;
 
 #[derive(Error, Debug)]
 pub enum GenericBuildError {
@@ -69,6 +70,7 @@ pub async fn build_generic(
     name: &str,
     extension_name: Option<String>,
     shared_preload_libraries: Option<Vec<String>>,
+    system_dependencies: Option<SystemDependencies>,
     extension_version: &str,
     _task: Task,
 ) -> Result<(), GenericBuildError> {
@@ -135,6 +137,7 @@ pub async fn build_generic(
         &temp_container.id,
         output_path,
         shared_preload_libraries,
+        system_dependencies,
         name,
         extension_name,
         extension_version,

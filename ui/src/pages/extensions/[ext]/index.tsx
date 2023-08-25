@@ -49,7 +49,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
     );
   }
 
-  const latestVersion: Extension = extension[extension.length - 1];
+  const latestVersion: Extension = extension!;
   const installText = `trunk install ${latestVersion.name}` ?? "";
 
   const handleCopy = async () => {
@@ -214,19 +214,44 @@ async function getReadme(repositoryUrl: string): Promise<string> {
   return readme;
 }
 
+// Lexicographically compare semantic version tags
+const compareBySemver = (a: string, b: string) => {
+  const a1 = a.split('.');
+  const b1 = b.split('.');
+  
+  const len = Math.min(a1.length, b1.length);
+  
+  for (let i = 0; i < len; i++) {
+      const a2 = +a1[ i ] || 0;
+      const b2 = +b1[ i ] || 0;
+      
+      if (a2 !== b2) {
+          return a2 > b2 ? 1 : -1;        
+      }
+  }
+
+  return b1.length - a1.length;
+};
+
 export async function getStaticProps({ params }: { params: { ext: string } }) {
   let readme = "";
-  let extension = null;
+  let extensions = null;
   let repoDescription = "";
+
+  function sortExtensions(extensions: Extension[]) {
+    return extensions.sort((a, b) => compareBySemver(a.version, b.version));
+  }
+
   try {
     try {
       const extRes = await fetch(`${REGISTRY_URL}/extensions/detail/${params.ext}`);
-      extension = await extRes.json();
+      extensions = await extRes.json()!;
+      sortExtensions(extensions);
     } catch (error) {
       return Promise.reject(Error(`Failed to fetch '${params.ext}' from Trunk: ${error}`));
     }
-    const latestVersion: Extension = extension ? extension[extension.length - 1] : null;
-    if (extension && latestVersion?.repository && latestVersion.repository.includes("github.com")) {
+    const latestVersion: Extension = extensions[extensions.length - 1];
+    if (extensions && latestVersion?.repository && latestVersion.repository.includes("github.com")) {
       const repo = latestVersion.repository;
 
       try {
@@ -238,9 +263,9 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
       }
     }
 
-    return { props: { extension, readme, repoDescription } };
+    return { props: { extension: latestVersion, readme, repoDescription } };
   } catch (error: any) {
-    console.log("********** STATIC PROPS ERROR **********", error.message, params, extension);
+    console.log("********** STATIC PROPS ERROR **********", error.message, params, extensions);
     return { props: { extension: null, readme: "", repoDescription: "" } };
   }
 }
