@@ -7,6 +7,9 @@ description = "SI Units for PostgreSQL."
 documentation = "https://github.com/df7cb/postgresql-unit"
 categories = ["analytics"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
