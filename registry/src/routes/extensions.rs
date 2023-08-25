@@ -468,7 +468,6 @@ pub async fn delete_extension(
 pub async fn get_shared_preload_libraries(
     conn: web::Data<Pool<Postgres>>,
 ) -> Result<Json<Vec<String>>, ExtensionRegistryError> {
-
     // Query to get extension names from the appropriate table.
     let rows = sqlx::query!("SELECT name FROM shared_preload_libraries")
         .fetch_all(&mut tx)
