@@ -7,6 +7,9 @@ description = "PostgreSQL Foreign Data Wrapper for Oracle."
 documentation = "https://github.com/laurenz/oracle_fdw"
 categories = ["connectors"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

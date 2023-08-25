@@ -8,6 +8,9 @@ homepage = "https://www.enterprisedb.com/"
 documentation = "https://github.com/EnterpriseDB/mysql_fdw"
 categories = ["connectors"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

@@ -7,6 +7,9 @@ description = "PostgreSQL dynamic data anonymization."
 documentation = "https://github.com/rjuju/pg_anonymize"
 categories = ["security"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

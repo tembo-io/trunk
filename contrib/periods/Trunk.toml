@@ -7,6 +7,9 @@ description = "This extension recreates the behavior defined in SQL:2016 (origin
 documentation = "https://github.com/xocolatl/periods"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
