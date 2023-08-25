@@ -8,6 +8,9 @@ homepage = "https://www.citusdata.com/"
 documentation = "https://github.com/citusdata/postgresql-hll"
 categories = ["analytics"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
