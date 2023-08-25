@@ -1,5 +1,6 @@
 //! Functionality related to publishing a new extension or version of an extension.
 
+use actix_web::web::Json;
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 
 use crate::categories::{get_categories_for_extension, update_extension_categories};
@@ -461,4 +462,20 @@ pub async fn delete_extension(
     registry.purge_extension(extension_id).await?;
 
     Ok(HttpResponse::Ok().finish())
+}
+
+#[get("/extensions/libraries")]
+pub async fn get_shared_preload_libraries(
+    conn: web::Data<Pool<Postgres>>,
+) -> Result<Json<Vec<String>>, ExtensionRegistryError> {
+    // Query to get extension names from the appropriate table.
+    let rows = sqlx::query!("SELECT name FROM shared_preload_libraries")
+        .fetch_all(conn.as_ref())
+        .await?;
+
+    // Iterate through the rows and extract the extension names.
+    let extension_names = rows.into_iter().map(|row| row.name).collect();
+
+    // Return the results in the response.
+    Ok(Json(extension_names))
 }
