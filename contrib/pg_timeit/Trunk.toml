@@ -7,6 +7,9 @@ description = "PostgreSQL extension that provides high-accuracy timing of SQL ex
 documentation = "https://github.com/joelonsql/pg-timeit"
 categories = ["metrics"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
