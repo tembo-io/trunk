@@ -7,6 +7,9 @@ description = "Prefix Range module for PostgreSQL."
 documentation = "https://github.com/dimitri/prefix"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
