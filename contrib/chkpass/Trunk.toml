@@ -8,7 +8,7 @@ documentation = "https://github.com/lacanoid/chkpass"
 categories = ["security"]
 
 [dependencies]
-apt = [libcrypt1, libc6]
+apt = ["libcrypt1", "libc6"]
 
 [build]
 postgres_version = "15"

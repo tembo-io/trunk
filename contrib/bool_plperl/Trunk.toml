@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/plperl-funcs.html"
 categories = ["data_transformations"]
 
 [dependencies]
-apt = [libperl5.34, libc6]
+apt = ["libperl5.34", "libc6"]
 
 [build]
 postgres_version = "15"

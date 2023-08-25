@@ -8,7 +8,7 @@ documentation = "https://github.com/pjungwir/aggs_for_vecs"
 categories = ["analytics"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

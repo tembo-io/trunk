@@ -9,7 +9,7 @@ documentation = "https://postgis.net/docs/Extras.html"
 categories = ["data_transformations"]
 
 [dependencies]
-apt = [libc6, libpcre2-8-0]
+apt = ["libc6", "libpcre2-8-0"]
 
 [build]
 postgres_version = "15"
