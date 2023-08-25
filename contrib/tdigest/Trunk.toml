@@ -7,6 +7,9 @@ description = "PostgreSQL extension for estimating percentiles using t-digest."
 documentation = "https://github.com/tvondra/tdigest"
 categories = ["analytics"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
