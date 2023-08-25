@@ -7,6 +7,9 @@ description = "A semantic version data type for PostgreSQL."
 documentation = "https://github.com/theory/pg-semver"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
