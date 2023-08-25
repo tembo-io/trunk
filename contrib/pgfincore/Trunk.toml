@@ -7,6 +7,9 @@ description = "Use mincore to explore linux (or BSD) cache memory."
 documentation = "https://github.com/klando/pgfincore"
 categories = ["tooling_admin"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

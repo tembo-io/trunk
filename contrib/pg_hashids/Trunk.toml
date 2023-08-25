@@ -6,6 +6,9 @@ license = "MIT"
 description = "Hashids is a small open-source library that generates short, unique, non-sequential ids from numbers."
 categories = ["data_transformations"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

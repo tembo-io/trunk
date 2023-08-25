@@ -7,6 +7,9 @@ description = "Job scheduler for PostgreSQL."
 homepage = "https://www.citusdata.com/"
 categories = ["orchestration"]
 
+[dependencies]
+apt = [libpq5, libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
