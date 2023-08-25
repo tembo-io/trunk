@@ -8,6 +8,9 @@ homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/amcheck.html"
 categories = ["index_table_optimizations"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
