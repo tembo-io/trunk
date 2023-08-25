@@ -1,5 +1,6 @@
 //! Functionality related to publishing a new extension or version of an extension.
 
+use actix_web::web::Json;
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 
 use crate::categories::{get_categories_for_extension, update_extension_categories};
@@ -466,29 +467,18 @@ pub async fn delete_extension(
 #[get("/extensions/shared_preload_libraries")]
 pub async fn get_shared_preload_libraries(
     conn: web::Data<Pool<Postgres>>,
-) -> Result<HttpResponse, ExtensionRegistryError> {
-    // This vector will store the names of the extensions requiring shared_preload_libraries
-    // configuration.
-    let mut extension_names: Vec<String> = Vec::new();
-
+) -> Result<Json<Vec<String>>, ExtensionRegistryError> {
     // Create a database transaction
     let mut tx = conn.begin().await?;
 
     // Query to get extension names from the appropriate table.
-    let rows = sqlx::query!("SELECT name FROM shared_preload_libraries_extensions")
+    let rows = sqlx::query!("SELECT name FROM shared_preload_libraries")
         .fetch_all(&mut tx)
         .await?;
 
     // Iterate through the rows and extract the extension names.
-    for row in rows.iter() {
-        if let Some(name) = row.get("name") {
-            extension_names.push(name);
-        }
-    }
-
-    // Convert the vector of extension names to JSON.
-    let json = serde_json::to_string_pretty(&extension_names)?;
+    let extension_names = rows.into_iter().map(|row| row.name).collect();
 
     // Return the results in the response.
-    Ok(HttpResponse::Ok().body(json))
+    Ok(Json(extension_names))
 }
