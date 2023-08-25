@@ -7,6 +7,9 @@ description = "Random data generator extension."
 documentation = "https://github.com/tvondra/random"
 categories = ["analytics"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

@@ -7,6 +7,9 @@ description = "This extension provides three simple aggregate functions to compu
 documentation = "https://github.com/tvondra/quantile"
 categories = ["analytics"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
