@@ -7,6 +7,9 @@ description = "ZSON is a PostgreSQL extension for transparent JSONB compression.
 documentation = "https://github.com/postgrespro/zson"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = [libc6]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
