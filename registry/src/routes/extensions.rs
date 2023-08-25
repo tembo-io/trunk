@@ -462,3 +462,33 @@ pub async fn delete_extension(
 
     Ok(HttpResponse::Ok().finish())
 }
+
+#[get("/extensions/shared_preload_libraries")]
+pub async fn get_shared_preload_libraries(
+    conn: web::Data<Pool<Postgres>>,
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    // This vector will store the names of the extensions requiring shared_preload_libraries
+    // configuration.
+    let mut extension_names: Vec<String> = Vec::new();
+
+    // Create a database transaction
+    let mut tx = conn.begin().await?;
+
+    // Query to get extension names from the appropriate table.
+    let rows = sqlx::query!("SELECT name FROM shared_preload_libraries_extensions")
+        .fetch_all(&mut tx)
+        .await?;
+
+    // Iterate through the rows and extract the extension names.
+    for row in rows.iter() {
+        if let Some(name) = row.get("name") {
+            extension_names.push(name);
+        }
+    }
+
+    // Convert the vector of extension names to JSON.
+    let json = serde_json::to_string_pretty(&extension_names)?;
+
+    // Return the results in the response.
+    Ok(HttpResponse::Ok().body(json))
+}
