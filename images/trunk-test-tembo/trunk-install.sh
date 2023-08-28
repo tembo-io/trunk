@@ -13,6 +13,7 @@ do
         printf "\n\n"
 done
 IFS=$'\n' extensions=(`psql postgres://postgres:postgres@localhost:5432 -tA postgres -c 'select name from pg_available_extensions;'`)
+psql postgres://postgres:postgres@localhost:5432 -c "alter system set shared_preload_libraries='citus,passwordcheck,pg_anonymize,pgaudit,pg_cron,pg_failover_slots,pglogical,pg_net';"
 for ext in "${extensions[@]}"
 do
         psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$ext\" cascade;"
