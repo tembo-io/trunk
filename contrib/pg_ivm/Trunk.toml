@@ -8,6 +8,9 @@ homepage = "https://www.sraoss.co.jp/index_en/"
 documentation = "https://github.com/sraoss/pg_ivm"
 categories = ["change_data_capture"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

@@ -8,6 +8,9 @@ homepage = "http://postgis.net/"
 documentation = "https://postgis.net/docs/Extras.html"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["libc6", "libpcre2-8-0"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

@@ -7,6 +7,9 @@ description = "Sampling based statistics of wait events."
 documentation = "https://github.com/postgrespro/pg_wait_sampling"
 categories = ["metrics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

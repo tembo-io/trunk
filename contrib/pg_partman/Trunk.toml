@@ -7,6 +7,9 @@ description = "Extension to manage partitioned tables by time or ID."
 documentation = "https://github.com/pgpartman/pg_partman"
 categories = ["featured", "orchestration"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

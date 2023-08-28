@@ -7,6 +7,9 @@ description = "Extra Window Functions for PostgreSQL."
 documentation = "https://github.com/xocolatl/extra_window_functions"
 categories = ["analytics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

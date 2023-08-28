@@ -7,6 +7,9 @@ description = "PostgreSQL extension for Prometheus data."
 documentation = "https://github.com/timescale/pg_prometheus"
 categories = ["metrics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

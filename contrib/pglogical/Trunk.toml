@@ -7,6 +7,9 @@ description = "PostgreSQL Logical Replication."
 documentation = "https://github.com/2ndQuadrant/pglogical"
 categories = ["change_data_capture"]
 
+[dependencies]
+apt = ["libpq5", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

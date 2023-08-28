@@ -8,6 +8,9 @@ homepage = "https://github.com/pgvector/pgvector"
 documentation = "https://github.com/pgvector/pgvector"
 categories = ["featured", "machine_learning"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

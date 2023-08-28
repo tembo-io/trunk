@@ -7,6 +7,9 @@ description = "Temporal Tables PostgreSQL Extension."
 documentation = "https://github.com/arkhipov/temporal_tables"
 categories = ["auditing_logging"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

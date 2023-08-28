@@ -7,6 +7,9 @@ description = "Precise fractional arithmetic for PostgreSQL."
 documentation = "https://github.com/begriffs/pg_rational"
 categories = ["analytics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

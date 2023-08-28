@@ -7,6 +7,9 @@ description = "Support similarity queries."
 documentation = "https://github.com/eulerto/pg_similarity"
 categories = ["search"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

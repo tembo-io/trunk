@@ -7,6 +7,9 @@ description = "R Procedural Language for PostgreSQL"
 documentation = "https://github.com/postgres-plr/plr/blob/master/userguide.md"
 categories = ["procedural_languages"]
 
+[dependencies]
+apt = ["libc6", "r-base-core"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

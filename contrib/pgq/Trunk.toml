@@ -7,6 +7,9 @@ description = "Generic Queue for PostgreSQL."
 documentation = "https://github.com/pgq/pgq"
 categories = ["orchestration"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

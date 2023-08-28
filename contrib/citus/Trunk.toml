@@ -8,6 +8,9 @@ homepage = "https://www.citusdata.com/"
 documentation = "https://docs.citusdata.com/en/stable/"
 categories = ["tooling_admin"]
 
+[dependencies]
+apt = ["libpq5", "openssl", "libc6", "liblz4-1", "libzstd1", "libssl3", "libcurl4"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

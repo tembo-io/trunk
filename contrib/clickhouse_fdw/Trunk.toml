@@ -7,6 +7,9 @@ description = "ClickHouse FDW for PostgreSQL."
 documentation = "https://github.com/ildus/clickhouse_fdw"
 categories = ["connectors"]
 
+[dependencies]
+apt = ["libstdc++6", "libc6", "libgcc-s1"," libuuid1", "libcurl4"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

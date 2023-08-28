@@ -7,6 +7,9 @@ description = "Modern cryptography for PostgreSQL using libsodium."
 documentation = "https://github.com/michelp/pgsodium"
 categories = ["security"]
 
+[dependencies]
+apt = ["libsodium23", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

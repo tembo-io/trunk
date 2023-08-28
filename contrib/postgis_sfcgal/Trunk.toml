@@ -8,6 +8,9 @@ homepage = "http://postgis.net/"
 documentation = "https://postgis.net/docs/manual-3.3/reference.html#reference_sfcgal"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["libproj22", "libsfcgal1", "libgeos-c1v5", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
