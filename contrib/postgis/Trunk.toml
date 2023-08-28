@@ -8,6 +8,9 @@ homepage = "http://postgis.net/"
 documentation = "http://postgis.net/"
 categories = ["featured", "data_transformations"]
 
+[dependencies]
+apt = ["libjson-c5", "libgcc-s1", "libpcre2-8-0", "libstdc++6", "libproj22", "libxml2", "libgdal30", "libgeos-c1v5", "libc6", "libprotobuf-c1"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
