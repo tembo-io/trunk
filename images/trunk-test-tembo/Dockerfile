@@ -55,6 +55,10 @@ RUN wget https://download.oracle.com/otn_software/linux/instantclient/1920000/in
     rm -rf instantclient_19_20 && \
     rm instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip
 
+# Install zhparser dependency
+RUN  wget -q -O - http://www.xunsearch.com/scws/down/scws-1.2.3.tar.bz2 | tar xf - && \
+     cd scws-1.2.3 ; ./configure ; make install ; cd .. ; rm -rf scws-1.2.3
+
 RUN chown -R postgres:postgres $PGDATA && \
     chmod -R 0700 $PGDATA
 ENV PGDATA /var/lib/postgresql/data2
