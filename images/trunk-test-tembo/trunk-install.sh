@@ -17,7 +17,7 @@ for ext in "${extensions[@]}"
 do
         # drop schema columnar if ext name is columnar
         if [ "$ext" == "columnar" ]; then
-            psql postgres://postgres:postgres@localhost:5432 -c "drop schema if exists columnar cascade;"
+            psql postgres://postgres:postgres@localhost:5432 -c "drop extension if exists citus_columnar cascade;"
         fi
         psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$ext\" cascade;"
         if [ $? -ne 0 ]; then
