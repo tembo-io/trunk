@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/earthdistance.html"
 categories = ["analytics"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

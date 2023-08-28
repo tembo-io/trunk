@@ -9,7 +9,7 @@ documentation = "https://supabase.github.io/supautils/"
 categories = ["tooling_admin"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

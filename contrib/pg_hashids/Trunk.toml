@@ -7,7 +7,7 @@ description = "Hashids is a small open-source library that generates short, uniq
 categories = ["data_transformations"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

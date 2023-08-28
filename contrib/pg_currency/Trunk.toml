@@ -9,7 +9,7 @@ documentation = "https://github.com/adjust/pg-currency"
 categories = ["data_transformations"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

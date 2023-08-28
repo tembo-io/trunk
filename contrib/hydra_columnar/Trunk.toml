@@ -9,7 +9,7 @@ documentation = "https://github.com/hydradatabase/hydra"
 categories = ["analytics"]
 
 [dependencies]
-apt = [libc6, libzstd1, liblz4-1]
+apt = ["libc6", "libzstd1", "liblz4-1"]
 
 [build]
 postgres_version = "15"

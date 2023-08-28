@@ -9,7 +9,7 @@ documentation = "https://github.com/neondatabase/pg_embedding"
 categories = ["machine_learning"]
 
 [dependencies]
-apt = [libc6, libgcc-s1, libstdc++6]
+apt = ["libc6", "libgcc-s1", "libstdc++6"]
 
 [build]
 postgres_version = "15"

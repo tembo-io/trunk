@@ -9,7 +9,7 @@ documentation = "https://github.com/EnterpriseDB/sslutils"
 categories = ["security"]
 
 [dependencies]
-apt = [libssl3, openssl, libc6]
+apt = ["libssl3", "openssl", "libc6"]
 
 [build]
 postgres_version = "15"

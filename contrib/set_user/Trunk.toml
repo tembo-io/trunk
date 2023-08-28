@@ -9,7 +9,7 @@ documentation = "https://github.com/pgaudit/set_user"
 categories = ["tooling_admin"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

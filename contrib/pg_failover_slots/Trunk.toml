@@ -9,7 +9,7 @@ documentation = "https://www.enterprisedb.com/docs/pg_extensions/pg_failover_slo
 categories = ["orchestration"]
 
 [dependencies]
-apt = [libc6, libpq5]
+apt = ["libc6", "libpq5"]
 
 [build]
 postgres_version = "15"

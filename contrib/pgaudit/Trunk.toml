@@ -9,7 +9,7 @@ documentation = "https://github.com/pgaudit/pgaudit/blob/master/README.md"
 categories = ["auditing_logging"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

@@ -8,7 +8,7 @@ documentation = "https://github.com/arkhipov/temporal_tables"
 categories = ["auditing_logging"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

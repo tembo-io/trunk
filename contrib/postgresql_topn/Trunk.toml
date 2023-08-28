@@ -9,7 +9,7 @@ documentation = "https://github.com/citusdata/postgresql-topn"
 categories = ["data_transformations"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

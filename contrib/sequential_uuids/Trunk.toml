@@ -8,7 +8,7 @@ documentation = "https://github.com/tvondra/sequential-uuids"
 categories = ["index_table_optimizations"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

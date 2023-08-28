@@ -8,7 +8,7 @@ documentation = "https://github.com/df7cb/pg_dirtyread"
 categories = ["search"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

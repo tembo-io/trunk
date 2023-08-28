@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/hstore.html"
 categories = ["data_transformations"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

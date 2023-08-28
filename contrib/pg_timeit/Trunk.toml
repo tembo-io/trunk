@@ -8,7 +8,7 @@ documentation = "https://github.com/joelonsql/pg-timeit"
 categories = ["metrics"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

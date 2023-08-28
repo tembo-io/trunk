@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/uuid-ossp.html"
 categories = ["data_transformations"]
 
 [dependencies]
-apt = [libuuid1, libc6]
+apt = ["libuuid1", "libc6"]
 
 [build]
 postgres_version = "15"

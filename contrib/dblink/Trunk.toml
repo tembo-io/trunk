@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/contrib-dblink-function
 categories = ["connectors"]
 
 [dependencies]
-apt = [libpq5, libc6]
+apt = ["libpq5", "libc6"]
 
 [build]
 postgres_version = "15"

@@ -9,7 +9,7 @@ documentation = "https://docs.timescale.com/"
 categories = ["analytics"]
 
 [dependencies]
-apt = [libssl3, openssl, libpq5, libc6]
+apt = ["libssl3", "openssl", "libpq5", "libc6"]
 
 [build]
 postgres_version = "15"

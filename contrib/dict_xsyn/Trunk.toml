@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/dict-xsyn.html"
 categories = ["search"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

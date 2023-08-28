@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/pgcrypto.html"
 categories = ["security"]
 
 [dependencies]
-apt = [zlib1g, libc6]
+apt = ["zlib1g", "libc6"]
 
 [build]
 postgres_version = "15"

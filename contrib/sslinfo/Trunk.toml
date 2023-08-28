@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/sslinfo.html"
 categories = ["security"]
 
 [dependencies]
-apt = [libc6, openssl]
+apt = ["libc6", "openssl"]
 
 [build]
 postgres_version = "15"

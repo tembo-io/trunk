@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/sepgsql.html"
 categories = ["security"]
 
 [dependencies]
-apt = [libselinux1, libc6]
+apt = ["libselinux1", "libc6"]
 
 [build]
 postgres_version = "15"

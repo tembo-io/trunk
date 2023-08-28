@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/xml2.html"
 categories = ["data_transformations"]
 
 [dependencies]
-apt = [libxml2, libc6]
+apt = ["libxml2", "libc6"]
 
 [build]
 postgres_version = "15"

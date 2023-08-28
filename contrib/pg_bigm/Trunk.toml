@@ -9,7 +9,7 @@ documentation = "https://pgbigm.osdn.jp/index_en.html#document"
 categories = ["index_table_optimizations"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

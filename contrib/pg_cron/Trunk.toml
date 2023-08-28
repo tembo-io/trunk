@@ -8,7 +8,7 @@ homepage = "https://www.citusdata.com/"
 categories = ["orchestration"]
 
 [dependencies]
-apt = [libpq5, libc6]
+apt = ["libpq5", "libc6"]
 
 [build]
 postgres_version = "15"

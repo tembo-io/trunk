@@ -8,7 +8,7 @@ documentation = "https://github.com/pg-redis-fdw/redis_fdw"
 categories = ["connectors"]
 
 [dependencies]
-apt = [libc6, libhiredis0.14]
+apt = ["libc6", "libhiredis0.14"]
 
 [build]
 postgres_version = "15"

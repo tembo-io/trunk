@@ -7,7 +7,7 @@ description = "wal2json is an output plugin for logical decoding."
 categories = ["change_data_capture"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

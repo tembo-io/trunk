@@ -8,7 +8,7 @@ documentation = "https://github.com/zachasme/h3-pg"
 categories = ["connectors"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

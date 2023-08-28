@@ -8,7 +8,7 @@ documentation = "https://github.com/orafce/orafce"
 categories = ["connectors"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

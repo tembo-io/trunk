@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/pageinspect.html"
 categories = ["metrics"]
 
 [dependencies]
-apt = [libc6]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"
