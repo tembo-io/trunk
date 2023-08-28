@@ -8,6 +8,9 @@ homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/plperl.html"
 categories = ["procedural_languages"]
 
+[dependencies]
+apt = ["libc6", "libperl5.34"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

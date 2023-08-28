@@ -7,6 +7,9 @@ description = "PL/CoffeeScript (v8) trusted procedural language"
 documentation = "https://plv8.github.io/"
 categories = ["procedural_languages"]
 
+[dependencies]
+apt = ["libstdc++6", "libgcc-s1", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

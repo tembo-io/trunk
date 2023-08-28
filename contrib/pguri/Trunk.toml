@@ -7,6 +7,9 @@ description = "uri type for PostgreSQL."
 documentation = "https://github.com/petere/pguri"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["liburiparser1", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
