@@ -10,6 +10,7 @@ categories = ["machine_learning"]
 
 [dependencies]
 apt = ["libpython3.10", "libstdc++6", "libgomp1", "libopenblas0-pthread", "libc6", "libgcc-s1"]
+pip = ["xgboost"]
 
 [build]
 postgres_version = "15"
