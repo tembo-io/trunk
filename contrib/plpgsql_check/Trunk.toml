@@ -7,6 +7,9 @@ description = "Linter tool for the PostgreSQL language plpgsql."
 documentation = "https://github.com/okbob/plpgsql_check"
 categories = ["debugging"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

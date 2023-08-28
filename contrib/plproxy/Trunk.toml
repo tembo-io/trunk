@@ -8,6 +8,9 @@ homepage = "https://plproxy.github.io/"
 documentation = "https://plproxy.github.io/syntax.html"
 categories = ["procedural_languages"]
 
+[dependencies]
+apt = ["libpq5", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
