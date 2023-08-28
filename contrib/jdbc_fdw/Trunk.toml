@@ -8,7 +8,7 @@ documentation = "https://github.com/pgspider/jdbc_fdw"
 categories = ["connectors"]
 
 [dependencies]
-apt = ["libpq5", "libc6"]
+apt = ["libpq5", "libc6", "openjdk-18-jre-headless"]
 
 [build]
 postgres_version = "15"
