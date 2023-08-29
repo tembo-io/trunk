@@ -9,6 +9,6 @@ ARG EXTENSION_VERSION
 
 # Build extension
 RUN cd pgvector && \
-	git fetch origin ${EXTENSION_VERSION} && \
-	git checkout ${EXTENSION_VERSION} && \
+	git fetch origin v${EXTENSION_VERSION} && \
+	git checkout v${EXTENSION_VERSION} && \
 	make
