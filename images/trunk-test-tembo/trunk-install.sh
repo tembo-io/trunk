@@ -19,6 +19,10 @@ do
         if [ "$ext" == "columnar" ]; then
             psql postgres://postgres:postgres@localhost:5432 -c "drop extension if exists citus_columnar cascade;"
         fi
+        # drop type semver if ext name is semver
+        if [ "$ext" == "semver" ]; then
+            psql postgres://postgres:postgres@localhost:5432 -c "drop extension if exists pg_text_semver cascade;"
+        fi
         psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$ext\" cascade;"
         if [ $? -ne 0 ]; then
             echo "CREATE EXTENSION command failed"
