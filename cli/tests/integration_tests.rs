@@ -750,7 +750,7 @@ fn build_pg_unit() -> Result<(), Box<dyn std::error::Error>> {
     // Construct a path relative to the current file's directory
     let mut extension_path = std::path::PathBuf::from(file!());
     extension_path.pop(); // Remove the file name from the path
-    extension_path.push("postgresql_unit");
+    extension_path.push("test_postgresql_unit");
 
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("build");
