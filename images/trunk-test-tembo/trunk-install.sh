@@ -21,7 +21,7 @@ do
         fi
         # drop type semver if ext name is semver
         if [ "$ext" == "semver" ]; then
-            psql postgres://postgres:postgres@localhost:5432 -c "drop extension if exists semver cascade;"
+            psql postgres://postgres:postgres@localhost:5432 -c "drop type if exists semver cascade;"
         fi
         psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$ext\" cascade;"
         if [ $? -ne 0 ]; then
