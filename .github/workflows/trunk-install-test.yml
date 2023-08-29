@@ -18,7 +18,7 @@ jobs:
       - dind
       - large-8x8
     container:
-      image: quay.io/tembo/trunk-test-tembo:0.0.18
+      image: quay.io/tembo/trunk-test-tembo:0.0.21
       options: --user root
     env:
       PGHOST: "localhost"
@@ -40,16 +40,16 @@ jobs:
           cat /tmp/output.txt | grep -i -A 1 'SUCCESS RATE' | grep -v 'SUCCESS RATE' > /tmp/results.txt
           export RES=$(cat /tmp/results.txt)
           echo "RESULTS=$RES" >> $GITHUB_ENV
-      - name: Post to a Slack channel
-        if: ${{ github.ref == 'refs/heads/main' }}
-        id: slack
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          # Slack channel id, channel name, or user id to post message.
-          # See also: https://api.slack.com/methods/chat.postMessage#channels
-          # You can pass in multiple channels to post to by providing a comma-delimited list of channel IDs.
-          channel-id: 'C05NVR28LA0'
-          # For posting a simple plain text message
-          slack-message: "Success rate:\n${{ env.RESULTS }}"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.TRUNK_INSTALL_SLACK_BOT_TOKEN }}
+      # - name: Post to a Slack channel
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   id: slack
+      #   uses: slackapi/slack-github-action@v1.24.0
+      #   with:
+      #     # Slack channel id, channel name, or user id to post message.
+      #     # See also: https://api.slack.com/methods/chat.postMessage#channels
+      #     # You can pass in multiple channels to post to by providing a comma-delimited list of channel IDs.
+      #     channel-id: 'C05NVR28LA0'
+      #     # For posting a simple plain text message
+      #     slack-message: "Success rate:\n${{ env.RESULTS }}"
+      #   env:
+      #     SLACK_BOT_TOKEN: ${{ secrets.TRUNK_INSTALL_SLACK_BOT_TOKEN }}
