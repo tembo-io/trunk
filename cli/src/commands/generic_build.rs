@@ -72,6 +72,7 @@ pub async fn build_generic(
     shared_preload_libraries: Option<Vec<String>>,
     system_dependencies: Option<SystemDependencies>,
     extension_version: &str,
+    inclusion_patterns: Vec<glob::Pattern>,
     _task: Task,
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &name);
@@ -141,6 +142,7 @@ pub async fn build_generic(
         name,
         extension_name,
         extension_version,
+        inclusion_patterns,
     )
     .await?;
 

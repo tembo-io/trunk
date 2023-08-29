@@ -2,6 +2,8 @@ use std::{collections::HashMap, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
+use glob::PatternError;
+
 pub type SystemDependencies = HashMap<String, Vec<String>>;
 
 /// The definition/schema of a Trunk.toml file
@@ -32,8 +34,30 @@ pub struct TomlExtensionData {
 pub struct TomlBuildInfo {
     pub postgres_version: Option<String>,
     pub platform: String,
+    /// List of globs to package extra files into the archive.
+    /// This is useful if you need to package in a file that is not a .sql, .so, .bc, and so on.
+    ///
+    /// Example:
+    ///
+    /// ```
+    /// include = ["*.data"]
+    /// ```
+    pub include: Option<Vec<String>>,
     pub dockerfile: Option<String>,
     pub install_command: Option<String>,
+}
+
+impl TomlBuildInfo {
+    pub fn build_glob_patterns(&self) -> Result<Vec<glob::Pattern>, PatternError> {
+        let Some(patterns) = &self.include else {
+            return Ok(Vec::new());
+        };
+
+        patterns
+            .iter()
+            .map(|pattern| glob::Pattern::new(pattern))
+            .collect()
+    }
 }
 
 /// Use the value supplied through the command-line, if present.

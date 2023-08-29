@@ -8,6 +8,10 @@ use std::process::Command; // Run programs
 
 const CARGO_BIN: &str = "trunk";
 
+fn file_exists<P: AsRef<Path>>(path: P) -> bool {
+    path.as_ref().exists()
+}
+
 #[test]
 fn help() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -730,6 +734,45 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"auto_explain\""));
     assert!(stdout.contains("\"auto_explain_spl\""));
+
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
+
+    Ok(())
+}
+
+#[test]
+fn build_pg_unit() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/postgresql_unit_test_{}", rng.gen_range(0..1000000));
+    let package_name = "postgresql_unit-7.0.0.tar.gz";
+
+    // Construct a path relative to the current file's directory
+    let mut extension_path = std::path::PathBuf::from(file!());
+    extension_path.pop(); // Remove the file name from the path
+    extension_path.push("test_postgresql_unit");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(extension_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(&output_dir);
+    cmd.assert().code(0);
+
+    let package_location = format!("{output_dir}/{package_name}");
+
+    assert!(file_exists(&package_location));
+
+    // assert any license files are included
+    let output = Command::new("tar")
+        .arg("-tvf")
+        .arg(package_location)
+        .output()
+        .expect("failed to run tar command");
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("extension/unit_prefixes.data"));
+    assert!(stdout.contains("extension/unit_units.data"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;

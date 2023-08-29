@@ -105,6 +105,7 @@ pub async fn build_pgrx(
     shared_preload_libraries: Option<Vec<String>>,
     cargo_toml: toml::Table,
     system_dependencies: Option<SystemDependencies>,
+    inclusion_patterns: Vec<glob::Pattern>,
     _task: Task,
 ) -> Result<(), PgrxBuildError> {
     let cargo_package_info = cargo_toml
@@ -232,6 +233,7 @@ pub async fn build_pgrx(
         name,
         extension_name,
         extension_version,
+        inclusion_patterns,
     )
     .await?;
 

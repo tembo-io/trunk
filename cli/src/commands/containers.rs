@@ -147,8 +147,9 @@ pub async fn run_temporary_container(
 }
 
 pub async fn find_installed_extension_files(
-    docker: Docker,
+    docker: &Docker,
     container_id: &str,
+    inclusion_patterns: &[glob::Pattern],
 ) -> Result<HashMap<String, Vec<String>>, anyhow::Error> {
     let sharedir =
         exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
@@ -173,19 +174,28 @@ pub async fn find_installed_extension_files(
     let mut sharedir_list = vec![];
 
     for change in changes {
-        if change.path.ends_with(".so")
-            || change.path.ends_with(".bc")
-            || change.path.ends_with(".sql")
-            || change.path.ends_with(".control")
+        let file_added = change.path;
+
+        // If this file is not a `.so`, `.bc`, `.sql`, `.control` but
+        // was specified in `build.include` within the Trunk.toml
+        let is_extra = inclusion_patterns
+            .iter()
+            .any(|pattern| pattern.matches(&file_added));
+
+        if file_added.ends_with(".so")
+            || file_added.ends_with(".bc")
+            || file_added.ends_with(".sql")
+            || file_added.ends_with(".control")
+            || is_extra
         {
-            if change.path.starts_with(pkglibdir) {
-                let file_in_pkglibdir = change.path;
+            if file_added.starts_with(pkglibdir) {
+                let file_in_pkglibdir = &file_added;
                 let file_in_pkglibdir = file_in_pkglibdir.strip_prefix(pkglibdir);
                 let file_in_pkglibdir = file_in_pkglibdir.unwrap();
                 let file_in_pkglibdir = file_in_pkglibdir.trim_start_matches('/');
                 pkglibdir_list.push(file_in_pkglibdir.to_owned());
-            } else if change.path.starts_with(sharedir) {
-                let file_in_sharedir = change.path;
+            } else if file_added.starts_with(sharedir) {
+                let file_in_sharedir = &file_added;
                 let file_in_sharedir = file_in_sharedir.strip_prefix(sharedir);
                 let file_in_sharedir = file_in_sharedir.unwrap();
                 let file_in_sharedir = file_in_sharedir.trim_start_matches('/');
@@ -193,7 +203,7 @@ pub async fn find_installed_extension_files(
             } else {
                 println!(
                     "WARNING: file {} is not in pkglibdir or sharedir",
-                    change.path
+                    file_added
                 );
             }
         }
@@ -215,7 +225,7 @@ pub async fn find_installed_extension_files(
 }
 
 pub async fn find_license_files(
-    docker: Docker,
+    docker: &Docker,
     container_id: &str,
 ) -> Result<HashMap<String, Vec<String>>, anyhow::Error> {
     let licensedir = "/usr/licenses/";
@@ -357,6 +367,7 @@ pub async fn package_installed_extension_files(
     name: &str,
     mut extension_name: Option<String>,
     extension_version: &str,
+    inclusion_patterns: Vec<glob::Pattern>,
 ) -> Result<(), anyhow::Error> {
     let name = name.to_owned();
     let extension_version = extension_version.to_owned();
@@ -377,8 +388,9 @@ pub async fn package_installed_extension_files(
     .await?;
     let pkglibdir = pkglibdir.trim();
 
-    let extension_files = find_installed_extension_files(docker.clone(), container_id).await?;
-    let license_files = find_license_files(docker.clone(), container_id).await?;
+    let extension_files =
+        find_installed_extension_files(&docker, container_id, &inclusion_patterns).await?;
+    let license_files = find_license_files(&docker, container_id).await?;
 
     let sharedir_list = extension_files["sharedir"].clone();
     let pkglibdir_list = extension_files["pkglibdir"].clone();
