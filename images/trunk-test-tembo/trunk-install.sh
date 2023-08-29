@@ -25,6 +25,7 @@ do
         fi
         # if extension name is meta_triggers, create extension meta first and create extension meta_triggers
         if [ "$ext" == "meta_triggers" ]; then
+            psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists hstore cascade;"
             psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists meta cascade;"
             psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists meta_triggers cascade;"
         fi
