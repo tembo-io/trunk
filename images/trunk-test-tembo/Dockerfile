@@ -65,6 +65,13 @@ RUN  wget http://www.xunsearch.com/scws/down/scws-1.2.3.tar.bz2 && \
      rm -rf scws-1.2.3.tar.bz2 scws-1.2.3 && \
      ln -s /usr/local/lib/libscws.so /usr/lib/x86_64-linux-gnu/libscws.so
 
+# Install PostgresML Python dependencies
+ENV PATH=/var/lib/postgresql/.local/bin:$PATH
+COPY --chown=postgres:postgres requirements.txt .
+COPY --chown=postgres:postgres requirements-xformers.txt .
+RUN set -eux; \
+  pip3 install -r requirements.txt; \
+  pip3 install -r requirements-xformers.txt --no-dependencies;
 
 RUN chown -R postgres:postgres $PGDATA && \
     chmod -R 0700 $PGDATA
