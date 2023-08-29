@@ -5,10 +5,10 @@ USER root
 # Clone repository
 RUN git clone https://github.com/pgvector/pgvector.git
 
-ARG RELEASE=v0.5.0
+ARG EXTENSION_VERSION
 
 # Build extension
 RUN cd pgvector && \
-	git fetch origin ${RELEASE} && \
-	git checkout ${RELEASE} && \
+	git fetch origin ${EXTENSION_VERSION} && \
+	git checkout ${EXTENSION_VERSION} && \
 	make
