@@ -23,6 +23,11 @@ do
         if [ "$ext" == "semver" ]; then
             psql postgres://postgres:postgres@localhost:5432 -c "drop extension if exists pg_text_semver cascade;"
         fi
+        # if extension name is meta_triggers, create extension meta first and create extension meta_triggers
+        if [ "$ext" == "meta_triggers" ]; then
+            psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists meta cascade;"
+            psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists meta_triggers cascade;"
+        fi
         psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$ext\" cascade;"
         if [ $? -ne 0 ]; then
             echo "CREATE EXTENSION command failed"
