@@ -33,4 +33,4 @@ RUN wget https://github.com/rdkit/rdkit/archive/${RELEASE}.tar.gz && \
     -DRDK_BUILD_PYTHON_WRAPPERS=OFF \
     -DRDK_BUILD_CPP_TESTS=OFF \
     -DPostgreSQL_CONFIG_DIR=/usr/bin .. && \
-    make -j8
+    make -j$(nproc)
