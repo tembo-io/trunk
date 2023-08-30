@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
  libfreetype6-dev \
  postgresql-server-dev-all
 
-ARG RELEASE=Release_2023_03_2
+ARG RELEASE=Release_2023_03_3
 ARG RDBASE=rdkit-${RELEASE}
 
 # Build and Install RDKit

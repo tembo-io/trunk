@@ -16,5 +16,5 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    sh rdkit-Release_2023_03_2/build/Code/PgSQL/rdkit/pgsql_install.sh
+    sh rdkit-Release_2023_03_3/build/Code/PgSQL/rdkit/pgsql_install.sh
     """
