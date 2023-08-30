@@ -20,10 +20,8 @@ RUN apt-get update && apt-get install -y \
  libprotobuf-c-dev \
  protobuf-c-compiler
 
-RUN wget https://download.osgeo.org/postgis/source/postgis-3.3.3.tar.gz && \ 
-	tar xvf postgis-3.3.3.tar.gz && \
-	cd postgis-3.3.3 && \
+RUN wget https://download.osgeo.org/postgis/source/postgis-3.4.0.tar.gz && \
+	tar xvf postgis-3.4.0.tar.gz && \
+	cd postgis-3.4.0 && \
 	./configure && \
-	make && \
-	cd extensions/postgis && \
-	make
+	make -j$(nproc)
