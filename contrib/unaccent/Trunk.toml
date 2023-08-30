@@ -15,9 +15,11 @@ apt = ["libc6"]
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
+include = ["/usr/share/postgresql/15/tsearch_data/*"]
 install_command = """
     cd postgres/contrib/unaccent && make install
     set -x
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/tsearch_data/* /usr/share/postgresql/15/tsearch_data
     """
