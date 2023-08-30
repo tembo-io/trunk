@@ -15,6 +15,7 @@ apt = ["libc6"]
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
+include = [""]
 install_command = """
     cd postgres/contrib/unaccent && make install
     set -x
