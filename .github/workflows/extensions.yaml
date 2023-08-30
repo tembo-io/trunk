@@ -89,8 +89,10 @@ jobs:
           su postgres -c '/usr/lib/postgresql/15/bin/postgres &'
           sleep 5
           ps aux
-          export EXTENSION=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements')";)
-          psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
+          IFS=$'\n' export EXTENSIONS=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements')";)
+            for EXTENSION in $EXTENSIONS; do
+                psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
+            done
       - name: Publish the extension
         if: ${{ github.ref == 'refs/heads/main' }}
         run: cd ${{ matrix.path }} && trunk publish
