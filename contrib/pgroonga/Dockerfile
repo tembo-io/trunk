@@ -4,7 +4,8 @@ FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
 # Extension build dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y \
     wget tar build-essential zlib1g-dev liblzo2-dev libxxhash-dev \
     libmsgpack-dev libzmq3-dev libevent-dev libmecab-dev software-properties-common libgroonga-dev
 
