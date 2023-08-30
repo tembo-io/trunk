@@ -14,6 +14,7 @@ apt = ["libc6"]
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
+include = ["*.data"]
 install_command = """
     cd postgresql-unit && make install
     set -x
