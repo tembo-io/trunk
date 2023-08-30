@@ -83,9 +83,7 @@ jobs:
         run: cd ${{ matrix.path }} && trunk build
       - name: Install the extension
         run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
-# if extension is postgis, install fuzzystrmatch
       - name: Install fuzzystrmatch
-        if: ${{ matrix.path == 'contrib/postgis' }}
         run: |
           trunk install fuzzystrmatch
       - name: Enable the extension
