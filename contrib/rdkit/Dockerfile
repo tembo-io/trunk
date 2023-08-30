@@ -32,5 +32,5 @@ RUN wget https://github.com/rdkit/rdkit/archive/${RELEASE}.tar.gz && \
     cmake -DRDK_BUILD_PGSQL=ON \
     -DRDK_BUILD_PYTHON_WRAPPERS=OFF \
     -DRDK_BUILD_CPP_TESTS=OFF \
-    -DPostgreSQL_CONFIG_DIR=/usr/bin .. && \
+    -DPostgreSQL_CONFIG_DIR=/usr/lib/postgresql/15/bin .. && \
     make -j$(nproc)
