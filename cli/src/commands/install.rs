@@ -167,7 +167,7 @@ async fn install(
 }
 
 async fn install_file(
-    name: String,
+    _name: String,
     file: &PathBuf,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
@@ -208,6 +208,7 @@ async fn install_file(
 
     // Extensions the extension being installed depends on
     let mut dependent_extensions_to_install: Vec<String> = Vec::new();
+    let mut extensions_to_install: Vec<String> = Vec::new();
     let mut manifest: Option<Manifest> = None;
     {
         let entries = archive.entries_with_seek()?;
@@ -247,12 +248,20 @@ async fn install_file(
             } else if entry.header().entry_type() == EntryType::file()
                 && fname.extension().and_then(OsStr::to_str) == Some("control")
             {
+                // add extension name to extensions_to_install
+                let ext = fname.file_stem().unwrap().to_str().unwrap().to_string();
+                extensions_to_install.push(ext);
+
                 let mut control_file = String::new();
                 entry.read_to_string(&mut control_file)?;
                 let deps = read_dependent_extensions(&control_file);
-                // for each dependency, check if it is in depenedent_extensions_to_install. If not, insert it
+                // For each dependency, check if it's in depenedent_extensions_to_install and not in extensions_to_install.
+                // If not, add to depenedent_extensions_to_install.
+                // We don't want to install dependencies that are already present in the tar.gz
                 for dep in deps {
-                    if !dependent_extensions_to_install.contains(&dep) {
+                    if !dependent_extensions_to_install.contains(&dep)
+                        && !extensions_to_install.contains(&dep)
+                    {
                         dependent_extensions_to_install.push(dep);
                     }
                 }
