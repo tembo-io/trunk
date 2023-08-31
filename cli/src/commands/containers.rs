@@ -146,11 +146,18 @@ pub async fn run_temporary_container(
     ))
 }
 
+pub struct ExtensionFiles {
+    /// Files stored in `pg_config --sharedir`
+    sharedir: Vec<String>,
+    /// Files stored in `pg_config --pkglibdir`
+    pkglibdir: Vec<String>,
+}
+
 pub async fn find_installed_extension_files(
     docker: &Docker,
     container_id: &str,
     inclusion_patterns: &[glob::Pattern],
-) -> Result<HashMap<String, Vec<String>>, anyhow::Error> {
+) -> Result<ExtensionFiles, anyhow::Error> {
     let sharedir =
         exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
     let sharedir = sharedir.trim();
@@ -218,16 +225,16 @@ pub async fn find_installed_extension_files(
         println!("\t{pkglibdir_file}");
     }
 
-    let mut result = HashMap::new();
-    result.insert("sharedir".to_string(), sharedir_list);
-    result.insert("pkglibdir".to_string(), pkglibdir_list);
-    Ok(result)
+    Ok(ExtensionFiles {
+        sharedir: sharedir_list,
+        pkglibdir: pkglibdir_list,
+    })
 }
 
 pub async fn find_license_files(
     docker: &Docker,
     container_id: &str,
-) -> Result<HashMap<String, Vec<String>>, anyhow::Error> {
+) -> Result<Vec<String>, anyhow::Error> {
     let licensedir = "/usr/licenses/";
 
     // collect changes from container filesystem
@@ -254,9 +261,7 @@ pub async fn find_license_files(
     }
     println!();
 
-    let mut result = HashMap::new();
-    result.insert("licensedir".to_string(), licensedir_list);
-    Ok(result)
+    Ok(licensedir_list)
 }
 
 // Build an image
@@ -392,9 +397,9 @@ pub async fn package_installed_extension_files(
         find_installed_extension_files(&docker, container_id, &inclusion_patterns).await?;
     let license_files = find_license_files(&docker, container_id).await?;
 
-    let sharedir_list = extension_files["sharedir"].clone();
-    let pkglibdir_list = extension_files["pkglibdir"].clone();
-    let licensedir_list = license_files["licensedir"].clone();
+    let sharedir_list = extension_files.sharedir;
+    let pkglibdir_list = extension_files.pkglibdir;
+    let licensedir_list = license_files;
 
     let sharedir = sharedir.to_owned();
     let pkglibdir = pkglibdir.to_owned();
