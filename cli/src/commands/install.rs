@@ -120,7 +120,7 @@ async fn install(
         // and download the latest version of the package
         // Using the reqwest crate, we will run the equivalent of this curl command:
         // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
-        let response = reqwest::get(&format!(
+        let response = reqwest::get(format!(
             "{}/extensions/{}/{}/download",
             registry,
             name.clone(),
@@ -128,7 +128,14 @@ async fn install(
         ))
         .await?;
 
+        let status = response.status();
         let response_body = response.text().await?;
+
+        anyhow::ensure!(
+            status.is_success(),
+            "Failed to query registry: got status {status}, details: {response_body}"
+        );
+
         println!("Downloading from: {response_body}");
 
         let url = Url::parse(&response_body)?;

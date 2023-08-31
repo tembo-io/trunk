@@ -8,7 +8,7 @@ use crate::commands::SubCommand;
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
 
-use std::time::Duration;
+use std::{process::ExitCode, time::Duration};
 use tokio_task_manager::{Task, TaskManager};
 
 #[derive(Parser)]
@@ -43,7 +43,7 @@ impl SubCommand for SubCommands {
     }
 }
 
-fn main() {
+fn main() -> ExitCode {
     let tm = TaskManager::new(Duration::from_secs(60));
 
     let rt = tokio::runtime::Builder::new_multi_thread()
@@ -51,11 +51,17 @@ fn main() {
         .build()
         .unwrap();
 
-    rt.block_on(async {
+    let res = rt.block_on(async {
         let cli = Cli::parse();
         let result = cli.command.execute(tm.task()).await;
         tm.wait().await;
         result
-    })
-    .expect("error occurred");
+    });
+
+    if let Err(err) = res {
+        eprintln!("{err}");
+        return ExitCode::from(1);
+    }
+
+    ExitCode::SUCCESS
 }
