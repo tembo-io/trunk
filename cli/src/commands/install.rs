@@ -1,4 +1,5 @@
 use super::SubCommand;
+use crate::control_file::ControlFile;
 use crate::manifest::{Manifest, PackagedFile};
 use anyhow::anyhow;
 use async_recursion::async_recursion;
@@ -90,7 +91,7 @@ impl SubCommand for InstallCommand {
         println!("Using sharedir: {sharedir:?}");
 
         install(
-            self.name.clone(),
+            &self.name,
             &self.version,
             &self.file,
             &self.registry,
@@ -105,7 +106,7 @@ impl SubCommand for InstallCommand {
 
 #[async_recursion]
 async fn install(
-    name: String,
+    name: &str,
     version: &str,
     file: &Option<PathBuf>,
     registry: &str,
@@ -114,7 +115,7 @@ async fn install(
 ) -> Result<(), anyhow::Error> {
     // If file is specified
     if let Some(ref file) = file {
-        install_file(name.clone(), file, package_lib_dir, sharedir, registry).await?;
+        install_file(name, file, package_lib_dir, sharedir, registry).await?;
     } else {
         // If a file is not specified, then we will query the registry
         // and download the latest version of the package
@@ -122,9 +123,7 @@ async fn install(
         // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
         let response = reqwest::get(&format!(
             "{}/extensions/{}/{}/download",
-            registry,
-            name.clone(),
-            version
+            registry, name, version
         ))
         .await?;
 
@@ -167,7 +166,7 @@ async fn install(
 }
 
 async fn install_file(
-    name: String,
+    name: &str,
     file: &PathBuf,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
@@ -207,7 +206,7 @@ async fn install_file(
     let mut archive = Archive::new(&input);
 
     // Extensions the extension being installed depends on
-    let mut dependent_extensions_to_install: Vec<String> = Vec::new();
+    let mut control_file = None;
     let mut manifest: Option<Manifest> = None;
     {
         let entries = archive.entries_with_seek()?;
@@ -247,29 +246,36 @@ async fn install_file(
             } else if entry.header().entry_type() == EntryType::file()
                 && fname.clone().file_name() == Some(OsStr::new(format!("{name}.control").as_str()))
             {
-                let mut control_file = String::new();
-                entry.read_to_string(&mut control_file)?;
-                dependent_extensions_to_install = read_dependent_extensions(&control_file);
+                let mut control_file_contents = String::new();
+                entry.read_to_string(&mut control_file_contents)?;
+                control_file = Some(ControlFile::parse(&control_file_contents));
             }
         }
     }
-    println!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
-    for dependency in dependent_extensions_to_install {
-        // check a control file is present in sharedir for each dependency
-        let control_file_path = sharedir
-            .join("extension")
-            .join(format!("{dependency}.control"));
-        if !control_file_path.exists() {
-            println!("Dependency {dependency} not found in sharedir {sharedir:?}. Installing...");
-            install(
-                dependency,
-                "latest",
-                &None,
-                registry,
-                package_lib_dir.clone(),
-                sharedir.clone(),
-            )
-            .await?;
+
+    if let Some(Some(dependent_extensions_to_install)) =
+        control_file.as_ref().map(|control| &control.requires)
+    {
+        println!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
+        for dependency in dependent_extensions_to_install {
+            // check a control file is present in sharedir for each dependency
+            let control_file_path = sharedir
+                .join("extension")
+                .join(format!("{dependency}.control"));
+            if !control_file_path.exists() {
+                println!(
+                    "Dependency {dependency} not found in sharedir {sharedir:?}. Installing..."
+                );
+                install(
+                    dependency,
+                    "latest",
+                    &None,
+                    registry,
+                    package_lib_dir.clone(),
+                    sharedir.clone(),
+                )
+                .await?;
+            }
         }
     }
 
@@ -380,71 +386,4 @@ fn print_post_installation_guide(manifest: &Manifest) {
 
     println!("\nEnable the extension with:");
     println!("CREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
-}
-
-fn read_dependent_extensions(contents: &str) -> Vec<String> {
-    let mut dependencies: Vec<String> = Vec::new();
-
-    for line in contents.lines() {
-        let trimmed_line = line.trim();
-        if trimmed_line.starts_with("requires") {
-            let dep_line = trimmed_line.strip_prefix("requires =").unwrap().trim();
-            let dep_list = dep_line
-                .trim_matches('\'')
-                .split(',')
-                .filter(|dep| !dep.trim().is_empty()) // Filter out empty entries
-                .map(|dep| dep.trim().to_string())
-                .collect::<Vec<String>>();
-            dependencies.extend(dep_list);
-            break;
-        }
-    }
-
-    dependencies
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_read_dependencies_with_requires_line() {
-        let sample_data = r#"comment = 'Distributed message queues'
-default_version = '0.4.2'
-module_pathname = '$libdir/pgmq'
-relocatable = false
-superuser = false
-requires = 'pg_partman, dep2, dep3'
-"#;
-
-        let dependencies = read_dependent_extensions(sample_data);
-        assert_eq!(dependencies, vec!["pg_partman", "dep2", "dep3"]);
-    }
-
-    #[test]
-    fn test_read_dependencies_without_requires_line() {
-        let sample_data = r#"comment = 'Distributed message queues'
-default_version = '0.4.2'
-module_pathname = '$libdir/pgmq'
-relocatable = false
-superuser = false
-"#;
-
-        let dependencies = read_dependent_extensions(sample_data);
-        assert_eq!(dependencies, Vec::<String>::new());
-    }
-
-    #[test]
-    fn test_read_dependencies_with_empty_requires_line() {
-        let sample_data = r#"comment = 'Distributed message queues'
-default_version = '0.4.2'
-module_pathname = '$libdir/pgmq'
-relocatable = false
-superuser = false
-requires = ''
-"#;
-
-        let dependencies = read_dependent_extensions(sample_data);
-        assert_eq!(dependencies, Vec::<String>::new());
-    }
 }
