@@ -801,6 +801,20 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.assert().code(0);
     assert!(std::path::Path::new(format!("{output_dir}/postgis-3.4.0.tar.gz").as_str()).exists());
 
+    // Get output of 'pg_config --sharedir'
+    let output = Command::new("pg_config")
+        .arg("--sharedir")
+        .output()
+        .expect("failed to find sharedir, is pg_config in path?");
+    let sharedir = String::from_utf8(output.stdout)?;
+    let sharedir = sharedir.trim();
+
+    // Remove fuzzystrmatch if it exists
+    let _rm_fuzzystrmatch = Command::new("rm")
+        .arg(format!("{sharedir}/extension/fuzzystrmatch.control").as_str())
+        .output()
+        .expect("failed to remove fuzzystrmatch");
+
     // Assert we recognize fuzzystrmatch as a dependency and install it
     // This is a dependency of postgis_tiger_geocoder, which is included in the postgis tar.gz
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
