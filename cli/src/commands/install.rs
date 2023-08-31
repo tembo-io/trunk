@@ -197,10 +197,6 @@ async fn install_file(
     let sharedir = std::fs::canonicalize(&sharedir)?;
     let package_lib_dir = std::fs::canonicalize(&package_lib_dir)?;
 
-    // Set up path used in manifest file version 1
-    let extension_dir_path = sharedir.join("extension");
-    let extension_dir = std::fs::canonicalize(extension_dir_path)?;
-
     // First pass: get to the manifest
     // Because we're going over entries with `Seek` enabled, we're not reading everything.
     let mut archive = Archive::new(&input);
@@ -278,6 +274,9 @@ async fn install_file(
             }
         }
     }
+
+    // Set up path used in manifest file version 1
+    let extension_dir = get_extension_location(&sharedir, control_file.as_ref());
 
     // Second pass: extraction
     input.rewind()?;
@@ -365,6 +364,23 @@ async fn install_file(
         return Err(InstallError::ManifestNotFound)?;
     }
     Ok(())
+}
+
+fn get_extension_location(sharedir: &Path, control_file: Option<&ControlFile>) -> PathBuf {
+    // If the `directory` field in the extension's `control` file is set, the location of the extension's files will be
+    // `$(pg_config --sharedir)/$(dir)`, where `dir` is the value set in the `directory` field.
+    //
+    // If this is not set, the default value is `$(pg_config --sharedir)/extension`.
+    //
+    // Docs: https://www.postgresql.org/docs/current/extend-extensions.html
+    let maybe_directory = control_file.map(|file| &file.directory);
+    let directory = if let Some(Some(directory)) = maybe_directory {
+        directory
+    } else {
+        "extension"
+    };
+
+    sharedir.join(directory)
 }
 
 fn print_post_installation_guide(manifest: &Manifest) {
