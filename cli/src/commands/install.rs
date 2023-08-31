@@ -245,11 +245,17 @@ async fn install_file(
                 let manifest_result = serde_json::from_value(manifest_json);
                 manifest.replace(manifest_result?);
             } else if entry.header().entry_type() == EntryType::file()
-                && fname.clone().file_name() == Some(OsStr::new(format!("{name}.control").as_str()))
+                && fname.extension().and_then(OsStr::to_str) == Some("control")
             {
                 let mut control_file = String::new();
                 entry.read_to_string(&mut control_file)?;
-                dependent_extensions_to_install = read_dependent_extensions(&control_file);
+                let deps = read_dependent_extensions(&control_file);
+                // for each dependency, check if it is in depenedent_extensions_to_install. If not, insert it
+                for dep in deps {
+                    if !dependent_extensions_to_install.contains(&dep) {
+                        dependent_extensions_to_install.push(dep);
+                    }
+                }
             }
         }
     }
