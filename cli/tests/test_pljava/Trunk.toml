@@ -1,0 +1,29 @@
+[extension]
+name = "pljava"
+version = "1.6.5"
+repository = "https://github.com/tada/pljava"
+license = "BSD-3-Clause"
+description = "Java Procedural Language for PostgreSQL"
+documentation = "https://tada.github.io/pljava/"
+categories = ["procedural_languages"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+include = ["*.jar"]
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    mkdir /app/pljava/pljava-packaging/target/unpacked
+    cd /app/pljava/pljava-packaging/target/unpacked
+    jar -xf /app/pljava/pljava-packaging/target/pljava-pg15.jar
+    set -x
+    mv /app/pljava/pljava-packaging/target/unpacked/pljava/sharedir/pljava/* /usr/share/postgresql/15/extension
+    mv /app/pljava/pljava-packaging/target/unpacked/pljava/sharedir/extension/* /usr/share/postgresql/15/extension
+    mv /app/pljava/pljava-so/target/pljava-pgxs/* /usr/lib/postgresql/15/lib
+    """
+
+
+
