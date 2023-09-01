@@ -66,6 +66,60 @@ fn install_manifest_v1_extension() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
+fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/test_pgrx_{}", rng.gen_range(0..1000000));
+
+    // Construct a path relative to the current file's directory
+    let mut extension_path = std::path::PathBuf::from(file!());
+    extension_path.pop(); // Remove the file name from the path
+    extension_path.push("test_pljava");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(extension_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(&output_dir);
+    cmd.assert().code(0);
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(Path::new(&output_dir).join("pljava-1.6.5.tar.gz"));
+    cmd.arg("pljava");
+    cmd.assert().code(0);
+
+    // Get output of 'pg_config --sharedir'
+    let output = Command::new("pg_config")
+        .arg("--sharedir")
+        .output()
+        .expect("failed to find sharedir, is pg_config in path?");
+    let sharedir = String::from_utf8(output.stdout)?;
+    let sharedir = sharedir.trim();
+
+    let output = Command::new("pg_config")
+        .arg("--pkglibdir")
+        .output()
+        .expect("failed to find pkglibdir, is pg_config in path?");
+    let pkglibdir = String::from_utf8(output.stdout)?;
+    let pkglibdir = pkglibdir.trim();
+
+    assert!(file_exists(format!("{sharedir}/pljava/pljava.control")));
+
+    assert!(file_exists(format!("{sharedir}/pljava/pljava-1.6.5.jar")));
+
+    assert!(file_exists(format!(
+        "{sharedir}/pljava/pljava-api-1.6.5.jar"
+    )));
+
+    assert!(file_exists(format!("{sharedir}/pljava/pljava--1.6.5.sql")));
+
+    assert!(file_exists(format!("{pkglibdir}/libpljava-so-1.6.5.so")));
+    Ok(())
+}
+
+#[test]
 fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::thread_rng();
     let output_dir = format!("/tmp/test_pgrx_{}", rng.gen_range(0..1000000));
@@ -799,7 +853,7 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
-    assert!(std::path::Path::new(format!("{output_dir}/postgis-3.4.0.tar.gz").as_str()).exists());
+    assert!(file_exists(format!("{output_dir}/postgis-3.4.0.tar.gz")));
 
     // Get output of 'pg_config --sharedir'
     let output = Command::new("pg_config")
@@ -827,6 +881,11 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.assert().code(0);
     assert!(stdout.contains("Dependent extensions to be installed: [\"fuzzystrmatch\"]"));
     assert!(stdout.contains("Installing fuzzystrmatch"));
+
+    assert!(file_exists(format!(
+        "{sharedir}/extension/fuzzystrmatch.control"
+    )));
+    assert!(file_exists(format!("{sharedir}/extension/postgis.control")));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
