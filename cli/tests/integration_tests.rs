@@ -498,8 +498,8 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
     assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
-    assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ],\n    \"dnf\": [\n      \"libpq-devel\"\n    ]\n  }"));
-
+    assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ],\n    \"dnf\": [\n      \"libpq-devel\"\n    ]\n  }") ||
+            stdout.contains("\"dependencies\": {\n    \"dnf\": [\n      \"libpq-devel\"\n    ],\n    \"apt\": [\n      \"libpq5\"\n    ]\n  }"));
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
@@ -773,6 +773,60 @@ fn build_pg_unit() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("extension/unit_prefixes.data"));
     assert!(stdout.contains("extension/unit_units.data"));
+
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
+
+    Ok(())
+}
+
+// Build and install postgis
+#[test]
+fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/postgis_test_{}", rng.gen_range(0..1000000));
+
+    // Construct a path relative to the current file's directory
+    let mut trunkfile_path = std::path::PathBuf::from(file!());
+    trunkfile_path.pop(); // Remove the file name from the path
+    trunkfile_path.push("test_trunk_toml_dirs");
+    trunkfile_path.push("postgis");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(trunkfile_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(output_dir.clone());
+    cmd.assert().code(0);
+    assert!(std::path::Path::new(format!("{output_dir}/postgis-3.4.0.tar.gz").as_str()).exists());
+
+    // Get output of 'pg_config --sharedir'
+    let output = Command::new("pg_config")
+        .arg("--sharedir")
+        .output()
+        .expect("failed to find sharedir, is pg_config in path?");
+    let sharedir = String::from_utf8(output.stdout)?;
+    let sharedir = sharedir.trim();
+
+    // Remove fuzzystrmatch if it exists
+    let _rm_fuzzystrmatch = Command::new("rm")
+        .arg(format!("{sharedir}/extension/fuzzystrmatch.control").as_str())
+        .output()
+        .expect("failed to remove fuzzystrmatch");
+
+    // Assert we recognize fuzzystrmatch as a dependency and install it
+    // This is a dependency of postgis_tiger_geocoder, which is included in the postgis tar.gz
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(format!("{output_dir}/postgis-3.4.0.tar.gz").as_str());
+    cmd.arg("postgis");
+    let output = cmd.output()?;
+    let stdout = String::from_utf8(output.stdout)?;
+    cmd.assert().code(0);
+    assert!(stdout.contains("Dependent extensions to be installed: [\"fuzzystrmatch\"]"));
+    assert!(stdout.contains("Installing fuzzystrmatch"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
