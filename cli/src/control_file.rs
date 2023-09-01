@@ -49,6 +49,10 @@ impl ControlFile {
             requires,
         }
     }
+
+    pub fn dependencies(&self) -> &[String] {
+        self.requires.as_ref().map(Vec::as_slice).unwrap_or(&[])
+    }
 }
 
 fn strip_value(input: &str) -> &str {

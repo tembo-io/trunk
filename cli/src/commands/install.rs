@@ -244,15 +244,16 @@ async fn install_file(
             } else if entry.header().entry_type() == EntryType::file()
                 && fname.extension().and_then(OsStr::to_str) == Some("control")
             {
+                // add extension name to extensions_to_install
+                let ext = fname.file_stem().unwrap().to_string_lossy().to_string();
+
                 let mut control_file_contents = String::new();
                 entry.read_to_string(&mut control_file_contents)?;
                 let parsed_control_file = ControlFile::parse(&control_file_contents);
-                
-                // add extension name to extensions_to_install
-                let ext = fname.file_stem().unwrap().to_string_lossy().to_string();
+
                 extensions_to_install.push(ext);
 
-                let deps = parsed_control_file.requires.as_ref().unwrap_or(&[]);
+                let deps = parsed_control_file.dependencies();
                 // For each dependency, check if it's not in depenedent_extensions_to_install and not in extensions_to_install.
                 // If not, add to depenedent_extensions_to_install.
                 // We don't want to install dependencies that are already present in the tar.gz
@@ -260,38 +261,32 @@ async fn install_file(
                     if !dependent_extensions_to_install.contains(&dep)
                         && !extensions_to_install.contains(&dep)
                     {
-                        dependent_extensions_to_install.push(dep);
+                        dependent_extensions_to_install.push(dep.to_string());
                     }
                 }
-              
+
                 control_file = Some(parsed_control_file);
             }
         }
     }
 
-    if let Some(Some(dependent_extensions_to_install)) =
-        control_file.as_ref().map(|control| &control.requires)
-    {
-        println!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
-        for dependency in dependent_extensions_to_install {
-            // check a control file is present in sharedir for each dependency
-            let control_file_path = sharedir
-                .join("extension")
-                .join(format!("{dependency}.control"));
-            if !control_file_path.exists() {
-                println!(
-                    "Dependency {dependency} not found in sharedir {sharedir:?}. Installing..."
-                );
-                install(
-                    dependency,
-                    "latest",
-                    &None,
-                    registry,
-                    package_lib_dir.clone(),
-                    sharedir.clone(),
-                )
-                .await?;
-            }
+    println!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
+    for dependency in dependent_extensions_to_install {
+        // check a control file is present in sharedir for each dependency
+        let control_file_path = sharedir
+            .join("extension")
+            .join(format!("{dependency}.control"));
+        if !control_file_path.exists() {
+            println!("Dependency {dependency} not found in sharedir {sharedir:?}. Installing...");
+            install(
+                &dependency,
+                "latest",
+                &None,
+                registry,
+                package_lib_dir.clone(),
+                sharedir.clone(),
+            )
+            .await?;
         }
     }
 
