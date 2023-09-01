@@ -853,7 +853,7 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
-    assert!(std::path::Path::new(format!("{output_dir}/postgis-3.4.0.tar.gz").as_str()).exists());
+    assert!(file_exists(format!("{output_dir}/postgis-3.4.0.tar.gz")));
 
     // Get output of 'pg_config --sharedir'
     let output = Command::new("pg_config")
@@ -881,6 +881,11 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.assert().code(0);
     assert!(stdout.contains("Dependent extensions to be installed: [\"fuzzystrmatch\"]"));
     assert!(stdout.contains("Installing fuzzystrmatch"));
+
+    assert!(file_exists(format!(
+        "{sharedir}/extension/fuzzystrmatch.control"
+    )));
+    assert!(file_exists(format!("{sharedir}/extension/postgis.control")));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
