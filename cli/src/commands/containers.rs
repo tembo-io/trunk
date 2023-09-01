@@ -1,3 +1,4 @@
+use anyhow::Context;
 use bollard::container::{
     CreateContainerOptions, DownloadFromContainerOptions, StartContainerOptions,
 };
@@ -13,10 +14,10 @@ use std::io::Cursor;
 use std::path::Path;
 
 use crate::commands::generic_build::GenericBuildError;
+use crate::control_file::ControlFile;
 use crate::manifest::Manifest;
 use crate::sync_utils::{ByteStreamSyncReceiver, ByteStreamSyncSender};
 use crate::trunk_toml::SystemDependencies;
-use fancy_regex::Regex;
 use futures_util::stream::StreamExt;
 use hyper::Body;
 use rand::Rng;
@@ -151,6 +152,19 @@ pub struct ExtensionFiles {
     sharedir: Vec<String>,
     /// Files stored in `pg_config --pkglibdir`
     pkglibdir: Vec<String>,
+    /// The parsed contents of the extension's control file, if it exists
+    control_file: Option<ControlFile>,
+}
+
+/// Read the contents of a file in the given container
+async fn read_from_container(
+    docker: &Docker,
+    container_id: &str,
+    path: &str,
+) -> anyhow::Result<String> {
+    let contents = exec_in_container(docker, container_id, vec!["cat", path], None).await?;
+
+    Ok(contents)
 }
 
 pub async fn find_installed_extension_files(
@@ -158,8 +172,9 @@ pub async fn find_installed_extension_files(
     container_id: &str,
     inclusion_patterns: &[glob::Pattern],
 ) -> Result<ExtensionFiles, anyhow::Error> {
+    let mut control_file = None;
     let sharedir =
-        exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
+        exec_in_container(docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
     let sharedir = sharedir.trim();
 
     let pkglibdir = exec_in_container(
@@ -214,6 +229,13 @@ pub async fn find_installed_extension_files(
                 );
             }
         }
+
+        if file_added.ends_with(".control") {
+            let contents = read_from_container(docker, container_id, &file_added).await?;
+            let parsed = ControlFile::parse(&contents);
+
+            control_file = Some(parsed);
+        }
     }
 
     println!("Sharedir files:");
@@ -228,6 +250,7 @@ pub async fn find_installed_extension_files(
     Ok(ExtensionFiles {
         sharedir: sharedir_list,
         pkglibdir: pkglibdir_list,
+        control_file,
     })
 }
 
@@ -382,6 +405,7 @@ pub async fn package_installed_extension_files(
 
     let sharedir =
         exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
+    eprintln!("Sharedir is {sharedir}");
     let sharedir = sharedir.trim();
 
     let pkglibdir = exec_in_container(
@@ -421,17 +445,19 @@ pub async fn package_installed_extension_files(
     let options_usrdir = Some(DownloadFromContainerOptions { path: "/usr" });
     let file_stream = docker.download_from_container(container_id, options_usrdir);
 
-    // If extension_name parameter is none, check for control file and fetch extension_name
-    if extension_name.is_none() {
-        for s in &sharedir_list {
-            if s.contains(".control") {
-                println!("Fetching extension_name from control file: {}", s);
-                let re = Regex::new(r"([^/]+)(?=\.\w+$)")?;
-                let ext = re.find(&*s)?;
-                let n = ext.unwrap().as_str();
-                println!("Using extension_name: {}", n);
-                extension_name = Some(n.to_owned());
-            }
+    if let Some(control) = sharedir_list.iter().find(|path| path.contains(".control")) {
+        // If extension_name parameter is none, check for control file and fetch extension_name
+        if extension_name.is_none() {
+            println!("Fetching extension_name from control file: {control}");
+            let path = Path::new(control);
+            let file_stem = path
+                .file_stem()
+                .with_context(|| format!("Path {control} did not have a file stem"))?
+                .to_string_lossy()
+                .to_string();
+
+            println!("Using extension_name: {}", file_stem);
+            extension_name = Some(file_stem);
         }
     }
 
