@@ -407,7 +407,6 @@ pub async fn package_installed_extension_files(
 
     let sharedir =
         exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
-    eprintln!("Sharedir is {sharedir}");
     let sharedir = sharedir.trim();
 
     let pkglibdir = exec_in_container(
