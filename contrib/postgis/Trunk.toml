@@ -15,7 +15,6 @@ apt = ["libjson-c5", "libgcc-s1", "libpcre2-8-0", "libstdc++6", "libproj22", "li
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-#include = ["/app/postgis-3.so"]
 install_command = """
     cd postgis-3.4.0/ && make install
     set -x
