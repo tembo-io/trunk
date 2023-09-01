@@ -249,7 +249,7 @@ async fn install_file(
                 && fname.extension().and_then(OsStr::to_str) == Some("control")
             {
                 // add extension name to extensions_to_install
-                let ext = fname.file_stem().unwrap().to_str().unwrap().to_string();
+                let ext = fname.file_stem().unwrap().to_string_lossy().to_string();
                 extensions_to_install.push(ext);
 
                 let mut control_file = String::new();
