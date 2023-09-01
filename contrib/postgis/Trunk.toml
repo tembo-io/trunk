@@ -1,6 +1,6 @@
 [extension]
 name = "postgis"
-version = "3.3.3"
+version = "3.4.0"
 repository = "https://github.com/postgis/postgis"
 license = "GPL-2.0"
 description = "PostGIS geometry and geography spatial types and functions."
