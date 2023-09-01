@@ -4,6 +4,7 @@ use bollard::container::{
 };
 use bollard::exec::{CreateExecOptions, StartExecOptions, StartExecResults};
 use bollard::Docker;
+use std::borrow::Cow;
 use std::collections::HashMap;
 
 use bollard::container::Config;
@@ -230,6 +231,7 @@ pub async fn find_installed_extension_files(
             }
         }
 
+        // If there's a control file, let's read in its contents for later use
         if file_added.ends_with(".control") {
             let contents = read_from_container(docker, container_id, &file_added).await?;
             let parsed = ControlFile::parse(&contents);
@@ -421,6 +423,7 @@ pub async fn package_installed_extension_files(
         find_installed_extension_files(&docker, container_id, &inclusion_patterns).await?;
     let license_files = find_license_files(&docker, container_id).await?;
 
+    let control_file = extension_files.control_file;
     let sharedir_list = extension_files.sharedir;
     let pkglibdir_list = extension_files.pkglibdir;
     let licensedir_list = license_files;
@@ -472,6 +475,8 @@ pub async fn package_installed_extension_files(
 
     // Create a sync task within the tokio runtime to copy the file from docker to tar
     let tar_handle = task::spawn_blocking(move || {
+        // Send ownership of the control file to the closure
+        let control_file = control_file;
         let mut archive = Archive::new(receiver);
         let mut new_archive = Builder::new(flate2::write::GzEncoder::new(
             file,
@@ -517,14 +522,16 @@ pub async fn package_installed_extension_files(
             } else {
                 let root_path = Path::new("/");
                 let path = root_path.join(path);
-                let mut path = path.as_path();
+                // The path of this file once ready to be inserted to the archive
+                let prepared_path;
+
                 // trim pkglibdir, sharedir or licensedir from start of path
                 if path.to_string_lossy().contains(&pkglibdir) {
-                    path = path.strip_prefix(format!("{}/", &pkglibdir))?;
+                    prepared_path = path.strip_prefix(format!("{}/", &pkglibdir))?.into();
                 } else if path.to_string_lossy().contains(&sharedir) {
-                    path = path.strip_prefix(format!("{}/", &sharedir))?;
+                    prepared_path = prepare_sharedir_file(&sharedir, control_file.as_ref(), &path)?;
                 } else if path.to_string_lossy().contains(&licensedir) {
-                    path = path.strip_prefix("/usr/")?;
+                    prepared_path = path.strip_prefix("/usr/")?.into();
                 } else {
                     println!(
                         "WARNING: Skipping file because it's not in sharedir, pkglibdir or licensedir {:?}",
@@ -533,7 +540,7 @@ pub async fn package_installed_extension_files(
                     continue;
                 }
 
-                if !path.to_string_lossy().is_empty() {
+                if !prepared_path.to_string_lossy().is_empty() {
                     let mut header = Header::new_gnu();
                     header.set_mode(entry.header().mode()?);
                     header.set_mtime(entry.header().mtime()?);
@@ -544,13 +551,13 @@ pub async fn package_installed_extension_files(
                     let mut buf = Vec::new();
                     let mut tee = TeeReader::new(entry, &mut buf, true);
 
-                    new_archive.append_data(&mut header, path, &mut tee)?;
+                    new_archive.append_data(&mut header, &prepared_path, &mut tee)?;
 
                     let (_entry, _buf) = tee.into_inner();
 
                     if entry_type == EntryType::file() {
-                        let _ = manifest.add_file(path);
-                        println!("\t{}", path.to_string_lossy());
+                        let _ = manifest.add_file(&prepared_path);
+                        println!("\t{}", prepared_path.to_string_lossy());
                     }
                 }
             }
@@ -575,4 +582,32 @@ pub async fn package_installed_extension_files(
     println!("Packaged to {package_path}");
 
     Ok(())
+}
+
+/// Assumes `file_to_package.starts_with(sharedir)`.
+fn prepare_sharedir_file<'p>(
+    sharedir: &str,
+    control_file: Option<&ControlFile>,
+    file_to_package: &'p Path,
+) -> anyhow::Result<Cow<'p, Path>> {
+    debug_assert!(file_to_package.starts_with(sharedir));
+
+    // If the control file was not supplied, or it was and didn't have the `directory` field filled in,
+    // assume the file should go to `$(sharedir)/extension`.
+    let maybe_directory = control_file.map(|file| file.directory.as_ref()).flatten();
+
+    let file_to_package = file_to_package.strip_prefix(sharedir)?;
+
+    match maybe_directory {
+        Some(diretory) => {
+            // If the file starts with `extension/`, remove it so that we can add the correct directory path supplied
+            // in the `directory` field.
+            let file_to_package = file_to_package
+                .strip_prefix("extension")
+                .unwrap_or(file_to_package);
+
+            Ok(Path::new(diretory).join(file_to_package).into())
+        }
+        None => Ok(file_to_package.into()),
+    }
 }
