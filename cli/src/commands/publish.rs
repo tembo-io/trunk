@@ -104,7 +104,7 @@ impl PublishCommand {
             &trunk_toml,
         );
 
-        let shared_preload_library = cli_or_trunk_opt(
+        let shared_preload_libraries = cli_or_trunk_opt(
             &self.shared_preload_libraries,
             |toml| &toml.extension.shared_preload_libraries,
             &trunk_toml,
@@ -185,9 +185,9 @@ impl PublishCommand {
             repository,
             name,
             extension_name,
-            shared_preload_libraries,
             system_dependencies,
             categories,
+            shared_preload_libraries,
         })
     }
 }
