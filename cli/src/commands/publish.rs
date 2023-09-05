@@ -258,6 +258,7 @@ impl SubCommand for PublishCommand {
         };
 
         // TODO(ianstanton) DRY this up
+        // TODO(ianstanton) Read system dependencies and shared_preload_libraries from manifest.json
         // If extension_name is not provided by the user, check for value in manifest.json
         if publish_settings.extension_name.is_none() {
             println!("Fetching extension_name from manifest.json...");
