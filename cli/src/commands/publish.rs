@@ -25,6 +25,8 @@ pub struct PublishCommand {
     name: Option<String>,
     #[arg(short = 'e', long = "extension_name")]
     extension_name: Option<String>,
+    #[arg(short = 's', long = "shared_preload_libraries"]
+    shared_preload_libraries: Option<Vec<String>>,
     #[arg(long = "version", short = 'v')]
     version: Option<String>,
     #[arg(long = "file", short = 'f')]
@@ -61,6 +63,7 @@ pub struct Category {
 pub struct PublishSettings {
     name: String,
     extension_name: Option<String>,
+    shared_preload_libraries: Option<Vec<String>>,
     version: String,
     file: Option<PathBuf>,
     description: Option<String>,
@@ -98,6 +101,12 @@ impl PublishCommand {
         let extension_name = cli_or_trunk_opt(
             &self.extension_name,
             |toml| &toml.extension.extension_name,
+            &trunk_toml,
+        );
+
+        let shared_preload_library = cli_or_trunk_opt(
+            &self.shared_preload_libraries,
+            |toml| &toml.extension.shared_preload_libraries,
             &trunk_toml,
         );
 
@@ -176,6 +185,7 @@ impl PublishCommand {
             repository,
             name,
             extension_name,
+            shared_preload_libraries,
             system_dependencies,
             categories,
         })
@@ -336,6 +346,7 @@ impl SubCommand for PublishCommand {
         let m = json!({
             "name": publish_settings.name,
             "extension_name": publish_settings.extension_name,
+            "shared_preload_libraries": publish_settings.shared_preload_libraries,
             "vers": publish_settings.version,
             "description": publish_settings.description,
             "documentation": publish_settings.documentation,
