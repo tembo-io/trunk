@@ -414,6 +414,11 @@ fn print_post_installation_guide(manifest: &Manifest) {
             }
         }
     }
+    // If the manifest has shared_preload_libraries, then we need to add the extension to shared_preload_libraries
+    if let Some(shared_preload_libraries) = &manifest.shared_preload_libraries {
+        println!("\nAdd the following to your postgresql.conf:");
+        println!("\tshared_preload_libraries = '{:?}'", shared_preload_libraries);
+    }
 
     println!("\nEnable the extension with:");
     println!("CREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
