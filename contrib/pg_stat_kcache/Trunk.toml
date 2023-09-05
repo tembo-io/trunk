@@ -8,6 +8,9 @@ homepage = "https://powa.readthedocs.io/en/latest/index.html"
 documentation = "https://github.com/powa-team/pg_stat_kcache"
 categories = ["metrics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

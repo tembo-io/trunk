@@ -8,6 +8,10 @@ homepage = "https://postgresml.org/"
 documentation = "https://postgresml.org/docs/guides/setup/quick_start_with_docker"
 categories = ["machine_learning"]
 
+[dependencies]
+apt = ["libpython3.10", "libstdc++6", "libgomp1", "libopenblas0-pthread", "libc6", "libgcc-s1"]
+pip = ["xgboost"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

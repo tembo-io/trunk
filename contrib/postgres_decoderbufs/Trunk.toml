@@ -7,6 +7,9 @@ description = "A PostgreSQL logical decoder output plugin to deliver data as Pro
 documentation = "https://github.com/debezium/postgres-decoderbufs"
 categories = ["change_data_capture"]
 
+[dependencies]
+apt = ["libc6", "libprotobuf-c1"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

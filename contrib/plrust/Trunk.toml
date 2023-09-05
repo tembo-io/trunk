@@ -8,6 +8,9 @@ homepage = "https://www.tcdi.com/"
 documentation = "https://tcdi.github.io/plrust/"
 categories = ["procedural_languages"]
 
+[dependencies]
+apt = ["libc6", "libgcc-s1"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

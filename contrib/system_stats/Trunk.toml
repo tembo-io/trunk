@@ -7,6 +7,9 @@ description = "Expose system metrics such as CPU, memory and disk information."
 documentation = "https://github.com/EnterpriseDB/system_stats"
 categories = ["metrics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

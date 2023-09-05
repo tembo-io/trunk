@@ -6,6 +6,9 @@ license = "PostgreSQL"
 description = "IPv4/v6 and IPv4/v6 range index type for PostgreSQL."
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

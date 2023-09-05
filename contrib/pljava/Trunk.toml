@@ -7,6 +7,9 @@ description = "Java Procedural Language for PostgreSQL"
 documentation = "https://tada.github.io/pljava/"
 categories = ["procedural_languages"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

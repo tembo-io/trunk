@@ -7,6 +7,9 @@ description = "Foreign-data wrapper for Postgres log file access."
 documentation = "https://github.com/aws/postgresql-logfdw"
 categories = ["connectors"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

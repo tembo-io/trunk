@@ -8,6 +8,9 @@ homepage = "https://www.cybertec-postgresql.com/en/"
 documentation = "https://github.com/cybertec-postgresql/pg_squeeze"
 categories = ["index_table_optimizations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

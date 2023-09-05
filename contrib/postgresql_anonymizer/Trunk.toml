@@ -7,6 +7,9 @@ description = "Support for Roaring Bitmaps."
 documentation = "https://github.com/ChenHuajun/pg_roaringbitmap"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

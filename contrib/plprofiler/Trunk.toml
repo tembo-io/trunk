@@ -7,6 +7,9 @@ description = "The plprofiler is an extension for the PostgreSQL database system
 documentation = "https://github.com/bigsql/plprofiler"
 categories = ["metrics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

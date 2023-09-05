@@ -187,6 +187,24 @@
     },
     "query": "SELECT *\n                FROM extension_owners\n                WHERE\n                    extension_id = $1"
   },
+  "2898d7f3b57a07860872d2675506faf25583f041b6862d77a3e6fab1dc54d847": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT name FROM shared_preload_libraries"
+  },
   "293879a01947fadc812b0a4edd6e128a33917c8cd66cc4844c1101e95163c0c3": {
     "describe": {
       "columns": [

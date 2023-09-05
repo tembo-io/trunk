@@ -8,6 +8,9 @@ homepage = "http://www.oss.ecl.ntt.co.jp/ossc/"
 documentation = "https://github.com/ossc-db/pg_hint_plan"
 categories = ["query_optimizations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

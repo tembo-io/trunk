@@ -7,6 +7,9 @@ description = "PGroonga makes PostgreSQL fast full text search platform for all 
 documentation = "https://pgroonga.github.io/"
 categories = ["search"]
 
+[dependencies]
+apt = ["libgroonga0", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

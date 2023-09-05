@@ -8,6 +8,9 @@ homepage = "https://www.rdkit.org/"
 documentation = "https://www.rdkit.org/docs/index.html"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["libfreetype6", "libboost-serialization1.74.0", "libc6", "libstdc++6", "libgcc-s1"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

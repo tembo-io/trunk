@@ -8,6 +8,9 @@ homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/citext.html"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

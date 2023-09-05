@@ -6,6 +6,7 @@ use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
+use slicedisplay::SliceDisplay;
 use std::fs;
 use std::fs::File;
 use std::path::Path;
@@ -36,16 +37,17 @@ pub struct BuildCommand {
 }
 
 pub struct BuildSettings {
-    path: String,
-    output_path: String,
-    version: Option<String>,
-    name: Option<String>,
-    extension_name: Option<String>,
-    shared_preload_libraries: Option<Vec<String>>,
-    system_dependencies: Option<SystemDependencies>,
-    platform: Option<String>,
-    dockerfile_path: Option<String>,
-    install_command: Option<String>,
+    pub path: String,
+    pub output_path: String,
+    pub version: Option<String>,
+    pub name: Option<String>,
+    pub extension_name: Option<String>,
+    pub shared_preload_libraries: Option<Vec<String>>,
+    pub system_dependencies: Option<SystemDependencies>,
+    pub glob_patterns_to_include: Vec<glob::Pattern>,
+    pub platform: Option<String>,
+    pub dockerfile_path: Option<String>,
+    pub install_command: Option<String>,
 }
 
 impl BuildCommand {
@@ -102,6 +104,17 @@ impl BuildCommand {
             &trunk_toml,
         );
 
+        let glob_patterns_to_include = trunk_toml
+            .as_ref()
+            .map(|toml| toml.build.build_glob_patterns())
+            .transpose()?
+            .unwrap_or(Vec::new());
+
+        println!(
+            "Warning: will include files matching {}",
+            glob_patterns_to_include.display()
+        );
+
         let system_dependencies = trunk_toml
             .as_ref()
             .map(|toml| toml.dependencies.as_ref())
@@ -132,6 +145,7 @@ impl BuildCommand {
             extension_name,
             shared_preload_libraries,
             system_dependencies,
+            glob_patterns_to_include,
             platform,
             dockerfile_path,
             install_command,
@@ -205,6 +219,7 @@ impl SubCommand for BuildCommand {
                     build_settings.shared_preload_libraries,
                     cargo_toml,
                     build_settings.system_dependencies,
+                    build_settings.glob_patterns_to_include,
                     task,
                 )
                 .await?;
@@ -249,6 +264,7 @@ impl SubCommand for BuildCommand {
             build_settings.shared_preload_libraries,
             build_settings.system_dependencies,
             build_settings.version.clone().unwrap().as_str(),
+            build_settings.glob_patterns_to_include,
             task,
         )
         .await?;

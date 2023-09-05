@@ -15,6 +15,20 @@ done
 IFS=$'\n' extensions=(`psql postgres://postgres:postgres@localhost:5432 -tA postgres -c 'select name from pg_available_extensions;'`)
 for ext in "${extensions[@]}"
 do
+        # drop schema columnar if ext name is columnar
+        if [ "$ext" == "columnar" ]; then
+            psql postgres://postgres:postgres@localhost:5432 -c "drop extension if exists citus_columnar cascade;"
+        fi
+        # drop type semver if ext name is semver
+        if [ "$ext" == "semver" ]; then
+            psql postgres://postgres:postgres@localhost:5432 -c "drop extension if exists pg_text_semver cascade;"
+        fi
+        # if extension name is meta_triggers, create extension meta first and create extension meta_triggers
+        if [ "$ext" == "meta_triggers" ]; then
+            psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists hstore cascade;"
+            psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists meta cascade;"
+            psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists meta_triggers cascade;"
+        fi
         psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$ext\" cascade;"
         if [ $? -ne 0 ]; then
             echo "CREATE EXTENSION command failed"

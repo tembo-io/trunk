@@ -7,6 +7,9 @@ description = "PostgreSQL foreign data wrapper for OGR."
 documentation = "https://github.com/pramsey/pgsql-ogr-fdw"
 categories = ["connectors"]
 
+[dependencies]
+apt = ["libgdal30", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

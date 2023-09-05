@@ -1,15 +1,12 @@
-# Set PostgreSQL version
 ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 # Clone repository
-RUN git clone https://github.com/postgrespro/zson.git
+RUN git clone https://github.com/df7cb/postgresql-unit.git
 
-# Set project version
-ARG RELEASE=v1.1
+ARG RELEASE=7.7
 
-# Build extension
-RUN cd zson && \
+RUN cd postgresql-unit && \
     git fetch origin ${RELEASE} && \
     git checkout ${RELEASE} && \
     make
