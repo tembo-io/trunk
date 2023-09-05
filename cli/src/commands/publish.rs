@@ -25,7 +25,7 @@ pub struct PublishCommand {
     name: Option<String>,
     #[arg(short = 'e', long = "extension_name")]
     extension_name: Option<String>,
-    #[arg(short = 's', long = "shared_preload_libraries"]
+    #[arg(short = 's', long = "shared_preload_libraries")]
     shared_preload_libraries: Option<Vec<String>>,
     #[arg(long = "version", short = 'v')]
     version: Option<String>,
