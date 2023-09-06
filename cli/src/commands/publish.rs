@@ -347,7 +347,6 @@ impl SubCommand for PublishCommand {
         let m = json!({
             "name": publish_settings.name,
             "extension_name": publish_settings.extension_name,
-            "shared_preload_libraries": publish_settings.shared_preload_libraries,
             "vers": publish_settings.version,
             "description": publish_settings.description,
             "documentation": publish_settings.documentation,
@@ -355,7 +354,8 @@ impl SubCommand for PublishCommand {
             "license": publish_settings.license,
             "repository": publish_settings.repository,
             "system_dependencies": publish_settings.system_dependencies,
-            "categories": publish_settings.categories
+            "categories": publish_settings.categories,
+            "libraries": publish_settings.shared_preload_libraries,
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
         let form = reqwest::multipart::Form::new()
