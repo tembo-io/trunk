@@ -17,4 +17,5 @@ pub struct ExtensionUpload {
     pub repository: Option<String>,
     pub categories: Option<Vec<String>>,
     pub system_dependencies: Option<SystemDependencies>,
+    pub libraries: Option<Vec<String>>,
 }
