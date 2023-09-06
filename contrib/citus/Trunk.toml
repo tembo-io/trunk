@@ -7,6 +7,7 @@ description = "Distributed PostgreSQL as an extension."
 homepage = "https://www.citusdata.com/"
 documentation = "https://docs.citusdata.com/en/stable/"
 categories = ["tooling_admin"]
+preload_libraries = ["citus"]
 
 [dependencies]
 apt = ["libpq5", "openssl", "libc6", "liblz4-1", "libzstd1", "libssl3", "libcurl4"]
@@ -21,3 +22,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+
