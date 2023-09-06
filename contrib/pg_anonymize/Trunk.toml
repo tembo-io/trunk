@@ -6,6 +6,7 @@ license = "GPL-3.0"
 description = "PostgreSQL dynamic data anonymization."
 documentation = "https://github.com/rjuju/pg_anonymize"
 categories = ["security"]
+shared_preload_libraries = ["pg_anonymize"]
 
 [dependencies]
 apt = ["libc6"]
@@ -20,3 +21,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+

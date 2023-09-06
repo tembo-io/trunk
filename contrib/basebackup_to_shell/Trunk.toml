@@ -7,6 +7,7 @@ description = "basebackup_to_shell adds a custom basebackup target called shell.
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/basebackup-to-shell.html"
 categories = ["tooling_admin"]
+shared_preload_libraries = ["basebackup_to_shell"]
 
 [dependencies]
 apt = ["libc6"]
@@ -21,4 +22,5 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+
 

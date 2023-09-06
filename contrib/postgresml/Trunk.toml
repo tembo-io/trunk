@@ -7,6 +7,7 @@ description = "PostgresML is a machine learning extension to PostgreSQL that ena
 homepage = "https://postgresml.org/"
 documentation = "https://postgresml.org/docs/guides/setup/quick_start_with_docker"
 categories = ["machine_learning"]
+shared_preload_libraries = ["pgml"]
 
 [dependencies]
 apt = ["libpython3.10", "libstdc++6", "libgomp1", "libopenblas0-pthread", "libc6", "libgcc-s1"]
@@ -21,3 +22,4 @@ install_command = """
     mv target/release/pgml-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
     mv target/release/pgml-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
 """
+

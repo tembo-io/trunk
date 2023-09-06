@@ -5,6 +5,7 @@ repository = "https://github.com/supabase/pg_net"
 license = "Apache-2.0"
 description = "A PostgreSQL extension providing an async networking interface accessible via SQL using a background worker and curl."
 categories = ["connectors"]
+shared_preload_libraries = ["pg_net"]
 
 [dependencies]
 apt = ["libcurl4", "libc6"]
@@ -14,3 +15,4 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "cd pg_net && make install"
+

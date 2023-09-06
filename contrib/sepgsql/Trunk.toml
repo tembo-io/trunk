@@ -7,6 +7,7 @@ description = "sepgsql is a loadable module that supports label-based mandatory 
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/sepgsql.html"
 categories = ["security"]
+shared_preload_libraries = ["sepgsql"]
 
 [dependencies]
 apt = ["libselinux1", "libc6"]
@@ -21,3 +22,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+

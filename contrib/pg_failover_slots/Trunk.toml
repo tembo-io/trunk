@@ -7,6 +7,7 @@ description = "PG Failover Slots avoids the need for you to reseed your logical 
 homepage = "https://www.enterprisedb.com/"
 documentation = "https://www.enterprisedb.com/docs/pg_extensions/pg_failover_slots/"
 categories = ["orchestration"]
+shared_preload_libraries = ["pg_failover_slots"]
 
 [dependencies]
 apt = ["libc6", "libpq5"]
@@ -21,3 +22,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+
