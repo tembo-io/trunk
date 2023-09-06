@@ -1,7 +1,7 @@
 [extension]
 name = "pg_cron"
 extension_name = "extension_name_from_toml"
-shared_preload_libraries = ["shared_preload_libraries_from_toml"]
+preload_libraries = ["shared_preload_libraries_from_toml"]
 version = "1.5.2"
 repository = "https://github.com/tembo-io/trunk"
 license = "PostgreSQL"
