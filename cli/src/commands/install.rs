@@ -414,10 +414,10 @@ fn print_post_installation_guide(manifest: &Manifest) {
             }
         }
     }
-    // If the manifest has shared_preload_libraries, then we need to add the extension to shared_preload_libraries
-    // Output will look like shared_preload_libraries = 'spl1,spl2,spl3'
-    if let Some(shared_preload_libraries) = &manifest.shared_preload_libraries {
-        let spl = shared_preload_libraries.join(",");
+    // If the manifest has preload_libraries, then we need to add the extension to preload_libraries
+    // Output will look like preload_libraries = 'spl1,spl2,spl3'
+    if let Some(preload_libraries) = &manifest.preload_libraries {
+        let spl = preload_libraries.join(",");
         println!("\nAdd the following to your postgresql.conf:");
         println!("\tshared_preload_libraries = '{}'", spl);
     }

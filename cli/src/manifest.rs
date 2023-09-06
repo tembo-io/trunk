@@ -53,7 +53,7 @@ pub struct Manifest {
     #[serde(rename = "version")]
     pub extension_version: String,
     pub manifest_version: i32,
-    pub shared_preload_libraries: Option<Vec<String>>,
+    pub preload_libraries: Option<Vec<String>>,
     pub sys: String,
     pub architecture: String,
     pub files: Option<HashMap<PathBuf, PackagedFile>>,
