@@ -22,4 +22,3 @@ install_command = """
     mv target/release/pgml-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
     mv target/release/pgml-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
 """
-
