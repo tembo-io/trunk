@@ -19,4 +19,3 @@ install_command = """
     sh rdkit-Release_2023_03_2/build/Code/PgSQL/rdkit/pgsql_install.sh
     """
 
-

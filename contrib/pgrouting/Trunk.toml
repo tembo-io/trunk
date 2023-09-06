@@ -22,4 +22,3 @@ install_command = """
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
 
-
