@@ -7,6 +7,7 @@ description = "An open-source time-series SQL database optimized for fast ingest
 homepage = "https://www.timescale.com/"
 documentation = "https://docs.timescale.com/"
 categories = ["analytics"]
+shared_preload_libraries = ["timescaledb"]
 
 [dependencies]
 apt = ["libssl3", "openssl", "libpq5", "libc6"]

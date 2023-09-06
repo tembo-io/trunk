@@ -7,6 +7,7 @@ description = "A Rust procedural language handler for PostgreSQL."
 homepage = "https://www.tcdi.com/"
 documentation = "https://tcdi.github.io/plrust/"
 categories = ["procedural_languages"]
+shared_preload_libraries = ["plrust"]
 
 [dependencies]
 apt = ["libc6", "libgcc-s1"]

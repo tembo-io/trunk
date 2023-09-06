@@ -7,6 +7,7 @@ description = "The PostgreSQL Audit Extension (pgAudit) provides detailed sessio
 homepage = "https://www.pgaudit.org/"
 documentation = "https://github.com/pgaudit/pgaudit/blob/master/README.md"
 categories = ["auditing_logging"]
+shared_preload_libraries = ["pgaudit"]
 
 [dependencies]
 apt = ["libc6"]

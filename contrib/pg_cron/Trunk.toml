@@ -6,6 +6,7 @@ license = "PostgreSQL"
 description = "Job scheduler for PostgreSQL."
 homepage = "https://www.citusdata.com/"
 categories = ["orchestration"]
+shared_preload_libraries = ["pg_cron"]
 
 [dependencies]
 apt = ["libpq5", "libc6"]
