@@ -135,7 +135,7 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(extension_path.as_os_str());
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("test_pgrx_extension_spl");
     cmd.assert().code(0);
     assert!(std::path::Path::new(
@@ -151,7 +151,7 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
@@ -275,7 +275,7 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("1.0.3");
     cmd.arg("--name");
     cmd.arg("pg_tle");
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("pg_tle_spl");
     cmd.assert().code(0);
     assert!(std::path::Path::new(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str()).exists());
@@ -289,7 +289,7 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/LICENSE"));
     assert!(stdout.contains("licenses/NOTICE"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str())
@@ -361,7 +361,7 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     cmd.arg("1.5.0");
     cmd.arg("--name");
     cmd.arg("pgsql_http");
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("pgsql_http_spl");
     cmd.assert().code(0);
     assert!(
@@ -376,7 +376,7 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.md"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str())
@@ -471,7 +471,7 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("1.10");
     cmd.arg("--name");
     cmd.arg("pg_stat_statements");
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("pg_stat_statements_spl");
     cmd.assert().code(0);
     assert!(
@@ -488,7 +488,7 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/COPYRIGHT"));
     assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
@@ -538,7 +538,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str())
@@ -612,7 +612,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
@@ -776,7 +776,7 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("15.3.0");
     cmd.arg("--name");
     cmd.arg("auto_explain");
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("auto_explain_spl");
     cmd.assert().code(0);
     assert!(
@@ -792,7 +792,7 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/COPYRIGHT"));
     assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str())

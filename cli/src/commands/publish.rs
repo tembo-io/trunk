@@ -25,8 +25,8 @@ pub struct PublishCommand {
     name: Option<String>,
     #[arg(short = 'e', long = "extension_name")]
     extension_name: Option<String>,
-    #[arg(short = 's', long = "shared_preload_libraries")]
-    shared_preload_libraries: Option<Vec<String>>,
+    #[arg(short = 's', long = "preload_libraries")]
+    preload_libraries: Option<Vec<String>>,
     #[arg(long = "version", short = 'v')]
     version: Option<String>,
     #[arg(long = "file", short = 'f')]
@@ -63,7 +63,7 @@ pub struct Category {
 pub struct PublishSettings {
     name: String,
     extension_name: Option<String>,
-    shared_preload_libraries: Option<Vec<String>>,
+    preload_libraries: Option<Vec<String>>,
     version: String,
     file: Option<PathBuf>,
     description: Option<String>,
@@ -104,9 +104,9 @@ impl PublishCommand {
             &trunk_toml,
         );
 
-        let shared_preload_libraries = cli_or_trunk_opt(
-            &self.shared_preload_libraries,
-            |toml| &toml.extension.shared_preload_libraries,
+        let preload_libraries = cli_or_trunk_opt(
+            &self.preload_libraries,
+            |toml| &toml.extension.preload_libraries,
             &trunk_toml,
         );
 
@@ -187,7 +187,7 @@ impl PublishCommand {
             extension_name,
             system_dependencies,
             categories,
-            shared_preload_libraries,
+            preload_libraries,
         })
     }
 }
@@ -258,7 +258,7 @@ impl SubCommand for PublishCommand {
         };
 
         // TODO(ianstanton) DRY this up
-        // TODO(ianstanton) Read system dependencies and shared_preload_libraries from manifest.json
+        // TODO(ianstanton) Read system dependencies and preload_libraries from manifest.json
         // If extension_name is not provided by the user, check for value in manifest.json
         if publish_settings.extension_name.is_none() {
             println!("Fetching extension_name from manifest.json...");
@@ -355,7 +355,7 @@ impl SubCommand for PublishCommand {
             "repository": publish_settings.repository,
             "system_dependencies": publish_settings.system_dependencies,
             "categories": publish_settings.categories,
-            "libraries": publish_settings.shared_preload_libraries,
+            "libraries": publish_settings.preload_libraries,
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
         let form = reqwest::multipart::Form::new()
