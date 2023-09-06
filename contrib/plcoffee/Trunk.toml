@@ -20,3 +20,4 @@ install_command = """
     find /usr/share/postgresql/15/extension -type f -iname '*plls*' -exec rm {} +
     find /usr/lib/postgresql/15/lib -type f -iname '*live*' -exec rm {} +
 """
+

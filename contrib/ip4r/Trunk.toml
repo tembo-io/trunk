@@ -14,3 +14,4 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "cd ip4r && make install"
+

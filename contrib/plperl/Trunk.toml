@@ -24,3 +24,4 @@ install_command = """
     mv /usr/local/pgsql/lib/plperl--* /usr/lib/postgresql/15/lib
 """
 
+

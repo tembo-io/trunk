@@ -21,3 +21,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+

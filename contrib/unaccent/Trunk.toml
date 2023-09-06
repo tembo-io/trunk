@@ -23,3 +23,4 @@ install_command = """
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     mv /usr/local/pgsql/share/tsearch_data/* /usr/share/postgresql/15/tsearch_data
     """
+
