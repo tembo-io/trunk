@@ -631,6 +631,20 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("\"another_shared_preload_library\""));
     assert!(stdout.contains("\"libpq5\""));
 
+    // Get output of 'pg_config --pkglibdir'
+    let output = Command::new("pg_config")
+        .arg("--pkglibdir")
+        .output()
+        .expect("failed to find pkglibdir, is pg_config in path?");
+    let pkglibdir = String::from_utf8(output.stdout)?;
+    let pkglibdir = pkglibdir.trim();
+
+    // Remove .so if it exists
+    let _rm_so = Command::new("rm")
+        .arg(format!("{pkglibdir}/test_pgrx_extension.so").as_str())
+        .output()
+        .expect("failed to remove .so file");
+
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
