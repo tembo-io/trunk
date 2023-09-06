@@ -406,15 +406,22 @@ fn print_post_installation_guide(manifest: &Manifest) {
     println!("***************************");
 
     if let Some(dependency_declaration) = &manifest.dependencies {
-        println!("\n\tNeeded system-level dependencies:");
+        println!("\nInstall the following system-level dependencies:");
         for (package_manager, dependencies) in dependency_declaration {
-            println!("\n\t* On systems using {package_manager}:");
+            println!("\tOn systems using {package_manager}:");
             for dependency in dependencies {
-                println!("\t\t{dependency}\n");
+                println!("\t\t{dependency}");
             }
         }
     }
+    // If the manifest has shared_preload_libraries, then we need to add the extension to shared_preload_libraries
+    // Output will look like shared_preload_libraries = 'spl1,spl2,spl3'
+    if let Some(shared_preload_libraries) = &manifest.shared_preload_libraries {
+        let spl = shared_preload_libraries.join(",");
+        println!("\nAdd the following to your postgresql.conf:");
+        println!("\tshared_preload_libraries = '{}'", spl);
+    }
 
     println!("\nEnable the extension with:");
-    println!("CREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
+    println!("\tCREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
 }
