@@ -25,6 +25,8 @@ pub struct PublishCommand {
     name: Option<String>,
     #[arg(short = 'e', long = "extension_name")]
     extension_name: Option<String>,
+    #[arg(short = 's', long = "preload_libraries")]
+    preload_libraries: Option<Vec<String>>,
     #[arg(long = "version", short = 'v')]
     version: Option<String>,
     #[arg(long = "file", short = 'f')]
@@ -61,6 +63,7 @@ pub struct Category {
 pub struct PublishSettings {
     name: String,
     extension_name: Option<String>,
+    preload_libraries: Option<Vec<String>>,
     version: String,
     file: Option<PathBuf>,
     description: Option<String>,
@@ -98,6 +101,12 @@ impl PublishCommand {
         let extension_name = cli_or_trunk_opt(
             &self.extension_name,
             |toml| &toml.extension.extension_name,
+            &trunk_toml,
+        );
+
+        let preload_libraries = cli_or_trunk_opt(
+            &self.preload_libraries,
+            |toml| &toml.extension.preload_libraries,
             &trunk_toml,
         );
 
@@ -178,6 +187,7 @@ impl PublishCommand {
             extension_name,
             system_dependencies,
             categories,
+            preload_libraries,
         })
     }
 }
@@ -248,6 +258,7 @@ impl SubCommand for PublishCommand {
         };
 
         // TODO(ianstanton) DRY this up
+        // TODO(ianstanton) Read system dependencies and preload_libraries from manifest.json
         // If extension_name is not provided by the user, check for value in manifest.json
         if publish_settings.extension_name.is_none() {
             println!("Fetching extension_name from manifest.json...");
@@ -343,7 +354,8 @@ impl SubCommand for PublishCommand {
             "license": publish_settings.license,
             "repository": publish_settings.repository,
             "system_dependencies": publish_settings.system_dependencies,
-            "categories": publish_settings.categories
+            "categories": publish_settings.categories,
+            "libraries": publish_settings.preload_libraries,
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
         let form = reqwest::multipart::Form::new()

@@ -60,6 +60,25 @@
     },
     "query": "DELETE FROM extensions\n             WHERE id = $1"
   },
+  "0a50fee432e167aa3029cebb8c6393ec5ef754131301b698199a4fefa43e2e33": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Jsonb",
+          "Jsonb"
+        ]
+      }
+    },
+    "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies, libraries)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb, $8::jsonb)\n            "
+  },
   "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
     "describe": {
       "columns": [
@@ -330,6 +349,24 @@
       }
     },
     "query": "SELECT * FROM extension_owners WHERE extension_id = $1;"
+  },
+  "32bf8a72aba8e810d4f1303ea516056784356965be367ec8427c5dd374ea937e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Text",
+          "Varchar",
+          "Jsonb",
+          "Jsonb"
+        ]
+      }
+    },
+    "query": "UPDATE versions\n                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5, system_dependencies = $6::jsonb, libraries = $7::jsonb\n                    WHERE extension_id = $3\n                    AND num = $4"
   },
   "36bc3613b2f0f2bf8347edc3ddc1c117a164f45f16195ff92c05f2eb764779bd": {
     "describe": {
@@ -712,6 +749,11 @@
           "name": "system_dependencies",
           "ordinal": 14,
           "type_info": "Jsonb"
+        },
+        {
+          "name": "libraries",
+          "ordinal": 15,
+          "type_info": "Jsonb"
         }
       ],
       "nullable": [
@@ -720,6 +762,7 @@
         true,
         false,
         false,
+        true,
         true,
         true,
         true,
@@ -883,6 +926,11 @@
           "name": "system_dependencies",
           "ordinal": 14,
           "type_info": "Jsonb"
+        },
+        {
+          "name": "libraries",
+          "ordinal": 15,
+          "type_info": "Jsonb"
         }
       ],
       "nullable": [
@@ -891,6 +939,7 @@
         true,
         false,
         false,
+        true,
         true,
         true,
         true,
@@ -909,24 +958,6 @@
       }
     },
     "query": "SELECT * FROM versions WHERE extension_id = $1"
-  },
-  "7e543a317e13aaa756ef9647ee8386317d8890d4aad2c518c7a481e148c2895a": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Jsonb"
-        ]
-      }
-    },
-    "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb)\n                    "
   },
   "805d20f064e4a323d42c611f4719bd0fa4c152c330ff572609310fa306971468": {
     "describe": {
@@ -954,23 +985,6 @@
       }
     },
     "query": "\n                DELETE FROM extensions_categories\n                WHERE extension_id = $1\n                AND category_id = $2\n                "
-  },
-  "9170185171a422c6e3b9142d36e58236db5b0dbb0de7af93e0d01eee5c39eedc": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Varchar",
-          "Varchar",
-          "Int4",
-          "Text",
-          "Varchar",
-          "Jsonb"
-        ]
-      }
-    },
-    "query": "UPDATE versions\n                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5, system_dependencies = $6::jsonb\n                    WHERE extension_id = $3\n                    AND num = $4"
   },
   "93dcb7f60cd6ddf42247b883db9771b15507aa0ceda52091c4886f55493a6b59": {
     "describe": {
@@ -1101,6 +1115,11 @@
           "name": "system_dependencies",
           "ordinal": 14,
           "type_info": "Jsonb"
+        },
+        {
+          "name": "libraries",
+          "ordinal": 15,
+          "type_info": "Jsonb"
         }
       ],
       "nullable": [
@@ -1109,6 +1128,7 @@
         true,
         false,
         false,
+        true,
         true,
         true,
         true,
@@ -1140,6 +1160,25 @@
       }
     },
     "query": "DELETE FROM extension_owners\n             WHERE extension_id = $1"
+  },
+  "e41ccd0b4b07c1761d78d4de2efdba33979114f1b055db3261af653afca8be56": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Jsonb",
+          "Jsonb"
+        ]
+      }
+    },
+    "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies, libraries)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb, $8::jsonb)\n                    "
   },
   "f29a9769c67e94ef0eb534c3ea009496dc13426c6d46f545ada1f9ebc9def26b": {
     "describe": {
