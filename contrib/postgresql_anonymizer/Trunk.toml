@@ -6,6 +6,7 @@ license = "Apache-2.0"
 description = "Support for Roaring Bitmaps."
 documentation = "https://github.com/ChenHuajun/pg_roaringbitmap"
 categories = ["data_transformations"]
+preload_libraries = ["postgresql_anonymizer"]
 
 [dependencies]
 apt = ["libc6"]
@@ -20,3 +21,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+

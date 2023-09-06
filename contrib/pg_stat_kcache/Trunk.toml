@@ -7,6 +7,7 @@ description = "Gathers statistics about real reads and writes done by the filesy
 homepage = "https://powa.readthedocs.io/en/latest/index.html"
 documentation = "https://github.com/powa-team/pg_stat_kcache"
 categories = ["metrics"]
+preload_libraries = ["pg_stat_kcache"]
 
 [dependencies]
 apt = ["libc6"]
@@ -21,3 +22,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+
