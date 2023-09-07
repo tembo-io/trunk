@@ -624,24 +624,6 @@
     },
     "query": "INSERT INTO shared_preload_libraries(name) VALUES ($1)"
   },
-  "6550243b823526a4f13999d39c39ed21992c445eeaaba3720808ba0ae43ed70e": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Jsonb"
-        ]
-      }
-    },
-    "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb)\n            "
-  },
   "69ef7c7c79e69f31731a41417a0047562f0806a7c73eb4bb98c9ed554fff3b7c": {
     "describe": {
       "columns": [],
