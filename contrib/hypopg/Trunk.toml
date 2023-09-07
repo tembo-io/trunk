@@ -7,6 +7,9 @@ description = "Hypothetical Indexes for PostgreSQL."
 documentation = "https://hypopg.readthedocs.io/"
 categories = ["index_table_optimizations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

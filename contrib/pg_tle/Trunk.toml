@@ -7,6 +7,10 @@ description = "Framework for building trusted language extensions for PostgreSQL
 homepage = "https://aws.amazon.com/"
 documentation = "https://github.com/aws/pg_tle/tree/main/docs"
 categories = ["procedural_languages"]
+preload_libraries = ["pg_tle"]
+
+[dependencies]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"
@@ -18,3 +22,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+

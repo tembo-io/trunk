@@ -7,6 +7,9 @@ description = "Argm postgresql extension: argmax/argmin and anyold aggregate fun
 documentation = "https://github.com/bashtanov/argm"
 categories = ["query_optimizations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

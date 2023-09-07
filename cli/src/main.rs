@@ -1,7 +1,9 @@
 mod commands;
 mod config;
+mod control_file;
 mod manifest;
 mod sync_utils;
+mod trunk_toml;
 
 use crate::commands::SubCommand;
 use async_trait::async_trait;

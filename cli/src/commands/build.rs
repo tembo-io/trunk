@@ -2,10 +2,11 @@ use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
 use crate::config;
-use crate::config::get_from_trunk_toml_if_not_set_on_cli;
+use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
+use slicedisplay::SliceDisplay;
 use std::fs;
 use std::fs::File;
 use std::path::Path;
@@ -14,6 +15,7 @@ use toml::Table;
 
 #[derive(Args)]
 pub struct BuildCommand {
+    /// The file path of the extension to build
     #[arg(short = 'p', long = "path", default_value = ".")]
     path: String,
     #[arg(short = 'o', long = "output-path")]
@@ -22,6 +24,10 @@ pub struct BuildCommand {
     version: Option<String>,
     #[arg(short = 'n', long = "name")]
     name: Option<String>,
+    #[arg(short = 'e', long = "extension_name")]
+    extension_name: Option<String>,
+    #[arg(short = 's', long = "preload-libraries")]
+    preload_libraries: Option<Vec<String>>,
     #[arg(short = 'P', long = "platform")]
     platform: Option<String>,
     #[arg(short = 'd', long = "dockerfile")]
@@ -31,13 +37,17 @@ pub struct BuildCommand {
 }
 
 pub struct BuildSettings {
-    path: String,
-    output_path: String,
-    version: Option<String>,
-    name: Option<String>,
-    platform: Option<String>,
-    dockerfile_path: Option<String>,
-    install_command: Option<String>,
+    pub path: String,
+    pub output_path: String,
+    pub version: Option<String>,
+    pub name: Option<String>,
+    pub extension_name: Option<String>,
+    pub preload_libraries: Option<Vec<String>>,
+    pub system_dependencies: Option<SystemDependencies>,
+    pub glob_patterns_to_include: Vec<glob::Pattern>,
+    pub platform: Option<String>,
+    pub dockerfile_path: Option<String>,
+    pub install_command: Option<String>,
 }
 
 impl BuildCommand {
@@ -45,15 +55,16 @@ impl BuildCommand {
         // path cannot be set from Trunk.toml, since --path can also
         // be used to specify the path to the directory that includes a
         // Trunk.toml file.
-        let path = self.path.clone();
-        let trunkfile_path = Path::new(&path.clone()).join("Trunk.toml");
+        let build_path = self.path.clone();
+        let trunkfile_path = Path::new(&build_path).join("Trunk.toml");
         let trunk_toml = match File::open(trunkfile_path) {
-            Ok(file) => config::parse_trunk_toml(file),
+            Ok(file) => Some(config::parse_trunk_toml(file)?),
             Err(_e) => {
                 println!("Trunk.toml not found");
-                Ok(None)
+
+                None
             }
-        }?;
+        };
 
         // If output_path is not specified, default to .trunk directory in
         // the directory specified by --path
@@ -61,7 +72,7 @@ impl BuildCommand {
         let output_path = match output_path {
             Some(output_path) => output_path,
             None => {
-                let output_path = Path::new(&path).join(".trunk");
+                let output_path = Path::new(&build_path).join(".trunk");
                 output_path
                     .to_str()
                     .expect("Failed trying to specify a subdirectory .trunk of the --path argument")
@@ -69,67 +80,85 @@ impl BuildCommand {
             }
         };
 
-        let name = get_from_trunk_toml_if_not_set_on_cli(
-            self.name.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "name",
+        let name = cli_or_trunk(&self.name, |toml| &toml.extension.name, &trunk_toml);
+
+        let extension_name = cli_or_trunk_opt(
+            &self.extension_name,
+            |toml| &toml.extension.extension_name,
+            &trunk_toml,
         );
 
-        let version = get_from_trunk_toml_if_not_set_on_cli(
-            self.version.clone(),
-            trunk_toml.clone(),
-            "extension",
-            "version",
+        let preload_libraries = cli_or_trunk_opt(
+            &self.preload_libraries,
+            |toml| &toml.extension.preload_libraries,
+            &trunk_toml,
         );
 
-        let platform = get_from_trunk_toml_if_not_set_on_cli(
-            self.platform.clone(),
-            trunk_toml.clone(),
-            "build",
-            "platform",
+        let version = cli_or_trunk(&self.version, |toml| &toml.extension.version, &trunk_toml);
+
+        let platform = cli_or_trunk(&self.platform, |toml| &toml.build.platform, &trunk_toml);
+
+        let install_command = cli_or_trunk_opt(
+            &self.install_command,
+            |toml| &toml.build.install_command,
+            &trunk_toml,
         );
 
-        let install_command = get_from_trunk_toml_if_not_set_on_cli(
-            self.install_command.clone(),
-            trunk_toml.clone(),
-            "build",
-            "install_command",
+        let glob_patterns_to_include = trunk_toml
+            .as_ref()
+            .map(|toml| toml.build.build_glob_patterns())
+            .transpose()?
+            .unwrap_or(Vec::new());
+
+        println!(
+            "Warning: will include files matching {}",
+            glob_patterns_to_include.display()
         );
+
+        let system_dependencies = trunk_toml
+            .as_ref()
+            .map(|toml| toml.dependencies.as_ref())
+            .flatten()
+            .cloned();
 
         // Dockerfile is handled slightly differently in Trunk.toml as the CLI.
         // On CLI, the argument is --dockerfile_path, and it means the path relative
         // to the current working directory where the command line argument is executed.
         // In Trunk.toml, the field is called "dockerfile", and it means the file relative
         // to the Trunk.toml file.
-        let dockerfile_path = match self.dockerfile_path.clone() {
-            Some(path) => Some(path),
-            None => match get_from_trunk_toml_if_not_set_on_cli(
-                None,
-                trunk_toml.clone(),
-                "build",
-                "dockerfile",
-            ) {
-                Some(trunk_toml_dockerfile) => Some(
-                    Path::new(&path.clone())
-                        .join(trunk_toml_dockerfile)
-                        .to_str()
-                        .expect("Failed to convert build.dockerfile to string")
-                        .to_string(),
-                ),
-                None => None,
-            },
-        };
+        let dockerfile_path = self.dockerfile_path.clone().or_else(|| {
+            let dockerfile = &trunk_toml?.build.dockerfile?;
+
+            Some(
+                Path::new(&build_path)
+                    .join(&dockerfile)
+                    .to_string_lossy()
+                    .into(),
+            )
+        });
 
         Ok(BuildSettings {
-            path,
+            path: build_path,
             output_path,
             version,
             name,
+            extension_name,
+            preload_libraries,
+            system_dependencies,
+            glob_patterns_to_include,
             platform,
             dockerfile_path,
             install_command,
         })
+    }
+}
+
+fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
+    if let Some(dockerfile_path) = path {
+        println!("Using Dockerfile at {}", &dockerfile_path);
+        return Ok(fs::read_to_string(dockerfile_path.as_str())?);
+    } else {
+        return Ok(include_str!("./builders/Dockerfile.generic").to_string());
     }
 }
 
@@ -139,6 +168,7 @@ impl SubCommand for BuildCommand {
         let build_settings = self.settings()?;
         println!("Building from path {}", build_settings.path);
         let path = Path::new(&build_settings.path);
+
         if path.join("Cargo.toml").exists() {
             let cargo_toml: Table =
                 toml::from_str(&std::fs::read_to_string(path.join("Cargo.toml")).unwrap()).unwrap();
@@ -185,7 +215,11 @@ impl SubCommand for BuildCommand {
                     build_settings.platform.clone(),
                     path,
                     &build_settings.output_path,
+                    build_settings.extension_name,
+                    build_settings.preload_libraries,
                     cargo_toml,
+                    build_settings.system_dependencies,
+                    build_settings.glob_patterns_to_include,
                     task,
                 )
                 .await?;
@@ -199,14 +233,8 @@ impl SubCommand for BuildCommand {
                 "--version and --name are required unless building a PGRX extension"
             ));
         }
-        let mut dockerfile = String::new();
-        if build_settings.dockerfile_path.clone().is_some() {
-            let dockerfile_path_unwrapped = build_settings.dockerfile_path.clone().unwrap();
-            println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
-            dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
-        } else {
-            dockerfile = include_str!("./builders/Dockerfile.generic").to_string();
-        }
+
+        let dockerfile: String = get_dockerfile(build_settings.dockerfile_path.clone()).unwrap();
 
         let mut install_command_split: Vec<&str> = vec![];
         if let Some(install_command) = build_settings.install_command.as_ref() {
@@ -232,7 +260,11 @@ impl SubCommand for BuildCommand {
             path,
             &build_settings.output_path,
             build_settings.name.clone().unwrap().as_str(),
+            build_settings.extension_name,
+            build_settings.preload_libraries,
+            build_settings.system_dependencies,
             build_settings.version.clone().unwrap().as_str(),
+            build_settings.glob_patterns_to_include,
             task,
         )
         .await?;

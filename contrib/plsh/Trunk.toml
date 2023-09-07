@@ -1,0 +1,22 @@
+[extension]
+name = "plsh"
+version = "2.0.0"
+repository = "https://github.com/petere/plsh"
+license = "Copyright"
+description = "PL/sh is a procedural language handler for PostgreSQL that allows you to write stored procedures in a shell of your choice."
+documentation = "https://github.com/petere/plsh"
+categories = ["procedural_languages"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd plsh && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

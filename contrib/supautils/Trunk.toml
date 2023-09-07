@@ -7,6 +7,10 @@ description = "PostgreSQL extension that prevents doing ALTER/DROP/GRANT on a se
 homepage = "https://supabase.com/"
 documentation = "https://supabase.github.io/supautils/"
 categories = ["tooling_admin"]
+preload_libraries = ["supautils"]
+
+[dependencies]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"
@@ -18,3 +22,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+

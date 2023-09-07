@@ -1,7 +1,17 @@
 [extension]
 name = "pg_cron"
+extension_name = "extension_name_from_toml"
+preload_libraries = ["shared_preload_libraries_from_toml"]
 version = "1.5.2"
+repository = "https://github.com/tembo-io/trunk"
+license = "PostgreSQL"
+categories = []
 
 [build]
 dockerfile = "Dockerfile"
 install_command = "cd pg_cron && make install"
+platform = "linux/amd64"
+
+[dependencies]
+apt = ["libpq5"]
+dnf = ["libpq-devel"]

@@ -7,6 +7,9 @@ description = "An extension with alternative to COUNT(DISTINCT ...) aggregate in
 documentation = "https://github.com/tvondra/count_distinct"
 categories = ["query_optimizations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

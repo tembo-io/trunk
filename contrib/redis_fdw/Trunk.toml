@@ -1,0 +1,22 @@
+[extension]
+name = "redis_fdw"
+version = "1.0.0"
+repository = "https://github.com/pg-redis-fdw/redis_fdw"
+license = "PostgreSQL"
+description = "A PostgreSQL foreign data wrapper for Redis."
+documentation = "https://github.com/pg-redis-fdw/redis_fdw"
+categories = ["connectors"]
+
+[dependencies]
+apt = ["libc6", "libhiredis0.14"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd redis_fdw && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

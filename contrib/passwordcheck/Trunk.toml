@@ -7,6 +7,10 @@ description = "The passwordcheck module checks users' passwords whenever they ar
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/passwordcheck.html"
 categories = ["security"]
+preload_libraries = ["passwordcheck"]
+
+[dependencies]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"
@@ -18,3 +22,4 @@ install_command = """
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
+

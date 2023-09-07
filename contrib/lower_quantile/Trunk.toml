@@ -7,6 +7,9 @@ description = "Provides lower_quantile aggregate function."
 documentation = "https://github.com/tvondra/lower_quantile"
 categories = ["analytics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

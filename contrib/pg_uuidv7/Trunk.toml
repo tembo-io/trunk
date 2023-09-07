@@ -7,6 +7,9 @@ description = "Create valid version 7 UUIDs in Postgres."
 documentation = "https://github.com/fboulnois/pg_uuidv7"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

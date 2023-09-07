@@ -7,6 +7,10 @@ description = "This module copies completed WAL segment files to the specified d
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/basic-archive.html"
 categories = ["tooling_admin"]
+preload_libraries = ["basic_archive"]
+
+[dependencies]
+apt = ["libc6"]
 
 [build]
 postgres_version = "15"

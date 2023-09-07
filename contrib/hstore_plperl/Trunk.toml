@@ -8,6 +8,9 @@ homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/hstore.html"
 categories = ["data_transformations"]
 
+[dependencies]
+apt = ["libc6", "libperl5.34"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
@@ -15,6 +18,7 @@ dockerfile = "Dockerfile"
 install_command = """
     cd postgres/contrib/hstore_plperl && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/share/extension/hstore_plperl.* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/share/extension/hstore_plperl--* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """

@@ -16,6 +16,7 @@ use crate::commands::containers::{
     build_image, exec_in_container, package_installed_extension_files, run_temporary_container,
 };
 use crate::commands::license::{copy_licenses, find_licenses};
+use crate::trunk_toml::SystemDependencies;
 
 #[derive(Error, Debug)]
 pub enum GenericBuildError {
@@ -66,15 +67,19 @@ pub async fn build_generic(
     install_command: Vec<&str>,
     path: &Path,
     output_path: &str,
-    extension_name: &str,
+    name: &str,
+    extension_name: Option<String>,
+    preload_libraries: Option<Vec<String>>,
+    system_dependencies: Option<SystemDependencies>,
     extension_version: &str,
+    inclusion_patterns: Vec<glob::Pattern>,
     _task: Task,
 ) -> Result<(), GenericBuildError> {
-    println!("Building with name {}", &extension_name);
+    println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
 
     let mut build_args = HashMap::new();
-    build_args.insert("EXTENSION_NAME", extension_name);
+    build_args.insert("EXTENSION_NAME", name);
     build_args.insert("EXTENSION_VERSION", extension_version);
 
     let image_name_prefix = "make_builder_".to_string();
@@ -97,7 +102,7 @@ pub async fn build_generic(
 
     println!("Determining installation files...");
     let _exec_output =
-        exec_in_container(docker.clone(), &temp_container.id, install_command, None).await?;
+        exec_in_container(&docker, &temp_container.id, install_command, None).await?;
 
     // Search for license files to include
     println!("Determining license files to include...");
@@ -105,7 +110,7 @@ pub async fn build_generic(
 
     // Create directory /usr/licenses/
     let _exec_output = exec_in_container(
-        docker.clone(),
+        &docker,
         &temp_container.id,
         vec!["mkdir", "/usr/licenses/"],
         None,
@@ -132,8 +137,12 @@ pub async fn build_generic(
         docker.clone(),
         &temp_container.id,
         output_path,
+        preload_libraries,
+        system_dependencies,
+        name,
         extension_name,
         extension_version,
+        inclusion_patterns,
     )
     .await?;
 

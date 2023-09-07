@@ -7,6 +7,9 @@ description = "PostgreSQL extension with functions and aggregates for financial 
 documentation = "https://github.com/intgr/pg_financial"
 categories = ["analytics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

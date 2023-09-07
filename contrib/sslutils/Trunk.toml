@@ -8,6 +8,9 @@ homepage = "https://www.enterprisedb.com/"
 documentation = "https://github.com/EnterpriseDB/sslutils"
 categories = ["security"]
 
+[dependencies]
+apt = ["libssl3", "openssl", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

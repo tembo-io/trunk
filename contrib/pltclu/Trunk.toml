@@ -7,6 +7,9 @@ homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pltcl-overview.html"
 categories = ["procedural_languages"]
 
+[dependencies]
+apt = ["libtcl8.6.so", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

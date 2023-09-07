@@ -7,6 +7,9 @@ description = "PostgreSQL extension to enhance query monitoring."
 documentation = "https://github.com/RafiaSabih/pg_mon"
 categories = ["query_optimizations"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

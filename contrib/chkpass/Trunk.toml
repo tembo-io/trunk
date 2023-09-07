@@ -7,6 +7,9 @@ description = "Stand alone version of chkpass type for PG 11+."
 documentation = "https://github.com/lacanoid/chkpass"
 categories = ["security"]
 
+[dependencies]
+apt = ["libcrypt1", "libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

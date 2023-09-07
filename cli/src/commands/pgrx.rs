@@ -12,6 +12,7 @@ use bollard::Docker;
 use crate::commands::containers::{
     build_image, exec_in_container, package_installed_extension_files, run_temporary_container,
 };
+use crate::trunk_toml::SystemDependencies;
 use tokio::sync::mpsc;
 
 use tokio::task::JoinError;
@@ -55,7 +56,7 @@ pub enum PgrxBuildError {
 
 fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     let versions = [
-        "0.9.8", "0.9.7", "0.9.1", "0.9.0", "0.8.4", "0.8.3", "0.8.0", "0.7.4",
+        "0.10.0", "0.9.8", "0.9.7", "0.9.1", "0.9.0", "0.8.4", "0.8.3", "0.8.0", "0.7.4",
     ];
 
     if versions.contains(&pgrx_range) {
@@ -86,12 +87,25 @@ fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     Ok(pgrx_version)
 }
 
+fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
+    if let Some(dockerfile_path) = path {
+        println!("Using Dockerfile at {}", &dockerfile_path);
+        return Ok(fs::read_to_string(dockerfile_path.as_str())?);
+    } else {
+        return Ok(include_str!("./builders/Dockerfile.pgrx").to_string());
+    }
+}
+
 pub async fn build_pgrx(
     dockerfile_path: Option<String>,
     platform: Option<String>,
     path: &Path,
     output_path: &str,
+    extension_name: Option<String>,
+    preload_libraries: Option<Vec<String>>,
     cargo_toml: toml::Table,
+    system_dependencies: Option<SystemDependencies>,
+    inclusion_patterns: Vec<glob::Pattern>,
     _task: Task,
 ) -> Result<(), PgrxBuildError> {
     let cargo_package_info = cargo_toml
@@ -102,7 +116,7 @@ pub async fn build_pgrx(
         .ok_or(PgrxBuildError::ManifestError(
             "Could not find package info in Cargo.toml".to_string(),
         ))?;
-    let extension_name = cargo_package_info
+    let name = cargo_package_info
         .get("name")
         .into_iter()
         .filter_map(Value::as_str)
@@ -140,18 +154,11 @@ pub async fn build_pgrx(
     println!("Using pgrx version {pgrx_version}");
 
     println!("Building pgrx extension at path {}", &path.display());
-    let mut dockerfile = String::new();
-    if dockerfile_path.is_some() {
-        let dockerfile_path_unwrapped = dockerfile_path.unwrap();
-        println!("Using Dockerfile at {}", &dockerfile_path_unwrapped);
-        dockerfile = fs::read_to_string(dockerfile_path_unwrapped.as_str())?;
-    } else {
-        dockerfile = include_str!("./builders/Dockerfile.pgrx").to_string();
-    }
-    let dockerfile = dockerfile.as_str();
+
+    let dockerfile = get_dockerfile(dockerfile_path).unwrap();
 
     let mut build_args = HashMap::new();
-    build_args.insert("EXTENSION_NAME", extension_name);
+    build_args.insert("EXTENSION_NAME", name);
     build_args.insert("EXTENSION_VERSION", extension_version);
     build_args.insert("PGRX_VERSION", pgrx_version.as_str());
 
@@ -163,7 +170,7 @@ pub async fn build_pgrx(
         platform.clone(),
         docker.clone(),
         &image_name_prefix,
-        dockerfile,
+        &dockerfile,
         path,
         build_args,
     )
@@ -175,13 +182,13 @@ pub async fn build_pgrx(
 
     println!("Determining installation files...");
     let _exec_output = exec_in_container(
-        docker.clone(),
+        &docker,
         &temp_container.id,
         vec![
             "cp",
             "--verbose",
             "-R",
-            format!("target/release/{extension_name}-pg15/usr").as_str(),
+            format!("target/release/{name}-pg15/usr").as_str(),
             "/",
         ],
         None,
@@ -194,7 +201,7 @@ pub async fn build_pgrx(
 
     // Create directory /usr/licenses/
     let _exec_output = exec_in_container(
-        docker.clone(),
+        &docker,
         &temp_container.id,
         vec!["mkdir", "/usr/licenses/"],
         None,
@@ -221,8 +228,12 @@ pub async fn build_pgrx(
         docker.clone(),
         &temp_container.id,
         output_path,
+        preload_libraries,
+        system_dependencies,
+        name,
         extension_name,
         extension_version,
+        inclusion_patterns,
     )
     .await?;
 
@@ -258,5 +269,7 @@ mod tests {
         assert_eq!(result.unwrap(), "0.8.4");
         let result = semver_from_range(">=0.9.0, <0.10.0");
         assert_eq!(result.unwrap(), "0.9.8");
+        let result = semver_from_range(">=0.10.0, <0.11.0");
+        assert_eq!(result.unwrap(), "0.10.0");
     }
 }

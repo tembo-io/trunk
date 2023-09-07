@@ -11,7 +11,9 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
     configuration
         .service(routes::root::ok)
         .service(routes::extensions::get_all_extensions)
+        .service(routes::extensions::get_version)
         .service(routes::extensions::get_version_history)
+        .service(routes::extensions::get_shared_preload_libraries)
         .service(routes::categories::get_all_categories)
         .service(routes::extensions::publish)
         .service(routes::download::download)

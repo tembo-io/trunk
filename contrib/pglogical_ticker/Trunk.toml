@@ -7,6 +7,9 @@ description = "Time-based replication delay for pglogical."
 documentation = "https://github.com/enova/pglogical_ticker"
 categories = ["change_data_capture"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

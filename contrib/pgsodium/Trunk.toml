@@ -1,0 +1,22 @@
+[extension]
+name = "pgsodium"
+version = "3.1.8"
+repository = "https://github.com/michelp/pgsodium"
+license = "Copyright"
+description = "Modern cryptography for PostgreSQL using libsodium."
+documentation = "https://github.com/michelp/pgsodium"
+categories = ["security"]
+
+[dependencies]
+apt = ["libsodium23", "libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgsodium && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

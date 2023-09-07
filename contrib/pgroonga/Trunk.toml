@@ -1,0 +1,22 @@
+[extension]
+name = "pgroonga"
+version = "3.1.1"
+repository = "https://github.com/pgroonga/pgroonga"
+license = "PostgreSQL"
+description = "PGroonga makes PostgreSQL fast full text search platform for all languages."
+documentation = "https://pgroonga.github.io/"
+categories = ["search"]
+
+[dependencies]
+apt = ["libgroonga0", "libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgroonga && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

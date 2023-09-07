@@ -6,9 +6,14 @@ license = "PostgreSQL"
 description = "Job scheduler for PostgreSQL."
 homepage = "https://www.citusdata.com/"
 categories = ["orchestration"]
+preload_libraries = ["pg_cron"]
+
+[dependencies]
+apt = ["libpq5", "libc6"]
 
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "cd pg_cron && make install"
+

@@ -8,6 +8,9 @@ homepage = "https://pg_proctab.gitlab.io/"
 documentation = "https://gitlab.com/pg_proctab/pg_proctab"
 categories = ["metrics"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
 postgres_version = "15"
 platform = "linux/amd64"

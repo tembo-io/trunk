@@ -1,3 +1,10 @@
 [extension]
 name = "test_pgrx_extension"
 version = "0.0.1"
+repository = "https://github.com/tembo-io/trunk"
+license = "PostgreSQL"
+categories = []
+
+[build]
+platform = "linux/amd64"
+install_command = ""
