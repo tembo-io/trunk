@@ -612,6 +612,18 @@
     },
     "query": "SELECT id FROM extensions WHERE name = $1"
   },
+  "61aeafaa53e3b42eba21e4231a429fd15eb2a47419141f8e4a2e48950296d974": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar"
+        ]
+      }
+    },
+    "query": "INSERT INTO shared_preload_libraries(name) VALUES ($1)"
+  },
   "69ef7c7c79e69f31731a41417a0047562f0806a7c73eb4bb98c9ed554fff3b7c": {
     "describe": {
       "columns": [],

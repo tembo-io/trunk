@@ -470,6 +470,23 @@ pub async fn delete_extension(
     Ok(HttpResponse::Ok().finish())
 }
 
+#[post("/extensions/libraries/{library}")]
+pub async fn put_shared_preload_libraries(
+    conn: web::Data<Pool<Postgres>>,
+    path: web::Path<String>,
+    _auth: BearerAuth,
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    let library = path.into_inner();
+    sqlx::query!(
+        "INSERT INTO shared_preload_libraries(name) VALUES ($1)",
+        &library
+    )
+    .execute(conn.as_ref())
+    .await?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
 #[get("/extensions/libraries")]
 pub async fn get_shared_preload_libraries(
     conn: web::Data<Pool<Postgres>>,

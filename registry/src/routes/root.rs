@@ -8,8 +8,8 @@ pub async fn ok() -> impl Responder {
     HttpResponse::Ok().json("ok")
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(_auth))]
 #[get("/")]
-pub async fn auth_ok(auth: BearerAuth) -> Result<HttpResponse, ExtensionRegistryError> {
+pub async fn auth_ok(_auth: BearerAuth) -> Result<HttpResponse, ExtensionRegistryError> {
     Ok(HttpResponse::Ok().json("OK"))
 }
