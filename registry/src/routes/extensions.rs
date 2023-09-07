@@ -85,6 +85,7 @@ pub async fn publish(
     .await?;
 
     let system_deps = serde_json::to_value(&new_extension.system_dependencies)?;
+    let libraries = serde_json::to_value(&new_extension.libraries)?;
 
     match exists {
         // TODO(ianstanton) Refactor into separate functions
@@ -163,7 +164,7 @@ pub async fn publish(
                     // Update updated_at timestamp
                     sqlx::query!(
                         "UPDATE versions
-                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5, system_dependencies = $6::jsonb
+                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5, system_dependencies = $6::jsonb, libraries = $7::jsonb
                     WHERE extension_id = $3
                     AND num = $4",
                         new_extension.license,
@@ -171,7 +172,8 @@ pub async fn publish(
                         extension_id as i32,
                         new_extension.vers.to_string(),
                         new_extension.extension_name,
-                        system_deps
+                        system_deps,
+                        libraries,
                     )
                     .execute(&mut tx)
                     .await?;
@@ -180,8 +182,8 @@ pub async fn publish(
                     // Create new record in versions table
                     sqlx::query!(
                         "
-                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies)
-                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb)
+                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies, libraries)
+                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb, $8::jsonb)
                     ",
                         extension_id as i32,
                         new_extension.vers.to_string(),
@@ -190,6 +192,7 @@ pub async fn publish(
                         user_info.user_name,
                         new_extension.extension_name,
                         system_deps,
+                        libraries
                     )
                     .execute(&mut tx)
                     .await?;
@@ -243,8 +246,8 @@ pub async fn publish(
             // Create new record in versions table
             sqlx::query!(
                 "
-            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies)
-            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb)
+            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies, libraries)
+            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb, $8::jsonb)
             ",
                 extension_id as i32,
                 new_extension.vers.to_string(),
@@ -252,7 +255,8 @@ pub async fn publish(
                 new_extension.license,
                 user_info.user_name,
                 new_extension.extension_name,
-                system_deps
+                system_deps,
+                libraries
             )
             .execute(&mut tx)
             .await?;
@@ -378,7 +382,8 @@ pub async fn get_version_history(
           "owners": owners,
           "publisher": row.published_by,
           "system_dependencies": row.system_dependencies,
-          "categories": categories
+          "categories": categories,
+          "libraries": row.libraries
         });
         versions.push(data);
     }
@@ -435,7 +440,8 @@ pub async fn get_version(
           "owners": owners,
           "publisher": row.published_by,
           "system_dependencies": row.system_dependencies,
-          "categories": categories
+          "categories": categories,
+          "libraries": row.libraries
         });
         versions.push(data);
     }
@@ -460,6 +466,23 @@ pub async fn delete_extension(
 
     // Remove all information related to this extension
     registry.purge_extension(extension_id).await?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
+#[post("/extensions/libraries/{library}")]
+pub async fn put_shared_preload_libraries(
+    conn: web::Data<Pool<Postgres>>,
+    path: web::Path<String>,
+    _auth: BearerAuth,
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    let library = path.into_inner();
+    sqlx::query!(
+        "INSERT INTO shared_preload_libraries(name) VALUES ($1)",
+        &library
+    )
+    .execute(conn.as_ref())
+    .await?;
 
     Ok(HttpResponse::Ok().finish())
 }

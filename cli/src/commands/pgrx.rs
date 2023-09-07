@@ -56,7 +56,7 @@ pub enum PgrxBuildError {
 
 fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     let versions = [
-        "0.9.8", "0.9.7", "0.9.1", "0.9.0", "0.8.4", "0.8.3", "0.8.0", "0.7.4",
+        "0.10.0", "0.9.8", "0.9.7", "0.9.1", "0.9.0", "0.8.4", "0.8.3", "0.8.0", "0.7.4",
     ];
 
     if versions.contains(&pgrx_range) {
@@ -102,7 +102,7 @@ pub async fn build_pgrx(
     path: &Path,
     output_path: &str,
     extension_name: Option<String>,
-    shared_preload_libraries: Option<Vec<String>>,
+    preload_libraries: Option<Vec<String>>,
     cargo_toml: toml::Table,
     system_dependencies: Option<SystemDependencies>,
     inclusion_patterns: Vec<glob::Pattern>,
@@ -228,7 +228,7 @@ pub async fn build_pgrx(
         docker.clone(),
         &temp_container.id,
         output_path,
-        shared_preload_libraries,
+        preload_libraries,
         system_dependencies,
         name,
         extension_name,
@@ -269,5 +269,7 @@ mod tests {
         assert_eq!(result.unwrap(), "0.8.4");
         let result = semver_from_range(">=0.9.0, <0.10.0");
         assert_eq!(result.unwrap(), "0.9.8");
+        let result = semver_from_range(">=0.10.0, <0.11.0");
+        assert_eq!(result.unwrap(), "0.10.0");
     }
 }
