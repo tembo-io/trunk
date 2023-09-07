@@ -1,5 +1,6 @@
 mod commands;
 mod config;
+mod control_file;
 mod manifest;
 mod sync_utils;
 mod trunk_toml;

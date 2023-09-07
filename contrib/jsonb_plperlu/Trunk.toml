@@ -1,5 +1,5 @@
 [extension]
-name = "jsonb_plperl"
+name = "jsonb_plperlu"
 version = "1.0.0"
 repository = "https://github.com/postgres/postgres/tree/master/contrib/jsonb_plperl"
 license = "PostgreSQL"

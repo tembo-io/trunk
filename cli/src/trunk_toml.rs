@@ -27,7 +27,7 @@ pub struct TomlExtensionData {
     pub documentation: Option<String>,
     pub categories: Vec<String>,
     pub registry: Option<String>,
-    pub shared_preload_libraries: Option<Vec<String>>,
+    pub preload_libraries: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -66,6 +66,60 @@ fn install_manifest_v1_extension() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
+fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/test_pgrx_{}", rng.gen_range(0..1000000));
+
+    // Construct a path relative to the current file's directory
+    let mut extension_path = std::path::PathBuf::from(file!());
+    extension_path.pop(); // Remove the file name from the path
+    extension_path.push("test_pljava");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(extension_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(&output_dir);
+    cmd.assert().code(0);
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(Path::new(&output_dir).join("pljava-1.6.5.tar.gz"));
+    cmd.arg("pljava");
+    cmd.assert().code(0);
+
+    // Get output of 'pg_config --sharedir'
+    let output = Command::new("pg_config")
+        .arg("--sharedir")
+        .output()
+        .expect("failed to find sharedir, is pg_config in path?");
+    let sharedir = String::from_utf8(output.stdout)?;
+    let sharedir = sharedir.trim();
+
+    let output = Command::new("pg_config")
+        .arg("--pkglibdir")
+        .output()
+        .expect("failed to find pkglibdir, is pg_config in path?");
+    let pkglibdir = String::from_utf8(output.stdout)?;
+    let pkglibdir = pkglibdir.trim();
+
+    assert!(file_exists(format!("{sharedir}/pljava/pljava.control")));
+
+    assert!(file_exists(format!("{sharedir}/pljava/pljava-1.6.5.jar")));
+
+    assert!(file_exists(format!(
+        "{sharedir}/pljava/pljava-api-1.6.5.jar"
+    )));
+
+    assert!(file_exists(format!("{sharedir}/pljava/pljava--1.6.5.sql")));
+
+    assert!(file_exists(format!("{pkglibdir}/libpljava-so-1.6.5.so")));
+    Ok(())
+}
+
+#[test]
 fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::thread_rng();
     let output_dir = format!("/tmp/test_pgrx_{}", rng.gen_range(0..1000000));
@@ -81,7 +135,7 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(extension_path.as_os_str());
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("test_pgrx_extension_spl");
     cmd.assert().code(0);
     assert!(std::path::Path::new(
@@ -97,7 +151,7 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
@@ -124,6 +178,8 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
+    assert!(stdout.contains("Add the following to your postgresql.conf:"));
+    assert!(stdout.contains("shared_preload_libraries = 'test_pgrx_extension_spl'"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -219,7 +275,7 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("1.0.3");
     cmd.arg("--name");
     cmd.arg("pg_tle");
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("pg_tle_spl");
     cmd.assert().code(0);
     assert!(std::path::Path::new(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str()).exists());
@@ -233,7 +289,7 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/LICENSE"));
     assert!(stdout.contains("licenses/NOTICE"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str())
@@ -305,7 +361,7 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     cmd.arg("1.5.0");
     cmd.arg("--name");
     cmd.arg("pgsql_http");
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("pgsql_http_spl");
     cmd.assert().code(0);
     assert!(
@@ -320,7 +376,7 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.md"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str())
@@ -415,7 +471,7 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("1.10");
     cmd.arg("--name");
     cmd.arg("pg_stat_statements");
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("pg_stat_statements_spl");
     cmd.assert().code(0);
     assert!(
@@ -432,7 +488,7 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/COPYRIGHT"));
     assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
@@ -482,7 +538,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str())
@@ -498,8 +554,8 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
     assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
-    assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ],\n    \"dnf\": [\n      \"libpq-devel\"\n    ]\n  }"));
-
+    assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ],\n    \"dnf\": [\n      \"libpq-devel\"\n    ]\n  }") ||
+            stdout.contains("\"dependencies\": {\n    \"dnf\": [\n      \"libpq-devel\"\n    ],\n    \"apt\": [\n      \"libpq5\"\n    ]\n  }"));
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
@@ -510,7 +566,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
-    assert!(stdout.contains("Needed system-level dependencies:"));
+    assert!(stdout.contains("Install the following system-level dependencies:"));
     assert!(stdout.contains("On systems using apt:"));
     assert!(stdout.contains("libpq5"));
     assert!(stdout.contains("On systems using dnf:"));
@@ -556,7 +612,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
@@ -572,7 +628,22 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
     assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
+    assert!(stdout.contains("\"another_shared_preload_library\""));
     assert!(stdout.contains("\"libpq5\""));
+
+    // Get output of 'pg_config --pkglibdir'
+    let output = Command::new("pg_config")
+        .arg("--pkglibdir")
+        .output()
+        .expect("failed to find pkglibdir, is pg_config in path?");
+    let pkglibdir = String::from_utf8(output.stdout)?;
+    let pkglibdir = pkglibdir.trim();
+
+    // Remove .so if it exists
+    let _rm_so = Command::new("rm")
+        .arg(format!("{pkglibdir}/test_pgrx_extension.so").as_str())
+        .output()
+        .expect("failed to remove .so file");
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -585,9 +656,12 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     cmd.assert().code(0);
     assert!(!stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
-    assert!(stdout.contains("Needed system-level dependencies:"));
+    assert!(stdout.contains("Install the following system-level dependencies:"));
     assert!(stdout.contains("On systems using apt:"));
     assert!(stdout.contains("libpq5"));
+    assert!(stdout.contains("Add the following to your postgresql.conf:"));
+    assert!(stdout.contains("shared_preload_libraries = 'shared_preload_libraries_from_toml,another_shared_preload_library'"));
+
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
@@ -702,7 +776,7 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("15.3.0");
     cmd.arg("--name");
     cmd.arg("auto_explain");
-    cmd.arg("--shared-preload-libraries");
+    cmd.arg("--preload-libraries");
     cmd.arg("auto_explain_spl");
     cmd.assert().code(0);
     assert!(
@@ -718,7 +792,7 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/COPYRIGHT"));
     assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
 
-    // assert extension_name and shared_preload_libraries is in manifest.json
+    // assert extension_name and preload_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str())
@@ -734,6 +808,18 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"auto_explain\""));
     assert!(stdout.contains("\"auto_explain_spl\""));
+
+    // assert post installation steps contain correct shared_preload_libraries command
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str());
+    cmd.arg("auto_explain");
+    let output = cmd.output()?;
+    let stdout = String::from_utf8(output.stdout)?;
+    cmd.assert().code(0);
+    assert!(stdout.contains("Add the following to your postgresql.conf:"));
+    assert!(stdout.contains("shared_preload_libraries = 'auto_explain_spl'"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -773,6 +859,65 @@ fn build_pg_unit() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("extension/unit_prefixes.data"));
     assert!(stdout.contains("extension/unit_units.data"));
+
+    // delete the temporary file
+    std::fs::remove_dir_all(output_dir)?;
+
+    Ok(())
+}
+
+// Build and install postgis
+#[test]
+fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/postgis_test_{}", rng.gen_range(0..1000000));
+
+    // Construct a path relative to the current file's directory
+    let mut trunkfile_path = std::path::PathBuf::from(file!());
+    trunkfile_path.pop(); // Remove the file name from the path
+    trunkfile_path.push("test_trunk_toml_dirs");
+    trunkfile_path.push("postgis");
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(trunkfile_path.as_os_str());
+    cmd.arg("--output-path");
+    cmd.arg(output_dir.clone());
+    cmd.assert().code(0);
+    assert!(file_exists(format!("{output_dir}/postgis-3.4.0.tar.gz")));
+
+    // Get output of 'pg_config --sharedir'
+    let output = Command::new("pg_config")
+        .arg("--sharedir")
+        .output()
+        .expect("failed to find sharedir, is pg_config in path?");
+    let sharedir = String::from_utf8(output.stdout)?;
+    let sharedir = sharedir.trim();
+
+    // Remove fuzzystrmatch if it exists
+    let _rm_fuzzystrmatch = Command::new("rm")
+        .arg(format!("{sharedir}/extension/fuzzystrmatch.control").as_str())
+        .output()
+        .expect("failed to remove fuzzystrmatch");
+
+    // Assert we recognize fuzzystrmatch as a dependency and install it
+    // This is a dependency of postgis_tiger_geocoder, which is included in the postgis tar.gz
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(format!("{output_dir}/postgis-3.4.0.tar.gz").as_str());
+    cmd.arg("postgis");
+    let output = cmd.output()?;
+    let stdout = String::from_utf8(output.stdout)?;
+    cmd.assert().code(0);
+    assert!(stdout.contains("Dependent extensions to be installed: [\"fuzzystrmatch\"]"));
+    assert!(stdout.contains("Installing fuzzystrmatch"));
+
+    assert!(file_exists(format!(
+        "{sharedir}/extension/fuzzystrmatch.control"
+    )));
+    assert!(file_exists(format!("{sharedir}/extension/postgis.control")));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
