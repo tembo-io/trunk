@@ -1,8 +1,8 @@
 //! Functionality for downloading extensions and maintaining download counts
-use crate::config::Config;
 use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use crate::uploader::extension_location;
+use crate::{config::Config, extensions::get_extension_id};
 use actix_web::{get, web, HttpResponse};
 use sqlx::{Pool, Postgres};
 use tracing::info;
@@ -19,7 +19,8 @@ pub async fn download(
     // TODO(ianstanton) Increment download count for extension
     // Use latest version if 'latest' provided as version
     if version == "latest" {
-        version = latest_version(&name, conn).await?;
+        let extension_id = get_extension_id(&name, conn.clone()).await?;
+        version = latest_version(extension_id as _, conn).await?;
     }
     let url = extension_location(&cfg.bucket_name, &name, &version);
     info!("Download requested for {} version {}", name, version);

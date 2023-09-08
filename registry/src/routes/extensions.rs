@@ -311,22 +311,21 @@ pub async fn get_all_extensions(
         .fetch_all(&mut tx)
         .await?;
     for row in rows.iter() {
-        let name = row.name.to_owned().unwrap();
-        let id = row.id;
-        let version = latest_version(&name, conn.clone()).await?;
-        let license = latest_license(&name, conn.clone()).await?;
-        let owners = extension_owners(&name, conn.clone()).await?;
-        let categories = get_categories_for_extension(id, conn.clone()).await?;
+        let extension_id = row.id as i32;
+        let version = latest_version(extension_id, conn.clone()).await?;
+        let license = latest_license(extension_id, &version, conn.clone()).await?;
+        let owners = extension_owners(extension_id, conn.clone()).await?;
+        let categories = get_categories_for_extension(extension_id, conn.clone()).await?;
         let data = json!(
         {
-          "name": row.name.to_owned(),
+          "name": row.name,
           "latestVersion": version,
           "createdAt": row.created_at.to_string(),
           "updatedAt": row.updated_at.to_string(),
-          "description": row.description.to_owned(),
-          "homepage": row.homepage.to_owned(),
-          "documentation": row.documentation.to_owned(),
-          "repository": row.repository.to_owned(),
+          "description": row.description,
+          "homepage": row.homepage,
+          "documentation": row.documentation,
+          "repository": row.repository,
           "license": license,
           "owners": owners,
           "categories": categories
@@ -352,18 +351,21 @@ pub async fn get_version_history(
     let row = sqlx::query!("SELECT * FROM extensions WHERE name = $1", name)
         .fetch_one(&mut tx)
         .await?;
-    let id: i32 = row.id as i32;
+    let extension_id: i32 = row.id as i32;
     let description = row.description.to_owned();
     let homepage = row.homepage.to_owned();
     let documentation = row.documentation.to_owned();
     let repository = row.repository.to_owned();
-    let owners = extension_owners(&name, conn.clone()).await?;
-    let categories = get_categories_for_extension(id as i64, conn).await?;
+    let owners = extension_owners(extension_id, conn.clone()).await?;
+    let categories = get_categories_for_extension(extension_id, conn).await?;
 
     // Get information for all versions of extension
-    let rows = sqlx::query!("SELECT * FROM versions WHERE extension_id = $1", id)
-        .fetch_all(&mut tx)
-        .await?;
+    let rows = sqlx::query!(
+        "SELECT * FROM versions WHERE extension_id = $1",
+        extension_id
+    )
+    .fetch_all(&mut tx)
+    .await?;
 
     // TODO(ianstanton) DRY
     for row in rows.iter() {
@@ -406,18 +408,18 @@ pub async fn get_version(
     let row = sqlx::query!("SELECT * FROM extensions WHERE name = $1", name)
         .fetch_one(&mut tx)
         .await?;
-    let id: i32 = row.id as i32;
+    let extension_id = row.id as i32;
     let description = row.description.to_owned();
     let homepage = row.homepage.to_owned();
     let documentation = row.documentation.to_owned();
     let repository = row.repository.to_owned();
-    let owners = extension_owners(&name, conn.clone()).await?;
-    let categories = get_categories_for_extension(id as i64, conn).await?;
+    let owners = extension_owners(extension_id, conn.clone()).await?;
+    let categories = get_categories_for_extension(extension_id, conn).await?;
 
     // Get information for all versions of extension
     let rows = sqlx::query!(
         "SELECT * FROM versions WHERE extension_id = $1 AND num = $2",
-        id,
+        extension_id,
         version
     )
     .fetch_all(&mut tx)
