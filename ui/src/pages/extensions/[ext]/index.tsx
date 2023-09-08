@@ -102,7 +102,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
             {latestVersion.categories.length > 0 && (
               <div className={styles.infoRow}>
                 <span className={styles.infoTitle}>Category</span>
-                <span className={styles.infoValue}>{latestVersion.categories[0]}</span>
+                <span className={styles.infoValue}>{latestVersion.categories.filter((cat) => cat !== "Featured")[0]}</span>
               </div>
             )}
             <div className={styles.infoRow}>
