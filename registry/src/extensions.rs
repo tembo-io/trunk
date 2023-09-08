@@ -1,4 +1,3 @@
-use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
 use actix_web::web::Data;
 use serde_json::{json, Value};
@@ -38,25 +37,23 @@ pub async fn add_extension_owner(
 }
 
 pub async fn extension_owners(
-    extension_name: &str,
+    extension_id: i32,
     conn: Data<Pool<Postgres>>,
 ) -> Result<Vec<Value>, ExtensionRegistryError> {
     let mut extension_owners: Vec<Value> = Vec::new();
     // Create a transaction on the database
     let mut tx = conn.begin().await?;
-    let ext = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
-        .fetch_one(&mut tx)
-        .await?;
-    let id: i32 = ext.id as i32;
+
     let owners = sqlx::query!(
         "SELECT * FROM extension_owners WHERE extension_id = $1;",
-        id
+        extension_id
     )
     .fetch_all(&mut tx)
     .await?;
-    for row in owners.iter() {
-        let owner_id = row.owner_id.to_owned();
-        let user_name = row.user_name.to_owned();
+
+    for row in owners.into_iter() {
+        let owner_id = row.owner_id;
+        let user_name = row.user_name;
         let data = json!(
         {
           "userId": owner_id,
@@ -68,20 +65,16 @@ pub async fn extension_owners(
 }
 
 pub async fn latest_license(
-    extension_name: &str,
+    extension_id: i32,
+    latest_version: &str,
     conn: Data<Pool<Postgres>>,
 ) -> Result<String, ExtensionRegistryError> {
-    // Get latest version for extension
-    let latest_version = latest_version(extension_name, conn.clone()).await?;
     // Create a transaction on the database
     let mut tx = conn.begin().await?;
-    let ext = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
-        .fetch_one(&mut tx)
-        .await?;
-    let id: i32 = ext.id as i32;
+    // Get latest version for extension
     let latest_license = sqlx::query!(
         "SELECT license FROM versions WHERE extension_id = $1 AND num = $2;",
-        id,
+        extension_id,
         latest_version
     )
     .fetch_one(&mut tx)
@@ -90,7 +83,7 @@ pub async fn latest_license(
 }
 
 pub async fn get_extension_id(
-    extension_name: String,
+    extension_name: &str,
     conn: Data<Pool<Postgres>>,
 ) -> Result<i64, ExtensionRegistryError> {
     let id = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)

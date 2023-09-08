@@ -121,7 +121,7 @@ pub async fn get_category_names(
 
 // Get categories for a given extension
 pub async fn get_categories_for_extension(
-    extension_id: i64,
+    extension_id: i32,
     conn: Data<Pool<Postgres>>,
 ) -> Result<Vec<String>, ExtensionRegistryError> {
     let category_ids = sqlx::query!(
