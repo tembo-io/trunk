@@ -5,12 +5,14 @@ use trunk_registry::repository::Registry;
 use trunk_registry::routes::token::new_token;
 use trunk_registry::{config, connect, routes};
 
+use trunk_registry::cache::Cache;
+
 pub fn routes_config(configuration: &mut web::ServiceConfig) {
     let cfg = config::Config::default();
     let clerk_cfg = ClerkConfiguration::new(None, None, Some(cfg.clerk_secret_key), None);
     configuration
         .service(routes::root::ok)
-        .service(routes::extensions::get_all_extensions)
+        .service(routes::extensions::get_all_extensions_cached)
         .service(routes::extensions::get_version)
         .service(routes::extensions::get_version_history)
         .service(routes::extensions::get_shared_preload_libraries)
@@ -51,12 +53,16 @@ pub async fn server() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let cors = Cors::permissive();
+
+        let extensions_cache = Cache::<String>::new();
+
         App::new()
             .wrap(cors)
             .app_data(web::Data::new(conn.clone()))
             .app_data(web::Data::new(registry.clone()))
             .app_data(web::Data::new(cfg.clone()))
             .app_data(web::Data::new(aws_config.clone()))
+            .app_data(web::Data::new(extensions_cache))
             .configure(routes_config)
     })
     .bind(("0.0.0.0", 8080))?

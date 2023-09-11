@@ -3,6 +3,7 @@
 use actix_web::web::Json;
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 
+use crate::cache::Cache;
 use crate::categories::{get_categories_for_extension, update_extension_categories};
 use crate::config::Config;
 use crate::download::latest_version;
@@ -300,9 +301,32 @@ pub async fn publish(
 }
 
 #[get("/extensions/all")]
+pub async fn get_all_extensions_cached(
+    conn: web::Data<Pool<Postgres>>,
+    cache: web::Data<Cache<String>>,
+) -> Result<HttpResponse, ExtensionRegistryError> {
+    loop {
+        // Let's check if we have this endpoint cached in-memory
+        {
+            let read_guard = cache.inner.read().await;
+            if let Some(content_cached) = read_guard.as_ref() {
+                return Ok(HttpResponse::Ok().body(content_cached.clone()));
+            }
+        }
+
+        if let Ok(mut write_guard) = cache.inner.try_write() {
+            let extension_details = get_all_extensions(conn.clone()).await?;
+            *write_guard = Some(extension_details);
+        }
+
+        // We tried to get a writing lock and failed, meaning some other thread has currently obtained it.
+        // In this case, we'll go back to the start of the loop and try to read from the new value that'll be soon inserted into the cache.
+    }
+}
+
 pub async fn get_all_extensions(
     conn: web::Data<Pool<Postgres>>,
-) -> Result<HttpResponse, ExtensionRegistryError> {
+) -> Result<String, ExtensionRegistryError> {
     let mut extensions: Vec<Value> = Vec::new();
 
     // Create a database transaction
@@ -334,7 +358,7 @@ pub async fn get_all_extensions(
     }
     // Return results in response
     let json = serde_json::to_string_pretty(&extensions)?;
-    Ok(HttpResponse::Ok().body(json))
+    Ok(json)
 }
 
 #[get("/extensions/detail/{extension_name}")]

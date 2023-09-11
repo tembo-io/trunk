@@ -1,6 +1,7 @@
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{ConnectOptions, Pool, Postgres};
 
+pub mod cache;
 pub mod categories;
 pub mod config;
 pub mod download;
