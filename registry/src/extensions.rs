@@ -1,4 +1,7 @@
-use crate::{errors::ExtensionRegistryError, views::extension_owner::ExtensionOwner};
+use crate::{
+    categories::get_categories_for_extension, download::latest_version,
+    errors::ExtensionRegistryError, views::extension_details::ExtensionOwner,
+};
 use actix_web::web::Data;
 use sqlx::{Pool, Postgres};
 
@@ -18,7 +21,7 @@ pub async fn add_extension_owner(
     user_id: &String,
     user_name: &String,
     conn: Data<Pool<Postgres>>,
-) -> Result<(), ExtensionRegistryError> {
+) -> Result<(), sqlx::Error> {
     let mut tx = conn.begin().await?;
     sqlx::query!(
         "
@@ -38,7 +41,7 @@ pub async fn add_extension_owner(
 pub async fn extension_owners(
     extension_id: i32,
     conn: Data<Pool<Postgres>>,
-) -> Result<Vec<ExtensionOwner>, ExtensionRegistryError> {
+) -> Result<Vec<ExtensionOwner>, sqlx::Error> {
     let owners = sqlx::query!(
         "SELECT * FROM extension_owners WHERE extension_id = $1;",
         extension_id
@@ -66,7 +69,7 @@ pub async fn latest_license(
     extension_id: i32,
     latest_version: &str,
     conn: Data<Pool<Postgres>>,
-) -> Result<String, ExtensionRegistryError> {
+) -> Result<String, sqlx::Error> {
     // Create a transaction on the database
     let mut tx = conn.begin().await?;
     // Get latest version for extension
@@ -83,10 +86,37 @@ pub async fn latest_license(
 pub async fn get_extension_id(
     extension_name: &str,
     conn: Data<Pool<Postgres>>,
-) -> Result<i64, ExtensionRegistryError> {
+) -> Result<i64, sqlx::Error> {
     let id = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
         .fetch_one(conn.as_ref())
         .await?;
 
     Ok(id.id)
+}
+
+pub struct SecondaryExtensionInfo {
+    pub version: String,
+    pub license: String,
+    pub owners: Vec<ExtensionOwner>,
+    pub categories: Vec<String>,
+}
+
+pub async fn fetch_secondary_extension_details(
+    extension_id: i32,
+    conn: Data<Pool<Postgres>>,
+) -> Result<SecondaryExtensionInfo, sqlx::Error> {
+    let version = latest_version(extension_id, conn.as_ref()).await?;
+
+    let (license, owners, categories) = tokio::try_join!(
+        latest_license(extension_id, &version, conn.clone()),
+        extension_owners(extension_id, conn.clone()),
+        get_categories_for_extension(extension_id, conn)
+    )?;
+
+    Ok(SecondaryExtensionInfo {
+        version,
+        license,
+        owners,
+        categories,
+    })
 }

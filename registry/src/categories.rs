@@ -108,7 +108,7 @@ pub async fn get_category_ids(
 pub async fn get_category_names(
     category_ids: Vec<i64>,
     conn: Data<Pool<Postgres>>,
-) -> Result<Vec<String>, ExtensionRegistryError> {
+) -> Result<Vec<String>, sqlx::Error> {
     let mut categories: Vec<String> = Vec::new();
     for id in category_ids {
         let name = sqlx::query!("SELECT name FROM categories WHERE id = $1", id)
@@ -123,7 +123,7 @@ pub async fn get_category_names(
 pub async fn get_categories_for_extension(
     extension_id: i32,
     conn: Data<Pool<Postgres>>,
-) -> Result<Vec<String>, ExtensionRegistryError> {
+) -> Result<Vec<String>, sqlx::Error> {
     let category_ids = sqlx::query!(
         "SELECT category_id FROM extensions_categories WHERE extension_id = $1",
         extension_id as i32

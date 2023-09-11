@@ -2,15 +2,18 @@
 
 use actix_web::web::Json;
 use actix_web_httpauth::extractors::bearer::BearerAuth;
+use tokio::task::JoinSet;
 
 use crate::categories::{get_categories_for_extension, update_extension_categories};
 use crate::config::Config;
-use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
-use crate::extensions::{add_extension_owner, check_input, extension_owners, latest_license};
+use crate::extensions::{
+    add_extension_owner, check_input, extension_owners, fetch_secondary_extension_details,
+};
 use crate::repository::Registry;
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
+use crate::views::extension_details::ExtensionDetails;
 use crate::views::extension_publish::ExtensionUpload;
 use crate::views::user_info::UserInfo;
 use actix_multipart::Multipart;
@@ -302,39 +305,44 @@ pub async fn publish(
 #[get("/extensions/all")]
 pub async fn get_all_extensions(
     conn: web::Data<Pool<Postgres>>,
-) -> Result<HttpResponse, ExtensionRegistryError> {
-    let mut extensions: Vec<Value> = Vec::new();
-
-    // Create a database transaction
-    let mut tx = conn.begin().await?;
-    let rows = sqlx::query!("SELECT * FROM extensions order by name asc")
-        .fetch_all(&mut tx)
+) -> Result<Json<Vec<ExtensionDetails>>, ExtensionRegistryError> {
+    let rows = sqlx::query!("SELECT * FROM extensions")
+        .fetch_all(conn.as_ref())
         .await?;
-    for row in rows.iter() {
-        let extension_id = row.id as i32;
-        let version = latest_version(extension_id, conn.clone()).await?;
-        let license = latest_license(extension_id, &version, conn.clone()).await?;
-        let owners = extension_owners(extension_id, conn.clone()).await?;
-        let categories = get_categories_for_extension(extension_id, conn.clone()).await?;
-        let data = json!(
-        {
-          "name": row.name,
-          "latestVersion": version,
-          "createdAt": row.created_at.to_string(),
-          "updatedAt": row.updated_at.to_string(),
-          "description": row.description,
-          "homepage": row.homepage,
-          "documentation": row.documentation,
-          "repository": row.repository,
-          "license": license,
-          "owners": owners,
-          "categories": categories
+    let mut extension_details = Vec::with_capacity(rows.len());
+    let mut join_set: JoinSet<Result<ExtensionDetails, sqlx::Error>> = JoinSet::new();
+
+    for row in rows {
+        let conn_for_task = conn.clone();
+        join_set.spawn(async move {
+            let secondary_info =
+                fetch_secondary_extension_details(row.id as i32, conn_for_task).await?;
+
+            let details = ExtensionDetails {
+                name: row.name,
+                created_at: row.created_at.to_string(),
+                updated_at: row.updated_at.to_string(),
+                description: row.description,
+                homepage: row.homepage,
+                repository: row.repository,
+                documentation: row.documentation,
+                categories: secondary_info.categories,
+                owners: secondary_info.owners,
+                latest_version: secondary_info.version,
+                license: secondary_info.license,
+            };
+
+            Ok(details)
         });
-        extensions.push(data);
     }
-    // Return results in response
-    let json = serde_json::to_string_pretty(&extensions)?;
-    Ok(HttpResponse::Ok().body(json))
+
+    while let Some(res) = join_set.join_next().await {
+        // Safety: expect here would only fail if the Task gets cancelled (which we don't) or panics
+        let detail = res.expect("Failed to join Future")?;
+        extension_details.push(detail);
+    }
+
+    Ok(Json(extension_details))
 }
 
 #[get("/extensions/detail/{extension_name}")]
@@ -371,8 +379,8 @@ pub async fn get_version_history(
     for row in rows.iter() {
         let data = json!(
         {
-          "name": name.to_owned(),
-          "extension_name": row.extension_name.to_owned(),
+          "name": name,
+          "extension_name": row.extension_name,
           "version": row.num,
           "createdAt": row.created_at.to_string(),
           "updatedAt": row.updated_at.to_string(),

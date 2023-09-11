@@ -20,7 +20,7 @@ pub async fn download(
     // Use latest version if 'latest' provided as version
     if version == "latest" {
         let extension_id = get_extension_id(&name, conn.clone()).await?;
-        version = latest_version(extension_id as _, conn).await?;
+        version = latest_version(extension_id as _, &conn).await?;
     }
     let url = extension_location(&cfg.bucket_name, &name, &version);
     info!("Download requested for {} version {}", name, version);
