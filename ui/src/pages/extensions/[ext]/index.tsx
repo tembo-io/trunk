@@ -119,7 +119,15 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
               <span className={styles.infoValue}>{latestVersion.license}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.infoTitle}>Binary compatibility</span>
+              <span className={styles.infoTitle}>Architecture</span>
+              <span className={styles.infoValue}>
+                <div className={styles.binaryCompatibility}>
+                  x86-64 <InfoIcon infoText={"This extension was built for the x86-64 architecture.\n\nSupport for more architectures and operating systems is coming soon."}/>
+                </div>
+              </span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.infoTitle}>Operating system</span>
               <span className={styles.infoValue}>
                 <div className={styles.binaryCompatibility}>
                   Debian/Ubuntu <InfoIcon infoText={"This extension was built in Ubuntu 22 for the x86-64 architecture.\n\nThere might be binary compatibility for this build in other Linux distributions running on x86-64.\n\nThere is currently no binary compatibility for other architectures and operating systems.\n\nSupport for more architectures and operating systems is coming soon."}/>
