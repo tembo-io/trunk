@@ -137,7 +137,7 @@ export default function Page({ extension, readme, repoDescription }: InferGetSta
                 <a href={latestVersion.repository} target="_blank" className={styles.buttonLink}>
                   <Image className={styles.linkIcon} src={Octocat} width={14} height={14} alt="Link icon" />
 
-                  <span className={styles.linkText}>{truncate(latestVersion.repository, 5535).replace("https://", "")}</span>
+                  <span className={styles.linkText}>{truncate(latestVersion.repository, 45).replace("https://", "")}</span>
                 </a>
               )}
             </div>
