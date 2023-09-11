@@ -266,3 +266,11 @@
     overflow: hidden;
   }
 }
+
+.binaryCompatibility {
+  display: flex;
+  flex-direction: row;
+  width: fit-content;
+  margin-top: auto;
+  gap: 8px
+}
