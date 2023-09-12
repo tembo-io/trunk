@@ -16,5 +16,6 @@ install_command = """
     cd duckdb_fdw && make install USE_PGXS=1
     set -xe
     cp libduckdb.so /usr/lib/postgresql/15/lib/
+    cp libduckdb.so $(pg_config --libdir)
     echo "done"
     """
