@@ -7,24 +7,32 @@ use sqlx::{Pool, Postgres};
 pub async fn get_all_categories(
     conn: web::Data<Pool<Postgres>>,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
-    let mut categories: Vec<Value> = Vec::new();
-
     // Create a database transaction
     let mut tx = conn.begin().await?;
-    let rows = sqlx::query!("SELECT * FROM categories")
+    let mut rows = sqlx::query!("SELECT * FROM categories")
         .fetch_all(&mut tx)
         .await?;
-    for row in rows.iter() {
+    let mut categories: Vec<Value> = Vec::with_capacity(rows.len());
+
+    // Make sure Featured is the first category to be sent
+    {
+        if let Some(featured_idx) = rows.iter().position(|row| row.name == "Featured") {
+            rows.swap(0, featured_idx);
+        }
+    }
+
+    for row in rows {
         let data = json!(
         {
-          "name": row.name.to_owned(),
+          "name": row.name,
           "id": row.id,
-          "slug": row.slug.to_owned(),
-          "description": row.description.to_owned(),
+          "slug": row.slug,
+          "description": row.description,
           "extension_count": row.extension_count
         });
         categories.push(data);
     }
+
     // Return results in response
     let json = serde_json::to_string_pretty(&categories)?;
     Ok(HttpResponse::Ok().body(json))
