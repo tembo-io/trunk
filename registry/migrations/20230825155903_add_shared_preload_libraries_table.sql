@@ -15,6 +15,8 @@ VALUES ('basic_archive');
 INSERT INTO shared_preload_libraries(name)
 VALUES ('citus');
 INSERT INTO shared_preload_libraries(name)
+VALUES ('credcheck');
+INSERT INTO shared_preload_libraries(name)
 VALUES ('passwordcheck');
 INSERT INTO shared_preload_libraries(name)
 VALUES ('pg_anonymize');
