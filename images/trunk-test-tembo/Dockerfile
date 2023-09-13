@@ -65,6 +65,12 @@ RUN  wget http://www.xunsearch.com/scws/down/scws-1.2.3.tar.bz2 && \
      rm -rf scws-1.2.3.tar.bz2 scws-1.2.3 && \
      ln -s /usr/local/lib/libscws.so /usr/lib/x86_64-linux-gnu/libscws.so
 
+# Install duckdb libs
+RUN wget https://github.com/duckdb/duckdb/releases/download/v0.8.1/libduckdb-linux-amd64.zip && \
+    unzip libduckdb-linux-amd64.zip && \
+    cp libduckdb.so /usr/lib/x86_64-linux-gnu/ && \
+    rm -rf libduckdb-linux-amd64.zip libduckdb.so
+
 
 RUN chown -R postgres:postgres $PGDATA && \
     chmod -R 0700 $PGDATA
