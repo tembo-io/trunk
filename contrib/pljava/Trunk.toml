@@ -24,5 +24,3 @@ install_command = """
     mv /app/pljava/pljava-so/target/pljava-pgxs/* /usr/lib/postgresql/15/lib
     """
 
-
-

@@ -5,6 +5,7 @@
 # Trunk
 
 [![version](https://img.shields.io/crates/v/pg-trunk?label=CLI&logo=rust)](https://crates.io/crates/pg-trunk)
+![](https://img.shields.io/badge/Ubuntu_22.x-180%20extensions-orange)
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
 [![Slack](https://img.shields.io/badge/%40trunk-community?logo=slack&label=slack)](https://join.slack.com/t/trunk-community/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg)
 
