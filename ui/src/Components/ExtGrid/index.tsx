@@ -8,6 +8,13 @@ import Search from "../Search";
 import { Category, Extension, CategoriesForGrid } from "@/types";
 import Link from "next/link";
 
+function routerCatToString(input: string | string[] | undefined): string {
+  if (typeof input === 'string') {
+    return input;
+  }
+  return "";
+}
+
 export default function ExtGrid({
   extensions,
   categories,
@@ -55,7 +62,7 @@ export default function ExtGrid({
             </div>
             <p className={cx(styles.interReg12, styles.description)}>{truncate(ext.description)}</p>
             {ext && (
-              <CategoryTags extension={ext} categories={categories} />
+              <CategoryTags extension={ext} categories={categories} selectedCategory={routerCatToString(router.query.cat)}/>
             )}
           </button>
         ))}
@@ -68,9 +75,10 @@ export default function ExtGrid({
 interface CategoryTagSearchProps {
   extension: Extension;
   categories: Category[];
+  selectedCategory: string;
 }
 
-const CategoryTags: React.FC<CategoryTagSearchProps> = ({ extension, categories }) => {
+const CategoryTags: React.FC<CategoryTagSearchProps> = ({ extension, categories, selectedCategory }) => {
   const getCategorySlug = (categoryName: string) => {
     return categories.find((cat) => cat.name === categoryName)?.slug;
   };
@@ -81,11 +89,15 @@ const CategoryTags: React.FC<CategoryTagSearchProps> = ({ extension, categories 
   }
 
   return <div className={styles.categoryTags}>
+  
     {atMostTwoCategories().map((category, index) => (
         <Link
           key={index}
-          href={`/?cat=${getCategorySlug(category)}`}
-          shallow
+          shallow href={
+            // Allow 'untoggling' a category: if we're already in the selected
+            // category, go back home
+            (() => getCategorySlug(category) === selectedCategory ? "/" : `/?cat=${getCategorySlug(category)}`)()
+          }
           onClick={(e) => e.stopPropagation()}
           className={styles.catBubble}
         >
