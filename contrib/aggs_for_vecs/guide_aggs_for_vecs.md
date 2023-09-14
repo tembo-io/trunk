@@ -16,6 +16,7 @@ An e-commerce platform is using a rating arrays to capture multi-faceted feedbac
 
 
 # Example test script.
+```
 -- Leverage the function vec_to_mean in order to investigate the the average rating for each aspect each day
 SELECT 
     source,
