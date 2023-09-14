@@ -1,21 +1,21 @@
-## What is this extension?
+# What is this extension?
 >*Auto-incrementing field functions.*
 
 `autoinc` is a C-based extension that is included in the PostgreSQL additional supplied module catalog. It provides a trigger named **autoinc()**, which helps in automatically incrementing integer fields.
 
-## When should you use it?
+# When should you use it?
 
 This extension proves beneficial when one is concerned with auto-incrementing fields under specific conditions, for example when only certain rows or entries require incrementing.
 
 
-## Example use case.
+# Example use case.
 
 Limited release cataloging:
 
 A fountain pen manufacturing company occasionally releases limited edition pens under specific design series themes. Each design series has a distinct name and theme, with every pen in it receiving a unique ID, starting from 1. By utilizing the **`autoinc`** trigger, this firm can automatically allocate a distinct ID to each pen within its design series.
 
 
-## Example test script.
+# Example test script.
 ```
 -- Create sequence for each design series
 -- Starting from 1 for Galaxy
