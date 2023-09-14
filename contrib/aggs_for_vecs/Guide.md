@@ -17,7 +17,7 @@ An e-commerce platform is using a rating arrays to capture multi-faceted feedbac
 
 # Example test script.
 ```
--- Create the aspects table and populate
+-- Create example table, rating_aspects, and populate with test data
 CREATE TABLE rating_aspects (
     aspect_id SERIAL PRIMARY KEY,
     aspect_name VARCHAR(255)
@@ -29,7 +29,7 @@ INSERT INTO rating_aspects(aspect_name) VALUES
 ('Performance'),
 ('Customer Support');
 
--- Create the product_ratings table and populate
+-- Create example table, product_ratings, and populate with test data
 -- The ratings array represents scores for aspects in the order: [Usability, Design, Performance, Customer Support]
 CREATE TABLE product_ratings (
     id SERIAL PRIMARY KEY,
@@ -132,7 +132,7 @@ date    |      aspect      | min_rating | max_rating
  2023-01-03 | Usability        |        3.8 |        4.2
 (12 rows)
 
--- Drop tables to complete example
+-- Drop table(s) to complete example
 DROP TABLE rating_aspects ;
 DROP TABLE product_ratings ;
 ```
