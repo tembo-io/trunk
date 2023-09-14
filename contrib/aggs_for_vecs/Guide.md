@@ -17,6 +17,44 @@ An e-commerce platform is using a rating arrays to capture multi-faceted feedbac
 
 # Example test script.
 ```
+-- Create the aspects table and populate
+CREATE TABLE rating_aspects (
+    aspect_id SERIAL PRIMARY KEY,
+    aspect_name VARCHAR(255)
+);
+
+INSERT INTO rating_aspects(aspect_name) VALUES
+('Usability'),
+('Design'),
+('Performance'),
+('Customer Support');
+
+-- Create the product_ratings table and populate
+-- The ratings array represents scores for aspects in the order: [Usability, Design, Performance, Customer Support]
+CREATE TABLE product_ratings (
+    id SERIAL PRIMARY KEY,
+    date DATE,
+    ratings FLOAT[],
+    source VARCHAR(255)
+);
+
+INSERT INTO product_ratings(date, ratings, source) VALUES
+('2023-01-01', '{3.5,4.2,4.0,4.5}', 'Source A'),
+('2023-01-01', '{4.0,3.8,4.1,4.2}', 'Source B'),
+('2023-01-01', '{3.8,4.0,3.9,4.3}', 'Source C'),
+('2023-01-01', '{3.9,4.1,4.2,4.4}', 'Source D'),
+('2023-01-01', '{3.7,4.0,4.1,4.0}', 'Source E'),
+('2023-01-02', '{4.0,4.2,3.9,4.5}', 'Source A'),
+('2023-01-02', '{3.8,4.0,4.2,4.1}', 'Source B'),
+('2023-01-02', '{4.0,4.1,3.8,4.3}', 'Source C'),
+('2023-01-02', '{3.9,4.3,4.0,4.2}', 'Source D'),
+('2023-01-02', '{3.7,4.1,4.1,4.1}', 'Source E'),
+('2023-01-03', '{4.2,4.1,4.0,4.6}', 'Source A'),
+('2023-01-03', '{3.9,4.0,3.9,4.1}', 'Source B'),
+('2023-01-03', '{4.1,4.1,3.7,4.3}', 'Source C'),
+('2023-01-03', '{4.0,4.2,4.1,4.3}', 'Source D'),
+('2023-01-03', '{3.8,4.0,3.9,4.0}', 'Source E');
+
 -- Leverage the function vec_to_mean in order to investigate the the average rating for each aspect each day
 SELECT 
     source,
