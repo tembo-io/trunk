@@ -307,32 +307,31 @@ pub struct ExtensionOwner {
     pub user_id: String,
     pub user_name: String,
 }
+
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ExtensionDetails {
     pub extension_name: Option<String>,
     #[serde(rename = "camelCase")]
     pub latest_version: Option<String>,
     #[serde(rename = "camelCase")]
-    pub created_at: Option<chrono::DateTime<Utc>>,
+    pub created_at: time::OffsetDateTime,
     #[serde(rename = "camelCase")]
-    pub updated_at: Option<chrono::DateTime<Utc>>,
+    pub updated_at: time::OffsetDateTime,
     pub description: Option<String>,
     pub homepage: Option<String>,
     pub documentation: Option<String>,
     pub repository: Option<String>,
     pub license: Option<String>,
-    pub owners: Option<Vec<ExtensionOwner>>,
+    pub owners: Option<Vec<String>>,
     pub categories: Option<Vec<String>>,
 }
 
-use sqlx::types::chrono::{DateTime, Utc};
-
-#[get("/extensions")]
-pub async fn all_extensions(
+#[get("beta/extensions/all")]
+pub async fn beta_get_all_extensions(
     conn: web::Data<Pool<Postgres>>,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
-    let rows = sqlx::query_as!(ExtensionDetails,
+    let rows = sqlx::query_as!(
+        ExtensionDetails,
         r#"WITH latest_versions AS (
             SELECT
                 v.extension_id,
@@ -352,7 +351,6 @@ pub async fn all_extensions(
             e.repository,
             lv.license,
             array_agg(DISTINCT eo.user_name) AS owners,
-            array_agg(DISTINCT ec.category_id) AS cat_id,
             array_agg(DISTINCT cg.name) AS categories
         FROM public.extensions e
         LEFT JOIN latest_versions lv ON e.id = lv.extension_id AND lv.rn = 1
@@ -370,11 +368,11 @@ pub async fn all_extensions(
             e.repository, 
             lv.license;"#
     )
-        .fetch_all(conn.get_ref())
-        .await?;
+    .fetch_all(conn.get_ref())
+    .await?;
+
     Ok(HttpResponse::Ok().json(rows))
 }
-
 
 #[get("/extensions/all")]
 pub async fn get_all_extensions(
