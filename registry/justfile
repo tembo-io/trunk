@@ -10,7 +10,7 @@ run-migrations:
 
 run:
     RUST_LOG=debug \
-    DATABASE_URL=${DATABASE_URL} \
+    DATABASE_URL=postgresql://postgres:postgres@0.0.0.0:5432/postgres \
     RUST_BACKTRACE=full \
     RUST_LOG=debug \
     cargo run
