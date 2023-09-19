@@ -34,4 +34,4 @@ GROUP BY
     e.homepage, 
     e.documentation, 
     e.repository, 
-    lv.license
+    lv.license;
