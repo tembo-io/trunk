@@ -10,6 +10,7 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
     let clerk_cfg = ClerkConfiguration::new(None, None, Some(cfg.clerk_secret_key), None);
     configuration
         .service(routes::root::ok)
+        .service(routes::extensions::beta_get_all_extensions)
         .service(routes::extensions::get_all_extensions)
         .service(routes::extensions::get_version)
         .service(routes::extensions::get_version_history)
