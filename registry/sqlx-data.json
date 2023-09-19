@@ -1152,17 +1152,17 @@
           "type_info": "Varchar"
         },
         {
-          "name": "latest_version",
+          "name": "latestVersion",
           "ordinal": 1,
           "type_info": "Varchar"
         },
         {
-          "name": "created_at",
+          "name": "createdAt",
           "ordinal": 2,
           "type_info": "Timestamptz"
         },
         {
-          "name": "updated_at",
+          "name": "updatedAt",
           "ordinal": 3,
           "type_info": "Timestamptz"
         },

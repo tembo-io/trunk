@@ -10,9 +10,9 @@ WITH latest_versions AS (
 )
 SELECT
     e."name" AS "name",
-    lv.latest_version,
-    e.created_at,
-    e.updated_at,
+    lv.latest_version as "latestVersion",
+    e.created_at as "createdAt",
+    e.updated_at as "updatedAt",
     e.description,
     e.homepage,
     e.documentation,
