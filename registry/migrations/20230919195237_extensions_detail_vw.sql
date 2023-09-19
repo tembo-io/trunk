@@ -1,5 +1,5 @@
 -- query that returns the latest version of each extension
-create view extension_detail_vw as 
+create or replace view extension_detail_vw as 
 WITH latest_versions AS (
     SELECT
         v.extension_id,
