@@ -20,7 +20,9 @@ use aws_config::SdkConfig;
 use aws_sdk_s3;
 use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
+use serde::ser::Serializer;
 use serde_json::{json, Value};
+use sqlx::types::chrono::Utc;
 use sqlx::{Pool, Postgres};
 use tracing::{error, info};
 
@@ -308,21 +310,38 @@ pub struct ExtensionOwner {
     pub user_name: String,
 }
 
-use sqlx::types::chrono::Utc;
-
+#[allow(non_snake_case)]
 #[derive(Debug, Serialize)]
 pub struct ExtensionDetails {
     pub categories: Option<Value>,
-    pub created_at: Option<chrono::DateTime<Utc>>,
+    #[serde(serialize_with = "serialize_with_offset")]
+    pub createdAt: Option<chrono::DateTime<Utc>>,
     pub description: Option<String>,
     pub documentation: Option<String>,
     pub homepage: Option<String>,
-    pub latest_version: Option<String>,
+    pub latestVersion: Option<String>,
     pub license: Option<String>,
     pub name: Option<String>,
     pub owners: Option<Value>,
     pub repository: Option<String>,
-    pub updated_at: Option<chrono::DateTime<Utc>>,
+    #[serde(serialize_with = "serialize_with_offset")]
+    pub updatedAt: Option<chrono::DateTime<Utc>>,
+}
+
+fn serialize_with_offset<S>(
+    date: &Option<chrono::DateTime<Utc>>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match date {
+        Some(d) => {
+            let s = d.to_rfc3339();
+            serializer.serialize_str(&s)
+        }
+        None => serializer.serialize_none(),
+    }
 }
 
 #[get("beta/extensions/all")]
