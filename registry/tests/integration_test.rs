@@ -10,7 +10,7 @@ mod tests {
     use trunk_registry::connect;
     use trunk_registry::routes::categories::get_all_categories;
     use trunk_registry::routes::download::download;
-    use trunk_registry::routes::extensions::get_all_extensions;
+    use trunk_registry::routes::extensions::{beta_get_all_extensions, get_all_extensions};
     use trunk_registry::routes::root::ok;
     use trunk_registry::routes::token::new_token;
     use trunk_registry::token::check_token_input;
@@ -48,6 +48,7 @@ mod tests {
                 .app_data(web::Data::new(cfg.clone()))
                 .service(ok)
                 .service(get_all_extensions)
+                .service(beta_get_all_extensions)
                 .service(get_all_categories)
                 .service(download)
                 .service(web::scope("/token").service(new_token)),

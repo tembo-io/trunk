@@ -1143,6 +1143,84 @@
     },
     "query": "DELETE FROM extension_owners\n             WHERE extension_id = $1"
   },
+  "c390e218569ef66621ae5e01addfe5ee1d83cd86496f388846604862bd3510c4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "latestVersion",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "createdAt",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updatedAt",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "description",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "homepage",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "documentation",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "repository",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "license",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "owners",
+          "ordinal": 9,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "categories",
+          "ordinal": 10,
+          "type_info": "Jsonb"
+        }
+      ],
+      "nullable": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM extension_detail_vw"
+  },
   "e41ccd0b4b07c1761d78d4de2efdba33979114f1b055db3261af653afca8be56": {
     "describe": {
       "columns": [],
