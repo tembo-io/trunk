@@ -1143,7 +1143,7 @@
     },
     "query": "DELETE FROM extension_owners\n             WHERE extension_id = $1"
   },
-  "daeaa868ffbd7914b8504237e347279ccffb11d75f85b8d128d83ea271b847d5": {
+  "c390e218569ef66621ae5e01addfe5ee1d83cd86496f388846604862bd3510c4": {
     "describe": {
       "columns": [
         {
@@ -1194,32 +1194,32 @@
         {
           "name": "owners",
           "ordinal": 9,
-          "type_info": "VarcharArray"
+          "type_info": "Jsonb"
         },
         {
           "name": "categories",
           "ordinal": 10,
-          "type_info": "VarcharArray"
+          "type_info": "Jsonb"
         }
       ],
       "nullable": [
         true,
         true,
-        false,
-        false,
         true,
         true,
         true,
         true,
         true,
-        null,
-        null
+        true,
+        true,
+        true,
+        true
       ],
       "parameters": {
         "Left": []
       }
     },
-    "query": "WITH latest_versions AS (\n            SELECT\n                v.extension_id,\n                v.num AS latest_version,\n                v.license,\n                ROW_NUMBER() OVER(PARTITION BY v.extension_id ORDER BY v.updated_at DESC) AS rn\n            FROM public.versions v\n        )\n        SELECT\n            e.\"name\" AS extension_name,\n            lv.latest_version,\n            e.created_at,\n            e.updated_at,\n            e.description,\n            e.homepage,\n            e.documentation,\n            e.repository,\n            lv.license,\n            array_agg(DISTINCT eo.user_name) AS owners,\n            array_agg(DISTINCT cg.name) AS categories\n        FROM public.extensions e\n        LEFT JOIN latest_versions lv ON e.id = lv.extension_id AND lv.rn = 1\n        LEFT JOIN public.extension_owners eo ON e.id = eo.extension_id AND eo.deleted = false\n        LEFT JOIN public.extensions_categories ec ON e.id = ec.extension_id\n        left join public.categories cg on ec.category_id  = cg.id\n        GROUP BY \n            e.\"name\", \n            lv.latest_version, \n            e.created_at, \n            e.updated_at, \n            e.description, \n            e.homepage, \n            e.documentation, \n            e.repository, \n            lv.license;"
+    "query": "SELECT * FROM extension_detail_vw"
   },
   "e41ccd0b4b07c1761d78d4de2efdba33979114f1b055db3261af653afca8be56": {
     "describe": {
