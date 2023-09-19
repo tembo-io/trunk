@@ -308,70 +308,37 @@ pub struct ExtensionOwner {
     pub user_name: String,
 }
 
-#[derive(Serialize)]
+use sqlx::types::chrono::Utc;
+
+#[derive(Debug, Serialize)]
 pub struct ExtensionDetails {
     pub extension_name: Option<String>,
-    #[serde(rename = "camelCase")]
     pub latest_version: Option<String>,
-    #[serde(rename = "camelCase")]
-    pub created_at: time::OffsetDateTime,
-    #[serde(rename = "camelCase")]
-    pub updated_at: time::OffsetDateTime,
+    pub created_at: Option<chrono::DateTime<Utc>>,
+    pub updated_at: Option<chrono::DateTime<Utc>>,
     pub description: Option<String>,
     pub homepage: Option<String>,
     pub documentation: Option<String>,
     pub repository: Option<String>,
     pub license: Option<String>,
-    pub owners: Option<Vec<String>>,
-    pub categories: Option<Vec<String>>,
+    pub owners: Option<Value>,
+    pub categories: Option<Value>,
 }
 
 #[get("beta/extensions/all")]
 pub async fn beta_get_all_extensions(
     conn: web::Data<Pool<Postgres>>,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
-    let rows = sqlx::query_as!(
-        ExtensionDetails,
-        r#"WITH latest_versions AS (
-            SELECT
-                v.extension_id,
-                v.num AS latest_version,
-                v.license,
-                ROW_NUMBER() OVER(PARTITION BY v.extension_id ORDER BY v.updated_at DESC) AS rn
-            FROM public.versions v
-        )
-        SELECT
-            e."name" AS extension_name,
-            lv.latest_version,
-            e.created_at,
-            e.updated_at,
-            e.description,
-            e.homepage,
-            e.documentation,
-            e.repository,
-            lv.license,
-            array_agg(DISTINCT eo.user_name) AS owners,
-            array_agg(DISTINCT cg.name) AS categories
-        FROM public.extensions e
-        LEFT JOIN latest_versions lv ON e.id = lv.extension_id AND lv.rn = 1
-        LEFT JOIN public.extension_owners eo ON e.id = eo.extension_id AND eo.deleted = false
-        LEFT JOIN public.extensions_categories ec ON e.id = ec.extension_id
-        left join public.categories cg on ec.category_id  = cg.id
-        GROUP BY 
-            e."name", 
-            lv.latest_version, 
-            e.created_at, 
-            e.updated_at, 
-            e.description, 
-            e.homepage, 
-            e.documentation, 
-            e.repository, 
-            lv.license;"#
-    )
-    .fetch_all(conn.get_ref())
-    .await?;
-
-    Ok(HttpResponse::Ok().json(rows))
+    match sqlx::query_as!(ExtensionDetails, "SELECT * FROM extension_detail_vw")
+        .fetch_all(conn.get_ref())
+        .await
+    {
+        Ok(extensions) => Ok(HttpResponse::Ok().json(extensions)),
+        Err(e) => {
+            error!("Error fetching extensions: {}", e);
+            Err(ExtensionRegistryError::from(e))
+        }
+    }
 }
 
 #[get("/extensions/all")]
