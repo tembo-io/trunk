@@ -1147,7 +1147,7 @@
     "describe": {
       "columns": [
         {
-          "name": "extension_name",
+          "name": "name",
           "ordinal": 0,
           "type_info": "Varchar"
         },

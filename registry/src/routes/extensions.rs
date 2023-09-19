@@ -312,17 +312,17 @@ use sqlx::types::chrono::Utc;
 
 #[derive(Debug, Serialize)]
 pub struct ExtensionDetails {
-    pub extension_name: Option<String>,
-    pub latest_version: Option<String>,
-    pub created_at: Option<chrono::DateTime<Utc>>,
-    pub updated_at: Option<chrono::DateTime<Utc>>,
-    pub description: Option<String>,
-    pub homepage: Option<String>,
-    pub documentation: Option<String>,
-    pub repository: Option<String>,
-    pub license: Option<String>,
-    pub owners: Option<Value>,
     pub categories: Option<Value>,
+    pub created_at: Option<chrono::DateTime<Utc>>,
+    pub description: Option<String>,
+    pub documentation: Option<String>,
+    pub homepage: Option<String>,
+    pub latest_version: Option<String>,
+    pub license: Option<String>,
+    pub name: Option<String>,
+    pub owners: Option<Value>,
+    pub repository: Option<String>,
+    pub updated_at: Option<chrono::DateTime<Utc>>,
 }
 
 #[get("beta/extensions/all")]

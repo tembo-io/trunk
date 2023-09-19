@@ -9,7 +9,7 @@ WITH latest_versions AS (
     FROM public.versions v
 )
 SELECT
-    e."name" AS extension_name,
+    e."name" AS "name",
     lv.latest_version,
     e.created_at,
     e.updated_at,
