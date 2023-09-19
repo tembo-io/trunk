@@ -2885,7 +2885,6 @@ dependencies = [
  "sha2",
  "sqlx",
  "thiserror",
- "time 0.3.28",
  "tracing",
  "tracing-subscriber",
  "url",
