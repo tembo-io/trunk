@@ -18,7 +18,7 @@ SELECT
     e.documentation,
     e.repository,
     lv.license,
-    jsonb_agg(DISTINCT eo.user_name) AS owners,
+    jsonb_agg(DISTINCT jsonb_build_object('userName', eo.user_name, 'userId', eo.owner_id)) FILTER (WHERE eo.user_name IS NOT NULL) AS owners,
     jsonb_agg(DISTINCT cg.name) AS categories
 FROM public.extensions e
 LEFT JOIN latest_versions lv ON e.id = lv.extension_id AND lv.rn = 1
