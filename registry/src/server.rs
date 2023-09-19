@@ -27,7 +27,8 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
             web::scope("/admin")
                 .wrap(ClerkMiddleware::new(clerk_cfg, None))
                 .service(routes::root::auth_ok)
-                .service(routes::extensions::delete_extension),
+                .service(routes::extensions::delete_extension)
+                .service(routes::extensions::put_shared_preload_libraries),
         );
 }
 

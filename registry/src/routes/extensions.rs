@@ -522,7 +522,9 @@ pub async fn put_shared_preload_libraries(
 ) -> Result<HttpResponse, ExtensionRegistryError> {
     let library = path.into_inner();
     sqlx::query!(
-        "INSERT INTO shared_preload_libraries(name) VALUES ($1)",
+        "INSERT INTO shared_preload_libraries(name)
+        VALUES ($1)
+        ON CONFLICT (name) DO NOTHING;",
         &library
     )
     .execute(conn.as_ref())

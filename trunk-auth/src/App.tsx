@@ -1,6 +1,6 @@
 import React from 'react';
 import { ClerkProvider, RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
-import { Box, Center, ChakraProvider, StackDivider, VStack } from '@chakra-ui/react'
+import { Box, Center, ChakraProvider, Container, StackDivider, VStack } from '@chakra-ui/react'
 
 if (!process.env.REACT_APP_CLERK_PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key")
@@ -25,17 +25,24 @@ function App() {
   );
 }
 
+import { UserButton } from "@clerk/clerk-react";
+
 function SignedAdmin() {
   return (
+    <>
       <Box 
         w='100vw' h='100vh'
         bgGradient='linear(to-r, gray.600, gray.900)'
-        display="flex" alignItems='center' gap='2'
+        display="flex" alignItems='center' gap='2' 
       >
         <Center height='100vh' width='100vw'>
-          <RequestCard />
+          <Container>
+              <UserButton />
+              <RequestCard />
+          </Container>
         </Center>
       </Box>
+    </>
   );
 }
 
