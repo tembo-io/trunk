@@ -5,9 +5,8 @@ use actix_web_httpauth::extractors::bearer::BearerAuth;
 
 use crate::categories::{get_categories_for_extension, update_extension_categories};
 use crate::config::Config;
-use crate::download::latest_version;
 use crate::errors::ExtensionRegistryError;
-use crate::extensions::{add_extension_owner, check_input, extension_owners, latest_license};
+use crate::extensions::{add_extension_owner, check_input, extension_owners};
 use crate::repository::Registry;
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
@@ -344,58 +343,20 @@ where
     }
 }
 
-#[get("beta/extensions/all")]
-pub async fn beta_get_all_extensions(
+#[get("/extensions/all")]
+pub async fn get_all_extensions(
     conn: web::Data<Pool<Postgres>>,
-) -> Result<HttpResponse, ExtensionRegistryError> {
+) -> Result<Json<Vec<ExtensionDetails>>, ExtensionRegistryError> {
     match sqlx::query_as!(ExtensionDetails, "SELECT * FROM extension_detail_vw")
         .fetch_all(conn.get_ref())
         .await
     {
-        Ok(extensions) => Ok(HttpResponse::Ok().json(extensions)),
+        Ok(extensions) => Ok(Json(extensions)),
         Err(e) => {
             error!("Error fetching extensions: {}", e);
             Err(ExtensionRegistryError::from(e))
         }
     }
-}
-
-#[get("/extensions/all")]
-pub async fn get_all_extensions(
-    conn: web::Data<Pool<Postgres>>,
-) -> Result<HttpResponse, ExtensionRegistryError> {
-    let mut extensions: Vec<Value> = Vec::new();
-
-    // Create a database transaction
-    let mut tx = conn.begin().await?;
-    let rows = sqlx::query!("SELECT * FROM extensions order by name asc")
-        .fetch_all(&mut tx)
-        .await?;
-    for row in rows.iter() {
-        let extension_id = row.id as i32;
-        let version = latest_version(extension_id, conn.clone()).await?;
-        let license = latest_license(extension_id, &version, conn.clone()).await?;
-        let owners = extension_owners(extension_id, conn.clone()).await?;
-        let categories = get_categories_for_extension(extension_id, conn.clone()).await?;
-        let data = json!(
-        {
-          "name": row.name,
-          "latestVersion": version,
-          "createdAt": row.created_at.to_string(),
-          "updatedAt": row.updated_at.to_string(),
-          "description": row.description,
-          "homepage": row.homepage,
-          "documentation": row.documentation,
-          "repository": row.repository,
-          "license": license,
-          "owners": owners,
-          "categories": categories
-        });
-        extensions.push(data);
-    }
-    // Return results in response
-    let json = serde_json::to_string_pretty(&extensions)?;
-    Ok(HttpResponse::Ok().body(json))
 }
 
 #[get("/extensions/detail/{extension_name}")]
