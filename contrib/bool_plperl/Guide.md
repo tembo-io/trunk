@@ -1,11 +1,11 @@
 # What is this extension?
 >*Transform boolean type <> PL/Perl.*
 
-TO UPDATE --EVAN
+`bool_plperl` is a C-based transformation extension that allows conversion between PostgreSQL- and Perl-native boolean values.
 
 # When should you use it?
 
-You should use the `bool_plperl` extension when writing or using PL/Perl functions within PostgreSQL that involve boolean values. It ensures that boolean values from PostgreSQL are properly interpreted in Perl and vice versa, eliminating potential logical errors.
+`bool_plperl` should be considered when writing or using PL/Perl functions within PostgreSQL that involve boolean values. This extension ensures that boolean values from PostgreSQL are properly interpreted in Perl and vice versa, eliminating potential logical errors.
 
 # Example use case.
 
