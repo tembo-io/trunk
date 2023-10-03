@@ -22,14 +22,12 @@ CREATE TABLE library_books (
     title text,
     is_available bool
 );
--- CREATE TABLE
 
 -- Populate the table with a sample book
 INSERT INTO library_books (title, is_available) VALUES 
 ('The Great Gatsby', true),
 ('To Kill a Mockingbird', false),
 ('Brothers Grimm Fairy Tales', true);
--- INSERT 0 3
 
 -- Create a PL/Perl function to check book availability
 CREATE FUNCTION is_book_available(book_title text) RETURNS bool
@@ -39,10 +37,10 @@ AS $$
   my $rv = spi_exec_query("SELECT is_available FROM library_books WHERE title = '$book_title'");
   return $rv->{rows}[0]->{is_available};
 $$ LANGUAGE plperl;
--- CREATE FUNCTION
 
 -- Test the function
 SELECT title, is_book_available(title) as available_status FROM library_books WHERE title = 'The Great Gatsby';
+
 title       | available_status
 ------------------+------------------
  The Great Gatsby | t
