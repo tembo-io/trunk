@@ -5,7 +5,7 @@
 
 
 # When should you use it?
-This extension can readily be used to perform analytics on your data.
+This extension can offer element-wise operations across multiple rows, which could be useful when performing calculations on specific array positions, e.g., finding the minimum value across multiple rows for each element in the array.
 
 
 # Example use case.
