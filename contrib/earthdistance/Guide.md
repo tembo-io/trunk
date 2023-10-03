@@ -1,17 +1,17 @@
 # What is this extension?
 > *Calculate Earth distances.*
 
-`earthdistance` is a C-based extension that provides the capability to calculate great-circle distances on the Earth's surface between two given points. It's important to note that it assumes that Earth is a perfect sphere.
+`earthdistance` is a C-based extension that provides the capability to calculate great-circle distances on the Earth's surface between two given points. It assumes that Earth is a perfect sphere.
 
 # When should you use it?
 
-This extension can be used to calculate the approximate distance between two points on the Earth's surface using their latitude and longitude coordinates. If high accuracy is important, consider using the PostGIS extension.
+This extension can be used to calculate the approximate distance between two points on the Earth's surface using their latitude and longitude coordinates. If high accuracy is important, consider instead the PostGIS extension.
 
 # Example use case.
 
 **Archeological Expeditions:** 
 
-In a fictitious scenario, an archeologist is studying newly-discovered ancient site within the Amazon rainforest. Having already been researching another ruin nearby, she's keen to measure the distance between the two locations. As she and her team are remote without access to the internet, she uses her local PostgreSQL installation on her laptop to compute the distance.
+In a fictitious scenario, an archeologist is studying a newly-discovered archeological site within the Amazon rainforest. Having already been researching another ruin nearby, she's keen to measure the distance between the two locations. As she and her team are remote without access to the internet, she uses her local PostgreSQL installation on her laptop to compute the distance.
 
 # Example test script.
 
