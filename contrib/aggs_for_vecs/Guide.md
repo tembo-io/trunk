@@ -12,7 +12,7 @@ This extension can readily be used to perform analytics on your data.
 
 Customer Behavior Analysis:
 
-An e-commerce platform is using a rating arrays to capture multi-faceted feedback on products. Each element in the array represents a specific aspect, i.e., usability, design, performance, and customer support. By analyzing these ratings over time, this business can gain insights into product trends and customer satisfaction. Different sources, such as review sites or direct feedback, contribute to these ratings. This aggregated data offers a comprehensive view of a product's performance, guiding improvements and strategies.
+An e-commerce platform is using rating arrays to capture multi-faceted feedback on products. Each element in the array represents a specific aspect, i.e., usability, design, performance, and customer support. By analyzing these ratings over time, this business can gain insights into product trends and customer satisfaction. Different sources, such as review sites or direct feedback, contribute to these ratings. This aggregated data offers a comprehensive view of a product's performance, guiding improvements and strategies.
 
 
 # Example test script.
