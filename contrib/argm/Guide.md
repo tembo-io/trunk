@@ -2,7 +2,7 @@
 
 >*Custom aggregate functions.*
 
-**`argm`** is a C-based extension that provides a set of custom aggregate functions, not native to Postgres, to perform operations on database columns.
+**`argm`** is a C-based extension that provides a set of custom aggregate functions to perform operations on database columns.
 
 
 # When should you use it?
