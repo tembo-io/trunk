@@ -41,7 +41,7 @@ $$ LANGUAGE plperl;
 -- Test the function
 SELECT title, is_book_available(title) as available_status FROM library_books WHERE title = 'The Great Gatsby';
 
-title       | available_status
+title             | available_status
 ------------------+------------------
  The Great Gatsby | t
 (1 row)
