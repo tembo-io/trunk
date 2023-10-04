@@ -102,6 +102,7 @@ pub async fn build_pgrx(
     path: &Path,
     output_path: &str,
     extension_name: Option<String>,
+    extension_dependencies: Option<Vec<String>>,
     preload_libraries: Option<Vec<String>>,
     cargo_toml: toml::Table,
     system_dependencies: Option<SystemDependencies>,
@@ -233,6 +234,7 @@ pub async fn build_pgrx(
         name,
         extension_name,
         extension_version,
+        extension_dependencies,
         inclusion_patterns,
     )
     .await?;
