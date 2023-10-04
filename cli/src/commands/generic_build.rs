@@ -69,6 +69,7 @@ pub async fn build_generic(
     output_path: &str,
     name: &str,
     extension_name: Option<String>,
+    extension_dependencies: Option<Vec<String>>,
     preload_libraries: Option<Vec<String>>,
     system_dependencies: Option<SystemDependencies>,
     extension_version: &str,
@@ -142,6 +143,7 @@ pub async fn build_generic(
         name,
         extension_name,
         extension_version,
+        extension_dependencies,
         inclusion_patterns,
     )
     .await?;
