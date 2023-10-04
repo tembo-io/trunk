@@ -397,6 +397,7 @@ pub async fn package_installed_extension_files(
     name: &str,
     mut extension_name: Option<String>,
     extension_version: &str,
+    extension_dependencies: Option<Vec<String>>,
     inclusion_patterns: Vec<glob::Pattern>,
 ) -> Result<(), anyhow::Error> {
     let name = name.to_owned();
@@ -485,6 +486,7 @@ pub async fn package_installed_extension_files(
             name,
             extension_name,
             extension_version,
+            extension_dependencies,
             manifest_version: 2,
             preload_libraries,
             architecture: target_arch,
