@@ -414,6 +414,13 @@ fn print_post_installation_guide(manifest: &Manifest) {
             }
         }
     }
+    // If the manifest has extension_dependencies, then we need to install and enable the
+    // appropriate extension
+    if let Some(extension_dependencies) = &manifest.extension_dependencies {
+        let extension_dependencies = extension_dependencies.join(",");
+        println!("\nInstall and enable the following extensions:");
+        println!("\textension_dependencies = '{}'", extension_dependencies)
+    }
     // If the manifest has preload_libraries, then we need to add the extension to preload_libraries
     // Output will look like preload_libraries = 'spl1,spl2,spl3'
     if let Some(preload_libraries) = &manifest.preload_libraries {
