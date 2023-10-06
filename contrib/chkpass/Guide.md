@@ -15,7 +15,7 @@ This extension could be used when:
 
 # Example use case.
 
-A group of developer friends, enthusiastic about building a web application for fun and learning, recognizes the importance of security, especially when handling user passwords. Before they delve into more advanced security measures, they decide to integrate the **`chkpass`** extension into their PostgreSQL database. This provides them with a foundational level of encryption, ensuring that even at the early stages of their project, user passwords are not stored in plain text.
+A group of developer friends, enthusiastic about building a web application for fun and learning, recognizes the importance of security, especially when handling user passwords. Before they delve into more advanced security measures, they decide to integrate the `chkpass` extension into their PostgreSQL database. This provides them with a foundational level of encryption, ensuring that even at the early stages of their project, user passwords are not stored in plain text.
 
 # Example test script.
 
