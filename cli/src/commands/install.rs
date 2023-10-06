@@ -11,6 +11,7 @@ use reqwest::Url;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{Read, Seek, Write};
+use std::ops::Not;
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
@@ -254,6 +255,7 @@ async fn install_file(
                 extensions_to_install.push(ext);
 
                 let deps = parsed_control_file.dependencies();
+
                 // For each dependency, check if it's not in depenedent_extensions_to_install and not in extensions_to_install.
                 // If not, add to depenedent_extensions_to_install.
                 // We don't want to install dependencies that are already present in the tar.gz
@@ -266,6 +268,20 @@ async fn install_file(
                 }
 
                 control_file = Some(parsed_control_file);
+            }
+        }
+    }
+
+    let maybe_manifest_deps = manifest
+        .as_ref()
+        .map(|manifest| manifest.extension_dependencies.as_ref())
+        .flatten();
+    if let Some(manifest_deps) = maybe_manifest_deps {
+        for dep in manifest_deps {
+            // If the extension is not in dependent_extensions_to_install,
+            // it wasn't specified in the control file
+            if dependent_extensions_to_install.contains(&dep).not() {
+                dependent_extensions_to_install.push(dep.to_string());
             }
         }
     }

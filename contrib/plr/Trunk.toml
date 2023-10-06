@@ -6,6 +6,7 @@ license = "GPL-2.0"
 description = "R Procedural Language for PostgreSQL"
 documentation = "https://github.com/postgres-plr/plr/blob/master/userguide.md"
 categories = ["procedural_languages"]
+extension_dependency = ["cube"]
 
 [dependencies]
 apt = ["libc6", "r-base-core"]

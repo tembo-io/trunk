@@ -4,6 +4,7 @@ extension_name = "extension_name_from_toml"
 preload_libraries = ["shared_preload_libraries_from_toml"]
 version = "1.5.2"
 repository = "https://github.com/tembo-io/trunk"
+extension_dependencies = ["btree_gin"]
 license = "PostgreSQL"
 categories = []
 
