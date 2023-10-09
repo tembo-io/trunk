@@ -828,6 +828,46 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
+fn assert_respects_trunk_toml_extension_depencies() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+    let output_dir = format!("/tmp/btree_gin_test_{}", rng.gen_range(0..1000000));
+
+    let extension_path = "todo";
+
+    // Run trunk build
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("build");
+    cmd.arg("--path");
+    cmd.arg(extension_path);
+    cmd.arg("--output-path");
+    cmd.arg(&output_dir);
+
+    // Assert that the dependencies were written to manifest
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    assert!(stdout.contains("\"extension_dependencies\": \"btree_gin\""));
+
+    // assert post installation steps contain correct shared_preload_libraries command
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--file");
+    cmd.arg(format!("{output_dir}/btree_gin.tar.gz").as_str());
+    cmd.arg("btree_gin");
+    let output = cmd.output()?;
+    let stdout = String::from_utf8(output.stdout)?;
+    cmd.assert().code(0);
+
+    // Assert `<dependency>` was installed
+    assert!(stdout.contains("Installing extension btree_gin"));
+
+    Ok(())
+}
+
+#[test]
 fn build_pg_unit() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::thread_rng();
     let output_dir = format!("/tmp/postgresql_unit_test_{}", rng.gen_range(0..1000000));
