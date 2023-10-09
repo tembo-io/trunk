@@ -10,7 +10,7 @@ This extension can be used when you want case-insensitive behavior without havin
 
 # Example use case.
 
-Consider a coffee shop that offers a digital menu where customers can search for their favorite coffee by region, country, or bean type. As customers search for their preferred beans, they might type "Arabica", "arabica", "ARABICA", or, though less likely, "aRaBiCa". Similarly, when searching by region or country, variations like "Columbia" or "columbia" might be entered. The owner doesn't want the search to miss any items just because of case discrepancies. To address this, the database storing the coffee varieties uses the `CITEXT` data type for columns such as bean_type, region, and country. This ensures that no matter how a customer capitalizes their search, they will always get the right results.
+Consider a coffee shop that offers a digital menu where customers can search for their favorite coffee by region, country, or bean type. As customers search for their preferred beans, they might type "Arabica", "arabica", "ARABICA", or, though less likely, "aRaBiCa". Similarly, when searching by region or country, variations like "Colombia" or "colombia" might be entered. The owner doesn't want the search to miss any items just because of case discrepancies. To address this, the database storing the coffee varieties uses the `CITEXT` data type for columns such as bean_type, region, and country. This ensures that no matter how a customer capitalizes their search, they will always get the right results.
 
 # Example test script.
 
@@ -48,6 +48,6 @@ SELECT * FROM coffee_varieties WHERE bean_type = 'ARABICA';
   4 | Java Roast        | Arabica   | Asia         | Indonesia| Dark and strong, perfect for espresso.
 (3 rows)
 
---DROP tables(s) and affiliate items to complete example
+-- DROP tables(s) and affiliate items to complete example
 DROP TABLE coffee_varieties CASCADE ;
 ```
