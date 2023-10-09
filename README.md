@@ -28,7 +28,7 @@ The Trunk CLI allows for building, publishing and installing Postgres extensions
 complexities of extension development and management with the following commands:
 
 ### `trunk build`
-> Compile extensions of all kinds.
+Compile extensions of all kinds.
 
 ```shell
 ❯ trunk build
@@ -50,7 +50,7 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ```
 
 ### `trunk publish`
-> Publish extensions to the registry, making them available to the Postgres community for discovery and installation.
+Publish extensions to the registry, making them available to the Postgres community for discovery and installation.
 
 ```shell
 ❯ trunk publish pgmq \
@@ -63,9 +63,9 @@ Packaged to ./.trunk/pgmq-0.5.0.tar.gz
 ```
 
 ### `trunk install`
-> Downloads Postgres extensions from the Trunk registry and installs into your environment (only Ubuntu suppot at this time).
+Downloads Postgres extensions from the Trunk registry and installs into your environment (only Ubuntu suppot at this time).
 
-> Supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
+Supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
 
 ```shell
 ❯ trunk install pgmq
