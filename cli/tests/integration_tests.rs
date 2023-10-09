@@ -841,13 +841,26 @@ fn assert_respects_trunk_toml_extension_depencies() -> Result<(), Box<dyn std::e
     dockerfile_path.push("test_builders");
     dockerfile_path.push("Dockerfile.btree_gin");
 
-    // Run trunk build
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("build");
     cmd.arg("--path");
-    cmd.arg(extension_path);
+    cmd.arg(extension_path.as_os_str());
     cmd.arg("--output-path");
-    cmd.arg(&output_dir);
+    cmd.arg(output_dir.clone());
+    cmd.arg("--dockerfile");
+    cmd.arg(dockerfile_path.clone());
+    cmd.arg("--install-command");
+    cmd.arg("cd contrib/btree_gin && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib");
+    cmd.arg("--version");
+    cmd.arg("15.3.0");
+    cmd.arg("--name");
+    cmd.arg("btree_gin");
+    //    cmd.arg("--preload-libraries");
+    //    cmd.arg("auto_explain_spl");
+    cmd.assert().code(0);
+    assert!(
+        std::path::Path::new(format!("{output_dir}/btree_gin-15.3.0.tar.gz").as_str()).exists()
+    );
 
     // Assert that the dependencies were written to manifest
     let manifest = Command::new("cat")
