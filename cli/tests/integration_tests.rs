@@ -832,7 +832,14 @@ fn assert_respects_trunk_toml_extension_depencies() -> Result<(), Box<dyn std::e
     let mut rng = rand::thread_rng();
     let output_dir = format!("/tmp/btree_gin_test_{}", rng.gen_range(0..1000000));
 
-    let extension_path = "todo";
+    let mut extension_path = std::path::PathBuf::from(file!());
+    extension_path.pop(); // Remove the file name from the path
+    extension_path.push("postgres_btree_gin");
+
+    let mut dockerfile_path = std::path::PathBuf::from(file!());
+    dockerfile_path.pop(); // Remove the file name from the path
+    dockerfile_path.push("test_builders");
+    dockerfile_path.push("Dockerfile.btree_gin");
 
     // Run trunk build
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
