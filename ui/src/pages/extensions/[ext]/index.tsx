@@ -1,6 +1,6 @@
 import Head from "next/head"
 import { useState, useEffect } from "react"
-import type { InferGetStaticPropsType, GetStaticProps } from "next"
+import type { InferGetStaticPropsType } from "next"
 import { Extension } from "@/types"
 import ReactMarkdown from "react-markdown"
 import styles from "./extension.module.scss"
@@ -207,7 +207,6 @@ export default function Page({
                     height={14}
                     alt="Link icon"
                   />
-
                   <span className={styles.linkText}>
                     {truncate(latestVersion.repository, 45).replace(
                       "https://",
