@@ -176,7 +176,7 @@ async fn run_unit_tests(docker: &Docker, container_id: &str) -> Result<(), Gener
         makefile_contains_target(&docker, container_id, project_dir, target).await
     };
 
-    if has("installcheck").await {
+    if dbg!(has("installcheck").await)? {
         exec_in_container(
             docker,
             container_id,
@@ -204,7 +204,7 @@ async fn run_unit_tests(docker: &Docker, container_id: &str) -> Result<(), Gener
         return Ok(());
     }
 
-    if has("check").await {
+    if dbg!(has("check").await)? {
         let configure_exists = file_exists(docker, container_id, "configure").await;
         if configure_exists {
             exec_in_container(

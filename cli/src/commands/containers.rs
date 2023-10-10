@@ -4,6 +4,7 @@ use bollard::container::{
 };
 use bollard::exec::{CreateExecOptions, StartExecOptions, StartExecResults};
 use bollard::Docker;
+use bollard::service::ExecInspectResponse;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
@@ -93,16 +94,40 @@ pub async fn makefile_contains_target(
     container_id: &str,
     dir: &str,
     target: &str,
-) -> bool {
-    exec_in_container(
-        docker,
-        container_id,
-        vec!["make", "-C", dir, "-q", target],
-        None,
-    )
-    .await
-    .map(|stdout| stdout.is_empty())
-    .unwrap_or(false)
+) -> anyhow::Result<bool> {
+    let command = vec!["make", "-C", dir, "-q", target];
+    let env = None;
+
+    let config = CreateExecOptions {
+        cmd: Some(command),
+        env,
+        attach_stdout: Some(true),
+        attach_stderr: Some(true),
+        ..Default::default()
+    };
+
+    let exec = docker.create_exec(container_id, config).await.unwrap();
+    let start_exec_options = Some(StartExecOptions {
+        detach: false,
+        ..StartExecOptions::default()
+    });
+
+    let child = docker.start_exec(&exec.id, start_exec_options);
+    
+    // Wait for the command to finish running
+    match child.await? {
+        StartExecResults::Attached { mut output, input: _ } => {
+            while output.next().await.is_some() {}
+        },
+        StartExecResults::Detached => unreachable!("detach was set to false in StartExec"),
+    }
+
+    let ExecInspectResponse { exit_code, running, .. } = docker.inspect_exec(&exec.id).await.unwrap();
+
+    dbg!(exit_code, running);
+    let exit_code = exit_code.unwrap_or(127);
+
+    Ok(exit_code == 0 || exit_code == 1)
 }
 
 /// Returns true if the file in `path` exists
