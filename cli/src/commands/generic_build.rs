@@ -13,10 +13,13 @@ use tokio::sync::mpsc;
 use tokio_task_manager::Task;
 
 use crate::commands::containers::{
-    build_image, exec_in_container, package_installed_extension_files, run_temporary_container,
+    build_image, exec_in_container, file_exists, find_makefile, package_installed_extension_files,
+    run_temporary_container,
 };
 use crate::commands::license::{copy_licenses, find_licenses};
 use crate::trunk_toml::SystemDependencies;
+
+use super::containers::makefile_contains_target;
 
 #[derive(Error, Debug)]
 pub enum GenericBuildError {
@@ -104,6 +107,8 @@ pub async fn build_generic(
     let _exec_output =
         exec_in_container(&docker, &temp_container.id, install_command, None).await?;
 
+    run_unit_tests(&docker, &temp_container.id).await?;
+
     // Search for license files to include
     println!("Determining license files to include...");
     let license_vec = find_licenses(docker.clone(), &temp_container.id).await?;
@@ -146,5 +151,77 @@ pub async fn build_generic(
     )
     .await?;
 
+    Ok(())
+}
+
+async fn run_unit_tests(docker: &Docker, container_id: &str) -> Result<(), GenericBuildError> {
+    exec_in_container(docker, container_id, vec!["/bin/sh", "-c", "pwd"], None).await?;
+    exec_in_container(docker, container_id, vec!["/bin/sh", "-c", "ls", "."], None).await?;
+    exec_in_container(
+        docker,
+        container_id,
+        vec!["/bin/sh", "-c", "find", ".", "-name", "Makefile"],
+        None,
+    )
+    .await?;
+
+    let Some(project_dir) = find_makefile(docker, container_id).await? else {
+        println!("Makefile not found!");
+        return Ok(());
+    };
+
+    let project_dir = project_dir.to_str().expect("Expected UTF8");
+
+    let has = |target| async move {
+        makefile_contains_target(&docker, container_id, project_dir, target).await
+    };
+
+    if has("installcheck").await {
+        exec_in_container(
+            docker,
+            container_id,
+            vec!["/bin/sh", "-c", "cd", project_dir, "&&", "make", "install"],
+            None,
+        )
+        .await?;
+        exec_in_container(
+            docker,
+            container_id,
+            vec![
+                "/bin/sh",
+                "-c",
+                "cd",
+                project_dir,
+                "&&",
+                "make",
+                "installcheck",
+            ],
+            None,
+        )
+        .await?;
+
+        println!("Tests passed successfully!");
+        return Ok(());
+    }
+
+    if has("check").await {
+        let configure_exists = file_exists(docker, container_id, "configure").await;
+        if configure_exists {
+            exec_in_container(
+                &docker,
+                container_id,
+                vec!["./configure", "&&", "make", "check"],
+                None,
+            )
+            .await?;
+        } else {
+            exec_in_container(&docker, container_id, vec!["make", "check"], None).await?;
+        }
+
+        println!("Tests passed successfully!");
+        return Ok(());
+    }
+
+    println!("Test target not found in Makefile.");
     Ok(())
 }

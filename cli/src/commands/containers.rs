@@ -12,7 +12,7 @@ use bollard::image::BuildImageOptions;
 use bollard::models::{BuildInfo, HostConfig};
 use std::fs::File;
 use std::io::Cursor;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::commands::generic_build::GenericBuildError;
 use crate::control_file::ControlFile;
@@ -61,6 +61,56 @@ impl Drop for ReclaimableContainer {
             task.wait().await;
         });
     }
+}
+
+pub async fn find_makefile(docker: &Docker, container_id: &str) -> anyhow::Result<Option<PathBuf>> {
+    let stdout = exec_in_container(
+        docker,
+        container_id,
+        vec!["find", ".", "-type", "f", "-iname", "Makefile"],
+        None,
+    )
+    .await?;
+
+    let Some(makefile) = stdout.lines().min() else {
+        return Ok(None);
+    };
+
+    println!("find returned: {makefile}");
+
+    let path = Path::new(makefile);
+
+    Ok(Some(
+        path.parent()
+            .with_context(|| "Makefile should have a parent folder")?
+            .to_owned(),
+    ))
+}
+
+/// Returns true if the Makefile in this container contains the given target
+pub async fn makefile_contains_target(
+    docker: &Docker,
+    container_id: &str,
+    dir: &str,
+    target: &str,
+) -> bool {
+    exec_in_container(
+        docker,
+        container_id,
+        vec!["/bin/sh", "-c", "cd", dir, "&&", "make", "-q", target],
+        None,
+    )
+    .await
+    .map(|stdout| stdout.is_empty())
+    .unwrap_or(false)
+}
+
+/// Returns true if the file in `path` exists
+pub async fn file_exists(docker: &Docker, container_id: &str, path: &str) -> bool {
+    exec_in_container(docker, container_id, vec!["test", "-e", path], None)
+        .await
+        .map(|_| true)
+        .unwrap_or(false)
 }
 
 pub async fn exec_in_container(
