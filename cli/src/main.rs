@@ -4,6 +4,7 @@ mod control_file;
 mod manifest;
 mod sync_utils;
 mod trunk_toml;
+mod tui;
 
 use crate::commands::SubCommand;
 use async_trait::async_trait;
@@ -16,6 +17,7 @@ use tokio_task_manager::{Task, TaskManager};
 use env_logger;
 use colorful::{Color, Colorful, RGB};
 use std::io::Write;
+use tui::{indent, SAND_COLOR};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -54,7 +56,7 @@ fn main() {
 		.filter_level(log::LevelFilter::Info)
 		.format(|buf, record| {
             let level_str = match record.level() {
-                Level::Info => String::from("info").color(RGB::new(255, 247, 240)),
+                Level::Info => String::from("info").color(RGB::new(SAND_COLOR.r, SAND_COLOR.g, SAND_COLOR.b)),
                 Level::Error => String::from("error").color(Color::Red),
                 Level::Warn => String::from("warn").color(Color::Yellow),
                 Level::Debug => String::from("debug").color(RGB::new(234, 67, 118)),
@@ -81,6 +83,7 @@ fn main() {
         Ok(_) => {} // Do nothing if we succeed (let the command finish)
         Err(e) => {
             error!("{}", e);
+            indent(1);
             std::process::exit(1);
         }
     }
