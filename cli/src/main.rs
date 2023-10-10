@@ -82,8 +82,9 @@ fn main() {
     }) {
         Ok(_) => {} // Do nothing if we succeed (let the command finish)
         Err(e) => {
+            // Any errors that get returned will get propogated up and gracefuly logged to the user here
+            print!("{}", indent(1));
             error!("{}", e);
-            indent(1);
             std::process::exit(1);
         }
     }

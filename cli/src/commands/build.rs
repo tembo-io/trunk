@@ -12,6 +12,7 @@ use std::fs::File;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
+use log::{info, warn, error};
 
 #[derive(Args)]
 pub struct BuildCommand {
@@ -60,7 +61,7 @@ impl BuildCommand {
         let trunk_toml = match File::open(trunkfile_path) {
             Ok(file) => Some(config::parse_trunk_toml(file)?),
             Err(_e) => {
-                println!("Trunk.toml not found");
+                error!("Trunk.toml not found");
 
                 None
             }
@@ -110,8 +111,8 @@ impl BuildCommand {
             .transpose()?
             .unwrap_or(Vec::new());
 
-        println!(
-            "Warning: will include files matching {}",
+        warn!(
+            "will include files matching {}",
             glob_patterns_to_include.display()
         );
 
@@ -155,7 +156,7 @@ impl BuildCommand {
 
 fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
     if let Some(dockerfile_path) = path {
-        println!("Using Dockerfile at {}", &dockerfile_path);
+        info!("Using Dockerfile at {}", &dockerfile_path);
         return Ok(fs::read_to_string(dockerfile_path.as_str())?);
     } else {
         return Ok(include_str!("./builders/Dockerfile.generic").to_string());
@@ -166,7 +167,7 @@ fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
 impl SubCommand for BuildCommand {
     async fn execute(&self, task: Task) -> Result<(), anyhow::Error> {
         let build_settings = self.settings()?;
-        println!("Building from path {}", build_settings.path);
+        info!("Building from path {}", build_settings.path);
         let path = Path::new(&build_settings.path);
 
         if path.join("Cargo.toml").exists() {
@@ -174,7 +175,7 @@ impl SubCommand for BuildCommand {
                 toml::from_str(&std::fs::read_to_string(path.join("Cargo.toml")).unwrap()).unwrap();
             let dependencies = cargo_toml.get("dependencies").unwrap().as_table().unwrap();
             if dependencies.contains_key("pgrx") {
-                println!("Detected that we are building a pgrx extension");
+                info!("Detected that we are building a pgrx extension");
                 // if user provides name, check that it matches Cargo.toml name
                 if build_settings.name.is_some() {
                     let package = cargo_toml.get("package");
@@ -242,12 +243,12 @@ impl SubCommand for BuildCommand {
             install_command_split.push("-c");
             install_command_split.push(install_command);
         } else {
-            println!(
-                "WARN: Install command is not specified, guessing the command is 'make install'"
+            warn!(
+                "Install command is not specified, guessing the command is 'make install'"
             );
             install_command_split = vec!["make", "install"];
         }
-        println!(
+        info!(
             "Using install command {}",
             install_command_split.clone().join(" ")
         );
