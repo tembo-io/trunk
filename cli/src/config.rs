@@ -1,4 +1,5 @@
 use std::io::Read;
+use log::warn;
 
 use crate::trunk_toml::TrunkToml;
 
@@ -9,7 +10,7 @@ pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Err
     match toml::from_str(&body) {
         Ok(toml) => Ok(toml),
         Err(e) => {
-            println!("Trunk.toml is not valid toml");
+            warn!("Trunk.toml is not valid toml");
             Err(e.into())
         }
     }

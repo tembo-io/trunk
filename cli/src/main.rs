@@ -17,7 +17,7 @@ use tokio_task_manager::{Task, TaskManager};
 use env_logger;
 use colorful::{Color, Colorful, RGB};
 use std::io::Write;
-use tui::{indent, SAND_COLOR};
+use tui::{indent, TRUNK_SAND_COLOR};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -56,7 +56,7 @@ fn main() {
 		.filter_level(log::LevelFilter::Info)
 		.format(|buf, record| {
             let level_str = match record.level() {
-                Level::Info => String::from("info").color(RGB::new(SAND_COLOR.r, SAND_COLOR.g, SAND_COLOR.b)),
+                Level::Info => String::from("info").color(RGB::new(TRUNK_SAND_COLOR.r, TRUNK_SAND_COLOR.g, TRUNK_SAND_COLOR.b)),
                 Level::Error => String::from("error").color(Color::Red),
                 Level::Warn => String::from("warn").color(Color::Yellow),
                 Level::Debug => String::from("debug").color(RGB::new(234, 67, 118)),
@@ -82,7 +82,7 @@ fn main() {
     }) {
         Ok(_) => {} // Do nothing if we succeed (let the command finish)
         Err(e) => {
-            // Any errors that get returned will get propogated up and gracefuly logged to the user here
+            // Any errors returned will get propogated up and gracefuly logged to the user here
             print!("{}", indent(1));
             error!("{}", e);
             std::process::exit(1);

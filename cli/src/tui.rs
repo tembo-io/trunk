@@ -4,7 +4,7 @@ pub struct RGB {
     pub b: u8,
 }
 
-pub const SAND_COLOR: RGB = RGB {
+pub const TRUNK_SAND_COLOR: RGB = RGB {
     r: 255,
     g: 247,
     b: 240,
