@@ -3,8 +3,8 @@ use bollard::container::{
     CreateContainerOptions, DownloadFromContainerOptions, StartContainerOptions,
 };
 use bollard::exec::{CreateExecOptions, StartExecOptions, StartExecResults};
-use bollard::Docker;
 use bollard::service::ExecInspectResponse;
+use bollard::Docker;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
@@ -73,11 +73,13 @@ pub async fn find_makefile(docker: &Docker, container_id: &str) -> anyhow::Resul
     )
     .await?;
 
+    // A project may contain several Makefiles.
+    //
+    // The idea here is that the "root" Makefile of a project would
+    // therefore be the Makefile with the smallest path
     let Some(makefile) = stdout.lines().min() else {
         return Ok(None);
     };
-
-    println!("find returned: {makefile}");
 
     let path = Path::new(makefile);
 
@@ -96,45 +98,19 @@ pub async fn makefile_contains_target(
     target: &str,
 ) -> anyhow::Result<bool> {
     let command = vec!["make", "-C", dir, "-q", target];
-    let env = None;
 
-    let config = CreateExecOptions {
-        cmd: Some(command),
-        env,
-        attach_stdout: Some(true),
-        attach_stderr: Some(true),
-        ..Default::default()
-    };
+    let (_output, exit_code) =
+        exec_in_container_with_exit_code(docker, container_id, command, None).await?;
+    let successful = matches!(exit_code, Some(0) | Some(1));
 
-    let exec = docker.create_exec(container_id, config).await.unwrap();
-    let start_exec_options = Some(StartExecOptions {
-        detach: false,
-        ..StartExecOptions::default()
-    });
-
-    let child = docker.start_exec(&exec.id, start_exec_options);
-    
-    // Wait for the command to finish running
-    match child.await? {
-        StartExecResults::Attached { mut output, input: _ } => {
-            while output.next().await.is_some() {}
-        },
-        StartExecResults::Detached => unreachable!("detach was set to false in StartExec"),
-    }
-
-    let ExecInspectResponse { exit_code, running, .. } = docker.inspect_exec(&exec.id).await.unwrap();
-
-    dbg!(exit_code, running);
-    let exit_code = exit_code.unwrap_or(127);
-
-    Ok(exit_code == 0 || exit_code == 1)
+    Ok(successful)
 }
 
 /// Returns true if the file in `path` exists
 pub async fn file_exists(docker: &Docker, container_id: &str, path: &str) -> bool {
-    exec_in_container(docker, container_id, vec!["test", "-e", path], None)
+    exec_in_container_with_exit_code(docker, container_id, vec!["test", "-e", path], None)
         .await
-        .map(|_| true)
+        .map(|(_, exit_code)| exit_code == Some(0))
         .unwrap_or(false)
 }
 
@@ -144,6 +120,17 @@ pub async fn exec_in_container(
     command: Vec<&str>,
     env: Option<Vec<&str>>,
 ) -> Result<String, anyhow::Error> {
+    exec_in_container_with_exit_code(docker, container_id, command, env)
+        .await
+        .map(|(output, _code)| output)
+}
+
+pub async fn exec_in_container_with_exit_code(
+    docker: &Docker,
+    container_id: &str,
+    command: Vec<&str>,
+    env: Option<Vec<&str>>,
+) -> Result<(String, Option<i64>), anyhow::Error> {
     println!("Executing in container: {:?}", command.join(" "));
 
     let config = CreateExecOptions {
@@ -182,7 +169,10 @@ pub async fn exec_in_container(
             println!("Exec started in detached mode");
         }
     }
-    Ok::<String, anyhow::Error>(total_output)
+
+    let ExecInspectResponse { exit_code, .. } = docker.inspect_exec(&exec.id).await?;
+
+    Ok((total_output, exit_code))
 }
 
 pub async fn run_temporary_container(

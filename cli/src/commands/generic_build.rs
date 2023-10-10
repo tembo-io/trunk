@@ -13,8 +13,8 @@ use tokio::sync::mpsc;
 use tokio_task_manager::Task;
 
 use crate::commands::containers::{
-    build_image, exec_in_container, file_exists, find_makefile, package_installed_extension_files,
-    run_temporary_container,
+    build_image, exec_in_container, exec_in_container_with_exit_code, file_exists, find_makefile,
+    package_installed_extension_files, run_temporary_container,
 };
 use crate::commands::license::{copy_licenses, find_licenses};
 use crate::trunk_toml::SystemDependencies;
@@ -170,53 +170,62 @@ async fn run_unit_tests(docker: &Docker, container_id: &str) -> Result<(), Gener
         return Ok(());
     };
 
-    let project_dir = project_dir.to_str().expect("Expected UTF8");
+    let project_dir_utf8 = project_dir.to_str().expect("Expected UTF8");
 
     let has = |target| async move {
-        makefile_contains_target(&docker, container_id, project_dir, target).await
+        makefile_contains_target(&docker, container_id, project_dir_utf8, target).await
     };
 
-    if dbg!(has("installcheck").await)? {
-        exec_in_container(
-            docker,
-            container_id,
-            vec!["make", "-C", project_dir, "install"],
-            None,
-        )
-        .await?;
-        exec_in_container(
-            docker,
-            container_id,
-            vec!["make", "-C", project_dir, "installcheck"],
-            None,
-        )
-        .await?;
+    if has("check").await? {
+        println!("make check was found in the Makefile");
+        let configure_file = project_dir.join("configure");
+        let configure_file = configure_file.to_str().unwrap();
 
-        exec_in_container(
-            docker,
-            container_id,
-            vec!["make", "-C", project_dir, "installchec"],
-            None,
-        )
-        .await?;
+        let configure_exists = file_exists(docker, container_id, configure_file).await;
+        if configure_exists {
+            let (_, exit_code) = exec_in_container_with_exit_code(
+                &docker,
+                container_id,
+                vec![
+                    "/bin/sh",
+                    "-c",
+                    "cd",
+                    project_dir_utf8,
+                    "&&",
+                    "./configure",
+                    "&&",
+                    "make",
+                    "check",
+                ],
+                None,
+            )
+            .await?;
+
+            dbg!("configure", exit_code);
+        } else {
+            exec_in_container(&docker, container_id, vec!["make", "check"], None).await?;
+        }
 
         println!("Tests passed successfully!");
         return Ok(());
     }
 
-    if dbg!(has("check").await)? {
-        let configure_exists = file_exists(docker, container_id, "configure").await;
-        if configure_exists {
-            exec_in_container(
-                &docker,
-                container_id,
-                vec!["./configure", "&&", "make", "check"],
-                None,
-            )
-            .await?;
-        } else {
-            exec_in_container(&docker, container_id, vec!["make", "check"], None).await?;
-        }
+    if dbg!(has("installcheck").await)? {
+        println!("make installcheck was found in the Makefile");
+        exec_in_container(
+            docker,
+            container_id,
+            vec!["make", "-C", project_dir_utf8, "install"],
+            None,
+        )
+        .await?;
+        exec_in_container(
+            docker,
+            container_id,
+            vec!["make", "-C", project_dir_utf8, "installcheck"],
+            None,
+        )
+        .await?;
 
         println!("Tests passed successfully!");
         return Ok(());
