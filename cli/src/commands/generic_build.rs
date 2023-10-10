@@ -154,17 +154,7 @@ pub async fn build_generic(
     Ok(())
 }
 
-async fn run_unit_tests(docker: &Docker, container_id: &str) -> Result<(), GenericBuildError> {
-    exec_in_container(docker, container_id, vec!["/bin/sh", "-c", "pwd"], None).await?;
-    exec_in_container(docker, container_id, vec!["/bin/sh", "-c", "ls", "."], None).await?;
-    exec_in_container(
-        docker,
-        container_id,
-        vec!["/bin/sh", "-c", "find", ".", "-name", "Makefile"],
-        None,
-    )
-    .await?;
-
+async fn run_unit_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
     let Some(project_dir) = find_makefile(docker, container_id).await? else {
         println!("Makefile not found!");
         return Ok(());
@@ -182,29 +172,36 @@ async fn run_unit_tests(docker: &Docker, container_id: &str) -> Result<(), Gener
         let configure_file = configure_file.to_str().unwrap();
 
         let configure_exists = file_exists(docker, container_id, configure_file).await;
-        if configure_exists {
+        let exit_code = if configure_exists {
             let (_, exit_code) = exec_in_container_with_exit_code(
                 &docker,
                 container_id,
                 vec![
                     "/bin/sh",
                     "-c",
-                    "cd",
-                    project_dir_utf8,
-                    "&&",
-                    "./configure",
-                    "&&",
-                    "make",
-                    "check",
+                    &format!("cd {project_dir_utf8} && echo done && ./configure && make check && echo done")
                 ],
                 None,
             )
             .await?;
 
-            dbg!("configure", exit_code);
+            exit_code
         } else {
-            exec_in_container(&docker, container_id, vec!["make", "check"], None).await?;
-        }
+            let (_, exit_code) = exec_in_container_with_exit_code(
+                &docker,
+                container_id,
+                vec![
+                    "bin/sh",
+                    "-c",
+                    &format!("cd {project_dir_utf8} && make check"),
+                ],
+                None,
+            )
+            .await?;
+            exit_code
+        };
+
+        anyhow::ensure!(matches!(exit_code, Some(0)), "Tests failed!");
 
         println!("Tests passed successfully!");
         return Ok(());
