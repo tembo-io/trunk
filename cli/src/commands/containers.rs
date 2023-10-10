@@ -97,7 +97,7 @@ pub async fn makefile_contains_target(
     exec_in_container(
         docker,
         container_id,
-        vec!["/bin/sh", "-c", "cd", dir, "&&", "make", "-q", target],
+        vec!["make", "-C", dir, "-q", target],
         None,
     )
     .await

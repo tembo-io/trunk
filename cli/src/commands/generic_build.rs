@@ -180,22 +180,22 @@ async fn run_unit_tests(docker: &Docker, container_id: &str) -> Result<(), Gener
         exec_in_container(
             docker,
             container_id,
-            vec!["/bin/sh", "-c", "cd", project_dir, "&&", "make", "install"],
+            vec!["make", "-C", project_dir, "install"],
             None,
         )
         .await?;
         exec_in_container(
             docker,
             container_id,
-            vec![
-                "/bin/sh",
-                "-c",
-                "cd",
-                project_dir,
-                "&&",
-                "make",
-                "installcheck",
-            ],
+            vec!["make", "-C", project_dir, "installcheck"],
+            None,
+        )
+        .await?;
+
+        exec_in_container(
+            docker,
+            container_id,
+            vec!["make", "-C", project_dir, "installchec"],
             None,
         )
         .await?;
