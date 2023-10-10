@@ -19,12 +19,12 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
         .service(routes::download::download)
         .service(
             web::scope("/token")
-                .wrap(ClerkMiddleware::new(clerk_cfg.clone(), None))
+                .wrap(ClerkMiddleware::new(clerk_cfg.clone(), None, false))
                 .service(new_token),
         )
         .service(
             web::scope("/admin")
-                .wrap(ClerkMiddleware::new(clerk_cfg, None))
+                .wrap(ClerkMiddleware::new(clerk_cfg, None, false))
                 .service(routes::root::auth_ok)
                 .service(routes::extensions::delete_extension)
                 .service(routes::extensions::put_shared_preload_libraries),

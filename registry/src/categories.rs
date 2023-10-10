@@ -94,11 +94,11 @@ pub async fn get_category_ids(
 ) -> Result<Vec<i64>, ExtensionRegistryError> {
     let mut ids: Vec<i64> = Vec::new();
     for slug in categories {
-        let id = sqlx::query!("SELECT id FROM categories WHERE slug = $1", slug)
+        let maybe_entry = sqlx::query!("SELECT id FROM categories WHERE slug = $1", slug)
             .fetch_optional(conn.as_ref())
             .await?;
-        if id.is_some() {
-            ids.push(id.unwrap().id)
+        if let Some(entry) = maybe_entry {
+            ids.push(entry.id)
         }
     }
     Ok(ids)
