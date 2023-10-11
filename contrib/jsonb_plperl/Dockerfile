@@ -15,7 +15,8 @@ RUN apt-get update && apt-get install -y \
 	xsltproc \
 	ccache \
 	libperl-dev \
-	perl
+	perl \
+	libjson-perl
 
 # Clone repository
 RUN git clone https://github.com/postgres/postgres.git
