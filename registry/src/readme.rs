@@ -21,7 +21,7 @@ impl GithubApiClient {
     pub async fn fetch_readme(&self, project_url: &str) -> Result<String> {
         // TODO: deal with error
         let project = GitHubProject::parse_url(project_url).unwrap();
-        
+
         let readme_url = project.build_readme_url();
 
         self.client
