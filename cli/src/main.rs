@@ -12,7 +12,7 @@ use clap::{Parser, Subcommand};
 use log::Level;
 use log::error;
 
-use std::time::Duration;
+use std::{process::ExitCode, time::Duration};
 use tokio_task_manager::{Task, TaskManager};
 use env_logger;
 use colorful::{Color, Colorful, RGB};
@@ -51,7 +51,7 @@ impl SubCommand for SubCommands {
     }
 }
 
-fn main() {
+fn main() -> ExitCode {
     env_logger::builder()
 		.filter_level(log::LevelFilter::Info)
 		.format(|buf, record| {
@@ -80,12 +80,12 @@ fn main() {
         tm.wait().await;
         result
     }) {
-        Ok(_) => {} // Do nothing if we succeed (let the command finish)
+        Ok(_) => ExitCode::SUCCESS,
         Err(e) => {
             // Any errors returned will get propogated up and gracefuly logged to the user here
             print!("{}", indent(1));
             error!("{}", e);
-            std::process::exit(1);
+            return ExitCode::from(1);
         }
     }
 }
