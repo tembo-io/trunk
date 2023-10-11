@@ -10,6 +10,7 @@ import Header from "@/Components/Header"
 
 const REGISTRY_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://registry.pgtrunk.io"
+
 export const getStaticProps: GetStaticProps<{
   categories: Category[]
 }> = async () => {
