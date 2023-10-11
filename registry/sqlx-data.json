@@ -612,6 +612,19 @@
     },
     "query": "SELECT id FROM extensions WHERE name = $1"
   },
+  "65a10cf0ab7fbc58df8e87fb31c2187d7696490c598f808502b35dcd3e235215": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO readmes (extension_id, readme_html)\n            VALUES ($1, $2)\n            ON CONFLICT (extension_id)\n            DO UPDATE SET readme_html = excluded.readme_html"
+  },
   "69ef7c7c79e69f31731a41417a0047562f0806a7c73eb4bb98c9ed554fff3b7c": {
     "describe": {
       "columns": [],

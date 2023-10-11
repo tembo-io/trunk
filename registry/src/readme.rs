@@ -1,11 +1,42 @@
 use reqwest::Client;
-use sqlx::{Pool, Postgres};
 
 use crate::{
     errors::{ExtensionRegistryError, Result},
-    extensions::get_extension_id,
-    repository::{self, Registry},
+    repository::Registry,
 };
+
+pub struct GithubApiClient {
+    token: String,
+    client: Client,
+}
+
+impl GithubApiClient {
+    pub fn new(token: String) -> Self {
+        Self {
+            token,
+            client: Client::new(),
+        }
+    }
+
+    pub async fn fetch_readme(&self, project_url: &str) -> Result<String> {
+        // TODO: deal with error
+        let project = GitHubProject::parse_url(project_url).unwrap();
+        
+        let readme_url = project.build_readme_url();
+
+        self.client
+            .get(readme_url)
+            .header("Accept", "application/vnd.github.html")
+            .header("X-GitHub-Api-Version", "2022-11-28")
+            .header("User-Agent", "request")
+            .bearer_auth(&self.token)
+            .send()
+            .await?
+            .text()
+            .await
+            .map_err(Into::into)
+    }
+}
 
 #[derive(Debug, PartialEq)]
 struct GitHubProject<'a> {
@@ -50,39 +81,17 @@ impl<'a> GitHubProject<'a> {
     }
 }
 
-async fn fetch_readme(http_client: &Client, project_url: &str) -> Result<String> {
-    // TODO: deal with error
-    let project = GitHubProject::parse_url(project_url).unwrap();
-    let token = "todo";
-
-    let readme_url = project.build_readme_url();
-
-    http_client
-        .get(readme_url)
-        .header("Accept", "application/vnd.github.html")
-        .header("X-GitHub-Api-Version", "2022-11-28")
-        .header("User-Agent", "request")
-        .bearer_auth(&token)
-        .send()
-        .await?
-        .text()
-        .await
-        .map_err(Into::into)
-}
-
 pub async fn fetch_and_save_readme(
-    http_client: &Client,
+    client: &GithubApiClient,
     registry: &Registry,
     extension_name: &str,
 ) -> Result {
-    let (extension_id, extension_url) = registry
-        .get_repository_url(extension_name)
-        .await?;
+    let (extension_id, extension_url) = registry.get_repository_url(extension_name).await?;
 
     let url = extension_url.ok_or(ExtensionRegistryError::ResourceNotFound)?;
 
-    let readme = fetch_readme(http_client, &url).await?;
-    registry.save_readme(extension_id, &readme).await?;
+    let readme = client.fetch_readme(&url).await?;
+    registry.upsert_readme(extension_id, &readme).await?;
 
     Ok(())
 }
