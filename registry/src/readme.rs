@@ -95,3 +95,48 @@ pub async fn fetch_and_save_readme(
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::readme::GitHubProject;
+
+    #[test]
+    fn parses_github_urls() {
+        let pgmq = "https://github.com/tembo-io/pgmq";
+        let auth_delay = "https://github.com/postgres/postgres/tree/master/contrib/auth_delay";
+
+        assert_eq!(
+            GitHubProject::parse_url(pgmq).unwrap(),
+            GitHubProject {
+                owner: "tembo-io",
+                name: "pgmq",
+                subdir: None
+            }
+        );
+        assert_eq!(
+            GitHubProject::parse_url(auth_delay).unwrap(),
+            GitHubProject {
+                owner: "postgres",
+                name: "postgres",
+                subdir: Some("auth_delay")
+            }
+        );
+    }
+
+    #[test]
+    fn builds_readme_urls() {
+        let pgmq = "https://github.com/tembo-io/pgmq";
+        let auth_delay = "https://github.com/postgres/postgres/tree/master/contrib/auth_delay";
+
+        assert_eq!(
+            GitHubProject::parse_url(pgmq).unwrap().build_readme_url(),
+            "https://api.github.com/repos/tembo-io/pgmq/readme"
+        );
+        assert_eq!(
+            GitHubProject::parse_url(auth_delay)
+                .unwrap()
+                .build_readme_url(),
+            "https://api.github.com/repos/postgres/postgres/readme"
+        );
+    }
+}
