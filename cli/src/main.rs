@@ -9,14 +9,14 @@ mod tui;
 use crate::commands::SubCommand;
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
-use log::Level;
 use log::error;
+use log::Level;
 
+use colorful::{Color, Colorful, RGB};
+use env_logger;
+use std::io::Write;
 use std::{process::ExitCode, time::Duration};
 use tokio_task_manager::{Task, TaskManager};
-use env_logger;
-use colorful::{Color, Colorful, RGB};
-use std::io::Write;
 use tui::{indent, TRUNK_SAND_COLOR};
 
 #[derive(Parser)]
@@ -53,10 +53,14 @@ impl SubCommand for SubCommands {
 
 fn main() -> ExitCode {
     env_logger::builder()
-		.filter_level(log::LevelFilter::Info)
-		.format(|buf, record| {
+        .filter_level(log::LevelFilter::Info)
+        .format(|buf, record| {
             let level_str = match record.level() {
-                Level::Info => String::from("info").color(RGB::new(TRUNK_SAND_COLOR.r, TRUNK_SAND_COLOR.g, TRUNK_SAND_COLOR.b)),
+                Level::Info => String::from("info").color(RGB::new(
+                    TRUNK_SAND_COLOR.r,
+                    TRUNK_SAND_COLOR.g,
+                    TRUNK_SAND_COLOR.b,
+                )),
                 Level::Error => String::from("error").color(Color::Red),
                 Level::Warn => String::from("warn").color(Color::Yellow),
                 Level::Debug => String::from("debug").color(RGB::new(234, 67, 118)),
@@ -64,8 +68,8 @@ fn main() -> ExitCode {
             };
             return writeln!(buf, "{}: {}", level_str, record.args());
         })
-		.try_init()
-		.ok();
+        .try_init()
+        .ok();
 
     let tm = TaskManager::new(Duration::from_secs(60));
 

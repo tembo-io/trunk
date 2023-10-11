@@ -6,6 +6,7 @@ use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
+use log::{error, info, warn};
 use reqwest;
 use reqwest::Url;
 use std::ffi::OsStr;
@@ -14,7 +15,6 @@ use std::io::{Read, Seek, Write};
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
-use log::{info, warn, error};
 
 #[derive(Args)]
 pub struct InstallCommand {

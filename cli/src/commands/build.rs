@@ -6,13 +6,13 @@ use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
+use log::{info, warn};
 use slicedisplay::SliceDisplay;
 use std::fs;
 use std::fs::File;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
-use log::{info, warn};
 
 #[derive(Args)]
 pub struct BuildCommand {
@@ -243,9 +243,7 @@ impl SubCommand for BuildCommand {
             install_command_split.push("-c");
             install_command_split.push(install_command);
         } else {
-            warn!(
-                "Install command is not specified, guessing the command is 'make install'"
-            );
+            warn!("Install command is not specified, guessing the command is 'make install'");
             install_command_split = vec!["make", "install"];
         }
         info!(

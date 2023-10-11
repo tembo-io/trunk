@@ -10,12 +10,11 @@ pub const TRUNK_SAND_COLOR: RGB = RGB {
     b: 240,
 };
 
-
 pub fn indent(amount: u32) -> String {
-	let mut new_amount = String::new();
+    let mut new_amount = String::new();
 
-	for _ in 0..amount {
-		new_amount.push('\n');
-	}
-	new_amount
+    for _ in 0..amount {
+        new_amount.push('\n');
+    }
+    new_amount
 }

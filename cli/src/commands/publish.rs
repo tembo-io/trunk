@@ -8,6 +8,7 @@ use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
+use log::{error, info, warn};
 use reqwest::header::CONTENT_TYPE;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
 use reqwest::StatusCode;
@@ -19,7 +20,6 @@ use std::path::{Path, PathBuf};
 use std::{env, fs};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
-use log::{info, error, warn};
 
 #[derive(Args)]
 pub struct PublishCommand {
