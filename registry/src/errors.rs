@@ -10,6 +10,8 @@ use std::string::FromUtf8Error;
 use thiserror::Error;
 use url::ParseError;
 
+pub type Result<T = ()> = std::result::Result<T, ExtensionRegistryError>;
+
 // Use default implementation for `error_response()` method
 impl actix_web::error::ResponseError for ExtensionRegistryError {
     fn status_code(&self) -> reqwest::StatusCode {

@@ -4,6 +4,9 @@ use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
 use crate::{conn_options, errors};
 
+/// Queries related to fetching information on extensions
+mod extension;
+
 /// Queries related to removing an extension from the DB
 mod remove_extension;
 

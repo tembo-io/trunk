@@ -1,6 +1,7 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use clerk_rs::{validators::actix::ClerkMiddleware, ClerkConfiguration};
+use trunk_registry::readme::GithubApiClient;
 use trunk_registry::repository::Registry;
 use trunk_registry::routes::token::new_token;
 use trunk_registry::{config, connect, routes};
@@ -58,6 +59,9 @@ pub async fn server() -> std::io::Result<()> {
             .app_data(web::Data::new(registry.clone()))
             .app_data(web::Data::new(cfg.clone()))
             .app_data(web::Data::new(aws_config.clone()))
+            .app_data(web::Data::new(GithubApiClient::new(
+                cfg.github_token.clone(),
+            )))
             .configure(routes_config)
     })
     .bind(("0.0.0.0", 8080))?

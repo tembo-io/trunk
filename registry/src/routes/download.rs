@@ -19,7 +19,7 @@ pub async fn download(
     // TODO(ianstanton) Increment download count for extension
     // Use latest version if 'latest' provided as version
     if version == "latest" {
-        let extension_id = get_extension_id(&name, conn.clone()).await?;
+        let extension_id = get_extension_id(&name, conn.as_ref()).await?;
         version = latest_version(extension_id as _, conn).await?;
     }
     let url = extension_location(&cfg.bucket_name, &name, &version);
