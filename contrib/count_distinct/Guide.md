@@ -2,7 +2,7 @@
 
 > COUNT(DISCTINCT ...) alternative.
 
-The COUNT_DISTINCT aggregate extension offers a better performance alternative to the traditional COUNT(DISTINCT ...). Especially for larger datasets, where the traditional method may end in slow sorts. This extension includes polymorphic aggregate functions, which can handle both fixed-length data types and arrays of these types.
+The COUNT_DISTINCT aggregate extension offers a better performance alternative to the traditional COUNT(DISTINCT ...), especially for larger datasets, where the traditional method may end in slow sorts. This extension includes polymorphic aggregate functions, which can handle both fixed-length data types and arrays of these types.
 
 # When should you use it?
 
