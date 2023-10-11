@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use std::{env, fs};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
-use log::{info, error};
+use log::{info, error, warn};
 
 #[derive(Args)]
 pub struct PublishCommand {
@@ -86,7 +86,7 @@ impl PublishCommand {
         let trunk_toml = match File::open(trunkfile_path) {
             Ok(file) => Some(config::parse_trunk_toml(file)?),
             Err(_e) => {
-                error!("Trunk.toml not found");
+                warn!("Trunk.toml not found");
                 None
             }
         };

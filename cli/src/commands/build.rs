@@ -12,7 +12,7 @@ use std::fs::File;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
-use log::{info, warn, error};
+use log::{info, warn};
 
 #[derive(Args)]
 pub struct BuildCommand {
@@ -61,7 +61,7 @@ impl BuildCommand {
         let trunk_toml = match File::open(trunkfile_path) {
             Ok(file) => Some(config::parse_trunk_toml(file)?),
             Err(_e) => {
-                error!("Trunk.toml not found");
+                warn!("Trunk.toml not found");
 
                 None
             }
