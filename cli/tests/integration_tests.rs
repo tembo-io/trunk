@@ -909,10 +909,10 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(format!("{output_dir}/postgis-3.4.0.tar.gz").as_str());
     cmd.arg("postgis");
     let output = cmd.output()?;
-    let stdout = String::from_utf8(output.stdout)?;
+    let stderr = String::from_utf8(output.stderr)?;
     cmd.assert().code(0);
-    assert!(stdout.contains("Dependent extensions to be installed: [\"fuzzystrmatch\"]"));
-    assert!(stdout.contains("Installing fuzzystrmatch"));
+    assert!(stderr.contains("Dependent extensions to be installed: [\"fuzzystrmatch\"]"));
+    assert!(stderr.contains("Installing fuzzystrmatch"));
 
     assert!(file_exists(format!(
         "{sharedir}/extension/fuzzystrmatch.control"
