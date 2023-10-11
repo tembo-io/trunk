@@ -205,7 +205,7 @@ fn build_pgrx_extension_bad_name() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("bad_name");
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.assert().code(101);
+    cmd.assert().code(1);
 
     Ok(())
 }
@@ -228,7 +228,7 @@ fn build_pgrx_extension_bad_version() -> Result<(), Box<dyn std::error::Error>> 
     cmd.arg("0.0.1");
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.assert().code(101);
+    cmd.assert().code(1);
 
     Ok(())
 }
@@ -688,7 +688,7 @@ fn build_pgrx_with_trunk_toml_bad_name() -> Result<(), Box<dyn std::error::Error
     cmd.arg(trunkfile_path.as_os_str());
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.assert().code(101);
+    cmd.assert().code(1);
 
     Ok(())
 }
@@ -713,7 +713,7 @@ fn build_pgrx_with_trunk_toml_bad_version() -> Result<(), Box<dyn std::error::Er
     cmd.arg(trunkfile_path.as_os_str());
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.assert().code(101);
+    cmd.assert().code(1);
 
     Ok(())
 }
@@ -909,10 +909,10 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(format!("{output_dir}/postgis-3.4.0.tar.gz").as_str());
     cmd.arg("postgis");
     let output = cmd.output()?;
-    let stdout = String::from_utf8(output.stdout)?;
+    let stderr = String::from_utf8(output.stderr)?;
     cmd.assert().code(0);
-    assert!(stdout.contains("Dependent extensions to be installed: [\"fuzzystrmatch\"]"));
-    assert!(stdout.contains("Installing fuzzystrmatch"));
+    assert!(stderr.contains("Dependent extensions to be installed: [\"fuzzystrmatch\"]"));
+    assert!(stderr.contains("Installing fuzzystrmatch"));
 
     assert!(file_exists(format!(
         "{sharedir}/extension/fuzzystrmatch.control"
