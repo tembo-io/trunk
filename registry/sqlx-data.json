@@ -942,6 +942,32 @@
     },
     "query": "DELETE FROM versions\n             WHERE extension_id = $1"
   },
+  "a58bdc12504edda01f8c370c35cb064147fd14e6767f1ed3939f5bea60bf79fa": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "repository",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id, repository FROM extensions WHERE extensions.name = $1"
+  },
   "ac75c8170d5f5bc2fa5c48cdec0ec8899a2cfd1fd679e3656fe95c19650e5bd3": {
     "describe": {
       "columns": [
