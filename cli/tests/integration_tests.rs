@@ -205,7 +205,7 @@ fn build_pgrx_extension_bad_name() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("bad_name");
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.assert().code(101);
+    cmd.assert().code(1);
 
     Ok(())
 }
@@ -228,7 +228,7 @@ fn build_pgrx_extension_bad_version() -> Result<(), Box<dyn std::error::Error>> 
     cmd.arg("0.0.1");
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.assert().code(101);
+    cmd.assert().code(1);
 
     Ok(())
 }
@@ -688,7 +688,7 @@ fn build_pgrx_with_trunk_toml_bad_name() -> Result<(), Box<dyn std::error::Error
     cmd.arg(trunkfile_path.as_os_str());
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.assert().code(101);
+    cmd.assert().code(1);
 
     Ok(())
 }
@@ -713,7 +713,7 @@ fn build_pgrx_with_trunk_toml_bad_version() -> Result<(), Box<dyn std::error::Er
     cmd.arg(trunkfile_path.as_os_str());
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.assert().code(101);
+    cmd.assert().code(1);
 
     Ok(())
 }
