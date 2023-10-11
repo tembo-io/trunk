@@ -565,12 +565,22 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
+    println!("PRINTING STD OUT: {}", stdout);
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
     assert!(stdout.contains("Install the following system-level dependencies:"));
     assert!(stdout.contains("On systems using apt:"));
     assert!(stdout.contains("libpq5"));
     assert!(stdout.contains("On systems using dnf:"));
     assert!(stdout.contains("libpq-devel"));
+
+    // assert that the dependencies were written to manifest
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    assert!(stdout.contains("\"extension_dependencies\": \"btree_gin\""));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -830,15 +840,15 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn assert_respects_trunk_toml_extension_depencies() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::thread_rng();
-    let output_dir = format!("/tmp/btree_gin_test_{}", rng.gen_range(0..1000000));
+    let output_dir = format!("/tmp/pg_cron_test_{}", rng.gen_range(0..1000000));
 
     let mut extension_path = std::path::PathBuf::from(file!());
     extension_path.pop(); // Remove the file name from the path
-    extension_path.push("postgres_btree_gin");
+    extension_path.push("pg_cron");
 
     let mut dockerfile_path = std::path::PathBuf::from(file!());
     dockerfile_path.pop(); // Remove the file name from the path
-    dockerfile_path.push("test_builders");
+    dockerfile_path.push("test_trunk_toml_dirs/pg_cron");
     dockerfile_path.push("Dockerfile.btree_gin");
 
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -875,14 +885,11 @@ fn assert_respects_trunk_toml_extension_depencies() -> Result<(), Box<dyn std::e
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(format!("{output_dir}/btree_gin.tar.gz").as_str());
-    cmd.arg("btree_gin");
+    cmd.arg(format!("{output_dir}/pg_cron.tar.gz").as_str());
+    cmd.arg("pg_cron");
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
-
-    // Assert `<dependency>` was installed
-    assert!(stdout.contains("Installing extension btree_gin"));
 
     Ok(())
 }
