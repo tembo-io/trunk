@@ -1,7 +1,6 @@
 # What is this extension?
 
-> Integer indexing control.
-> 
+> Integer indexing control. 
 
 The `dict_int` extension serves as an example of a dictionary template for enhancing full-text search capabilities in PostgreSQL. It aims to manage the indexing of integers efficiently to prevent a surge in unique words, which could hamper search performance.
 
