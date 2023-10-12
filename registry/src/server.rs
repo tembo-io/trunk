@@ -18,6 +18,8 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
         .service(routes::categories::get_all_categories)
         .service(routes::extensions::publish)
         .service(routes::download::download)
+        .service(routes::readmes::fetch_and_save_readme)
+        .service(routes::readmes::get_readme)
         .service(
             web::scope("/token")
                 .wrap(ClerkMiddleware::new(clerk_cfg.clone(), None, false))
