@@ -6,7 +6,7 @@ The `dict_int` extension serves as an example of a dictionary template for enhan
 
 # When should you use it?
 
-This extension could be implemented when considering a database with a substantial amount of integer data, upon which full-text searches need to be performed.
+This extension could be implemented when considering a database with a substantial amount of integer data, within which full-text searches need to be performed.
 
 # Example use case.
 
