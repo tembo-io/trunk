@@ -23,6 +23,7 @@ pub async fn download(
         version = latest_version(extension_id as _, conn.as_ref()).await?;
     } else {
         let version_exists = check_version(conn.as_ref(), extension_id as _, &version).await?;
+
         if !version_exists {
             return Ok(HttpResponse::NotFound().body("Version not found"));
         }
