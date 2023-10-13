@@ -13,20 +13,35 @@ in its database and compiled extension artifacts in AWS S3. Features include:
 Extensions are grouped according to developer-centric use cases:
 
 `Analytics` - Interrogate data to extract meaningful insights.
+
 `Auditing / Logging` - Monitor and record database activities.
+
 `Change Data Capture` - Track and apply database changes to targeted objects or processes.
+
 `Connectors` - Integrate and interact with external data sources, systems, and services.
+
 `Data / Transformations` - Streamline data loading, transformation processes, and basic data type management.
+
 `Debugging` - Identify and resolve issues.
+
 `Index / Table Optimizations` - Improve performance by targeting index use and creation, as well as database compaction and reorganization.
+
 `Machine Learning` - Incorporate machine learning capabilities.
+
 `Metrics` - Spotlight performance indicators, such as cache and tuple-level statistics, process information,  session-level activity, and more.
+
 `Monitoring` - Offer real-time or near-real-time database activity and performance.
+
 `Orchestration` - Establish ongoing database management related, but not limited to operations, deployment, or clusters.
+
 `Procedural Languages` - Enable efficient management, manipulation, and adaptation of database logic.
+
 `Query Optimizations` - Augment query experiences surrounding metrics observability and usability.
+
 `Search` - Facilitate more efficient search operations within a database.
+
 `Security` - Employ defense strategies for data and databases, including encryption, measures to prevent unauthorized access, and with other associated safeguarding tactics.
+
 `Tooling / Admin` - Extend user management and database system oversight, as well as “under-the-hood” access to logic modification and external resources.
 
 ## Development
