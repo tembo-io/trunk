@@ -1,6 +1,7 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use clerk_rs::{validators::actix::ClerkMiddleware, ClerkConfiguration};
+use trunk_registry::readme::GithubApiClient;
 use trunk_registry::repository::Registry;
 use trunk_registry::routes::token::new_token;
 use trunk_registry::{config, connect, routes};
@@ -17,14 +18,16 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
         .service(routes::categories::get_all_categories)
         .service(routes::extensions::publish)
         .service(routes::download::download)
+        .service(routes::readmes::fetch_and_save_readme)
+        .service(routes::readmes::get_readme)
         .service(
             web::scope("/token")
-                .wrap(ClerkMiddleware::new(clerk_cfg.clone(), None))
+                .wrap(ClerkMiddleware::new(clerk_cfg.clone(), None, false))
                 .service(new_token),
         )
         .service(
             web::scope("/admin")
-                .wrap(ClerkMiddleware::new(clerk_cfg, None))
+                .wrap(ClerkMiddleware::new(clerk_cfg, None, false))
                 .service(routes::root::auth_ok)
                 .service(routes::extensions::delete_extension)
                 .service(routes::extensions::put_shared_preload_libraries),
@@ -58,6 +61,9 @@ pub async fn server() -> std::io::Result<()> {
             .app_data(web::Data::new(registry.clone()))
             .app_data(web::Data::new(cfg.clone()))
             .app_data(web::Data::new(aws_config.clone()))
+            .app_data(web::Data::new(GithubApiClient::new(
+                cfg.github_token.clone(),
+            )))
             .configure(routes_config)
     })
     .bind(("0.0.0.0", 8080))?
