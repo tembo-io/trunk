@@ -22,7 +22,7 @@ export const getStaticProps: GetStaticProps<{
     const cats: Category[] = await catRes.json()
     const exts: Extension[] = await extRes.json()
 
-    console.log(`info: Got ${exts.length} extensions in index.tsx`)
+    console.info(`Got ${exts.length} extensions in index.tsx`)
 
     const sortedCategories = moveFeaturedCategoryToStart(
       cats.sort((a, b) => (a.name < b.name ? -1 : 1))
