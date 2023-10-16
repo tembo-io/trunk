@@ -19,7 +19,6 @@ const LinkIcon = "/LinkIcon.png"
 const CopyIcon = "/copy.png"
 const REGISTRY_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://registry.pgtrunk.io"
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 
 export default function Page({
   extension,
@@ -243,6 +242,7 @@ export async function getStaticPaths() {
 }
 
 async function getReadme(repositoryUrl: string): Promise<string> {
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN
   const markdownRegex = /.*\.md/
   let readme
   let githubReadmeUrl
