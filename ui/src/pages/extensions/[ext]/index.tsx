@@ -223,23 +223,23 @@ export default function Page({
   )
 }
 
-export async function getStaticPaths() {
-  try {
-    const extRes = await fetch(`${REGISTRY_URL}/extensions/all`)
-    const extensions = await extRes.json()
+// export async function getStaticPaths() {
+//   try {
+//     const extRes = await fetch(`${REGISTRY_URL}/extensions/all`)
+//     const extensions = await extRes.json()
 
-    const paths = extensions.map((ext: Extension) => ({
-      params: { ext: ext.name },
-    }))
+//     const paths = extensions.map((ext: Extension) => ({
+//       params: { ext: ext.name },
+//     }))
 
-    console.log("********** BUILT PATHS **********")
-    return { paths, fallback: true }
-    // return { paths: [], fallback: true };
-  } catch (error) {
-    console.log("ERROR BUILDING PATHS", error)
-    return { paths: [] }
-  }
-}
+//     console.log("********** BUILT PATHS **********")
+//     return { paths, fallback: true }
+//     // return { paths: [], fallback: true };
+//   } catch (error) {
+//     console.log("ERROR BUILDING PATHS", error)
+//     return { paths: [] }
+//   }
+// }
 
 async function getReadme(repositoryUrl: string): Promise<string> {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN
@@ -342,21 +342,21 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
       )
     }
     const latestVersion: Extension = extensions[extensions.length - 1]
-    // if (
-    //   extensions &&
-    //   latestVersion?.repository &&
-    //   latestVersion.repository.includes("github.com")
-    // ) {
-    //   const repo = latestVersion.repository
+    if (
+      extensions &&
+      latestVersion?.repository &&
+      latestVersion.repository.includes("github.com")
+    ) {
+      const repo = latestVersion.repository
 
-    //   try {
-    //     readme = await getReadme(repo)
-    //     repoDescription = latestVersion.description
-    //   } catch (err) {
-    //     console.log(`getReadme failed: ${err}`)
-    //     return Promise.reject(Error(`getReadmeAndDescription failed: ${err}`))
-    //   }
-    // }
+      try {
+        readme = await getReadme(repo)
+        repoDescription = latestVersion.description
+      } catch (err) {
+        console.log(`getReadme failed: ${err}`)
+        return Promise.reject(Error(`getReadmeAndDescription failed: ${err}`))
+      }
+    }
 
     return {
       props: { extension: latestVersion, readme, repoDescription },
