@@ -19,6 +19,7 @@ const LinkIcon = "/LinkIcon.png"
 const CopyIcon = "/copy.png"
 const REGISTRY_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://registry.pgtrunk.io"
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 
 export default function Page({
   extension,
@@ -242,7 +243,6 @@ export async function getStaticPaths() {
 }
 
 async function getReadme(repositoryUrl: string): Promise<string> {
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN
   const markdownRegex = /.*\.md/
   let readme
   let githubReadmeUrl
@@ -329,25 +329,6 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
     return extensions.sort((a, b) => compareBySemver(a.version, b.version))
   }
 
-  const test = {
-    categories: ["Tooling / Admin"],
-    createdAt: "2023-04-21T20:00:22.576493+00:00",
-    description:
-      "adminpack provides a number of support functions which pgAdmin and other administration and management tools can use to provide additional functionality, such as remote management of server log files.",
-    documentation: "https://www.postgresql.org/docs/current/adminpack.html",
-    homepage: "https://www.postgresql.org",
-    latestVersion: "2.1.0",
-    license: "PostgreSQL",
-    name: "adminpack",
-    owners: null,
-    repository:
-      "https://github.com/postgres/postgres/tree/master/contrib/adminpack",
-    updatedAt: "2023-08-28T18:48:27.880262+00:00",
-    slug: "idk",
-    tags: ["test"],
-    version: "0.1.5",
-  }
-
   try {
     try {
       const extRes = await fetch(
@@ -373,10 +354,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
         repoDescription = latestVersion.description
       } catch (err) {
         console.log(`getReadme failed: ${err}`)
-        return {
-          props: { extension: test, readme: `${err}`, repoDescription },
-          revalidate: 10,
-        }
+        return Promise.reject(Error(`getReadmeAndDescription failed: ${err}`))
       }
     }
 
