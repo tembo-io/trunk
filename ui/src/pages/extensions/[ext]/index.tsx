@@ -360,6 +360,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
 
     return {
       props: { extension: latestVersion, readme, repoDescription },
+      revalidate: 10,
     }
   } catch (error: any) {
     console.log(
