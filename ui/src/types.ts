@@ -4,7 +4,7 @@ export type Extension = {
   description: string
   categories: string[]
   tags: string[]
-  owners: Owner[] | null
+  owners: Owner[]
   license: string
   version: string
   repository?: string
