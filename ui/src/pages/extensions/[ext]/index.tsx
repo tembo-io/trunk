@@ -223,23 +223,23 @@ export default function Page({
   )
 }
 
-// export async function getStaticPaths() {
-//   try {
-//     const extRes = await fetch(`${REGISTRY_URL}/extensions/all`)
-//     const extensions = await extRes.json()
+export async function getStaticPaths() {
+  try {
+    const extRes = await fetch(`${REGISTRY_URL}/extensions/all`)
+    const extensions = await extRes.json()
 
-//     const paths = extensions.map((ext: Extension) => ({
-//       params: { ext: ext.name },
-//     }))
+    const paths = extensions.map((ext: Extension) => ({
+      params: { ext: ext.name },
+    }))
 
-//     console.log("********** BUILT PATHS **********")
-//     return { paths, fallback: true }
-//     // return { paths: [], fallback: true };
-//   } catch (error) {
-//     console.log("ERROR BUILDING PATHS", error)
-//     return { paths: [] }
-//   }
-// }
+    console.log("********** BUILT PATHS **********")
+    return { paths, fallback: true }
+    // return { paths: [], fallback: true };
+  } catch (error) {
+    console.log("ERROR BUILDING PATHS", error)
+    return { paths: [] }
+  }
+}
 
 async function getReadme(repositoryUrl: string): Promise<string> {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN
@@ -329,6 +329,25 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
     return extensions.sort((a, b) => compareBySemver(a.version, b.version))
   }
 
+  const test = {
+    categories: ["Tooling / Admin"],
+    createdAt: "2023-04-21T20:00:22.576493+00:00",
+    description:
+      "adminpack provides a number of support functions which pgAdmin and other administration and management tools can use to provide additional functionality, such as remote management of server log files.",
+    documentation: "https://www.postgresql.org/docs/current/adminpack.html",
+    homepage: "https://www.postgresql.org",
+    latestVersion: "2.1.0",
+    license: "PostgreSQL",
+    name: "adminpack",
+    owners: null,
+    repository:
+      "https://github.com/postgres/postgres/tree/master/contrib/adminpack",
+    updatedAt: "2023-08-28T18:48:27.880262+00:00",
+    slug: "idk",
+    tags: ["test"],
+    version: "0.1.5",
+  }
+
   try {
     try {
       const extRes = await fetch(
@@ -354,7 +373,10 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
         repoDescription = latestVersion.description
       } catch (err) {
         console.log(`getReadme failed: ${err}`)
-        return Promise.reject(Error(`getReadmeAndDescription failed: ${err}`))
+        return {
+          props: { extension: test, readme: `${err}`, repoDescription },
+          revalidate: 10,
+        }
       }
     }
 
