@@ -57,7 +57,7 @@ export default function Page({
 
   const latestVersion: Extension = extension!
   const installText = `trunk install ${latestVersion.name}` ?? ""
-
+  // Test
   const handleCopy = async () => {
     try {
       navigator.clipboard.writeText(installText)
