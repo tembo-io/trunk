@@ -331,6 +331,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
 
   return {
     props: { extension: null, readme: "", repoDescription: "" },
+    revalidate: 10,
   }
 
   // try {
