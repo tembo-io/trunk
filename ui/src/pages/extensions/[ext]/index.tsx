@@ -329,48 +329,52 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
     return extensions.sort((a, b) => compareBySemver(a.version, b.version))
   }
 
-  try {
-    try {
-      const extRes = await fetch(
-        `${REGISTRY_URL}/extensions/detail/${params.ext}`
-      )
-      extensions = await extRes.json()!
-      sortExtensions(extensions)
-    } catch (error) {
-      return Promise.reject(
-        Error(`Failed to fetch '${params.ext}' from Trunk: ${error}`)
-      )
-    }
-    const latestVersion: Extension = extensions[extensions.length - 1]
-    if (
-      extensions &&
-      latestVersion?.repository &&
-      latestVersion.repository.includes("github.com")
-    ) {
-      const repo = latestVersion.repository
-
-      try {
-        readme = await getReadme(repo)
-        repoDescription = latestVersion.description
-      } catch (err) {
-        console.log(`getReadme failed: ${err}`)
-        return Promise.reject(Error(`getReadmeAndDescription failed: ${err}`))
-      }
-    }
-
-    return {
-      props: { extension: latestVersion, readme, repoDescription },
-      revalidate: 10,
-    }
-  } catch (error: any) {
-    console.log(
-      "********** STATIC PROPS ERROR **********",
-      error.message,
-      params,
-      extensions
-    )
-    return {
-      props: { extension: null, readme: "", repoDescription: "" },
-    }
+  return {
+    props: { extension: null, readme: "", repoDescription: "" },
   }
+
+  // try {
+  //   try {
+  //     const extRes = await fetch(
+  //       `${REGISTRY_URL}/extensions/detail/${params.ext}`
+  //     )
+  //     extensions = await extRes.json()!
+  //     sortExtensions(extensions)
+  //   } catch (error) {
+  //     return Promise.reject(
+  //       Error(`Failed to fetch '${params.ext}' from Trunk: ${error}`)
+  //     )
+  //   }
+  //   const latestVersion: Extension = extensions[extensions.length - 1]
+  //   if (
+  //     extensions &&
+  //     latestVersion?.repository &&
+  //     latestVersion.repository.includes("github.com")
+  //   ) {
+  //     const repo = latestVersion.repository
+
+  //     try {
+  //       readme = await getReadme(repo)
+  //       repoDescription = latestVersion.description
+  //     } catch (err) {
+  //       console.log(`getReadme failed: ${err}`)
+  //       return Promise.reject(Error(`getReadmeAndDescription failed: ${err}`))
+  //     }
+  //   }
+
+  //   return {
+  //     props: { extension: latestVersion, readme, repoDescription },
+  //     revalidate: 10,
+  //   }
+  // } catch (error: any) {
+  //   console.log(
+  //     "********** STATIC PROPS ERROR **********",
+  //     error.message,
+  //     params,
+  //     extensions
+  //   )
+  //   return {
+  //     props: { extension: null, readme: "", repoDescription: "" },
+  //   }
+  // }
 }
