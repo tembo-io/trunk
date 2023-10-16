@@ -360,7 +360,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
 
     return {
       props: { extension: latestVersion, readme, repoDescription },
-      revalidate: 300,
+      revalidate: 10,
     }
   } catch (error: any) {
     console.log(
@@ -371,6 +371,7 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
     )
     return {
       props: { extension: null, readme: "", repoDescription: "" },
+      revalidate: 10,
     }
   }
 }
