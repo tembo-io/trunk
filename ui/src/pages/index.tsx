@@ -1,38 +1,38 @@
-import { useState } from "react"
-import type { GetStaticProps } from "next"
-import Head from "next/head"
-import styles from "./index.module.scss"
-import Hero from "../Components/Hero"
-import Categories from "../Components/Categories"
-import ExtGrid from "../Components/ExtGrid"
-import { Category, CategoriesForGrid, Extension } from "@/types"
-import Header from "@/Components/Header"
+import { useState } from 'react';
+import type { GetStaticProps } from 'next';
+import Head from 'next/head';
+import styles from './index.module.scss';
+import Hero from '../Components/Hero';
+import Categories from '../Components/Categories';
+import ExtGrid from '../Components/ExtGrid';
+import { Category, CategoriesForGrid, Extension } from '@/types';
+import Header from '@/Components/Header';
 
 const REGISTRY_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://registry.pgtrunk.io"
+  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://registry.pgtrunk.io';
 
 export const getStaticProps: GetStaticProps<{
-  categories: Category[]
+  categories: Category[];
 }> = async () => {
   try {
-    const catRes = await fetch(`${REGISTRY_URL}/categories/all`)
-    const extRes = await fetch(`${REGISTRY_URL}/extensions/all`)
+    const catRes = await fetch(`${REGISTRY_URL}/categories/all`);
+    const extRes = await fetch(`${REGISTRY_URL}/extensions/all`);
 
     // 🐈‍
-    const cats: Category[] = await catRes.json()
-    const exts: Extension[] = await extRes.json()
+    const cats: Category[] = await catRes.json();
+    const exts: Extension[] = await extRes.json();
 
-    console.info(`Got ${exts.length} extensions in index.tsx`)
+    console.info(`Got ${exts.length} extensions in index.tsx`);
 
     const sortedCategories = moveFeaturedCategoryToStart(
       cats.sort((a, b) => (a.name < b.name ? -1 : 1))
-    )
-    const sortedExtensions = sortExtensionsByFeatured(exts)
+    );
+    const sortedExtensions = sortExtensionsByFeatured(exts);
 
-    const categoriesForGrid: CategoriesForGrid = {}
+    const categoriesForGrid: CategoriesForGrid = {};
     cats.forEach((cat: Category) => {
-      categoriesForGrid[cat.slug] = { displayName: cat.name }
-    })
+      categoriesForGrid[cat.slug] = { displayName: cat.name };
+    });
 
     return {
       props: {
@@ -41,43 +41,43 @@ export const getStaticProps: GetStaticProps<{
         categoriesForGrid,
       },
       revalidate: 10,
-    }
+    };
   } catch (error) {
-    console.log("ERROR LOADING DATA: ", error)
+    console.log('ERROR LOADING DATA: ', error);
 
     return {
       props: { categories: [], extensions: [], categoriesForGrid: {} },
-    }
+    };
   }
-}
+};
 
 // TODO(vrmiguel): find a way to do this in-place?
 function sortExtensionsByFeatured(extensions: Extension[]): Extension[] {
   const featuredExtensions = extensions.filter((extension) =>
-    extension.categories.includes("Featured")
-  )
+    extension.categories.includes('Featured')
+  );
 
-  console.log(`Featured: ${featuredExtensions}`)
+  console.log(`Featured: ${featuredExtensions}`);
 
   const nonFeaturedExtensions = extensions.filter(
-    (extension) => !extension.categories.includes("Featured")
-  )
+    (extension) => !extension.categories.includes('Featured')
+  );
 
-  return [...featuredExtensions, ...nonFeaturedExtensions]
+  return [...featuredExtensions, ...nonFeaturedExtensions];
 }
 
 function moveFeaturedCategoryToStart(categories: Category[]): Category[] {
   const featuredCategoryIndex = categories.findIndex(
-    (category) => category.slug === "featured"
-  )
+    (category) => category.slug === 'featured'
+  );
 
   if (featuredCategoryIndex !== -1) {
     // Move it to the start of the array
-    const featuredCategory = categories.splice(featuredCategoryIndex, 1)[0]
-    categories.unshift(featuredCategory)
+    const featuredCategory = categories.splice(featuredCategoryIndex, 1)[0];
+    categories.unshift(featuredCategory);
   }
 
-  return categories
+  return categories;
 }
 
 export default function Home({
@@ -85,16 +85,16 @@ export default function Home({
   extensions,
   categoriesForGrid,
 }: {
-  categories: Category[]
-  extensions: Extension[]
-  categoriesForGrid: {}
+  categories: Category[];
+  extensions: Extension[];
+  categoriesForGrid: {};
 }) {
-  const [showMobileCategories, setShowMobileCategories] = useState(false)
+  const [showMobileCategories, setShowMobileCategories] = useState(false);
 
   const showMobileCategoriesHandler = () => {
-    window.scrollTo({ top: 0 })
-    setShowMobileCategories(true)
-  }
+    window.scrollTo({ top: 0 });
+    setShowMobileCategories(true);
+  };
   return (
     <div>
       <Head>
@@ -122,5 +122,5 @@ export default function Home({
         </div>
       </div>
     </div>
-  )
+  );
 }
