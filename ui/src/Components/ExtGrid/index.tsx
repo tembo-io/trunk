@@ -1,18 +1,25 @@
-import { useRef, useEffect, RefObject, Dispatch, SetStateAction, MouseEventHandler } from "react";
+import {
+  useRef,
+  useEffect,
+  RefObject,
+  Dispatch,
+  SetStateAction,
+  MouseEventHandler,
+} from 'react';
 
-import styles from "./extGrid.module.scss";
-import { truncate } from "../../stringHelpers";
-import cx from "classnames";
-import { useRouter } from "next/router";
-import Search from "../Search";
-import { Category, Extension, CategoriesForGrid } from "@/types";
-import Link from "next/link";
+import styles from './extGrid.module.scss';
+import { truncate } from '../../stringHelpers';
+import cx from 'classnames';
+import { useRouter } from 'next/router';
+import Search from '../Search';
+import { Category, Extension, CategoriesForGrid } from '@/types';
+import Link from 'next/link';
 
 function routerCatToString(input: string | string[] | undefined): string {
   if (typeof input === 'string') {
     return input;
   }
-  return "";
+  return '';
 }
 
 export default function ExtGrid({
@@ -28,14 +35,21 @@ export default function ExtGrid({
 }) {
   const router = useRouter();
   const sectionTitleRef: RefObject<HTMLDivElement> = useRef(null);
-  const title = router.query.cat ? categoriesForGrid[router.query.cat as string]?.displayName : "All Extensions";
+  const title = router.query.cat
+    ? categoriesForGrid[router.query.cat as string]?.displayName
+    : 'All Extensions';
 
-  const filteredList = router.query.cat ? extensions.filter((ext) => ext.categories.includes(title)) : extensions;
+  const filteredList = router.query.cat
+    ? extensions.filter((ext) => ext.categories.includes(title))
+    : extensions;
 
   // Scroll to the start of the extensions panel
   function scrollToPanel() {
     if (sectionTitleRef.current) {
-      window.scrollTo({ top: sectionTitleRef.current.offsetTop - 35, behavior: "smooth" });
+      window.scrollTo({
+        top: sectionTitleRef.current.offsetTop - 35,
+        behavior: 'smooth',
+      });
     }
   }
 
@@ -49,20 +63,31 @@ export default function ExtGrid({
     <div className={styles.container} ref={sectionTitleRef}>
       <div className={styles.sectionHeader}>
         <h1 className={cx(styles.interMed24, styles.title)}>{title}</h1>
-        <button className={styles.showCategoriesButton} onClick={setshowMobileCategories}>
+        <button
+          className={styles.showCategoriesButton}
+          onClick={setshowMobileCategories}>
           Categories
         </button>
-        <Search doOnClick={scrollToPanel}/>
+        <Search doOnClick={scrollToPanel} />
       </div>
       <div className={styles.gridContainer}>
         {filteredList.map((ext) => (
-          <button onClick={() => router.push(`/extensions/${ext.name}`)} key={ext.name} className={styles.extCard}>
+          <button
+            onClick={() => router.push(`/extensions/${ext.name}`)}
+            key={ext.name}
+            className={styles.extCard}>
             <div className={styles.titleRow}>
               <p className={styles.interMed16}>{ext.name}</p>
             </div>
-            <p className={cx(styles.interReg12, styles.description)}>{truncate(ext.description)}</p>
+            <p className={cx(styles.interReg12, styles.description)}>
+              {truncate(ext.description)}
+            </p>
             {ext && (
-              <CategoryTags extension={ext} categories={categories} selectedCategory={routerCatToString(router.query.cat)}/>
+              <CategoryTags
+                extension={ext}
+                categories={categories}
+                selectedCategory={routerCatToString(router.query.cat)}
+              />
             )}
           </button>
         ))}
@@ -71,14 +96,17 @@ export default function ExtGrid({
   );
 }
 
-
 interface CategoryTagSearchProps {
   extension: Extension;
   categories: Category[];
   selectedCategory: string;
 }
 
-const CategoryTags: React.FC<CategoryTagSearchProps> = ({ extension, categories, selectedCategory }) => {
+const CategoryTags: React.FC<CategoryTagSearchProps> = ({
+  extension,
+  categories,
+  selectedCategory,
+}) => {
   const getCategorySlug = (categoryName: string) => {
     return categories.find((cat) => cat.name === categoryName)?.slug;
   };
@@ -88,21 +116,25 @@ const CategoryTags: React.FC<CategoryTagSearchProps> = ({ extension, categories,
     return extension.categories.slice(0, 2);
   }
 
-  return <div className={styles.categoryTags}>
-  
-    {atMostTwoCategories().map((category, index) => (
+  return (
+    <div className={styles.categoryTags}>
+      {atMostTwoCategories().map((category, index) => (
         <Link
           key={index}
-          shallow href={
+          shallow
+          href={
             // Allow 'untoggling' a category: if we're already in the selected
             // category, go back home
-            (() => getCategorySlug(category) === selectedCategory ? "/" : `/?cat=${getCategorySlug(category)}`)()
+            (() =>
+              getCategorySlug(category) === selectedCategory
+                ? '/'
+                : `/?cat=${getCategorySlug(category)}`)()
           }
           onClick={(e) => e.stopPropagation()}
-          className={styles.catBubble}
-        >
+          className={styles.catBubble}>
           {category}
         </Link>
-    ))}
-  </div>;
-}
+      ))}
+    </div>
+  );
+};

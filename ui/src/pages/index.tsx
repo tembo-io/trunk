@@ -1,14 +1,16 @@
-import { useState } from "react";
-import type { InferGetStaticPropsType, GetStaticProps } from "next";
-import Head from "next/head";
-import styles from "./index.module.scss";
-import Hero from "../Components/Hero";
-import Categories from "../Components/Categories";
-import ExtGrid from "../Components/ExtGrid";
-import { Category, CategoriesForGrid, Extension } from "@/types";
-import Header from "@/Components/Header";
+import { useState } from 'react';
+import type { GetStaticProps } from 'next';
+import Head from 'next/head';
+import styles from './index.module.scss';
+import Hero from '../Components/Hero';
+import Categories from '../Components/Categories';
+import ExtGrid from '../Components/ExtGrid';
+import { Category, CategoriesForGrid, Extension } from '@/types';
+import Header from '@/Components/Header';
 
-const REGISTRY_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://registry.pgtrunk.io";
+const REGISTRY_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://registry.pgtrunk.io';
+
 export const getStaticProps: GetStaticProps<{
   categories: Category[];
 }> = async () => {
@@ -20,9 +22,11 @@ export const getStaticProps: GetStaticProps<{
     const cats: Category[] = await catRes.json();
     const exts: Extension[] = await extRes.json();
 
-    console.log(`info: Got ${exts.length} extensions in index.tsx`);
+    console.info(`Got ${exts.length} extensions in index.tsx`);
 
-    const sortedCategories = moveFeaturedCategoryToStart(cats.sort((a, b) => (a.name < b.name ? -1 : 1)));
+    const sortedCategories = moveFeaturedCategoryToStart(
+      cats.sort((a, b) => (a.name < b.name ? -1 : 1))
+    );
     const sortedExtensions = sortExtensionsByFeatured(exts);
 
     const categoriesForGrid: CategoriesForGrid = {};
@@ -30,31 +34,42 @@ export const getStaticProps: GetStaticProps<{
       categoriesForGrid[cat.slug] = { displayName: cat.name };
     });
 
-    return { props: { categories: sortedCategories, extensions: sortedExtensions, categoriesForGrid } };
+    return {
+      props: {
+        categories: sortedCategories,
+        extensions: sortedExtensions,
+        categoriesForGrid,
+      },
+      revalidate: 10,
+    };
   } catch (error) {
-    console.log("ERROR LOADING DATA: ", error);
+    console.log('ERROR LOADING DATA: ', error);
 
-    return { props: { categories: [], extensions: [], categoriesForGrid: {} } };
+    return {
+      props: { categories: [], extensions: [], categoriesForGrid: {} },
+    };
   }
 };
 
 // TODO(vrmiguel): find a way to do this in-place?
 function sortExtensionsByFeatured(extensions: Extension[]): Extension[] {
-  const featuredExtensions = extensions.filter(extension =>
+  const featuredExtensions = extensions.filter((extension) =>
     extension.categories.includes('Featured')
   );
 
   console.log(`Featured: ${featuredExtensions}`);
 
   const nonFeaturedExtensions = extensions.filter(
-    extension => !extension.categories.includes('Featured')
+    (extension) => !extension.categories.includes('Featured')
   );
 
   return [...featuredExtensions, ...nonFeaturedExtensions];
 }
 
 function moveFeaturedCategoryToStart(categories: Category[]): Category[] {
-  const featuredCategoryIndex = categories.findIndex(category => category.slug === 'featured');
+  const featuredCategoryIndex = categories.findIndex(
+    (category) => category.slug === 'featured'
+  );
 
   if (featuredCategoryIndex !== -1) {
     // Move it to the start of the array
@@ -84,13 +99,20 @@ export default function Home({
     <div>
       <Head>
         <title>Trunk</title>
-        <meta name="description" content="Trunk is an open-source package installer and registry for PostgreSQL extensions." />
+        <meta
+          name="description"
+          content="Trunk is an open-source package installer and registry for PostgreSQL extensions."
+        />
       </Head>
       <Header extensions={extensions}></Header>
       <div className={styles.main}>
         <Hero />
         <div className={styles.body}>
-          <Categories categories={categories} showMobile={showMobileCategories} toggleCategoryMenu={setShowMobileCategories} />
+          <Categories
+            categories={categories}
+            showMobile={showMobileCategories}
+            toggleCategoryMenu={setShowMobileCategories}
+          />
           <ExtGrid
             extensions={extensions}
             categories={categories}

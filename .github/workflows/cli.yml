@@ -10,16 +10,20 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/cli.yml'
-      - 'cli/**'
-      - '!cli/README.md'
+      - ".github/workflows/cli.yml"
+      - "cli/**"
+      - "!cli/README.md"
+    paths-ignore:
+      - "cli/.gitignore"
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/cli.yml'
-      - 'cli/**'
-      - '!cli/README.md'
+      - ".github/workflows/cli.yml"
+      - "cli/**"
+      - "!cli/README.md"
+    paths-ignore:
+      - "cli/.gitignore"
 
 jobs:
   lint:
