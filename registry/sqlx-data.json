@@ -524,28 +524,23 @@
           "type_info": "Timestamptz"
         },
         {
-          "name": "downloads",
-          "ordinal": 4,
-          "type_info": "Int4"
-        },
-        {
           "name": "description",
-          "ordinal": 5,
+          "ordinal": 4,
           "type_info": "Varchar"
         },
         {
           "name": "homepage",
-          "ordinal": 6,
+          "ordinal": 5,
           "type_info": "Varchar"
         },
         {
           "name": "documentation",
-          "ordinal": 7,
+          "ordinal": 6,
           "type_info": "Varchar"
         },
         {
           "name": "repository",
-          "ordinal": 8,
+          "ordinal": 7,
           "type_info": "Varchar"
         }
       ],
@@ -554,7 +549,6 @@
         true,
         false,
         false,
-        true,
         true,
         true,
         true,
@@ -611,6 +605,19 @@
       }
     },
     "query": "SELECT id FROM extensions WHERE name = $1"
+  },
+  "65a10cf0ab7fbc58df8e87fb31c2187d7696490c598f808502b35dcd3e235215": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO readmes (extension_id, readme_html)\n            VALUES ($1, $2)\n            ON CONFLICT (extension_id)\n            DO UPDATE SET readme_html = excluded.readme_html"
   },
   "69ef7c7c79e69f31731a41417a0047562f0806a7c73eb4bb98c9ed554fff3b7c": {
     "describe": {
@@ -671,59 +678,59 @@
           "type_info": "Timestamptz"
         },
         {
-          "name": "downloads",
-          "ordinal": 5,
-          "type_info": "Int4"
-        },
-        {
           "name": "features",
-          "ordinal": 6,
+          "ordinal": 5,
           "type_info": "Jsonb"
         },
         {
           "name": "yanked",
-          "ordinal": 7,
+          "ordinal": 6,
           "type_info": "Bool"
         },
         {
           "name": "license",
-          "ordinal": 8,
+          "ordinal": 7,
           "type_info": "Varchar"
         },
         {
           "name": "extension_size",
-          "ordinal": 9,
+          "ordinal": 8,
           "type_info": "Int4"
         },
         {
           "name": "published_by",
-          "ordinal": 10,
+          "ordinal": 9,
           "type_info": "Varchar"
         },
         {
           "name": "checksum",
-          "ordinal": 11,
+          "ordinal": 10,
           "type_info": "Bpchar"
         },
         {
           "name": "links",
-          "ordinal": 12,
+          "ordinal": 11,
           "type_info": "Varchar"
         },
         {
           "name": "extension_name",
-          "ordinal": 13,
+          "ordinal": 12,
           "type_info": "Varchar"
         },
         {
           "name": "system_dependencies",
-          "ordinal": 14,
+          "ordinal": 13,
           "type_info": "Jsonb"
         },
         {
           "name": "libraries",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Jsonb"
+        },
+        {
+          "name": "download_count",
+          "ordinal": 15,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -742,7 +749,7 @@
         true,
         true,
         true,
-        true
+        false
       ],
       "parameters": {
         "Left": [
@@ -782,59 +789,59 @@
           "type_info": "Timestamptz"
         },
         {
-          "name": "downloads",
-          "ordinal": 5,
-          "type_info": "Int4"
-        },
-        {
           "name": "features",
-          "ordinal": 6,
+          "ordinal": 5,
           "type_info": "Jsonb"
         },
         {
           "name": "yanked",
-          "ordinal": 7,
+          "ordinal": 6,
           "type_info": "Bool"
         },
         {
           "name": "license",
-          "ordinal": 8,
+          "ordinal": 7,
           "type_info": "Varchar"
         },
         {
           "name": "extension_size",
-          "ordinal": 9,
+          "ordinal": 8,
           "type_info": "Int4"
         },
         {
           "name": "published_by",
-          "ordinal": 10,
+          "ordinal": 9,
           "type_info": "Varchar"
         },
         {
           "name": "checksum",
-          "ordinal": 11,
+          "ordinal": 10,
           "type_info": "Bpchar"
         },
         {
           "name": "links",
-          "ordinal": 12,
+          "ordinal": 11,
           "type_info": "Varchar"
         },
         {
           "name": "extension_name",
-          "ordinal": 13,
+          "ordinal": 12,
           "type_info": "Varchar"
         },
         {
           "name": "system_dependencies",
-          "ordinal": 14,
+          "ordinal": 13,
           "type_info": "Jsonb"
         },
         {
           "name": "libraries",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Jsonb"
+        },
+        {
+          "name": "download_count",
+          "ordinal": 15,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -853,7 +860,7 @@
         true,
         true,
         true,
-        true
+        false
       ],
       "parameters": {
         "Left": [
@@ -930,6 +937,27 @@
     },
     "query": "DELETE FROM extensions_categories\n                 WHERE extension_id = $1\n                 RETURNING category_id\n                 "
   },
+  "9921932de47d84b6a79a6f5fb29b77301d8a3a2e9acefbc97612952da86e6887": {
+    "describe": {
+      "columns": [
+        {
+          "name": "version_exists",
+          "ordinal": 0,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT COUNT(*) > 0 AS version_exists\n        FROM versions\n        WHERE extension_id = $1\n        AND num = $2"
+  },
   "a355d51ccf9b49a96bf62078f00fb982ba11a3026d8b9f120d948b6c5e40d317": {
     "describe": {
       "columns": [],
@@ -941,6 +969,32 @@
       }
     },
     "query": "DELETE FROM versions\n             WHERE extension_id = $1"
+  },
+  "a58bdc12504edda01f8c370c35cb064147fd14e6767f1ed3939f5bea60bf79fa": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "repository",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id, repository FROM extensions WHERE extensions.name = $1"
   },
   "ac75c8170d5f5bc2fa5c48cdec0ec8899a2cfd1fd679e3656fe95c19650e5bd3": {
     "describe": {
@@ -971,59 +1025,59 @@
           "type_info": "Timestamptz"
         },
         {
-          "name": "downloads",
-          "ordinal": 5,
-          "type_info": "Int4"
-        },
-        {
           "name": "features",
-          "ordinal": 6,
+          "ordinal": 5,
           "type_info": "Jsonb"
         },
         {
           "name": "yanked",
-          "ordinal": 7,
+          "ordinal": 6,
           "type_info": "Bool"
         },
         {
           "name": "license",
-          "ordinal": 8,
+          "ordinal": 7,
           "type_info": "Varchar"
         },
         {
           "name": "extension_size",
-          "ordinal": 9,
+          "ordinal": 8,
           "type_info": "Int4"
         },
         {
           "name": "published_by",
-          "ordinal": 10,
+          "ordinal": 9,
           "type_info": "Varchar"
         },
         {
           "name": "checksum",
-          "ordinal": 11,
+          "ordinal": 10,
           "type_info": "Bpchar"
         },
         {
           "name": "links",
-          "ordinal": 12,
+          "ordinal": 11,
           "type_info": "Varchar"
         },
         {
           "name": "extension_name",
-          "ordinal": 13,
+          "ordinal": 12,
           "type_info": "Varchar"
         },
         {
           "name": "system_dependencies",
-          "ordinal": 14,
+          "ordinal": 13,
           "type_info": "Jsonb"
         },
         {
           "name": "libraries",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Jsonb"
+        },
+        {
+          "name": "download_count",
+          "ordinal": 15,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -1042,7 +1096,7 @@
         true,
         true,
         true,
-        true
+        false
       ],
       "parameters": {
         "Left": [
@@ -1052,6 +1106,26 @@
       }
     },
     "query": "SELECT * FROM versions WHERE extension_id = $1 AND num = $2"
+  },
+  "b5d80515c50725844a2322e6d15afe4b2a66b9809d111550a0170b355419c451": {
+    "describe": {
+      "columns": [
+        {
+          "name": "readme_html",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT r.readme_html \n            FROM readmes AS r \n            JOIN extensions AS e ON r.extension_id = e.id \n            WHERE e.name = $1"
   },
   "bd184a09a0f45acc606a45ef90e0e41c500128881c1284374823f53c978b527d": {
     "describe": {
@@ -1185,5 +1259,17 @@
       }
     },
     "query": "\n            UPDATE categories\n            SET extension_count = extension_count + 1\n            WHERE id = $1\n            "
+  },
+  "f77d6c607d830e7ea1d564c34ec42b998e0c2657f4cdb8a89dd211a29b4a7d65": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE versions\n        SET download_count = download_count + 1\n        WHERE extension_id = $1"
   }
 }

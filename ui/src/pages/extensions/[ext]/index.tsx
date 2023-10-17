@@ -237,64 +237,26 @@ export async function getStaticPaths() {
   }
 }
 
-async function getReadme(repositoryUrl: string): Promise<string> {
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  const markdownRegex = /.*\.md/;
-  let readme;
-  let githubReadmeUrl;
-  let readmeFileName;
-  let readmeBase64Contents;
-  let isContrib = false;
+async function getReadme(extensionName: string): Promise<string> {
+  const registryUrl = `https://registry.pgtrunk.io/extensions/details/${extensionName}/readme`;
+  console.log(registryUrl);
 
-  const noGh = repositoryUrl.split('https://github.com/')[1];
-  const split = noGh.split('/');
-
-  if (split.length === 2) {
-    githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme`;
-  } else if (split[2] === 'tree') {
-    isContrib = true;
-    githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme`;
-  } else {
-    githubReadmeUrl = `https://api.github.com/repos/${split[0]}/${split[1]}/readme/${split[2]}`;
-  }
-
-  const readmeProm: Promise<{ name: string; content: string }> = fetch(
-    githubReadmeUrl,
-    {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-      },
-    }
-  ).then((resp) => resp.json());
+  const readmeProm = fetch(registryUrl);
 
   try {
-    const readmeJson = await readmeProm;
-    readmeFileName = readmeJson.name;
-    readmeBase64Contents = readmeJson.content;
+    const readmeResponse = await readmeProm;
+    const respBody = await readmeResponse.text();
 
-    // If this README is Markdown..
-    if (isContrib || markdownRegex.test(readmeFileName)) {
-      // Decode its base64 contents
-
-      readme = Buffer.from(readmeBase64Contents, 'base64').toString('utf-8');
+    if (readmeResponse.status == 200) {
+      return respBody;
     } else {
-      // Get the HTML-converted contents.
-      // With the `application/vnd.github.html` header,
-      // the GitHub API returns the README converted to
-      // HTML
-      const readmeRes = await fetch(githubReadmeUrl, {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: 'application/vnd.github.html',
-        },
-      });
-      readme = await readmeRes.text();
+      return Promise.reject(
+        Error(`Fetching README for ${extensionName} failed: ${respBody}`)
+      );
     }
   } catch (err) {
-    return Promise.reject(Error(`Fetching GitHub API failed: ${err}`));
+    return Promise.reject(Error(`Fetching README endpoint failed: ${err}`));
   }
-
-  return readme;
 }
 
 // Lexicographically compare semantic version tags
@@ -343,10 +305,8 @@ export async function getStaticProps({ params }: { params: { ext: string } }) {
       latestVersion?.repository &&
       latestVersion.repository.includes('github.com')
     ) {
-      const repo = latestVersion.repository;
-
       try {
-        readme = await getReadme(repo);
+        readme = await getReadme(params.ext);
         repoDescription = latestVersion.description;
       } catch (err) {
         console.log(`getReadme failed: ${err}`);

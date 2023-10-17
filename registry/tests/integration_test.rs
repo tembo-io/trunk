@@ -28,9 +28,12 @@ mod tests {
     /// make sure the webserver boots up
     #[actix_web::test]
     async fn test_get_all_extensions() {
-        env_logger::init();
+        tracing_subscriber::fmt::init();
 
         let dummy_jwt = "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6Imluc18yTzgzQnVQM2ZvS3dHc1o3Tks5b1pVT0lrNkQiLCJ0eXAiOiJKV1QifQ.eyJhenAiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJleHAiOjE2ODM1OTU0ODMsImlhdCI6MTY4MzU5NTQyMywiaXNzIjoiaHR0cHM6Ly9lbGVjdHJpYy1jcmFwcGllLTkyLmNsZXJrLmFjY291bnRzLmRldiIsImp0aSI6Ijg3ZTFjOTc5MTBmYzA5N2E1MDlkIiwibmJmIjoxNjgzNTk1NDEzLCJzaWQiOiJzZXNzXzJQWEZHRU9pSWJvM2U5cUpqYk01c3BkdW1teSIsInN1YiI6InVzZXJfMlBIbVgzWVBqbmpOV1VsMTZMR1FUbGR1bW15IiwidXNlck5hbWUiOiJkdW1teSJ9.a70cMX7g_asjO4O5oG3ym16KTyuGRsy21fHScriZms0";
+
+        std::env::set_var("GITHUB_TOKEN", "dummy");
+        std::env::set_var("CLERK_SECRET_KEY", "dummy");
 
         let cfg = trunk_registry::config::Config::default();
         let conn = connect(&cfg.database_url)
@@ -41,6 +44,35 @@ mod tests {
             .run(&conn)
             .await
             .expect("error running migrations");
+
+        let created_extension = sqlx::query!(
+            "INSERT INTO extensions (
+            name,
+            updated_at,
+            created_at
+        ) VALUES (
+            'my_extension',
+            now() AT TIME ZONE 'UTC',
+            now() AT TIME ZONE 'UTC')
+         RETURNING id
+        "
+        )
+        .fetch_one(&conn)
+        .await
+        .unwrap();
+
+        sqlx::query!(
+            "INSERT INTO versions (
+                extension_id,
+                num,
+                download_count
+            ) VALUES ($1, $2, 5)",
+            created_extension.id as i32,
+            "0.0.1"
+        )
+        .execute(&conn)
+        .await
+        .unwrap();
 
         let app = test::init_service(
             App::new()

@@ -84,10 +84,10 @@ pub async fn latest_license(
 
 pub async fn get_extension_id(
     extension_name: &str,
-    conn: Data<Pool<Postgres>>,
+    conn: &Pool<Postgres>,
 ) -> Result<i64, ExtensionRegistryError> {
     let id = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
-        .fetch_one(conn.as_ref())
+        .fetch_one(conn)
         .await?;
 
     Ok(id.id)
