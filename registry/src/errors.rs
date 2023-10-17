@@ -87,4 +87,10 @@ pub enum ExtensionRegistryError {
 
     #[error("resource not found")]
     ResourceNotFound,
+
+    #[error("Invalid base64: {0}")]
+    InvalidBase64(#[from] base64::DecodeError),
+
+    #[error("Not a GitHub repository: {0}")]
+    InvalidGithubRepo(String),
 }

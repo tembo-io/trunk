@@ -350,6 +350,26 @@
     },
     "query": "SELECT * FROM extension_owners WHERE extension_id = $1;"
   },
+  "322f076984933b14a9c5c813ecdd955684ca03f47dfa6b5fec3bd86dbd8edba1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "readme",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT r.readme \n            FROM readmes AS r \n            JOIN extensions AS e ON r.extension_id = e.id \n            WHERE e.name = $1"
+  },
   "32bf8a72aba8e810d4f1303ea516056784356965be367ec8427c5dd374ea937e": {
     "describe": {
       "columns": [],
@@ -605,19 +625,6 @@
       }
     },
     "query": "SELECT id FROM extensions WHERE name = $1"
-  },
-  "65a10cf0ab7fbc58df8e87fb31c2187d7696490c598f808502b35dcd3e235215": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Text"
-        ]
-      }
-    },
-    "query": "INSERT INTO readmes (extension_id, readme_html)\n            VALUES ($1, $2)\n            ON CONFLICT (extension_id)\n            DO UPDATE SET readme_html = excluded.readme_html"
   },
   "69ef7c7c79e69f31731a41417a0047562f0806a7c73eb4bb98c9ed554fff3b7c": {
     "describe": {
@@ -958,6 +965,19 @@
     },
     "query": "SELECT COUNT(*) > 0 AS version_exists\n        FROM versions\n        WHERE extension_id = $1\n        AND num = $2"
   },
+  "9e637cbebc5b0e977d84dacd9392572be5113b3ccca926e4cfeb3787d9e5a8c2": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO readmes (extension_id, readme)\n            VALUES ($1, $2)\n            ON CONFLICT (extension_id)\n            DO UPDATE SET readme = excluded.readme"
+  },
   "a355d51ccf9b49a96bf62078f00fb982ba11a3026d8b9f120d948b6c5e40d317": {
     "describe": {
       "columns": [],
@@ -1106,26 +1126,6 @@
       }
     },
     "query": "SELECT * FROM versions WHERE extension_id = $1 AND num = $2"
-  },
-  "b5d80515c50725844a2322e6d15afe4b2a66b9809d111550a0170b355419c451": {
-    "describe": {
-      "columns": [
-        {
-          "name": "readme_html",
-          "ordinal": 0,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      }
-    },
-    "query": "SELECT r.readme_html \n            FROM readmes AS r \n            JOIN extensions AS e ON r.extension_id = e.id \n            WHERE e.name = $1"
   },
   "bd184a09a0f45acc606a45ef90e0e41c500128881c1284374823f53c978b527d": {
     "describe": {
