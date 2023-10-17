@@ -25,12 +25,10 @@
 }
 
 .markdownCont {
-  // width: calc(100vw / 10 * 7);
-  //   flex: 1 1 auto;
-  // margin: 0 $spacing-5xl;
   flex: 3;
-  //   max-width: 200px;
+  margin-top: $spacing-2xl;
 }
+
 .markdown {
   border-radius: 24px;
   padding: $spacing-4xl;
@@ -207,6 +205,7 @@
   }
 
   .markdownCont {
+    min-width: 70%;
     width: 100%;
     flex: 1;
   }
