@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y \
   libreadline6-dev \
   zlib1g-dev
 
+RUN git clone https://github.com/supabase/pg_graphql.git
+
 # build
 RUN cd pg_graphql && \
 	git fetch origin ${RELEASE} && \
