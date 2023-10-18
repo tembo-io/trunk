@@ -6,7 +6,7 @@ license = "Apache-2.0"
 description = "pg_graphql adds GraphQL support to your PostgreSQL database."
 homepage = "https://supabase.com"
 documentation = "https://supabase.github.io/pg_graphql"
-categories = ["Data / Transformations"]
+categories = ["data_transformations"]
 
 [build]
 postgres_version = "15"
