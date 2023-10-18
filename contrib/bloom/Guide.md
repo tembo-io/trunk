@@ -18,7 +18,7 @@ Agricultural enterprise: A large-scale farming operation has a database keeping 
 # Example test script.
 
 ```
--- Create a sample table with pH_level as integer (assuming you want 2 decimal places precision)
+-- Create a example table, farm_sensor_data, and populate with test data
 CREATE TABLE farm_sensor_data AS
    SELECT
      (random() * 100)::int as soil_moisture,
