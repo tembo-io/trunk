@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y \
   git \
   libpq-dev \
   libreadline6-dev \
-  postgresql-server-dev-${PG_MAJOR} \
   zlib1g-dev
 
 # build
