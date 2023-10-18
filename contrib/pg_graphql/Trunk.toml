@@ -18,3 +18,5 @@ install_command = """
     mv target/release/pg_graphql-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
 """
 
+[dependencies]
+apt = ["libc6"]
