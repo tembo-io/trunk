@@ -1,8 +1,8 @@
 //! Functionality for downloading extensions and maintaining download counts
+use crate::config::Config;
 use crate::download::{check_version, latest_version};
 use crate::errors::Result;
 use crate::uploader::extension_location;
-use crate::{config::Config, extensions::get_extension_id};
 use actix_web::{get, web, HttpResponse};
 use sqlx::{Pool, Postgres};
 use tracing::info;
@@ -16,7 +16,9 @@ pub async fn download(
     path: web::Path<(String, String)>,
 ) -> Result<HttpResponse> {
     let (name, mut version) = path.into_inner();
-    let extension_id = get_extension_id(&name, conn.as_ref()).await?;
+    let Ok(extension_id) = get_extension_id_fallback(&name, &conn).await else {
+        return Ok(HttpResponse::NotFound().body("No extension with the given name was found"));
+    };
 
     // Use latest version if 'latest' provided as version
     if version == "latest" {
@@ -49,4 +51,26 @@ async fn increase_download_count(pool: &Pool<Postgres>, extension_id: i32) -> Re
     .await?;
 
     Ok(())
+}
+
+/// Given an extension name, try to find it in the `extensions` table (more common scenario).
+///
+/// If it's not found, try to find it in `versions` under `extension_name`.
+pub async fn get_extension_id_fallback(extension_name: &str, conn: &Pool<Postgres>) -> Result<i64> {
+    if let Ok(record) = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
+        .fetch_one(conn)
+        .await
+    {
+        return Ok(record.id);
+    }
+
+    let record = sqlx::query!(
+        "SELECT extension_id FROM versions WHERE extension_name = $1",
+        extension_name
+    )
+    .fetch_one(conn)
+    .await?;
+
+    // Safe unwrap: if `extension_name` is in versions, `extension_id` must be as well
+    Ok(record.extension_id.unwrap() as i64)
 }
