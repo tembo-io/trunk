@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use aho_corasick::AhoCorasick;
 use reqwest::Client;
 use serde::{de::DeserializeOwned, Deserialize};
 
@@ -7,6 +8,8 @@ use crate::{
     errors::{ExtensionRegistryError, Result},
     repository::Registry,
 };
+
+use self::markdown_parsing::{parse_markdown_images, MarkdownImage};
 
 fn is_markdown(file_name: &str) -> bool {
     let maybe_extension = Path::new(file_name).extension();
@@ -148,10 +151,61 @@ impl GithubApiClient {
             let readme = String::from_utf8(b64::ws_decode(content)?)?;
 
             // One problem now is that READMEs often link images to within the repository instead of some HTTP URL.
-            Ok(readme)
+            // We will look for relative paths in the README and attempt to replace them with links that could be rendered in pgt.dev
+            Ok(self.prepare_readme(readme, project).await)
         } else {
             self.get_text(&readme_url).await
         }
+    }
+
+    async fn prepare_readme(&self, readme: String, project: GitHubProject<'_>) -> String {
+        let relative_images = parse_markdown_images(&readme);
+
+        if relative_images.is_empty() {
+            return readme;
+        }
+
+        match self
+            .replace_relative_images(&readme, relative_images, project)
+            .await
+        {
+            Ok(updated_readme) => updated_readme,
+            Err(err) => {
+                tracing::warn!("Failed to update README: {err}, continuing.");
+                readme
+            }
+        }
+    }
+
+    async fn replace_relative_images<'a, 'b>(
+        &self,
+        readme: &'a str,
+        images: Vec<MarkdownImage<'a>>,
+        project: GitHubProject<'b>,
+    ) -> anyhow::Result<String> {
+        let mut patterns = Vec::new();
+        let mut replace_with = Vec::new();
+
+        #[derive(Deserialize)]
+        struct Response {
+            download_url: String,
+        }
+
+        for image in images {
+            let path = image.path_or_link;
+            let url = project.build_content_url(path);
+            let Ok(response) = self.get_json::<Response>(&url).await else {
+                continue;
+            };
+
+            patterns.push(path);
+            replace_with.push(response.download_url);
+        }
+
+        let ac = AhoCorasick::new(patterns)?;
+
+        ac.try_replace_all(readme, &replace_with)
+            .map_err(Into::into)
     }
 }
 
@@ -186,6 +240,9 @@ impl<'a> GitHubProject<'a> {
         parse(url).ok_or_else(|| ExtensionRegistryError::InvalidGithubRepo(url.into()))
     }
 
+    /// Builds the URL for these endpoints:
+    /// * https://docs.github.com/en/rest/repos/contents?apiVersion=2022-11-28#get-repository-content
+    /// * https://docs.github.com/en/rest/repos/contents?apiVersion=2022-11-28#get-a-repository-readme-for-a-directory
     fn build_readme_url(&self) -> String {
         let Self {
             owner,
@@ -199,6 +256,18 @@ impl<'a> GitHubProject<'a> {
             }
             _ => format!("https://api.github.com/repos/{owner}/{name}/readme"),
         }
+    }
+
+    /// Builds the URL for the following endpoint:
+    /// * https://docs.github.com/en/rest/repos/contents?apiVersion=2022-11-28#get-repository-content
+    fn build_content_url(&self, path: &str) -> String {
+        let Self {
+            owner,
+            name,
+            subdir: _,
+        } = *self;
+
+        format!("https://api.github.com/repos/{owner}/{name}/contents/{path}")
     }
 }
 
