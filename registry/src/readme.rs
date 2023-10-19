@@ -37,6 +37,55 @@ mod b64 {
     }
 }
 
+mod markdown_parsing {
+    use nom::{
+        bytes::complete::take_while, character::complete::char, sequence::delimited, IResult,
+    };
+
+    /// A Markdown image declaration of the form `![alt-text](path-or-link)`.
+    #[derive(Debug)]
+    #[cfg_attr(test, derive(PartialEq))]
+    pub struct MarkdownImage<'a> {
+        pub alt_text: &'a str,
+        pub path_or_link: &'a str,
+    }
+
+    fn parse_delimited(input: &str, start: char, end: char) -> IResult<&str, &str> {
+        delimited(char(start), take_while(|ch| ch != end), char(end))(input)
+    }
+
+    fn parse_markdown_image(input: &str) -> IResult<&str, MarkdownImage<'_>> {
+        let (remaining, _) = char('!')(input)?;
+        let (remaining, alt_text) = parse_delimited(remaining, '[', ']')?;
+        let (remaining, path_or_link) = parse_delimited(remaining, '(', ')')?;
+
+        Ok((
+            remaining,
+            MarkdownImage {
+                alt_text,
+                path_or_link,
+            },
+        ))
+    }
+
+    pub fn parse_markdown_images(input: &str) -> Vec<MarkdownImage<'_>> {
+        let mut images = Vec::new();
+        for (idx, _) in input.match_indices('!') {
+            let remaining = &input[idx..];
+
+            if let Ok((_, image)) = parse_markdown_image(remaining) {
+                // We're only interested in relative paths, so if we parsed a URL, skip it
+                if image.path_or_link.starts_with("http") {
+                    continue;
+                }
+                images.push(image);
+            }
+        }
+
+        images
+    }
+}
+
 pub struct GithubApiClient {
     token: String,
     client: Client,
@@ -96,7 +145,10 @@ impl GithubApiClient {
 
         if is_markdown(&file_name) {
             // We already got the README in Markdown, although base64-encoded
-            String::from_utf8(b64::ws_decode(content)?).map_err(Into::into)
+            let readme = String::from_utf8(b64::ws_decode(content)?)?;
+
+            // One problem now is that READMEs often link images to within the repository instead of some HTTP URL.
+            Ok(readme)
         } else {
             self.get_text(&readme_url).await
         }
@@ -168,6 +220,41 @@ pub async fn fetch_and_save_readme(
 #[cfg(test)]
 mod tests {
     use crate::readme::GitHubProject;
+
+    #[test]
+    fn parses_markdown_images() {
+        use super::markdown_parsing::{parse_markdown_images, MarkdownImage};
+
+        let test_case = r#"
+        | **<br/>The Citus database is 100% open source.<br/><img width=1000/><br/>Learn what's new in the [Citus 12.1 release blog](https://www.citusdata.com/blog/2023/09/22/adding-postgres-16-support-to-citus-12-1/) and the [Citus Updates page](https://www.citusdata.com/updates/).<br/><br/>**|
+        |---|
+        <br/>
+
+
+
+        ![Citus Banner](images/citus-readme-banner.png)
+
+        [![Latest Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://docs.citusdata.com/)
+        [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-%20-545353?logo=Stack%20Overflow)](https://stackoverflow.com/questions/tagged/citus)
+        [![Slack](https://cituscdn.azureedge.net/images/social/slack-badge.svg)](https://slack.citusdata.com/)
+        ![Tembo Banner](images/tembo-readme-banner.png)
+        [![Code Coverage](https://codecov.io/gh/citusdata/citus/branch/master/graph/badge.svg)](https://app.codecov.io/gh/citusdata/citus)
+        [![Twitter](https://img.shields.io/twitter/follow/citusdata.svg?label=Follow%20@citusdata)](https://twitter.com/intent/follow?screen_name=citusdata)"#;
+
+        assert_eq!(
+            parse_markdown_images(test_case),
+            &[
+                MarkdownImage {
+                    alt_text: "Citus Banner",
+                    path_or_link: "images/citus-readme-banner.png"
+                },
+                MarkdownImage {
+                    alt_text: "Tembo Banner",
+                    path_or_link: "images/tembo-readme-banner.png"
+                }
+            ]
+        );
+    }
 
     #[test]
     fn parses_github_urls() {

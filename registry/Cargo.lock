@@ -2879,6 +2879,7 @@ dependencies = [
  "dotenv",
  "env_logger",
  "futures",
+ "nom",
  "rand",
  "reqwest",
  "semver",
