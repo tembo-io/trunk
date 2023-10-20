@@ -18,11 +18,7 @@ type Sender = mpsc::Sender<Result<Vec<u8>, io::Error>>;
 
 impl ByteStreamSyncSender {
     /// Creates a new ByteStream
-    pub(crate) fn new() -> (
-        Receiver,
-        Sender,
-        Self,
-    ) {
+    pub(crate) fn new() -> (Receiver, Sender, Self) {
         let (sender, receiver) = mpsc::channel(1);
         let stream = Self {
             sender: sender.clone(),

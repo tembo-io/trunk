@@ -120,16 +120,14 @@ impl PublishCommand {
             .file
             .as_ref()
             .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .and_then(|toml| {
-                        let file = toml.extension.file.as_ref()?;
-                        info!(
-                            "Trunk.toml: using setting `extension.file`: {}",
-                            file.display()
-                        );
-                        Some(file)
-                    })
+                trunk_toml.as_ref().and_then(|toml| {
+                    let file = toml.extension.file.as_ref()?;
+                    info!(
+                        "Trunk.toml: using setting `extension.file`: {}",
+                        file.display()
+                    );
+                    Some(file)
+                })
             })
             .cloned();
 

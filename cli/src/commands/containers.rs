@@ -178,13 +178,8 @@ pub async fn find_installed_extension_files(
         exec_in_container(docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
     let sharedir = sharedir.trim();
 
-    let pkglibdir = exec_in_container(
-        docker,
-        container_id,
-        vec!["pg_config", "--pkglibdir"],
-        None,
-    )
-    .await?;
+    let pkglibdir =
+        exec_in_container(docker, container_id, vec!["pg_config", "--pkglibdir"], None).await?;
     let pkglibdir = pkglibdir.trim();
 
     // collect changes from container filesystem
