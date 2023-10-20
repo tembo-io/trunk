@@ -718,7 +718,7 @@ fn build_pgrx_with_trunk_toml_bad_version() -> Result<(), Box<dyn std::error::Er
     trunkfile_path.push("pgrx_with_trunk_toml_bad_version");
 
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
-    cmd.arg("build");thread 'build_pg_cron_trunk_toml' panicked at 'assertion failed: stdout.contains(\"CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;\")', tests/integration_tests.rs:569:5
+    cmd.arg("build");
     cmd.arg("--path");
     cmd.arg(trunkfile_path.as_os_str());
     cmd.arg("--output-path");
@@ -836,63 +836,6 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
-//#[test]
-//fn assert_respects_trunk_toml_extension_depencies() -> Result<(), Box<dyn std::error::Error>> {
-//    let mut rng = rand::thread_rng();
-//    let output_dir = format!("/tmp/pg_cron_test_{}", rng.gen_range(0..1000000));
-//
-//    let mut extension_path = std::path::PathBuf::from(file!());
-//    extension_path.pop(); // Remove the file name from the path
-//    extension_path.push("pg_cron");
-//
-//    let mut dockerfile_path = std::path::PathBuf::from(file!());
-//    dockerfile_path.pop(); // Remove the file name from the path
-//    dockerfile_path.push("test_trunk_toml_dirs/pg_cron");
-//    dockerfile_path.push("Dockerfile.btree_gin");
-//
-//    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
-//    cmd.arg("build");
-//    cmd.arg("--path");
-//    cmd.arg(extension_path.as_os_str());
-//    cmd.arg("--output-path");
-//    cmd.arg(output_dir.clone());
-//    cmd.arg("--dockerfile");
-//    cmd.arg(dockerfile_path.clone());
-//    cmd.arg("--install-command");
-//    cmd.arg("cd contrib/btree_gin && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib");
-//    cmd.arg("--version");
-//    cmd.arg("15.3.0");
-//    cmd.arg("--name");
-//    cmd.arg("btree_gin");
-//    //    cmd.arg("--preload-libraries");
-//    //    cmd.arg("auto_explain_spl");
-//    cmd.assert().code(0);
-//    assert!(
-//        std::path::Path::new(format!("{output_dir}/btree_gin-15.3.0.tar.gz").as_str()).exists()
-//    );
-//
-//    // Assert that the dependencies were written to manifest
-//    let manifest = Command::new("cat")
-//        .arg(format!("{output_dir}/manifest.json").as_str())
-//        .output()
-//        .expect("failed to run cat command");
-//
-//    let stdout = String::from_utf8(manifest.stdout).unwrap();
-//    assert!(stdout.contains("\"extension_dependencies\": \"btree_gin\""));
-//
-//    // assert post installation steps contain correct shared_preload_libraries command
-//    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
-//    cmd.arg("install");
-//    cmd.arg("--file");
-//    cmd.arg(format!("{output_dir}/pg_cron.tar.gz").as_str());
-//    cmd.arg("pg_cron");
-//    let output = cmd.output()?;
-//    let stdout = String::from_utf8(output.stdout)?;
-//    cmd.assert().code(0);
-//
-//    Ok(())
-//}
 
 #[test]
 fn build_pg_unit() -> Result<(), Box<dyn std::error::Error>> {
