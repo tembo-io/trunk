@@ -565,7 +565,6 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
-    println!("PRINTING STD OUT: {}", stdout);
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
     assert!(stdout.contains("Install the following system-level dependencies:"));
     assert!(stdout.contains("On systems using apt:"));
@@ -580,7 +579,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
 
     let stdout = String::from_utf8(manifest.stdout).unwrap();
-    assert!(stdout.contains("\"extension_dependencies\": [\"btree_gin\"]"));
+    assert!(stdout.contains("\"extension_dependencies\": [\n    \"btree_gin\"\n  ],"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
