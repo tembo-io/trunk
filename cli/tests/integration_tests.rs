@@ -580,7 +580,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
 
     let stdout = String::from_utf8(manifest.stdout).unwrap();
-    assert!(stdout.contains("\"extension_dependencies\": \"btree_gin\""));
+    assert!(stdout.contains("\"extension_dependencies\": [\"btree_gin\"]"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
