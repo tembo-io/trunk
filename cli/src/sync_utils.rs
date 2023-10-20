@@ -13,11 +13,14 @@ pub(crate) struct ByteStreamSyncSender {
     buffer: Vec<u8>,
 }
 
+type Receiver = mpsc::Receiver<Result<Vec<u8>, io::Error>>;
+type Sender = mpsc::Sender<Result<Vec<u8>, io::Error>>;
+
 impl ByteStreamSyncSender {
     /// Creates a new ByteStream
     pub(crate) fn new() -> (
-        mpsc::Receiver<Result<Vec<u8>, io::Error>>,
-        mpsc::Sender<Result<Vec<u8>, io::Error>>,
+        Receiver,
+        Sender,
         Self,
     ) {
         let (sender, receiver) = mpsc::channel(1);

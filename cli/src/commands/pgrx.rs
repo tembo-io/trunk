@@ -22,6 +22,7 @@ use tokio_task_manager::Task;
 use toml::Value;
 
 #[derive(Error, Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum PgrxBuildError {
     #[error("IO Error: {0}")]
     IoError(#[from] std::io::Error),
@@ -95,7 +96,7 @@ fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
         Ok(include_str!("./builders/Dockerfile.pgrx").to_string())
     }
 }
-
+#[allow(clippy::too_many_arguments)]
 pub async fn build_pgrx(
     dockerfile_path: Option<String>,
     platform: Option<String>,
