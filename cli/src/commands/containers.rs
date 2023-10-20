@@ -443,6 +443,9 @@ pub async fn package_installed_extension_files(
     let options_usrdir = Some(DownloadFromContainerOptions { path: "/usr" });
     let file_stream = docker.download_from_container(container_id, options_usrdir);
 
+    // TODO: If extension_dependencies is none, check for control file and fetch 'requires' field (similar to below)
+    //  example: https://github.com/paradedb/paradedb/blob/9a0b1601a9c7026e5c89eef51a422b9d284b3058/pg_search/pg_search.control#L6C1-L6C9
+
     if let Some(control) = sharedir_list.iter().find(|path| path.contains(".control")) {
         // If extension_name parameter is none, check for control file and fetch extension_name
         if extension_name.is_none() {
