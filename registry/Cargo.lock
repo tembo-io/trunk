@@ -136,10 +136,11 @@ dependencies = [
 
 [[package]]
 name = "actix-rt"
-version = "2.8.0"
+version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15265b6b8e2347670eb363c47fc8c75208b4a4994b27192f345fcbe707804f3e"
+checksum = "28f32d40287d3f402ae0028a9d54bef51af15c8769492826a69d28f81893151d"
 dependencies = [
+ "actix-macros",
  "futures-core",
  "tokio",
 ]
@@ -282,9 +283,9 @@ dependencies = [
 
 [[package]]
 name = "aho-corasick"
-version = "1.0.1"
+version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67fc08ce920c31afb70f013dcce1bfc3a3195de6a228474e45e1f145b36f8d04"
+checksum = "b2969dcb958b36655471fc61f7e416fa76033bdd4bfed0678d8fee1e2d07a1f0"
 dependencies = [
  "memchr",
 ]
@@ -823,10 +824,11 @@ dependencies = [
 
 [[package]]
 name = "clerk-rs"
-version = "0.1.7"
+version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c359474486f10c220428958a34cf148f94091049194957277a2747673fdefb8"
+checksum = "2a84b3a0f9ba2b005b503768201728167dbfe9f3472f6921309e03ae8786bb95"
 dependencies = [
+ "actix-rt",
  "actix-web",
  "futures-util",
  "jsonwebtoken",
@@ -2868,6 +2870,7 @@ dependencies = [
  "actix-multipart",
  "actix-web",
  "actix-web-httpauth",
+ "aho-corasick",
  "anyhow",
  "aws-config",
  "aws-sdk-s3",
@@ -2877,6 +2880,7 @@ dependencies = [
  "dotenv",
  "env_logger",
  "futures",
+ "nom",
  "rand",
  "reqwest",
  "semver",

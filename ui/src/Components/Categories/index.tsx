@@ -1,10 +1,10 @@
-import type { InferGetStaticPropsType, GetStaticProps } from "next";
-import Link from "next/link";
-import styles from "./categories.module.scss";
-import cx from "classnames";
-import { Category } from "@/types";
-import { useRouter } from "next/router";
-import { Dispatch, SetStateAction } from "react";
+import type { InferGetStaticPropsType, GetStaticProps } from 'next';
+import Link from 'next/link';
+import styles from './categories.module.scss';
+import cx from 'classnames';
+import { Category } from '@/types';
+import { useRouter } from 'next/router';
+import { Dispatch, SetStateAction } from 'react';
 
 export default function Categories({
   categories,
@@ -18,10 +18,14 @@ export default function Categories({
   const router = useRouter();
   const { cat } = router.query;
   return (
-    <div className={styles.container} style={showMobile ? { display: "flex" } : {}}>
+    <div
+      className={styles.container}
+      style={showMobile ? { display: 'flex' } : {}}>
       <div className={styles.mobileCategories}>
         <h1 className={styles.mobileTitle}>Categories</h1>
-        <button onClick={() => toggleCategoryMenu(false)} className={styles.closeMenu}>
+        <button
+          onClick={() => toggleCategoryMenu(false)}
+          className={styles.closeMenu}>
           &#x2715;
         </button>
       </div>
@@ -30,16 +34,21 @@ export default function Categories({
         .map((item) => (
           <Link
             onClick={() => toggleCategoryMenu(false)}
-            shallow href={
+            shallow
+            href={
               // Allow 'untoggling' a category: if we're already in the selected
               // category, go back home
-              (() => cat === item.slug ? "/" : `/?cat=${item.slug}`)()
+              (() => (cat === item.slug ? '/' : `/?cat=${item.slug}`))()
             }
             key={item.slug}
-            className={styles.listItem}
-          >
+            className={styles.listItem}>
             <p className={styles.interMed16}>{item.name}</p>
-            <span className={cx(styles.catCount, styles.interReg12, cat === item.slug ? styles.activeCat : "")}>
+            <span
+              className={cx(
+                styles.catCount,
+                styles.interReg12,
+                cat === item.slug ? styles.activeCat : ''
+              )}>
               {item.extension_count}
             </span>
           </Link>

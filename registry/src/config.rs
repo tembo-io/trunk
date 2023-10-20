@@ -10,6 +10,7 @@ pub struct Config {
     pub aws_secret_key: String,
     pub auth_token: HeaderValue,
     pub clerk_secret_key: String,
+    pub github_token: String,
 }
 
 impl Default for Config {
@@ -25,6 +26,7 @@ impl Default for Config {
             aws_secret_key: from_env_default("AWS_SECRET_KEY", ""),
             auth_token: from_env_default("AUTH_TOKEN", "").parse().unwrap(),
             clerk_secret_key: env::var("CLERK_SECRET_KEY").expect("CLERK_SECRET_KEY not set"),
+            github_token: env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set"),
         }
     }
 }

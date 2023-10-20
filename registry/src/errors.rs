@@ -10,6 +10,8 @@ use std::string::FromUtf8Error;
 use thiserror::Error;
 use url::ParseError;
 
+pub type Result<T = ()> = std::result::Result<T, ExtensionRegistryError>;
+
 // Use default implementation for `error_response()` method
 impl actix_web::error::ResponseError for ExtensionRegistryError {
     fn status_code(&self) -> reqwest::StatusCode {
@@ -85,4 +87,10 @@ pub enum ExtensionRegistryError {
 
     #[error("resource not found")]
     ResourceNotFound,
+
+    #[error("Invalid base64: {0}")]
+    InvalidBase64(#[from] base64::DecodeError),
+
+    #[error("Not a GitHub repository: {0}")]
+    InvalidGithubRepo(String),
 }

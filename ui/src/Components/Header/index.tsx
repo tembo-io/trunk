@@ -1,12 +1,12 @@
-import Image from "next/image";
-import Link from "next/link";
-import styles from "./header.module.scss";
-import React, { useState, useEffect, useRef } from "react";
-import cx from "classnames";
-const TrunkLogo = "/TrunkLogo.png";
-const SlackLogo = "/slack_logo.png";
-import Search from "../Search";
-import { Extension } from "@/types";
+import Image from 'next/image';
+import Link from 'next/link';
+import styles from './header.module.scss';
+import React, { useState, useEffect, useRef } from 'react';
+import cx from 'classnames';
+const TrunkLogo = '/TrunkLogo.png';
+const SlackLogo = '/slack_logo.png';
+import Search from '../Search';
+import { Extension } from '@/types';
 
 interface HeaderProps {
   white?: boolean;
@@ -27,31 +27,42 @@ export default function Header({ white = false, search = false }: HeaderProps) {
         setScrolled(false);
       }
     }
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
   return (
     <header
-      style={white ? { backgroundColor: "white" } : {}}
-      className={cx(styles.header, scrolled ? styles.headerScrolled : "")}
-      ref={headerRef}
-    >
+      style={white ? { backgroundColor: 'white' } : {}}
+      className={cx(styles.header, scrolled ? styles.headerScrolled : '')}
+      ref={headerRef}>
       <div className={styles.headerLeft}>
-        <Link href={"/"} shallow style={{ display: "flex", alignItems: "center" }}>
+        <Link
+          href={'/'}
+          shallow
+          style={{ display: 'flex', alignItems: 'center' }}>
           <Image
             width={102}
             height={38}
-            style={{ marginRight: "10px", minWidth: "102px", minHeight: "38px" }}
+            style={{
+              marginRight: '10px',
+              minWidth: '102px',
+              minHeight: '38px',
+            }}
             quality={90}
             priority
             alt="Trunk Logo"
-            src={TrunkLogo}
-          ></Image>
+            src={TrunkLogo}></Image>
         </Link>
-        <button onClick={() => setShowNavLinks(!showNavLinks)} className={styles.menuButton}>
-          {showNavLinks ? "" : <span style={{ fontSize: "30px" }}>&#x2630;</span>}
+        <button
+          onClick={() => setShowNavLinks(!showNavLinks)}
+          className={styles.menuButton}>
+          {showNavLinks ? (
+            ''
+          ) : (
+            <span style={{ fontSize: '30px' }}>&#x2630;</span>
+          )}
         </button>
         {search && (
           <div className={styles.headerSearchCont}>
@@ -59,26 +70,37 @@ export default function Header({ white = false, search = false }: HeaderProps) {
           </div>
         )}
       </div>
-      <div style={search ? { marginLeft: "auto" } : {}}>
-        <div className={cx(styles.linksCont, showNavLinks ? styles.showLinks : "")}>
+      <div style={search ? { marginLeft: 'auto' } : {}}>
+        <div
+          className={cx(
+            styles.linksCont,
+            showNavLinks ? styles.showLinks : ''
+          )}>
           <a
-            className={cx(styles.navLink, search ? styles.navLinkSearch : "")}
-            href={"https://github.com/tembo-io/trunk#installation"}
-            target="_blank"
-          >
+            className={cx(styles.navLink, search ? styles.navLinkSearch : '')}
+            href={'https://github.com/tembo-io/trunk#installation'}
+            target="_blank">
             Download
           </a>
-          <a className={cx(styles.navLink, search ? styles.navLinkSearch : "")} href="https://github.com/tembo-io/trunk" target="_blank">
+          <a
+            className={cx(styles.navLink, search ? styles.navLinkSearch : '')}
+            href="https://github.com/tembo-io/trunk"
+            target="_blank">
             Contribute
           </a>
-          <a className={cx(styles.navLink, search ? styles.navLinkSearch : "")} href="https://tembo-io.github.io/trunk/" target="_blank">
+          <a
+            className={cx(styles.navLink, search ? styles.navLinkSearch : '')}
+            href="https://tembo-io.github.io/trunk/"
+            target="_blank">
             Docs
           </a>
           {/* TODO: Add blog */}
-          <Link className={styles.navLink} href={"/"}>
+          <Link className={styles.navLink} href={'/'}>
             Blog
           </Link>
-          <button onClick={() => setShowNavLinks(false)} className={styles.closeButton}>
+          <button
+            onClick={() => setShowNavLinks(false)}
+            className={styles.closeButton}>
             &#x2715;
           </button>
         </div>
@@ -86,10 +108,16 @@ export default function Header({ white = false, search = false }: HeaderProps) {
       <a
         target="_blank"
         href="https://join.slack.com/t/trunk-community/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg"
-        className={styles.ctaCont}
-      >
+        className={styles.ctaCont}>
         <span className={styles.ctaText}>Join Trunk on Slack</span>
-        <Image width={16} height={16} style={{ marginLeft: "10px" }} quality={20} priority alt="Slack Logo" src={SlackLogo}></Image>
+        <Image
+          width={16}
+          height={16}
+          style={{ marginLeft: '10px' }}
+          quality={20}
+          priority
+          alt="Slack Logo"
+          src={SlackLogo}></Image>
       </a>
       {/* </div> */}
     </header>

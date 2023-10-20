@@ -1,0 +1,22 @@
+[extension]
+name = "pg_graphql"
+version = "1.4.1"
+repository = "https://github.com/supabase/pg_graphql"
+license = "Apache-2.0"
+description = "pg_graphql adds GraphQL support to your PostgreSQL database."
+homepage = "https://supabase.com"
+documentation = "https://supabase.github.io/pg_graphql"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_graphql
+    mv target/release/pg_graphql-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/pg_graphql-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+"""
+
+[dependencies]
+apt = ["libc6"]

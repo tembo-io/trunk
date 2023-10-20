@@ -6,6 +6,7 @@ use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
+use log::{error, info, warn};
 use reqwest;
 use reqwest::Url;
 use std::ffi::OsStr;
@@ -129,7 +130,7 @@ async fn install(
         .await?;
 
         let response_body = response.text().await?;
-        println!("Downloading from: {response_body}");
+        info!("Downloading from: {response_body}");
 
         let url = Url::parse(&response_body)?;
 
@@ -286,14 +287,14 @@ async fn install_file(
         }
     }
 
-    println!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
+    info!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
     for dependency in dependent_extensions_to_install {
         // check a control file is present in sharedir for each dependency
         let control_file_path = sharedir
             .join("extension")
             .join(format!("{dependency}.control"));
         if !control_file_path.exists() {
-            println!("Dependency {dependency} not found in sharedir {sharedir:?}. Installing...");
+            info!("Dependency {dependency} not found in sharedir {sharedir:?}. Installing...");
             install(
                 &dependency,
                 "latest",
@@ -316,7 +317,7 @@ async fn install_file(
 
     if let Some(mut manifest) = manifest {
         let manifest_files = manifest.files.take().unwrap_or_default();
-        println!(
+        info!(
             "Installing {} {}",
             manifest.name, manifest.extension_version
         );
@@ -333,7 +334,7 @@ async fn install_file(
         };
 
         if manifest.manifest_version > 1 && host_arch != manifest.architecture {
-            println!(
+            warn!(
                 "This package is not compatible with your architecture: {}, it is compatible with {}",
                 host_arch,
                 manifest.architecture
@@ -384,7 +385,7 @@ async fn install_file(
                         entry.unpack_in(&sharedir)?;
                     }
                     PackagedFile::LicenseFile { .. } => {
-                        println!("Skipping license file {}", name.display());
+                        info!("Skipping license file {}", name.display());
                     }
                 }
             }

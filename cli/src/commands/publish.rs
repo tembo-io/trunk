@@ -8,6 +8,7 @@ use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
+use log::{error, info, warn};
 use reqwest::header::CONTENT_TYPE;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
 use reqwest::StatusCode;
@@ -88,17 +89,15 @@ impl PublishCommand {
         let trunk_toml = match File::open(trunkfile_path) {
             Ok(file) => Some(config::parse_trunk_toml(file)?),
             Err(_e) => {
-                println!("Trunk.toml not found");
+                warn!("Trunk.toml not found");
                 None
             }
         };
 
         let maybe_name = cli_or_trunk(&self.name, |toml| &toml.extension.name, &trunk_toml);
         let Some(name) = maybe_name else {
-            panic!(
-                "Extension name must be provided when publishing. Please specify the extension name \
-                 as the first argument, or under extension.name in Trunk.toml"
-            )
+            return Err(anyhow!("Extension name must be provided when publishing. Please specify the extension name \
+            as the first argument, or under extension.name in Trunk.toml"));
         };
 
         let extension_name = cli_or_trunk_opt(
@@ -122,10 +121,8 @@ impl PublishCommand {
         let maybe_version =
             cli_or_trunk(&self.version, |toml| &toml.extension.version, &trunk_toml);
         let Some(version) = maybe_version else {
-            panic!(
-                "Extension version must be provided when publishing. Please specify the extension version \
-                 with --version, or under extension.version in Trunk.toml"
-            )
+            return Err(anyhow!("Extension version must be provided when publishing. Please specify the extension version \
+            with --version, or under extension.version in Trunk.toml"));
         };
 
         let file = self
@@ -136,7 +133,7 @@ impl PublishCommand {
                     .as_ref()
                     .map(|toml| {
                         let file = toml.extension.file.as_ref()?;
-                        println!(
+                        info!(
                             "Trunk.toml: using setting `extension.file`: {}",
                             file.display()
                         );
@@ -225,7 +222,7 @@ impl SubCommand for PublishCommand {
                 }
                 _ => {
                     // Fall back to local file if we fail to fetch valid slugs from registry
-                    println!("Error fetching valid category slugs from {}/categories/all. Falling back to local definitions in categories.rs", publish_settings.registry);
+                    error!("Error fetching valid category slugs from {}/categories/all. Falling back to local definitions in categories.rs", publish_settings.registry);
                     slugs = VALID_CATEGORY_SLUGS
                         .to_vec()
                         .into_iter()
@@ -271,7 +268,7 @@ impl SubCommand for PublishCommand {
         // TODO(ianstanton) Read system dependencies and preload_libraries from manifest.json
         // If extension_name is not provided by the user, check for value in manifest.json
         if publish_settings.extension_name.is_none() {
-            println!("Fetching extension_name from manifest.json...");
+            info!("Fetching extension_name from manifest.json...");
             // Get file path
             let file = match &publish_settings.file {
                 Some(..) => {
@@ -334,12 +331,12 @@ impl SubCommand for PublishCommand {
                         .extension_name
                         .unwrap_or(publish_settings.name.clone()),
                 );
-                println!(
+                info!(
                     "Found extension_name: {}",
                     publish_settings.extension_name.clone().unwrap()
                 );
             } else {
-                println!(
+                info!(
                     "Did not find extension_name in manifest.json. Falling back to '{}'",
                     publish_settings.name.clone()
                 );

@@ -4,13 +4,20 @@ mod control_file;
 mod manifest;
 mod sync_utils;
 mod trunk_toml;
+mod tui;
 
 use crate::commands::SubCommand;
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
+use log::error;
+use log::Level;
 
-use std::time::Duration;
+use colorful::{Color, Colorful, RGB};
+use env_logger;
+use std::io::Write;
+use std::{process::ExitCode, time::Duration};
 use tokio_task_manager::{Task, TaskManager};
+use tui::{indent, TRUNK_SAND_COLOR};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -44,7 +51,26 @@ impl SubCommand for SubCommands {
     }
 }
 
-fn main() {
+fn main() -> ExitCode {
+    env_logger::builder()
+        .filter_level(log::LevelFilter::Info)
+        .format(|buf, record| {
+            let level_str = match record.level() {
+                Level::Info => String::from("info").color(RGB::new(
+                    TRUNK_SAND_COLOR.r,
+                    TRUNK_SAND_COLOR.g,
+                    TRUNK_SAND_COLOR.b,
+                )),
+                Level::Error => String::from("error").color(Color::Red),
+                Level::Warn => String::from("warn").color(Color::Yellow),
+                Level::Debug => String::from("debug").color(RGB::new(234, 67, 118)),
+                Level::Trace => String::from("trace").color(Color::Green),
+            };
+            return writeln!(buf, "{}: {}", level_str, record.args());
+        })
+        .try_init()
+        .ok();
+
     let tm = TaskManager::new(Duration::from_secs(60));
 
     let rt = tokio::runtime::Builder::new_multi_thread()
@@ -52,11 +78,18 @@ fn main() {
         .build()
         .unwrap();
 
-    rt.block_on(async {
+    match rt.block_on(async {
         let cli = Cli::parse();
         let result = cli.command.execute(tm.task()).await;
         tm.wait().await;
         result
-    })
-    .expect("error occurred");
+    }) {
+        Ok(_) => ExitCode::SUCCESS,
+        Err(e) => {
+            // Any errors returned will get propogated up and gracefuly logged to the user here
+            print!("{}", indent(1));
+            error!("{}", e);
+            return ExitCode::from(1);
+        }
+    }
 }
