@@ -90,9 +90,9 @@ fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
 fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
     if let Some(dockerfile_path) = path {
         println!("Using Dockerfile at {}", &dockerfile_path);
-        return Ok(fs::read_to_string(dockerfile_path.as_str())?);
+        Ok(fs::read_to_string(dockerfile_path.as_str())?)
     } else {
-        return Ok(include_str!("./builders/Dockerfile.pgrx").to_string());
+        Ok(include_str!("./builders/Dockerfile.pgrx").to_string())
     }
 }
 
