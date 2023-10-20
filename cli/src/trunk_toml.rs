@@ -82,12 +82,6 @@ pub(crate) fn cli_or_trunk_opt<T: Clone, F: FnOnce(&TrunkToml) -> &Option<T>>(
 ) -> Option<T> {
     set_in_cli
         .as_ref()
-        .or_else(|| {
-            maybe_toml
-                .as_ref()
-                .map(extract)
-                .map(Option::as_ref)
-                .flatten()
-        })
+        .or_else(|| maybe_toml.as_ref().map(extract).and_then(Option::as_ref))
         .cloned()
 }

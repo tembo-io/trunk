@@ -1,10 +1,10 @@
-pub struct RGB {
+pub struct Rgb {
     pub r: u8,
     pub g: u8,
     pub b: u8,
 }
 
-pub const TRUNK_SAND_COLOR: RGB = RGB {
+pub const TRUNK_SAND_COLOR: Rgb = Rgb {
     r: 255,
     g: 247,
     b: 240,

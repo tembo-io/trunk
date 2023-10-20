@@ -120,17 +120,14 @@ impl PublishCommand {
             .file
             .as_ref()
             .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .map(|toml| {
-                        let file = toml.extension.file.as_ref()?;
-                        info!(
-                            "Trunk.toml: using setting `extension.file`: {}",
-                            file.display()
-                        );
-                        Some(file.into())
-                    })
-                    .flatten()
+                trunk_toml.as_ref().and_then(|toml| {
+                    let file = toml.extension.file.as_ref()?;
+                    info!(
+                        "Trunk.toml: using setting `extension.file`: {}",
+                        file.display()
+                    );
+                    Some(file)
+                })
             })
             .cloned();
 
@@ -167,8 +164,7 @@ impl PublishCommand {
 
         let system_dependencies = trunk_toml
             .as_ref()
-            .map(|toml| toml.dependencies.as_ref())
-            .flatten()
+            .and_then(|toml| toml.dependencies.as_ref())
             .cloned();
 
         Ok(PublishSettings {
@@ -214,7 +210,6 @@ impl SubCommand for PublishCommand {
                     // Fall back to local file if we fail to fetch valid slugs from registry
                     error!("Error fetching valid category slugs from {}/categories/all. Falling back to local definitions in categories.rs", publish_settings.registry);
                     slugs = VALID_CATEGORY_SLUGS
-                        .to_vec()
                         .into_iter()
                         .map(|x| x.to_string())
                         .collect();
