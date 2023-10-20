@@ -1,4 +1,6 @@
 //! Functionality for downloading extensions and maintaining download counts
+use std::borrow::Cow;
+
 use crate::config::Config;
 use crate::download::{check_version, latest_version};
 use crate::errors::Result;
@@ -16,7 +18,7 @@ pub async fn download(
     path: web::Path<(String, String)>,
 ) -> Result<HttpResponse> {
     let (name, mut version) = path.into_inner();
-    let Ok(extension_id) = get_extension_id_fallback(&name, &conn).await else {
+    let Ok((extension_id, project_name)) = get_extension_id_and_name(&name, &conn).await else {
         return Ok(HttpResponse::NotFound().body("No extension with the given name was found"));
     };
 
@@ -30,7 +32,7 @@ pub async fn download(
             return Ok(HttpResponse::NotFound().body("Version not found"));
         }
     }
-    let url = extension_location(&cfg.bucket_name, &name, &version);
+    let url = extension_location(&cfg.bucket_name, &project_name, &version);
     info!(
         "Download requested for {} version {}. URL: {}",
         name, version, url
@@ -56,12 +58,15 @@ async fn increase_download_count(pool: &Pool<Postgres>, extension_id: i32) -> Re
 /// Given an extension name, try to find it in the `extensions` table (more common scenario).
 ///
 /// If it's not found, try to find it in `versions` under `extension_name`.
-pub async fn get_extension_id_fallback(extension_name: &str, conn: &Pool<Postgres>) -> Result<i64> {
+pub async fn get_extension_id_and_name<'n>(
+    extension_name: &'n str,
+    conn: &Pool<Postgres>,
+) -> Result<(i64, Cow<'n, str>)> {
     if let Ok(record) = sqlx::query!("SELECT id FROM extensions WHERE name = $1", extension_name)
         .fetch_one(conn)
         .await
     {
-        return Ok(record.id);
+        return Ok((record.id, extension_name.into()));
     }
 
     let record = sqlx::query!(
@@ -72,5 +77,13 @@ pub async fn get_extension_id_fallback(extension_name: &str, conn: &Pool<Postgre
     .await?;
 
     // Safe unwrap: if `extension_name` is in versions, `extension_id` must be as well
-    Ok(record.extension_id.unwrap() as i64)
+    let extension_id = record.extension_id.unwrap() as i64;
+
+    let record = sqlx::query!("SELECT name FROM extensions WHERE id = $1", extension_id)
+        .fetch_one(conn)
+        .await?;
+
+    // Safe unwrap: if the `extension` has an entry in `versions` it must have its
+    // name filled in
+    Ok((extension_id, record.name.unwrap().into()))
 }
