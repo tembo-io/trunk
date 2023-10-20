@@ -19,6 +19,7 @@ pub struct TomlExtensionData {
     pub name: String,
     pub file: Option<PathBuf>,
     pub extension_name: Option<String>,
+    pub extension_dependencies: Option<Vec<String>>,
     pub version: String,
     pub license: String,
     pub repository: Option<String>,
