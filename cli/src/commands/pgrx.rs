@@ -22,6 +22,7 @@ use tokio_task_manager::Task;
 use toml::Value;
 
 #[derive(Error, Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum PgrxBuildError {
     #[error("IO Error: {0}")]
     IoError(#[from] std::io::Error),
@@ -90,12 +91,12 @@ fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
 fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
     if let Some(dockerfile_path) = path {
         println!("Using Dockerfile at {}", &dockerfile_path);
-        return Ok(fs::read_to_string(dockerfile_path.as_str())?);
+        Ok(fs::read_to_string(dockerfile_path.as_str())?)
     } else {
-        return Ok(include_str!("./builders/Dockerfile.pgrx").to_string());
+        Ok(include_str!("./builders/Dockerfile.pgrx").to_string())
     }
 }
-
+#[allow(clippy::too_many_arguments)]
 pub async fn build_pgrx(
     dockerfile_path: Option<String>,
     platform: Option<String>,

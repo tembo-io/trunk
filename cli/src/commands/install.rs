@@ -74,7 +74,7 @@ impl SubCommand for InstallCommand {
 
         let package_lib_dir = std::fs::canonicalize(package_lib_dir)?;
 
-        let sharedir = std::process::Command::new(&pg_config)
+        let sharedir = std::process::Command::new(pg_config)
             .arg("--sharedir")
             .output()?
             .stdout;
@@ -261,8 +261,8 @@ async fn install_file(
                 // If not, add to depenedent_extensions_to_install.
                 // We don't want to install dependencies that are already present in the tar.gz
                 for dep in deps {
-                    if !dependent_extensions_to_install.contains(&dep)
-                        && !extensions_to_install.contains(&dep)
+                    if !dependent_extensions_to_install.contains(dep)
+                        && !extensions_to_install.contains(dep)
                     {
                         dependent_extensions_to_install.push(dep.to_string());
                     }

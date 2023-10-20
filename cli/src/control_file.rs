@@ -51,7 +51,7 @@ impl ControlFile {
     }
 
     pub fn dependencies(&self) -> &[String] {
-        self.requires.as_ref().map(Vec::as_slice).unwrap_or(&[])
+        self.requires.as_deref().unwrap_or(&[])
     }
 }
 
