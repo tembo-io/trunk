@@ -57,7 +57,8 @@ pub enum PgrxBuildError {
 
 fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     let versions = [
-        "0.10.0", "0.9.8", "0.9.7", "0.9.1", "0.9.0", "0.8.4", "0.8.3", "0.8.0", "0.7.4",
+        "0.11.0", "0.10.2", "0.10.1", "0.10.0", "0.9.8", "0.9.7", "0.9.1", "0.9.0", "0.8.4",
+        "0.8.3", "0.8.0", "0.7.4",
     ];
 
     if versions.contains(&pgrx_range) {
@@ -254,6 +255,7 @@ mod tests {
         assert_eq!(result.unwrap(), "0.8.3");
         let result = semver_from_range("0.8.4");
         assert_eq!(result.unwrap(), "0.8.4");
+        let result = semver_from_range("0.8.4");
     }
 
     #[test]
@@ -273,6 +275,6 @@ mod tests {
         let result = semver_from_range(">=0.9.0, <0.10.0");
         assert_eq!(result.unwrap(), "0.9.8");
         let result = semver_from_range(">=0.10.0, <0.11.0");
-        assert_eq!(result.unwrap(), "0.10.0");
+        assert_eq!(result.unwrap(), "0.10.2");
     }
 }
