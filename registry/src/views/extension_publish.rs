@@ -9,6 +9,7 @@ pub type SystemDependencies = HashMap<String, Vec<String>>;
 pub struct ExtensionUpload {
     pub name: String,
     pub extension_name: Option<String>,
+    pub extension_dependencies: Option<Vec<String>>,
     pub vers: semver::Version,
     pub description: Option<String>,
     pub homepage: Option<String>,
