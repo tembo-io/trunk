@@ -27,6 +27,8 @@ pub struct BuildCommand {
     name: Option<String>,
     #[arg(short = 'e', long = "extension_name")]
     extension_name: Option<String>,
+    #[arg(short = 'x', long = "extension_dependencies")]
+    extension_dependencies: Option<Vec<String>>,
     #[arg(short = 's', long = "preload-libraries")]
     preload_libraries: Option<Vec<String>>,
     #[arg(short = 'P', long = "platform")]
@@ -43,6 +45,7 @@ pub struct BuildSettings {
     pub version: Option<String>,
     pub name: Option<String>,
     pub extension_name: Option<String>,
+    pub extension_dependencies: Option<Vec<String>>,
     pub preload_libraries: Option<Vec<String>>,
     pub system_dependencies: Option<SystemDependencies>,
     pub glob_patterns_to_include: Vec<glob::Pattern>,
@@ -89,6 +92,12 @@ impl BuildCommand {
             &trunk_toml,
         );
 
+        let extension_dependencies = cli_or_trunk_opt(
+            &self.extension_dependencies,
+            |toml| &toml.extension.extension_dependencies,
+            &trunk_toml,
+        );
+
         let preload_libraries = cli_or_trunk_opt(
             &self.preload_libraries,
             |toml| &toml.extension.preload_libraries,
@@ -132,7 +141,7 @@ impl BuildCommand {
 
             Some(
                 Path::new(&build_path)
-                    .join(&dockerfile)
+                    .join(dockerfile)
                     .to_string_lossy()
                     .into(),
             )
@@ -144,6 +153,7 @@ impl BuildCommand {
             version,
             name,
             extension_name,
+            extension_dependencies,
             preload_libraries,
             system_dependencies,
             glob_patterns_to_include,
@@ -157,9 +167,9 @@ impl BuildCommand {
 fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
     if let Some(dockerfile_path) = path {
         info!("Using Dockerfile at {}", &dockerfile_path);
-        return Ok(fs::read_to_string(dockerfile_path.as_str())?);
+        fs::read_to_string(dockerfile_path.as_str())
     } else {
-        return Ok(include_str!("./builders/Dockerfile.generic").to_string());
+        Ok(include_str!("./builders/Dockerfile.generic").to_string())
     }
 }
 
@@ -217,6 +227,7 @@ impl SubCommand for BuildCommand {
                     path,
                     &build_settings.output_path,
                     build_settings.extension_name,
+                    build_settings.extension_dependencies,
                     build_settings.preload_libraries,
                     cargo_toml,
                     build_settings.system_dependencies,
@@ -260,6 +271,7 @@ impl SubCommand for BuildCommand {
             &build_settings.output_path,
             build_settings.name.clone().unwrap().as_str(),
             build_settings.extension_name,
+            build_settings.extension_dependencies,
             build_settings.preload_libraries,
             build_settings.system_dependencies,
             build_settings.version.clone().unwrap().as_str(),

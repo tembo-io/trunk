@@ -19,6 +19,7 @@ pub struct TomlExtensionData {
     pub name: String,
     pub file: Option<PathBuf>,
     pub extension_name: Option<String>,
+    pub extension_dependencies: Option<Vec<String>>,
     pub version: String,
     pub license: String,
     pub repository: Option<String>,
@@ -82,12 +83,6 @@ pub(crate) fn cli_or_trunk_opt<T: Clone, F: FnOnce(&TrunkToml) -> &Option<T>>(
 ) -> Option<T> {
     set_in_cli
         .as_ref()
-        .or_else(|| {
-            maybe_toml
-                .as_ref()
-                .map(extract)
-                .map(Option::as_ref)
-                .flatten()
-        })
+        .or_else(|| maybe_toml.as_ref().map(extract).and_then(Option::as_ref))
         .cloned()
 }

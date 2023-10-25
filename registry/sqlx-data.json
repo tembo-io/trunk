@@ -626,6 +626,26 @@
     },
     "query": "SELECT id FROM extensions WHERE name = $1"
   },
+  "6991d9aae9d130b3d209ea5816847f661979e07c07f754c15e9b05eee3d61cb6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "extension_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT extension_id FROM versions WHERE extension_name = $1"
+  },
   "69ef7c7c79e69f31731a41417a0047562f0806a7c73eb4bb98c9ed554fff3b7c": {
     "describe": {
       "columns": [],
@@ -655,6 +675,26 @@
       }
     },
     "query": "\n        INSERT INTO extension_owners(extension_id, owner_id, user_name, created_at, created_by)\n        VALUES ($1, $2, $3, (now() at time zone 'utc'), $2)\n        "
+  },
+  "756737edb5733514dcb510266ab577703d9cf4cb7f61702d7a4a15962fc8ae87": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT name FROM extensions WHERE id = $1"
   },
   "7a931ec93bcc1516737bfc65fd24b339401996a7f23891c7770a3b5b5c79ffc2": {
     "describe": {

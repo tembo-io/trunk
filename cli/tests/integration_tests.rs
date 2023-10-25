@@ -572,6 +572,15 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("On systems using dnf:"));
     assert!(stdout.contains("libpq-devel"));
 
+    // assert that the dependencies were written to manifest
+    let manifest = Command::new("cat")
+        .arg(format!("{output_dir}/manifest.json").as_str())
+        .output()
+        .expect("failed to run cat command");
+
+    let stdout = String::from_utf8(manifest.stdout).unwrap();
+    assert!(stdout.contains("\"extension_dependencies\": [\n    \"btree_gin\"\n  ],"));
+
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 

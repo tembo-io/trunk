@@ -19,6 +19,7 @@ use crate::commands::license::{copy_licenses, find_licenses};
 use crate::trunk_toml::SystemDependencies;
 
 #[derive(Error, Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum GenericBuildError {
     #[error("IO Error: {0}")]
     IoError(#[from] std::io::Error),
@@ -61,6 +62,7 @@ pub enum GenericBuildError {
 // docker diff 05a11b4b1bd5
 //
 // Any file that has changed, copy out of the container and into the trunk package
+#[allow(clippy::too_many_arguments)]
 pub async fn build_generic(
     dockerfile: &str,
     platform: Option<String>,
@@ -69,6 +71,7 @@ pub async fn build_generic(
     output_path: &str,
     name: &str,
     extension_name: Option<String>,
+    extension_dependencies: Option<Vec<String>>,
     preload_libraries: Option<Vec<String>>,
     system_dependencies: Option<SystemDependencies>,
     extension_version: &str,
@@ -142,6 +145,7 @@ pub async fn build_generic(
         name,
         extension_name,
         extension_version,
+        extension_dependencies,
         inclusion_patterns,
     )
     .await?;

@@ -178,13 +178,8 @@ pub async fn find_installed_extension_files(
         exec_in_container(docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
     let sharedir = sharedir.trim();
 
-    let pkglibdir = exec_in_container(
-        &docker,
-        container_id,
-        vec!["pg_config", "--pkglibdir"],
-        None,
-    )
-    .await?;
+    let pkglibdir =
+        exec_in_container(docker, container_id, vec!["pg_config", "--pkglibdir"], None).await?;
     let pkglibdir = pkglibdir.trim();
 
     // collect changes from container filesystem
@@ -388,6 +383,7 @@ pub async fn build_image(
 
 // Scan sharedir and package lib dir from a Trunk builder container for files from a provided list.
 // Package these files into a Trunk package.
+#[allow(clippy::too_many_arguments)]
 pub async fn package_installed_extension_files(
     docker: Docker,
     container_id: &str,
@@ -397,6 +393,7 @@ pub async fn package_installed_extension_files(
     name: &str,
     mut extension_name: Option<String>,
     extension_version: &str,
+    extension_dependencies: Option<Vec<String>>,
     inclusion_patterns: Vec<glob::Pattern>,
 ) -> Result<(), anyhow::Error> {
     let name = name.to_owned();
@@ -422,7 +419,6 @@ pub async fn package_installed_extension_files(
         find_installed_extension_files(&docker, container_id, &inclusion_patterns).await?;
     let license_files = find_license_files(&docker, container_id).await?;
 
-    let control_file = extension_files.control_file;
     let sharedir_list = extension_files.sharedir;
     let pkglibdir_list = extension_files.pkglibdir;
     let licensedir_list = license_files;
@@ -446,6 +442,9 @@ pub async fn package_installed_extension_files(
     // Looping over everything in that directory makes this way slower.
     let options_usrdir = Some(DownloadFromContainerOptions { path: "/usr" });
     let file_stream = docker.download_from_container(container_id, options_usrdir);
+
+    // TODO: If extension_dependencies is none, check for control file and fetch 'requires' field (similar to below)
+    //  example: https://github.com/paradedb/paradedb/blob/9a0b1601a9c7026e5c89eef51a422b9d284b3058/pg_search/pg_search.control#L6C1-L6C9
 
     if let Some(control) = sharedir_list.iter().find(|path| path.contains(".control")) {
         // If extension_name parameter is none, check for control file and fetch extension_name
@@ -475,7 +474,7 @@ pub async fn package_installed_extension_files(
     // Create a sync task within the tokio runtime to copy the file from docker to tar
     let tar_handle = task::spawn_blocking(move || {
         // Send ownership of the control file to the closure
-        let control_file = control_file;
+        let control_file = extension_files.control_file;
         let mut archive = Archive::new(receiver);
         let mut new_archive = Builder::new(flate2::write::GzEncoder::new(
             file,
@@ -485,6 +484,7 @@ pub async fn package_installed_extension_files(
             name,
             extension_name,
             extension_version,
+            extension_dependencies,
             manifest_version: 2,
             preload_libraries,
             architecture: target_arch,
@@ -593,7 +593,7 @@ fn prepare_sharedir_file<'p>(
 
     // If the control file was not supplied, or it was and didn't have the `directory` field filled in,
     // assume the file should go to `$(sharedir)/extension`.
-    let maybe_directory = control_file.map(|file| file.directory.as_ref()).flatten();
+    let maybe_directory = control_file.and_then(|file| file.directory.as_ref());
 
     let file_to_package = file_to_package.strip_prefix(sharedir)?;
 
