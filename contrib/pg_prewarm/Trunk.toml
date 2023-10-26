@@ -7,6 +7,7 @@ description = "The pg_prewarm module provides a convenient way to load relation 
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/pgprewarm.html"
 categories = ["featured", "data_transformations"]
+preload_libraries = ["pg_prewarm"]
 
 [dependencies]
 apt = ["libc6"]
