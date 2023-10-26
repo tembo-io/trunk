@@ -143,8 +143,8 @@ SELECT id, 'supautils', true
 FROM v1.extension_versions
 WHERE extension_name = 'supautils' AND version = '1.7.3';
 
-INSERT INTO v1.extensions_loadable_libraries(extension_version_id, library_name, requires_restart)
-SELECT id, 'timescaledb', true
+INSERT INTO v1.extensions_loadable_libraries(extension_version_id, library_name, requires_restart, priority)
+SELECT id, 'timescaledb', true, 0
 FROM v1.extension_versions
 WHERE extension_name = 'timescaledb' AND version = '2.11.1';
 
