@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { GetStaticProps } from 'next';
 import Head from 'next/head';
 import styles from './index.module.scss';
@@ -7,6 +7,7 @@ import Categories from '../Components/Categories';
 import ExtGrid from '../Components/ExtGrid';
 import { Category, CategoriesForGrid, Extension } from '@/types';
 import Header from '@/Components/Header';
+import Loading from '@/Components/loading';
 
 const REGISTRY_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'https://registry.pgtrunk.io';
@@ -90,11 +91,26 @@ export default function Home({
   categoriesForGrid: {};
 }) {
   const [showMobileCategories, setShowMobileCategories] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const showMobileCategoriesHandler = () => {
     window.scrollTo({ top: 0 });
     setShowMobileCategories(true);
   };
+
+  // Simulate a loading delay of 3 seconds, adjust as needed
+  useEffect(() => {
+    if (sessionStorage.getItem('alreadyLoaded') === null) {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+        sessionStorage.setItem('alreadyLoaded', 'true');
+      }, 3000);
+      return () => clearTimeout(timer);
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
   return (
     <div>
       <Head>
@@ -104,23 +120,29 @@ export default function Home({
           content="Trunk is an open-source package installer and registry for PostgreSQL extensions."
         />
       </Head>
-      <Header extensions={extensions}></Header>
-      <div className={styles.main}>
-        <Hero />
-        <div className={styles.body}>
-          <Categories
-            categories={categories}
-            showMobile={showMobileCategories}
-            toggleCategoryMenu={setShowMobileCategories}
-          />
-          <ExtGrid
-            extensions={extensions}
-            categories={categories}
-            categoriesForGrid={categoriesForGrid}
-            setshowMobileCategories={showMobileCategoriesHandler}
-          />
-        </div>
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <>
+          <Header extensions={extensions}></Header>
+          <div className={styles.main}>
+            <Hero />
+            <div className={styles.body}>
+              <Categories
+                categories={categories}
+                showMobile={showMobileCategories}
+                toggleCategoryMenu={setShowMobileCategories}
+              />
+              <ExtGrid
+                extensions={extensions}
+                categories={categories}
+                categoriesForGrid={categoriesForGrid}
+                setshowMobileCategories={showMobileCategoriesHandler}
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
