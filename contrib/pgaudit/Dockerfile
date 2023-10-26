@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/postgres/postgres.git
 
 ARG PG_RELEASE=REL_15_3
+ARG RELEASE=1.7.0
 
 RUN cd postgres && \
 	git fetch origin ${PG_RELEASE} && \
@@ -28,4 +29,6 @@ RUN cd postgres && \
 	cd contrib && \
 	git clone https://github.com/pgaudit/pgaudit.git && \
 	cd pgaudit && \
+		git fetch origin ${RELEASE} && \
+		git checkout ${RELEASE} && \
 	make USE_PGXS=1
