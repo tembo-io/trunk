@@ -7,6 +7,7 @@ description = "PostgreSQL plain credential checker"
 homepage = "https://www.migops.com/"
 documentation = "https://github.com/MigOpsRepos/credcheck"
 categories = ["tooling_admin"]
+preload_libraries = ["credcheck"]
 
 [dependencies]
 apt = ["libc6"]
