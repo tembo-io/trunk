@@ -6,7 +6,6 @@ license = "MIT"
 description = "Time-based replication delay for pglogical."
 documentation = "https://github.com/enova/pglogical_ticker"
 categories = ["change_data_capture"]
-preload_libraries = ["pglogical_ticker"]
 
 [dependencies]
 apt = ["libc6"]
