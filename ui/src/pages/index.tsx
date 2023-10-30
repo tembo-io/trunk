@@ -95,7 +95,6 @@ export default function Home({
     window.scrollTo({ top: 0 });
     setShowMobileCategories(true);
   };
-
   return (
     <div>
       <Head>
