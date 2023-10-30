@@ -11,6 +11,7 @@ pub mod repository;
 pub mod routes;
 pub mod token;
 pub mod uploader;
+pub mod v1;
 pub mod views;
 
 use tracing::log::LevelFilter;
