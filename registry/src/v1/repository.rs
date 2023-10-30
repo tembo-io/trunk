@@ -96,4 +96,68 @@ impl Registry {
             .flat_map(serde_json::from_value)
             .collect())
     }
+
+    pub async fn trunk_projects_by_extension_name(
+        &self,
+        extension_name: &str,
+    ) -> Result<Vec<TrunkProjectView>> {
+        let records = sqlx::query!(
+            "SELECT
+                json_build_object(
+                    'name', tpv.trunk_project_name,
+                    'description', tpv.description,
+                    'documentation_link', tpv.documentation_link,
+                    'repository_link', tpv.repository_link,
+                    'version', tpv.version,
+                    'extensions', (
+                        SELECT json_agg(json_build_object(
+                            'extension_name', ev.extension_name,
+                            'version', ev.version,
+                            'trunk_project_name', tpv.trunk_project_name,
+                            'dependencies_extension_names', (
+                                SELECT json_agg(ed.depends_on_extension_name)
+                                FROM v1.extension_dependency ed
+                                WHERE ed.extension_version_id = ev.id
+                            ),
+                            'requires_restart', (
+                                SELECT CASE
+                                    WHEN count(*) > 0 THEN true
+                                    ELSE false
+                                END
+                                FROM v1.extensions_loadable_libraries ell
+                                WHERE ell.extension_version_id = ev.id
+                                AND requires_restart = true
+                            ),
+                            'configurations', (
+                                SELECT json_agg(json_build_object(
+                                    'name', ec.configuration_name,
+                                    'is_required', ec.is_required,
+                                    'recommended_default', ec.recommended_default_value
+                                ))
+                                FROM v1.extension_configurations ec
+                                WHERE ec.extension_version_id = ev.id
+                            )
+                        ))
+                        FROM v1.extension_versions ev
+                        WHERE ev.trunk_project_version_id = tpv.id
+                    )
+                ) AS result
+            FROM
+                v1.trunk_project_versions tpv
+            JOIN v1.extension_versions ev ON ev.trunk_project_version_id = tpv.id
+            JOIN (
+                SELECT extension_name, MAX(string_to_array(version, '.')::int[]) as max_version
+                FROM v1.extension_versions
+                WHERE extension_name = $1
+                GROUP BY extension_name
+            ) sub_ev ON ev.extension_name = sub_ev.extension_name AND string_to_array(ev.version, '.')::int[] = sub_ev.max_version
+            ", extension_name
+        ).fetch_all(&self.pool).await?;
+
+        Ok(records
+            .into_iter()
+            .flat_map(|record| record.result)
+            .flat_map(serde_json::from_value)
+            .collect())
+    }
 }
