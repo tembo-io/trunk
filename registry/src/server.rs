@@ -32,7 +32,12 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
                 .service(routes::extensions::delete_extension)
                 .service(routes::extensions::put_shared_preload_libraries),
         )
-        .service(web::scope("/api/v1").service(v1::routes::all_trunk_projects));
+        .service(
+            web::scope("/api/v1")
+                .service(v1::routes::all_trunk_projects)
+                .service(v1::routes::trunk_projects_by_name)
+                .service(v1::routes::trunk_project_by_name_and_version),
+        );
 }
 
 pub async fn server() -> std::io::Result<()> {
