@@ -1,0 +1,19 @@
+[extension]
+name = "pg_linearalgebra"
+version = "1.0.0"
+repository = "https://github.com/joshuajerin/pg_linearalgebra"
+license = "PostgreSQL"
+description = " Matrix Operations Extension for postgres."
+documentation = "https://github.com/joshuajerin/pg_linearalgebra"
+categories = ["analytics"]
+[dependencies]
+apt = ["libc6", "libgcc-s1"]
+[build]
+postgres_version = "14"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_linearalgebra/
+    mv target/release/pg_linearalgebra-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/pg_linearalgebra-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+"""
