@@ -16,7 +16,7 @@ mod category;
 /// Abstracts over database interactions
 #[derive(Clone)]
 pub struct Registry {
-    pool: Pool<Postgres>,
+    pub pool: Pool<Postgres>,
 }
 
 impl Registry {

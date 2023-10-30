@@ -6,6 +6,7 @@ license = "MPL-2.0"
 description = "Create valid version 7 UUIDs in Postgres."
 documentation = "https://github.com/fboulnois/pg_uuidv7"
 categories = ["data_transformations"]
+preload_libraries = ["pg_uuidv7"]
 
 [dependencies]
 apt = ["libc6"]
