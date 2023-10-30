@@ -4,7 +4,7 @@ use clerk_rs::{validators::actix::ClerkMiddleware, ClerkConfiguration};
 use trunk_registry::readme::GithubApiClient;
 use trunk_registry::repository::Registry;
 use trunk_registry::routes::token::new_token;
-use trunk_registry::{config, connect, routes};
+use trunk_registry::{config, connect, routes, v1};
 
 pub fn routes_config(configuration: &mut web::ServiceConfig) {
     let cfg = config::Config::default();
@@ -31,7 +31,8 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
                 .service(routes::root::auth_ok)
                 .service(routes::extensions::delete_extension)
                 .service(routes::extensions::put_shared_preload_libraries),
-        );
+        )
+        .service(web::scope("/api/v1").service(v1::routes::all_trunk_projects));
 }
 
 pub async fn server() -> std::io::Result<()> {

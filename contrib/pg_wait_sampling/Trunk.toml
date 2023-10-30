@@ -6,6 +6,7 @@ license = "PostgreSQL"
 description = "Sampling based statistics of wait events."
 documentation = "https://github.com/postgrespro/pg_wait_sampling"
 categories = ["metrics"]
+preload_libraries = ["pg_wait_sampling"]
 
 [dependencies]
 apt = ["libc6"]

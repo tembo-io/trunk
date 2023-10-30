@@ -6,6 +6,7 @@ license = "Apache-2.0"
 description = "Support for Roaring Bitmaps."
 documentation = "https://github.com/ChenHuajun/pg_roaringbitmap"
 categories = ["data_transformations"]
+preload_libraries = ["anon"]
 
 [dependencies]
 apt = ["libc6"]
