@@ -3,6 +3,7 @@ use actix_web::{
     web::{self, Json},
     HttpResponse,
 };
+use actix_web_httpauth::extractors::bearer::BearerAuth;
 use serde::Deserialize;
 
 use crate::{errors::Result, repository::Registry, v1::repository::TrunkProjectView};
@@ -64,6 +65,7 @@ pub async fn trunk_project_by_name_and_version(
 pub async fn insert_trunk_project(
     registry: web::Data<Registry>,
     body: web::Json<TrunkProjectView>,
+    _auth: BearerAuth,
 ) -> Result<HttpResponse> {
     let trunk_project_to_insert = body.into_inner();
 
