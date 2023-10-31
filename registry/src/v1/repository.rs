@@ -24,7 +24,7 @@ pub struct ExtensionConfigurationView {
 pub struct ExtensionPreloadLibrariesView {
     library_name: String,
     requires_restart: bool,
-    priority: u32,
+    priority: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -290,5 +290,104 @@ impl Registry {
             .flat_map(|record| record.result)
             .flat_map(serde_json::from_value)
             .collect())
+    }
+
+    /// Insert a Trunk project (and related information) into the database.
+    /// Follows the given steps:
+    ///   1. insert trunk project name
+    ///   2. insert trunk project version
+    ///   3. insert extension version
+    ///   4. insert extension dependencies
+    ///   5. insert extension configurations
+    ///   6. insert shared preload libraries
+    pub async fn insert_trunk_project(&self, trunk_project: TrunkProjectView) -> Result<()> {
+        // 1. insert trunk project name
+        sqlx::query!(
+            "INSERT INTO v1.trunk_project (name) 
+            VALUES ($1)
+            ON CONFLICT (name) DO NOTHING",
+            trunk_project.name
+        )
+        .execute(&self.pool)
+        .await?;
+
+        // 2. insert trunk project version
+        // Note: UNIQUE constraint will avoid re-inserting a previously existing tuple of Trunk name and version
+        let record = sqlx::query!(
+            "INSERT INTO v1.trunk_project_versions (trunk_project_name, version, description, repository_link, documentation_link)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id",
+            trunk_project.name, trunk_project.version, trunk_project.description, trunk_project.repository_link, trunk_project.documentation_link
+        ).fetch_one(&self.pool).await?;
+        let trunk_project_version_id = record.id;
+
+        for extension in &trunk_project.extensions {
+            // 3. insert extension version (or versions)
+            let record = sqlx::query!(
+                "INSERT INTO v1.extension_versions (extension_name, trunk_project_version_id, version)
+                VALUES ($1, $2, $3)
+                ON CONFLICT (extension_name, trunk_project_version_id, version) 
+                DO NOTHING
+                RETURNING id",
+                extension.extension_name,
+                trunk_project_version_id,
+                extension.version
+            ).fetch_one(&self.pool).await?;
+            let extension_version_id = record.id;
+
+            let dependencies = extension
+                .dependencies_extension_names
+                .iter()
+                .flat_map(|deps| deps.iter());
+            let configurations = extension
+                .configurations
+                .iter()
+                .flat_map(|configs| configs.iter());
+            let loadable_libraries = extension
+                .loadable_libraries
+                .iter()
+                .flat_map(|libs| libs.iter());
+
+            // 4. insert extension dependencies
+            for dependency_name in dependencies {
+                sqlx::query!(
+                    "INSERT INTO v1.extension_dependency (extension_version_id, depends_on_extension_name)
+                    VALUES ($1, $2)
+                    ON CONFLICT (extension_version_id, depends_on_extension_name) 
+                    DO NOTHING",
+                    extension_version_id,
+                    dependency_name,
+                ).execute(&self.pool).await?;
+            }
+
+            // 5. insert extension configurations
+            for config in configurations {
+                sqlx::query!(
+                    "INSERT INTO v1.extension_configurations (extension_version_id, is_required, configuration_name, recommended_default_value)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (extension_version_id, is_required, configuration_name, recommended_default_value)
+                    DO NOTHING",
+                    extension_version_id,
+                    config.is_required,
+                    config.name,
+                    config.recommended_default,
+                ).execute(&self.pool).await?;
+            }
+
+            // 6. insert shared preload libraries
+            for library in loadable_libraries {
+                sqlx::query!(
+                    "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (extension_version_id, library_name, requires_restart, priority)
+                    DO NOTHING",
+                    extension_version_id,
+                    library.library_name,
+                    library.requires_restart,
+                    library.priority,
+                ).execute(&self.pool).await?;
+            }
+        }
+        Ok(())
     }
 }

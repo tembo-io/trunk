@@ -79,6 +79,28 @@
     },
     "query": "\n            INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies, libraries)\n            VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb, $8::jsonb)\n            "
   },
+  "0ded5a80e97ecba538fd7aa7ab891eda7a8f0376764d08251786189c58a30116": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.extension_versions (extension_name, trunk_project_version_id, version)\n                VALUES ($1, $2, $3)\n                ON CONFLICT (extension_name, trunk_project_version_id, version) \n                DO NOTHING\n                RETURNING id"
+  },
   "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
     "describe": {
       "columns": [
@@ -667,6 +689,21 @@
     },
     "query": "SELECT id FROM extensions WHERE name = $1"
   },
+  "5b03145d670853eed1aecb02611283aacaf5e929388ea7242134480440ad5a73": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Bool",
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.extension_configurations (extension_version_id, is_required, configuration_name, recommended_default_value)\n                    VALUES ($1, $2, $3, $4)\n                    ON CONFLICT (extension_version_id, is_required, configuration_name, recommended_default_value)\n                    DO NOTHING"
+  },
   "6991d9aae9d130b3d209ea5816847f661979e07c07f754c15e9b05eee3d61cb6": {
     "describe": {
       "columns": [
@@ -716,6 +753,19 @@
       }
     },
     "query": "\n        INSERT INTO extension_owners(extension_id, owner_id, user_name, created_at, created_by)\n        VALUES ($1, $2, $3, (now() at time zone 'utc'), $2)\n        "
+  },
+  "72250de71fdc4e1f66965a25bd6ebf5f4ea5566013706b61c0ba028367102a98": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.extension_dependency (extension_version_id, depends_on_extension_name)\n                    VALUES ($1, $2)\n                    ON CONFLICT (extension_version_id, depends_on_extension_name) \n                    DO NOTHING"
   },
   "756737edb5733514dcb510266ab577703d9cf4cb7f61702d7a4a15962fc8ae87": {
     "describe": {
@@ -957,6 +1007,18 @@
       }
     },
     "query": "SELECT * FROM versions WHERE extension_id = $1"
+  },
+  "7fa6e9c87a3295c5e95d71b9cad78194203613d041aea85816a4a71c3f4ac3df": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.trunk_project (name) \n            VALUES ($1)\n            ON CONFLICT (name) DO NOTHING"
   },
   "805d20f064e4a323d42c611f4719bd0fa4c152c330ff572609310fa306971468": {
     "describe": {
@@ -1250,6 +1312,30 @@
     },
     "query": "DELETE FROM extension_owners\n             WHERE extension_id = $1"
   },
+  "bec42c1371290afccacf2534f6e80c397d562b5b878f335690734bb22d2a6e9f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.trunk_project_versions (trunk_project_name, version, description, repository_link, documentation_link)\n            VALUES ($1, $2, $3, $4, $5)\n            RETURNING id"
+  },
   "c390e218569ef66621ae5e01addfe5ee1d83cd86496f388846604862bd3510c4": {
     "describe": {
       "columns": [
@@ -1366,6 +1452,21 @@
       }
     },
     "query": "SELECT\n                json_build_object(\n                    'name', tpv.trunk_project_name,\n                    'description', tpv.description,\n                    'documentation_link', tpv.documentation_link,\n                    'repository_link', tpv.repository_link,\n                    'version', tpv.version,\n                    'extensions', (\n                        SELECT json_agg(json_build_object(\n                            'extension_name', ev.extension_name,\n                            'version', ev.version,\n                            'trunk_project_name', tpv.trunk_project_name,\n                            'dependencies_extension_names', (\n                                SELECT json_agg(ed.depends_on_extension_name)\n                                FROM v1.extension_dependency ed\n                                WHERE ed.extension_version_id = ev.id\n                            ),\n                            'loadable_libraries', (\n                                SELECT json_agg(json_build_object(\n                                    'library_name', ell.library_name,\n                                    'requires_restart', ell.requires_restart,\n                                    'priority', ell.priority\n                                ))\n                                FROM v1.extensions_loadable_libraries ell\n                                WHERE ell.extension_version_id = ev.id\n                            ),\n                            'configurations', (\n                                SELECT json_agg(json_build_object(\n                                    'name', ec.configuration_name,\n                                    'is_required', ec.is_required,\n                                    'recommended_default', ec.recommended_default_value\n                                ))\n                                FROM v1.extension_configurations ec\n                                WHERE ec.extension_version_id = ev.id\n                            )\n                        ))\n                        FROM v1.extension_versions ev\n                        WHERE ev.trunk_project_version_id = tpv.id\n                    )\n                ) AS result\n            FROM\n                v1.trunk_project_versions tpv\n            JOIN v1.extension_versions ev ON ev.trunk_project_version_id = tpv.id\n            JOIN (\n                SELECT extension_name, MAX(string_to_array(version, '.')::int[]) as max_version\n                FROM v1.extension_versions\n                WHERE extension_name = $1\n                GROUP BY extension_name\n            ) sub_ev ON ev.extension_name = sub_ev.extension_name AND string_to_array(ev.version, '.')::int[] = sub_ev.max_version\n            "
+  },
+  "ea1a7edfd91b5573e0391487271c807a3d7b2dbc30198a9732fd1b2d22ec6755": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text",
+          "Bool",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)\n                    VALUES ($1, $2, $3, $4)\n                    ON CONFLICT (extension_version_id, library_name, requires_restart, priority)\n                    DO NOTHING"
   },
   "f29a9769c67e94ef0eb534c3ea009496dc13426c6d46f545ada1f9ebc9def26b": {
     "describe": {

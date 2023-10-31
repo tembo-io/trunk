@@ -36,7 +36,8 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
             web::scope("/api/v1")
                 .service(v1::routes::all_trunk_projects)
                 .service(v1::routes::trunk_projects_by_name)
-                .service(v1::routes::trunk_project_by_name_and_version),
+                .service(v1::routes::trunk_project_by_name_and_version)
+                .service(v1::routes::insert_trunk_project),
         );
 }
 

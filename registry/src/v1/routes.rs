@@ -1,6 +1,7 @@
 use actix_web::{
     get,
-    web::{self, Json}, HttpResponse,
+    web::{self, Json},
+    HttpResponse, post,
 };
 use serde::Deserialize;
 
@@ -59,19 +60,16 @@ pub async fn trunk_project_by_name_and_version(
 }
 
 /// Post a new Trunk project version
-#[get("/trunk-projects/{trunk_project_name}/version/{version}")]
+#[post("/trunk-projects")]
 pub async fn insert_trunk_project(
     registry: web::Data<Registry>,
     body: web::Json<TrunkProjectView>,
 ) -> Result<HttpResponse> {
-    // 1. insert trunk project name
-    // 2. insert trunk project version
-    // 3. insert extension version
-    // 4. insert extension dependencies
-    // 5. insert extension configurations
-    
+    let trunk_project_to_insert = body.into_inner();
 
-    // 6. shared preload libraries?
+    registry
+        .insert_trunk_project(trunk_project_to_insert)
+        .await?;
 
     Ok(HttpResponse::Ok().finish())
 }
