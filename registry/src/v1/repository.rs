@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::errors::Result;
 use crate::repository::Registry;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TrunkProjectView {
     pub name: String,
     pub description: String,
@@ -20,13 +20,20 @@ pub struct ExtensionConfigurationView {
     pub recommended_default: Option<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExtensionPreloadLibrariesView {
+    library_name: String,
+    requires_restart: bool,
+    priority: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExtensionView {
     pub extension_name: String,
     pub version: String,
     pub trunk_project_name: String,
     pub dependencies_extension_names: Option<Vec<String>>,
-    pub requires_restart: bool,
+    pub loadable_libraries: Option<Vec<ExtensionPreloadLibrariesView>>,
     pub configurations: Option<Vec<ExtensionConfigurationView>>,
 }
 
@@ -50,14 +57,14 @@ impl Registry {
                                 FROM v1.extension_dependency ed
                                 WHERE ed.extension_version_id = ev.id
                             ),
-                            'requires_restart', (
-                                SELECT CASE
-                                    WHEN count(*) > 0 THEN true
-                                    ELSE false
-                                END
+                            'loadable_libraries', (
+                                SELECT json_agg(json_build_object(
+                                    'library_name', ell.library_name,
+                                    'requires_restart', ell.requires_restart,
+                                    'priority', ell.priority
+                                ))
                                 FROM v1.extensions_loadable_libraries ell
                                 WHERE ell.extension_version_id = ev.id
-                                AND requires_restart = true
                             ),
                             'configurations', (
                                 SELECT json_agg(json_build_object(
@@ -119,14 +126,14 @@ impl Registry {
                                 FROM v1.extension_dependency ed
                                 WHERE ed.extension_version_id = ev.id
                             ),
-                            'requires_restart', (
-                                SELECT CASE
-                                    WHEN count(*) > 0 THEN true
-                                    ELSE false
-                                END
+                            'loadable_libraries', (
+                                SELECT json_agg(json_build_object(
+                                    'library_name', ell.library_name,
+                                    'requires_restart', ell.requires_restart,
+                                    'priority', ell.priority
+                                ))
                                 FROM v1.extensions_loadable_libraries ell
                                 WHERE ell.extension_version_id = ev.id
-                                AND requires_restart = true
                             ),
                             'configurations', (
                                 SELECT json_agg(json_build_object(
@@ -183,14 +190,14 @@ impl Registry {
                                 FROM v1.extension_dependency ed
                                 WHERE ed.extension_version_id = ev.id
                             ),
-                            'requires_restart', (
-                                SELECT CASE
-                                    WHEN count(*) > 0 THEN true
-                                    ELSE false
-                                END
+                            'loadable_libraries', (
+                                SELECT json_agg(json_build_object(
+                                    'library_name', ell.library_name,
+                                    'requires_restart', ell.requires_restart,
+                                    'priority', ell.priority
+                                ))
                                 FROM v1.extensions_loadable_libraries ell
                                 WHERE ell.extension_version_id = ev.id
-                                AND requires_restart = true
                             ),
                             'configurations', (
                                 SELECT json_agg(json_build_object(
@@ -244,14 +251,14 @@ impl Registry {
                             FROM v1.extension_dependency ed
                             WHERE ed.extension_version_id = ev.id
                         ),
-                        'requires_restart', (
-                            SELECT CASE
-                                WHEN count(*) > 0 THEN true
-                                ELSE false
-                            END
+                        'loadable_libraries', (
+                            SELECT json_agg(json_build_object(
+                                'library_name', ell.library_name,
+                                'requires_restart', ell.requires_restart,
+                                'priority', ell.priority
+                            ))
                             FROM v1.extensions_loadable_libraries ell
                             WHERE ell.extension_version_id = ev.id
-                            AND requires_restart = true
                         ),
                         'configurations', (
                             SELECT json_agg(json_build_object(
