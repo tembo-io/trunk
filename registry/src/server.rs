@@ -27,7 +27,7 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
         )
         .service(
             web::scope("/admin")
-                .wrap(ClerkMiddleware::new(clerk_cfg, None, false))
+                .wrap(ClerkMiddleware::new(clerk_cfg.clone(), None, false))
                 .service(routes::root::auth_ok)
                 .service(routes::extensions::delete_extension)
                 .service(routes::extensions::put_shared_preload_libraries),
@@ -37,6 +37,11 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
                 .service(v1::routes::all_trunk_projects)
                 .service(v1::routes::trunk_projects_by_name)
                 .service(v1::routes::trunk_project_by_name_and_version),
+        )
+        .service(
+            web::scope("/admin/api/v1")
+                .wrap(ClerkMiddleware::new(clerk_cfg, None, false))
+                .service(v1::routes::insert_trunk_project),
         );
 }
 
