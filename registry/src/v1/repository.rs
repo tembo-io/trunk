@@ -352,9 +352,7 @@ impl Registry {
             for dependency_name in dependencies {
                 sqlx::query!(
                     "INSERT INTO v1.extension_dependency (extension_version_id, depends_on_extension_name)
-                    VALUES ($1, $2)
-                    ON CONFLICT (extension_version_id, depends_on_extension_name) 
-                    DO NOTHING",
+                    VALUES ($1, $2)",
                     extension_version_id,
                     dependency_name,
                 ).execute(&self.pool).await?;
@@ -364,9 +362,7 @@ impl Registry {
             for config in configurations {
                 sqlx::query!(
                     "INSERT INTO v1.extension_configurations (extension_version_id, is_required, configuration_name, recommended_default_value)
-                    VALUES ($1, $2, $3, $4)
-                    ON CONFLICT (extension_version_id, is_required, configuration_name, recommended_default_value)
-                    DO NOTHING",
+                    VALUES ($1, $2, $3, $4)",
                     extension_version_id,
                     config.is_required,
                     config.name,
@@ -378,9 +374,7 @@ impl Registry {
             for library in loadable_libraries {
                 sqlx::query!(
                     "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)
-                    VALUES ($1, $2, $3, $4)
-                    ON CONFLICT (extension_version_id, library_name, requires_restart, priority)
-                    DO NOTHING",
+                    VALUES ($1, $2, $3, $4)",
                     extension_version_id,
                     library.library_name,
                     library.requires_restart,

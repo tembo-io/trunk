@@ -1,7 +1,7 @@
 use actix_web::{
-    get,
+    get, post,
     web::{self, Json},
-    HttpResponse, post,
+    HttpResponse,
 };
 use serde::Deserialize;
 
