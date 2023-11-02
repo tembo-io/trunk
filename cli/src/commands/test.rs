@@ -2,7 +2,9 @@ use std::{
     ffi::OsStr,
     fs::File,
     io::{BufWriter, Cursor, Read, Write},
+    os::unix::process::CommandExt,
     path::{Path, PathBuf},
+    process::Command,
 };
 
 use anyhow::{bail, Context};
@@ -140,13 +142,15 @@ impl SubCommand for TestCommand {
                 .with_context(|| "Found no Trunk project for this extension!")?
         };
 
-        // Download repository from GitHub API
+        // We'll download the extension's repository from the GitHub API
+        // and then extract its `sql/` and `expected/` folders.
         let github_project = GitHubProject::parse_url(&trunk_project.repository_link)?;
         let ExtractedTestCases {
             sql_files,
             expected_files,
         } = extract_sql_and_expected_files(&tempdir, github_project).await?;
 
+        // Now, run every test file with psql and compare its output
         for expected_file in expected_files {
             let test_stem = expected_file
                 .file_stem()
@@ -161,14 +165,31 @@ impl SubCommand for TestCommand {
             }) else {
                 bail!("Found no matching SQL file for {:?}", expected_file);
             };
+
+            run_psql(&sql_path, &self.connstring)?;
+            break;
         }
 
-        // Extract repository's tar.gz
-        // Extract sql/ and expected/ files
         // Run psql (see regress.py)
 
         Ok(())
     }
+}
+
+fn run_psql(script_path: &Path, connstring: &str) -> Result<String> {
+    let child = Command::new("psql")
+        .args(["--echo-errors", "--echo-all", "--quiet", "-f"])
+        .arg(script_path)
+        .arg(connstring)
+        .spawn()?;
+
+    let output = child.wait_with_output()?;
+    let _ = dbg!(String::from_utf8(output.stderr));
+
+    let mut file = File::create("/home/vrmiguel/trunk-test.out")?;
+    file.write_all(&output.stdout)?;
+
+    String::from_utf8(output.stdout).map_err(Into::into)
 }
 
 #[derive(Debug, PartialEq)]
