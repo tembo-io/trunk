@@ -10,6 +10,7 @@ use clap::Args;
 use duct::cmd;
 use flate2::bufread::GzDecoder;
 use serde::Deserialize;
+use similar::{TextDiff, ChangeTag};
 use tar::{Entry, EntryType};
 use tempfile::TempDir;
 use tokio_task_manager::Task;
@@ -165,6 +166,20 @@ impl SubCommand for TestCommand {
 
             let obtained = run_psql(&sql_path, &self.connstring)?;
             let expected = std::fs::read_to_string(expected_file)?;
+            let diff = TextDiff::from_lines(
+                &expected,
+                &obtained,
+            );
+        
+            for change in diff.iter_all_changes() {
+                let sign = match change.tag() {
+                    ChangeTag::Delete => "-",
+                    ChangeTag::Insert => "+",
+                    ChangeTag::Equal => " ",
+                };
+                print!("{}{}", sign, change);
+            }
+
         }
 
         Ok(())
