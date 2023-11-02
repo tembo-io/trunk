@@ -1,14 +1,13 @@
 use std::{
-    ffi::OsStr,
     fs::File,
     io::{BufWriter, Cursor, Read, Write},
-    os::unix::process::CommandExt,
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, Stdio},
 };
 
 use anyhow::{bail, Context};
 use clap::Args;
+use duct::cmd;
 use flate2::bufread::GzDecoder;
 use serde::Deserialize;
 use tar::{Entry, EntryType};
@@ -109,9 +108,7 @@ async fn extract_sql_and_expected_files(
         let path = entry.path()?;
 
         if check_parent("sql", &path) {
-            dbg!(&path);
             let path_written = read_entry(tempdir, &mut entry)?;
-            dbg!(&path_written);
             sql_files.push(path_written);
         } else if check_parent("expected", &path) {
             let path_written = read_entry(tempdir, &mut entry)?;
@@ -166,30 +163,24 @@ impl SubCommand for TestCommand {
                 bail!("Found no matching SQL file for {:?}", expected_file);
             };
 
-            run_psql(&sql_path, &self.connstring)?;
-            break;
+            let obtained = run_psql(&sql_path, &self.connstring)?;
+            let expected = std::fs::read_to_string(expected_file)?;
         }
-
-        // Run psql (see regress.py)
 
         Ok(())
     }
 }
 
 fn run_psql(script_path: &Path, connstring: &str) -> Result<String> {
-    let child = Command::new("psql")
-        .args(["--echo-errors", "--echo-all", "--quiet", "-f"])
-        .arg(script_path)
-        .arg(connstring)
-        .spawn()?;
-
-    let output = child.wait_with_output()?;
-    let _ = dbg!(String::from_utf8(output.stderr));
+    let output = cmd!("psql", "--echo-errors", "--echo-all", "--quiet", "-f", script_path, connstring)
+        .unchecked()
+        .stderr_to_stdout()
+        .read()?;
 
     let mut file = File::create("/home/vrmiguel/trunk-test.out")?;
-    file.write_all(&output.stdout)?;
+    file.write_all(output.as_bytes())?;
 
-    String::from_utf8(output.stdout).map_err(Into::into)
+    Ok(output)
 }
 
 #[derive(Debug, PartialEq)]

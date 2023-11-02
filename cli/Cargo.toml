@@ -20,6 +20,7 @@ async-trait = "0.1.64"
 bollard = "0.14.0"
 clap = { version = "4.1.1", features = ["derive"] }
 colorful = "0.2.2"
+duct = "0.13.6"
 elf = "0.7.2"
 env_logger = "0.10.0"
 flate2 = "1.0.25"
