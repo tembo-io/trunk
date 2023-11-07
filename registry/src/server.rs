@@ -1,10 +1,13 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use clerk_rs::{validators::actix::ClerkMiddleware, ClerkConfiguration};
+use trunk_registry::openapi::build_docs;
 use trunk_registry::readme::GithubApiClient;
 use trunk_registry::repository::Registry;
 use trunk_registry::routes::token::new_token;
 use trunk_registry::{config, connect, routes, v1};
+use utoipa_redoc::{Redoc, Servable};
+use utoipa_swagger_ui::SwaggerUi;
 
 pub fn routes_config(configuration: &mut web::ServiceConfig) {
     let cfg = config::Config::default();
@@ -75,6 +78,10 @@ pub async fn server() -> std::io::Result<()> {
             .app_data(web::Data::new(GithubApiClient::new(
                 cfg.github_token.clone(),
             )))
+            .service(
+                SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", build_docs()),
+            )
+            .service(Redoc::with_url("/redoc", build_docs()))
             .configure(routes_config)
     })
     .bind(("0.0.0.0", 8080))?

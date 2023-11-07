@@ -6,6 +6,7 @@ pub mod config;
 pub mod download;
 pub mod errors;
 pub mod extensions;
+pub mod openapi;
 pub mod readme;
 pub mod repository;
 pub mod routes;

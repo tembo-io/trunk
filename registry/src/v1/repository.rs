@@ -1,9 +1,14 @@
 use serde::{Deserialize, Serialize};
+use utoipa::{ToResponse, ToSchema};
 
 use crate::errors::Result;
 use crate::repository::Registry;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// A list of Trunk projects
+#[derive(ToSchema, ToResponse)]
+pub struct TrunkProjectViews(pub Vec<TrunkProjectView>);
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct TrunkProjectView {
     pub name: String,
     pub description: String,
@@ -13,21 +18,21 @@ pub struct TrunkProjectView {
     pub extensions: Vec<ExtensionView>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct ExtensionConfigurationView {
     pub name: String,
     pub is_required: bool,
     pub recommended_default: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct ExtensionPreloadLibrariesView {
     library_name: String,
     requires_restart: bool,
     priority: i32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct ExtensionView {
     pub extension_name: String,
     pub version: String,
