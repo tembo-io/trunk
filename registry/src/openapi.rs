@@ -3,7 +3,6 @@ use utoipa::OpenApi;
 
 use crate::v1::repository::{
     ExtensionConfigurationView, ExtensionPreloadLibrariesView, ExtensionView, TrunkProjectView,
-    TrunkProjectViews,
 };
 use crate::v1::routes as v1;
 
@@ -21,7 +20,6 @@ use crate::v1::routes as v1;
         ExtensionPreloadLibrariesView,
         ExtensionConfigurationView,
         TrunkProjectView,
-        TrunkProjectViews
     ))
 )]
 pub struct V1ApiDoc;

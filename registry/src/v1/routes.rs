@@ -6,16 +6,7 @@ use actix_web::{
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 use serde::Deserialize;
 
-use crate::{
-    errors::Result,
-    repository::Registry,
-    v1::repository::TrunkProjectView,
-};
-
-// For some reason this is flagged as unused but it is actually used by
-// OpenAPI spec generation.
-#[allow(unused)]
-use crate::v1::repository::TrunkProjectViews;
+use crate::{errors::Result, repository::Registry, v1::repository::TrunkProjectView};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -25,7 +16,7 @@ pub struct ExtensionNameQueryParams {
 
 #[utoipa::path(
     responses(
-        (status = 200, body = TrunkProjectViews, content_type = "application/json", description = "A list of the latest versions of Trunk projects"),
+        (status = 200, body = [TrunkProjectView], content_type = "application/json", description = "A list of the latest versions of Trunk projects"),
     ),
     params(("extension-name" = Option<String>, Query, description = "filter Trunk projects by extension name"),),
 )]
@@ -51,7 +42,7 @@ pub async fn all_trunk_projects(
 
 #[utoipa::path(
     responses(
-        (status = 200, body = TrunkProjectViews, content_type = "application/json", description = "A list of the latest versions of Trunk projects"),
+        (status = 200, body = [TrunkProjectView], content_type = "application/json", description = "A list of the latest versions of Trunk projects"),
     ),
     params(
         ("trunk_project_name", description = "Trunk project name"),
@@ -71,7 +62,7 @@ pub async fn trunk_projects_by_name(
 
 #[utoipa::path(
     responses(
-        (status = 200, body = TrunkProjectViews, content_type = "application/json", description = "A list of the latest versions of Trunk projects"),
+        (status = 200, body = [TrunkProjectView], content_type = "application/json", description = "A list of the latest versions of Trunk projects"),
     ),
     params(
         ("trunk_project_name", description = "Trunk project name"),

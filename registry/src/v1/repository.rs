@@ -4,10 +4,6 @@ use utoipa::{ToResponse, ToSchema};
 use crate::errors::Result;
 use crate::repository::Registry;
 
-/// A list of Trunk projects
-#[derive(ToSchema, ToResponse)]
-pub struct TrunkProjectViews(pub Vec<TrunkProjectView>);
-
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct TrunkProjectView {
     pub name: String,
