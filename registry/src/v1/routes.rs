@@ -14,6 +14,12 @@ pub struct ExtensionNameQueryParams {
     extension_name: Option<String>,
 }
 
+#[utoipa::path(
+    responses(
+        (status = 200, body = [TrunkProjectView], content_type = "application/json", description = "A list of the latest versions of Trunk projects"),
+    ),
+    params(("extension-name" = Option<String>, Query, description = "filter Trunk projects by extension name"),),
+)]
 /// Retrieve a list of the latest versions of trunk projects.
 ///
 /// Optional query parameter: extension_name:
@@ -34,6 +40,14 @@ pub async fn all_trunk_projects(
     }
 }
 
+#[utoipa::path(
+    responses(
+        (status = 200, body = [TrunkProjectView], content_type = "application/json", description = "A list of the latest versions of Trunk projects"),
+    ),
+    params(
+        ("trunk_project_name", description = "Trunk project name"),
+    )
+)]
 /// Retrieve a list of all versions of the Trunk project with the given name.
 #[get("/trunk-projects/{trunk_project_name}")]
 pub async fn trunk_projects_by_name(
@@ -46,6 +60,15 @@ pub async fn trunk_projects_by_name(
     Ok(Json(trunk_projects))
 }
 
+#[utoipa::path(
+    responses(
+        (status = 200, body = [TrunkProjectView], content_type = "application/json", description = "A list of the latest versions of Trunk projects"),
+    ),
+    params(
+        ("trunk_project_name", description = "Trunk project name"),
+        ("version", description = "Trunk project version"),
+    )
+)]
 /// Retrieve info on the Trunk project with the given name and version
 #[get("/trunk-projects/{trunk_project_name}/version/{version}")]
 pub async fn trunk_project_by_name_and_version(
@@ -60,6 +83,12 @@ pub async fn trunk_project_by_name_and_version(
     Ok(Json(trunk_projects))
 }
 
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Information successfully inserted"),
+    ),
+    request_body = TrunkProjectView,
+)]
 /// Post a new Trunk project version
 #[post("/trunk-projects")]
 pub async fn insert_trunk_project(
