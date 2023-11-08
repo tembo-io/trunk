@@ -2,7 +2,6 @@ use std::{
     fs::File,
     io::{BufWriter, Cursor, Read, Write},
     path::{Path, PathBuf},
-    process::{Command, Stdio},
 };
 
 use anyhow::{bail, Context};
@@ -10,7 +9,7 @@ use clap::Args;
 use duct::cmd;
 use flate2::bufread::GzDecoder;
 use serde::Deserialize;
-use similar::{TextDiff, ChangeTag};
+use similar::{ChangeTag, TextDiff};
 use tar::{Entry, EntryType};
 use tempfile::TempDir;
 use tokio_task_manager::Task;
@@ -166,11 +165,8 @@ impl SubCommand for TestCommand {
 
             let obtained = run_psql(&sql_path, &self.connstring)?;
             let expected = std::fs::read_to_string(expected_file)?;
-            let diff = TextDiff::from_lines(
-                &expected,
-                &obtained,
-            );
-        
+            let diff = TextDiff::from_lines(&expected, &obtained);
+
             for change in diff.iter_all_changes() {
                 let sign = match change.tag() {
                     ChangeTag::Delete => "-",
@@ -179,7 +175,6 @@ impl SubCommand for TestCommand {
                 };
                 print!("{}{}", sign, change);
             }
-
         }
 
         Ok(())
@@ -187,10 +182,18 @@ impl SubCommand for TestCommand {
 }
 
 fn run_psql(script_path: &Path, connstring: &str) -> Result<String> {
-    let output = cmd!("psql", "--echo-errors", "--echo-all", "--quiet", "-f", script_path, connstring)
-        .unchecked()
-        .stderr_to_stdout()
-        .read()?;
+    let output = cmd!(
+        "psql",
+        "--echo-errors",
+        "--echo-all",
+        "--quiet",
+        "-f",
+        script_path,
+        connstring
+    )
+    .unchecked()
+    .stderr_to_stdout()
+    .read()?;
 
     let mut file = File::create("/home/vrmiguel/trunk-test.out")?;
     file.write_all(output.as_bytes())?;
