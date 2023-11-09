@@ -1,6 +1,7 @@
 use std::{
     fs::File,
     io::{BufWriter, Cursor, Read, Write},
+    ops::Not,
     path::{Path, PathBuf},
 };
 
@@ -18,7 +19,7 @@ use super::SubCommand;
 type Result<T = ()> = std::result::Result<T, anyhow::Error>;
 
 #[derive(Args)]
-pub struct TestCommand {
+pub struct RegressCommand {
     /// The name of the extension to test
     extension_name: String,
     /// The psql connection string on which commands will be executed in
@@ -27,12 +28,7 @@ pub struct TestCommand {
 
 #[derive(Deserialize, Debug)]
 struct TrunkProjectInfo {
-    pub name: String,
-    pub description: String,
-    pub documentation_link: String,
     pub repository_link: String,
-    pub version: String,
-    pub extensions: Vec<Extension>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -125,7 +121,7 @@ async fn extract_sql_and_expected_files(
 }
 
 #[async_trait::async_trait]
-impl SubCommand for TestCommand {
+impl SubCommand for RegressCommand {
     async fn execute(&self, _: Task) -> Result<()> {
         let tempdir = TempDir::new()?;
         // Given an extension name, let's fetch its Trunk project
@@ -164,16 +160,20 @@ impl SubCommand for TestCommand {
             };
 
             let obtained = run_psql(&sql_path, &self.connstring)?;
+            let obtained = obtained.lines().map(remove_psql_message);
             let expected = std::fs::read_to_string(expected_file)?;
-            let diff = TextDiff::from_lines(&expected, &obtained);
 
-            for change in diff.iter_all_changes() {
-                let sign = match change.tag() {
-                    ChangeTag::Delete => "-",
-                    ChangeTag::Insert => "+",
-                    ChangeTag::Equal => " ",
-                };
-                print!("{}{}", sign, change);
+            for (obtained_line, expected_line) in obtained.zip(expected.lines()) {
+                let diff = TextDiff::from_lines(obtained_line, expected_line);
+
+                for change in diff.iter_all_changes() {
+                    let sign = match change.tag() {
+                        ChangeTag::Delete => "-",
+                        ChangeTag::Insert => "+",
+                        ChangeTag::Equal => " ",
+                    };
+                    print!("{}{}", sign, change);
+                }
             }
         }
 
@@ -245,4 +245,16 @@ impl<'a> GitHubProject<'a> {
 
         format!("https://api.github.com/repos/{owner}/{name}/tarball")
     }
+}
+
+pub fn remove_psql_message(input: &str) -> &str {
+    if input.starts_with("psql").not() {
+        return input;
+    }
+
+    let Some((pos, _)) = input.match_indices("ERROR").next() else {
+        return input;
+    };
+
+    &input[pos..]
 }

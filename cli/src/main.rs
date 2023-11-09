@@ -34,8 +34,8 @@ enum SubCommands {
     Publish(commands::publish::PublishCommand),
     /// Install a Postgres extension from the Trunk registry
     Install(commands::install::InstallCommand),
-    /// Test a Postgres extension (coming soon)
-    Test(commands::test::TestCommand),
+    /// Test a Postgres extension with its regression tests
+    Regress(commands::regress::RegressCommand),
 }
 
 #[async_trait]
@@ -45,7 +45,7 @@ impl SubCommand for SubCommands {
             SubCommands::Build(cmd) => cmd.execute(task).await,
             SubCommands::Publish(cmd) => cmd.execute(task).await,
             SubCommands::Install(cmd) => cmd.execute(task).await,
-            SubCommands::Test(cmd) => cmd.execute(task).await,
+            SubCommands::Regress(cmd) => cmd.execute(task).await,
         }
     }
 }
