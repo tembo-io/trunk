@@ -1,0 +1,22 @@
+[extension]
+name = "emaj"
+version = "4.3.1"
+repository = "https://github.com/dalibo/emaj"
+license = "GNU General Public License"
+description = "Track updates on tables sets with rollback capabilities."
+homepage = "https://www.dalibo.com/en/"
+documentation = "https://emaj.readthedocs.io/en/latest/"
+categories = ["auditing_logging"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    wget https://api.pgxn.org/dist/e-maj/4.3.1/e-maj-4.3.1.zip && \
+    unzip e-maj-4.3.1.zip && \
+    cd e-maj-4.3.1 && \
+    SHAREDIR=$(pg_config --sharedir) && \
+    cp emaj.control ${SHAREDIR}/extension/ && \
+    cp sql/emaj--* ${SHAREDIR}/extension/
+"""
