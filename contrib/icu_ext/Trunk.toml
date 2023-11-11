@@ -1,0 +1,18 @@
+[extension]
+name = "icu_ext"
+version = "1.8.0"
+repository = "https://github.com/dverite/icu_ext"
+license = "PostgreSQL"
+description = "Access ICU functions."
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd icu_ext && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
