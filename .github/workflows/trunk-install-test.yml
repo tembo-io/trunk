@@ -27,7 +27,6 @@ jobs:
       PGUSER: "postgres"
       PGPASSWORD: "postgres"
       POSTGRES_PASSWORD: "password"
-      LD_LIBRARY_PATH: "/usr/local/lib"
 
     steps:
       - name: Install all extensions in registry
