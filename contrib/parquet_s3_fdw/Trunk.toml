@@ -15,7 +15,7 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    export PATH=/usr/bin;$PATH
+    export LD_LIBRARY_PATH=/usr/local/lib
     cd parquet_s3_fdw && make USE_PGXS=1 install
     set -x
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/${POSTGRES_VERSION}/extension

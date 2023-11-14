@@ -33,7 +33,7 @@ RUN git clone https://github.com/aws/aws-sdk-cpp.git && \
     git checkout 1.9.263 && \
     git submodule update --init --recursive && \
     mkdir build && cd build && \
-    cmake -DBUILD_ONLY="s3;core;config;sts;cognito-identity;transfer;identity-management" -DCMAKE_CXX_FLAGS=-Wno-error=deprecated-declarations .. && \
+    cmake -DBUILD_ONLY="s3;core;config;sts;cognito-identity;transfer;identity-management" -DAUTORUN_UNIT_TESTS=OFF -DCMAKE_CXX_FLAGS=-Wno-error=deprecated-declarations .. && \
     make -j$(nproc) && \
     make install
 
