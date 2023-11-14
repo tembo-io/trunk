@@ -3,6 +3,8 @@ ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
 # Install build dependencies for parquet_s3_fdw and its dependent libraries
 RUN apt-get update && apt-get install -y \
     build-essential \
