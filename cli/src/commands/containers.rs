@@ -1,8 +1,9 @@
-use anyhow::Context;
+use anyhow::{bail, Context};
 use bollard::container::{
     CreateContainerOptions, DownloadFromContainerOptions, StartContainerOptions,
 };
 use bollard::exec::{CreateExecOptions, StartExecOptions, StartExecResults};
+use bollard::service::ExecInspectResponse;
 use bollard::Docker;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -12,7 +13,7 @@ use bollard::image::BuildImageOptions;
 use bollard::models::{BuildInfo, HostConfig};
 use std::fs::File;
 use std::io::Cursor;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::commands::generic_build::GenericBuildError;
 use crate::control_file::ControlFile;
@@ -62,13 +63,23 @@ impl Drop for ReclaimableContainer {
         });
     }
 }
-
 pub async fn exec_in_container(
     docker: &Docker,
     container_id: &str,
     command: Vec<&str>,
     env: Option<Vec<&str>>,
 ) -> Result<String, anyhow::Error> {
+    exec_in_container_with_exit_code(docker, container_id, command, env)
+        .await
+        .map(|(output, _code)| output)
+}
+
+pub async fn exec_in_container_with_exit_code(
+    docker: &Docker,
+    container_id: &str,
+    command: Vec<&str>,
+    env: Option<Vec<&str>>,
+) -> Result<(String, Option<i64>), anyhow::Error> {
     println!("Executing in container: {:?}", command.join(" "));
 
     let config = CreateExecOptions {
@@ -78,7 +89,6 @@ pub async fn exec_in_container(
         attach_stderr: Some(true),
         ..Default::default()
     };
-
     let exec = docker.create_exec(container_id, config).await?;
     let start_exec_options = Some(StartExecOptions {
         detach: false,
@@ -86,7 +96,6 @@ pub async fn exec_in_container(
     });
     let log_output = docker.start_exec(&exec.id, start_exec_options);
     let start_exec_result = log_output.await?;
-
     let mut total_output = String::new();
     match start_exec_result {
         StartExecResults::Attached { output, .. } => {
@@ -99,7 +108,6 @@ pub async fn exec_in_container(
                     Err(error) => eprintln!("Error while reading log output: {error}"),
                 })
                 .fuse();
-
             // Run the output stream to completion.
             while output.next().await.is_some() {}
         }
@@ -107,7 +115,10 @@ pub async fn exec_in_container(
             println!("Exec started in detached mode");
         }
     }
-    Ok::<String, anyhow::Error>(total_output)
+
+    let ExecInspectResponse { exit_code, .. } = docker.inspect_exec(&exec.id).await?;
+
+    Ok((total_output, exit_code))
 }
 
 pub async fn run_temporary_container(
@@ -609,4 +620,94 @@ fn prepare_sharedir_file<'p>(
         }
         None => Ok(file_to_package.into()),
     }
+}
+
+/// Attempt to locate the path of the Makefile within this container
+pub async fn locate_makefile(
+    docker: &Docker,
+    container_id: &str,
+) -> anyhow::Result<Option<PathBuf>> {
+    let stdout = exec_in_container(
+        docker,
+        container_id,
+        vec!["find", ".", "-type", "f", "-iname", "Makefile"],
+        None,
+    )
+    .await?;
+
+    // A project may contain several Makefiles.
+    //
+    // The idea here is that the "root" Makefile of a project would
+    // therefore be the Makefile with the smallest path
+    let Some(makefile) = stdout.lines().min() else {
+        return Ok(None);
+    };
+
+    let path = Path::new(makefile);
+
+    Ok(Some(
+        path.parent()
+            .with_context(|| "Makefile should have a parent folder")?
+            .to_owned(),
+    ))
+}
+
+/// Returns true if the file in `path` exists
+pub async fn file_exists(docker: &Docker, container_id: &str, path: &str) -> bool {
+    exec_in_container_with_exit_code(docker, container_id, vec!["test", "-e", path], None)
+        .await
+        .map(|(_, exit_code)| exit_code == Some(0))
+        .unwrap_or(false)
+}
+
+/// Returns true if the Makefile in this container contains the given target
+pub async fn makefile_contains_target(
+    docker: &Docker,
+    container_id: &str,
+    dir: &str,
+    target: &str,
+) -> anyhow::Result<bool> {
+    let command = vec!["make", "-C", dir, "-q", target];
+
+    let (output, exit_code) =
+        exec_in_container_with_exit_code(docker, container_id, command, None).await?;
+
+    if output.contains("is not supported") {
+        return Ok(false);
+    }
+
+    let successful = matches!(exit_code, Some(0) | Some(1));
+
+    Ok(successful)
+}
+
+pub async fn start_postgres(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
+    // Make /app writable by the Postgres user. This is important if pg_regress tries to save files to the filesystem.
+    exec_in_container(
+        docker,
+        container_id,
+        vec!["chown", "postgres:postgres", "/app"],
+        None,
+    )
+    .await?;
+
+    let (_output, status_code) = exec_in_container_with_exit_code(
+        docker,
+        container_id,
+        vec![
+            "su",
+            "postgres",
+            "-c",
+            "bash -c \"mkdir db/ && /usr/lib/postgresql/15/bin/initdb -D /app/db && /usr/lib/postgresql/15/bin/pg_ctl -D /app/db -l logfile start\"",
+        ],
+        None,
+    ).await?;
+
+    if status_code == Some(0) {
+        println!("Postgres is up!");
+    } else {
+        bail!("Failed to start Postgres!");
+    }
+
+    Ok(())
 }
