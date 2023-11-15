@@ -223,15 +223,12 @@ async fn run_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
             docker,
             container_id,
             vec![
-                "su",
-                "postgres",
-                "-c",
-                &format!("make -C {project_dir_utf8} install"),
+                "make", "-C", project_dir_utf8, "install",
             ],
             None,
         )
         .await?;
-        exec_in_container(
+        let (_output, exit_code) = exec_in_container_with_exit_code(
             docker,
             container_id,
             vec![
@@ -243,6 +240,8 @@ async fn run_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
             None,
         )
         .await?;
+
+        anyhow::ensure!(matches!(exit_code, Some(0)), "Tests failed!");
 
         println!("Tests passed successfully!");
         return Ok(());

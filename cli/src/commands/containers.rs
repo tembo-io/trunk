@@ -686,7 +686,7 @@ pub async fn start_postgres(docker: &Docker, container_id: &str) -> anyhow::Resu
     exec_in_container(
         docker,
         container_id,
-        vec!["chown", "postgres:postgres", "/app"],
+        vec!["chown", "-R", "postgres:postgres", "/app"],
         None,
     )
     .await?;
