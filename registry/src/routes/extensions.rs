@@ -10,6 +10,7 @@ use crate::extensions::{add_extension_owner, check_input, extension_owners};
 use crate::repository::Registry;
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
+use crate::v1::repository::TrunkProjectView;
 use crate::views::extension_publish::ExtensionUpload;
 use crate::views::user_info::UserInfo;
 use actix_multipart::Multipart;
@@ -35,6 +36,7 @@ const MAX_SIZE: usize = 15000000; // max payload size is 15M
 pub async fn publish(
     cfg: web::Data<Config>,
     conn: web::Data<Pool<Postgres>>,
+    registry: web::Data<Registry>,
     aws_config: web::Data<SdkConfig>,
     mut payload: Multipart,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
@@ -283,8 +285,11 @@ pub async fn publish(
         }
     }
 
+    // The uploaded contents in .tar.gz
+    let gzipped_archive = file.freeze();
+
     // TODO(ianstanton) Generate checksum
-    let file_byte_stream = ByteStream::from(file.freeze());
+    let file_byte_stream = ByteStream::from(gzipped_archive.clone());
     let client = aws_sdk_s3::Client::new(&aws_config);
     upload_extension(
         &cfg.bucket_name,
@@ -294,10 +299,42 @@ pub async fn publish(
         &new_extension.vers,
     )
     .await?;
-    Ok(HttpResponse::Ok().body(format!(
+
+    let response = HttpResponse::Ok().body(format!(
         "Successfully published extension {} version {}",
         new_extension.name, new_extension.vers
-    )))
+    ));
+
+    match insert_into_v1(new_extension, registry.as_ref(), gzipped_archive.as_ref()).await {
+        Ok(()) => {}
+        Err(err) => error!("Failed to insert extension into v1 in /publish: {err}"),
+    }
+
+    Ok(response)
+}
+
+async fn insert_into_v1(
+    new_extension: ExtensionUpload,
+    registry: &Registry,
+    gzipped_archive: &[u8],
+) -> anyhow::Result<()> {
+    let extension_views =
+        crate::v1::extractor::extract_extension_view(gzipped_archive, &new_extension.name)?;
+
+    let trunk_project = TrunkProjectView {
+        name: new_extension.name,
+        description: new_extension.description.unwrap_or_default(),
+        documentation_link: new_extension.documentation.unwrap_or_default(),
+        repository_link: new_extension.repository.unwrap_or_default(),
+        version: new_extension.vers.to_string(),
+        extensions: extension_views,
+    };
+
+    if let Err(err) = registry.insert_trunk_project(trunk_project).await {
+        anyhow::bail!("Failed to insert into v1 schema: {err}")
+    }
+
+    Ok(())
 }
 
 use serde::Serialize;
