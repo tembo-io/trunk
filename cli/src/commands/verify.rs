@@ -19,7 +19,7 @@ use super::SubCommand;
 type Result<T = ()> = std::result::Result<T, anyhow::Error>;
 
 #[derive(Args)]
-pub struct RegressCommand {
+pub struct VerifyCommand {
     /// The name of the extension to test
     extension_name: String,
     /// The psql connection string on which commands will be executed in
@@ -121,7 +121,7 @@ async fn extract_sql_and_expected_files(
 }
 
 #[async_trait::async_trait]
-impl SubCommand for RegressCommand {
+impl SubCommand for VerifyCommand {
     async fn execute(&self, _: Task) -> Result<()> {
         let tempdir = TempDir::new()?;
         // Given an extension name, let's fetch its Trunk project

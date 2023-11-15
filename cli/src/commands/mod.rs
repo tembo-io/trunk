@@ -9,7 +9,7 @@ pub mod install;
 pub mod license;
 mod pgrx;
 pub mod publish;
-pub mod regress;
+pub mod verify;
 
 #[async_trait]
 pub trait SubCommand {
