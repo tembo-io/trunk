@@ -186,7 +186,7 @@ async fn run_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
                     "su",
                     "postgres",
                     "-c",                    
-                    &format!("bash -c \"&& ./{configure_file} && make -C {project_dir_utf8} check && echo done\"")
+                    &format!("bash -c \"./{configure_file} && make -C {project_dir_utf8} check && echo done\"")
                 ],
                 None,
             )
