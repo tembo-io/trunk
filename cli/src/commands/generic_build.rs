@@ -79,6 +79,7 @@ pub async fn build_generic(
     extension_version: &str,
     inclusion_patterns: Vec<glob::Pattern>,
     _task: Task,
+    should_test: bool,
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
@@ -105,8 +106,10 @@ pub async fn build_generic(
         run_temporary_container(docker.clone(), platform.clone(), image_name.as_str(), _task)
             .await?;
 
-    // Check if there are extensions to run
-    run_tests(&docker, &temp_container.id).await?;
+    if should_test {
+        // Check if there are extensions to run
+        run_tests(&docker, &temp_container.id).await?;
+    }
 
     println!("Determining installation files...");
     let _exec_output =
@@ -167,7 +170,7 @@ async fn run_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
     let project_dir_utf8 = project_dir.to_str().expect("Expected UTF8");
 
     let has = |target| async move {
-        makefile_contains_target(&docker, container_id, project_dir_utf8, target).await
+        makefile_contains_target(docker, container_id, project_dir_utf8, target).await
     };
 
     if has("check").await? {
@@ -180,7 +183,7 @@ async fn run_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
         let configure_exists = file_exists(docker, container_id, configure_file).await;
         let exit_code = if configure_exists {
             let (_, exit_code) = exec_in_container_with_exit_code(
-                &docker,
+                docker,
                 container_id,
                 vec![
                     "su",
@@ -195,7 +198,7 @@ async fn run_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
             exit_code
         } else {
             let (_, exit_code) = exec_in_container_with_exit_code(
-                &docker,
+                docker,
                 container_id,
                 vec![
                     "su",
@@ -222,9 +225,7 @@ async fn run_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
         exec_in_container(
             docker,
             container_id,
-            vec![
-                "make", "-C", project_dir_utf8, "install",
-            ],
+            vec!["make", "-C", project_dir_utf8, "install"],
             None,
         )
         .await?;
