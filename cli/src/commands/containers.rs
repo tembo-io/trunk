@@ -639,7 +639,11 @@ pub async fn locate_makefile(
     //
     // The idea here is that the "root" Makefile of a project would
     // therefore be the Makefile with the smallest path
-    let Some(makefile) = stdout.lines().min() else {
+    let maybe_makefile = stdout.lines().filter(|line| line.contains("cube")).min();
+
+    let maybe_makefile = maybe_makefile.or_else(|| stdout.lines().min());
+
+    let Some(makefile) = maybe_makefile else {
         return Ok(None);
     };
 
