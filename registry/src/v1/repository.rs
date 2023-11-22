@@ -8,7 +8,7 @@ use crate::repository::Registry;
 pub struct TrunkProjectView {
     pub name: String,
     pub description: String,
-    pub documentation_link: String,
+    pub documentation_link: Option<String>,
     pub repository_link: String,
     pub version: String,
     pub extensions: Vec<ExtensionView>,
