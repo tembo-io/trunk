@@ -13,7 +13,9 @@ use tokio::sync::mpsc;
 use tokio_task_manager::Task;
 
 use crate::commands::containers::{
-    build_image, exec_in_container, package_installed_extension_files, run_temporary_container,
+    build_image, exec_in_container, exec_in_container_with_exit_code, file_exists, locate_makefile,
+    makefile_contains_target, package_installed_extension_files, run_temporary_container,
+    start_postgres,
 };
 use crate::commands::license::{copy_licenses, find_licenses};
 use crate::trunk_toml::SystemDependencies;
@@ -77,6 +79,7 @@ pub async fn build_generic(
     extension_version: &str,
     inclusion_patterns: Vec<glob::Pattern>,
     _task: Task,
+    should_test: bool,
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
@@ -102,6 +105,11 @@ pub async fn build_generic(
     let temp_container =
         run_temporary_container(docker.clone(), platform.clone(), image_name.as_str(), _task)
             .await?;
+
+    if should_test {
+        // Check if there are extensions to run
+        run_tests(&docker, &temp_container.id).await?;
+    }
 
     println!("Determining installation files...");
     let _exec_output =
@@ -150,5 +158,96 @@ pub async fn build_generic(
     )
     .await?;
 
+    Ok(())
+}
+
+async fn run_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
+    let Some(project_dir) = locate_makefile(docker, container_id).await? else {
+        println!("Makefile not found!");
+        return Ok(());
+    };
+
+    let project_dir_utf8 = project_dir.to_str().expect("Expected UTF8");
+
+    let has = |target| async move {
+        makefile_contains_target(docker, container_id, project_dir_utf8, target).await
+    };
+
+    if has("check").await? {
+        println!("make check was found in the Makefile");
+        start_postgres(docker, container_id).await?;
+
+        let configure_file = project_dir.join("configure");
+        let configure_file = configure_file.to_str().unwrap();
+
+        let configure_exists = file_exists(docker, container_id, configure_file).await;
+        let exit_code = if configure_exists {
+            let (_, exit_code) = exec_in_container_with_exit_code(
+                docker,
+                container_id,
+                vec![
+                    "su",
+                    "postgres",
+                    "-c",                    
+                    &format!("bash -c \"./{configure_file} && make -C {project_dir_utf8} check && echo done\"")
+                ],
+                None,
+            )
+            .await?;
+
+            exit_code
+        } else {
+            let (_, exit_code) = exec_in_container_with_exit_code(
+                docker,
+                container_id,
+                vec![
+                    "su",
+                    "postgres",
+                    "-c",
+                    &format!("make -C {project_dir_utf8} check"),
+                ],
+                None,
+            )
+            .await?;
+            exit_code
+        };
+
+        anyhow::ensure!(matches!(exit_code, Some(0)), "Tests failed!");
+
+        println!("Tests passed successfully!");
+        return Ok(());
+    }
+
+    if dbg!(has("installcheck").await)? {
+        start_postgres(docker, container_id).await?;
+
+        println!("make installcheck was found in the Makefile");
+        exec_in_container(
+            docker,
+            container_id,
+            vec!["make", "-C", project_dir_utf8, "install"],
+            None,
+        )
+        .await?;
+        let (_output, exit_code) = exec_in_container_with_exit_code(
+            docker,
+            container_id,
+            vec![
+                "su",
+                "postgres",
+                "-c",
+                &format!("make -C {project_dir_utf8} installcheck"),
+            ],
+            None,
+        )
+        .await?;
+
+        anyhow::ensure!(matches!(exit_code, Some(0)), "Tests failed!");
+
+        println!("Tests passed successfully!");
+        return Ok(());
+    }
+
+    println!("Test target not found in Makefile.");
     Ok(())
 }
