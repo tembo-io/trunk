@@ -324,7 +324,7 @@ async fn insert_into_v1(
     let trunk_project = TrunkProjectView {
         name: new_extension.name,
         description: new_extension.description.unwrap_or_default(),
-        documentation_link: new_extension.documentation.unwrap_or_default(),
+        documentation_link: new_extension.documentation,
         repository_link: new_extension.repository.unwrap_or_default(),
         version: new_extension.vers.to_string(),
         extensions: extension_views,
