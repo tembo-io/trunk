@@ -107,8 +107,9 @@ pub async fn build_generic(
             .await?;
 
     if should_test {
+        let extension_name = extension_name.as_deref().unwrap_or(name);
         // Check if there are extensions to run
-        run_tests(&docker, &temp_container.id).await?;
+        run_tests(&docker, &temp_container.id, extension_name).await?;
     }
 
     println!("Determining installation files...");
@@ -161,8 +162,12 @@ pub async fn build_generic(
     Ok(())
 }
 
-async fn run_tests(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
-    let Some(project_dir) = locate_makefile(docker, container_id).await? else {
+async fn run_tests(
+    docker: &Docker,
+    container_id: &str,
+    extension_name: &str,
+) -> anyhow::Result<()> {
+    let Some(project_dir) = locate_makefile(docker, container_id, extension_name).await? else {
         println!("Makefile not found!");
         return Ok(());
     };
