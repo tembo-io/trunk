@@ -3,7 +3,6 @@ FROM quay.io/coredb/ubuntu:${UBUNTU_VERSION}
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
-ARG PG_VERSION=15
 
 RUN apt-get update && \
     apt-get install -y \
