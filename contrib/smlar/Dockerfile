@@ -24,7 +24,8 @@ RUN cd postgres && \
 
 #Clone jdbc repository
 RUN cd postgres/contrib && \
-	git clone --depth 1 --branch f2522d5f20a46a3605a761d34a3aefcdffb94e71 https://github.com/jirutka/smlar.git
+	git clone https://github.com/jirutka/smlar.git && \
+	git checkout f2522d5f20a46a3605a761d34a3aefcdffb94e71
 
 RUN cd postgres/contrib/smlar && \
     make clean && \
