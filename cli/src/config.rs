@@ -1,7 +1,15 @@
 use log::warn;
+use serde::{Deserialize, Serialize};
 use std::io::Read;
 
 use crate::trunk_toml::TrunkToml;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ExtensionConfiguration {
+    library_name: String,
+    requires_restart: bool,
+    priority: i32,
+}
 
 pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Error> {
     let mut body = String::new();

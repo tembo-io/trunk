@@ -18,6 +18,7 @@ use crate::commands::containers::{
     start_postgres,
 };
 use crate::commands::license::{copy_licenses, find_licenses};
+use crate::config::ExtensionConfiguration;
 use crate::trunk_toml::SystemDependencies;
 
 #[derive(Error, Debug)]
@@ -80,6 +81,7 @@ pub async fn build_generic(
     inclusion_patterns: Vec<glob::Pattern>,
     _task: Task,
     should_test: bool,
+    configurations: Option<Vec<ExtensionConfiguration>>,
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
@@ -156,6 +158,7 @@ pub async fn build_generic(
         extension_version,
         extension_dependencies,
         inclusion_patterns,
+        configurations,
     )
     .await?;
 

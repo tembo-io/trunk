@@ -1,3 +1,4 @@
+use crate::config::ExtensionConfiguration;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -58,6 +59,7 @@ pub struct Manifest {
     pub sys: String,
     pub architecture: String,
     pub files: Option<HashMap<PathBuf, PackagedFile>>,
+    pub configurations: Option<Vec<ExtensionConfiguration>>,
 }
 
 impl Manifest {
