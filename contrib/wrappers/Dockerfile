@@ -40,4 +40,4 @@ RUN cd wrappers/wrappers && \
 	git fetch origin ${RELEASE} && \
 	git checkout ${RELEASE} && \
 	cargo pgrx init --pg15 /usr/bin/pg_config && \
-	cargo pgrx package
+	cargo pgrx package --features s3_fdw
