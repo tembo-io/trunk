@@ -1,0 +1,18 @@
+[extension]
+name = "permuteseq"
+version = "1.2.2"
+repository = "https://github.com/dverite/permuteseq"
+license = "PostgreSQL"
+description = "Pseudo-randomly permute sequences with a format-preserving encryption on elements."
+categories = ["analytics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd permuteseq && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
