@@ -6,9 +6,9 @@ use crate::trunk_toml::TrunkToml;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ExtensionConfiguration {
-    library_name: String,
-    requires_restart: bool,
-    priority: i32,
+    configuration_name: String,
+    is_required: bool,
+    recommended_default_value: Option<String>,
 }
 
 pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Error> {
