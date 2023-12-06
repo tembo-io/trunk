@@ -1,0 +1,19 @@
+[extension]
+name = "pghydro"
+version = "6.6.0"
+repository = "https://github.com/pghydro/pghydro"
+license = "GPL-2.0"
+description = "Provide drainage network analysis functionality to PostGIS."
+documentation = "https://github.com/pghydro/pghydro"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pghydro
+    set -x
+    mv *.sql /usr/share/postgresql/15/extension
+    mv *.control /usr/share/postgresql/15/extension
+    """
