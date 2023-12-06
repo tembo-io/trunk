@@ -9,6 +9,7 @@ use flate2::read::GzDecoder;
 use log::{error, info, warn};
 use reqwest;
 use reqwest::Url;
+use slicedisplay::SliceDisplay;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{Read, Seek, Write};
@@ -439,10 +440,16 @@ fn print_post_installation_guide(manifest: &Manifest) {
     }
     // If the manifest has preload_libraries, then we need to add the extension to preload_libraries
     // Output will look like preload_libraries = 'spl1,spl2,spl3'
-    if let Some(preload_libraries) = &manifest.preload_libraries {
-        let spl = preload_libraries.join(",");
+    if let Some(preload_libraries) = &manifest.loadable_libraries {
+        let libraries: Vec<_> = preload_libraries
+            .iter()
+            .map(|lib| &lib.library_name)
+            .collect();
         println!("\nAdd the following to your postgresql.conf:");
-        println!("\tshared_preload_libraries = '{}'", spl);
+        println!(
+            "\tshared_preload_libraries = {}",
+            libraries.display().terminator('\'', '\'')
+        );
     }
 
     println!("\nEnable the extension with:");

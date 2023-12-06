@@ -16,7 +16,6 @@ RUN apt-get update && apt-get install -y \
  ccache \
  libgdal-dev \
  libgeos-dev \
- osm2pgsql \
  libprotobuf-c-dev \
  protobuf-c-compiler
 

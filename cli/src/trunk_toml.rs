@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use glob::PatternError;
 
+use crate::config::LoadableLibrary;
+
 pub type SystemDependencies = HashMap<String, Vec<String>>;
 
 /// The definition/schema of a Trunk.toml file
@@ -28,7 +30,7 @@ pub struct TomlExtensionData {
     pub documentation: Option<String>,
     pub categories: Vec<String>,
     pub registry: Option<String>,
-    pub preload_libraries: Option<Vec<String>>,
+    pub loadable_libraries: Option<Vec<LoadableLibrary>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
