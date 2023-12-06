@@ -14,7 +14,6 @@ pub struct TrunkToml {
     pub extension: TomlExtensionData,
     pub build: TomlBuildInfo,
     pub dependencies: Option<SystemDependencies>,
-    pub configurations: Option<Vec<ExtensionConfiguration>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -32,6 +31,7 @@ pub struct TomlExtensionData {
     pub categories: Vec<String>,
     pub registry: Option<String>,
     pub preload_libraries: Option<Vec<String>>,
+    pub configurations: Option<Vec<ExtensionConfiguration>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

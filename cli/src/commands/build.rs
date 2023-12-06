@@ -132,7 +132,7 @@ impl BuildCommand {
 
         let configurations = trunk_toml
             .as_ref()
-            .and_then(|toml| toml.configurations.as_ref())
+            .and_then(|toml| toml.extension.configurations.as_ref())
             .cloned();
 
         let system_dependencies = trunk_toml

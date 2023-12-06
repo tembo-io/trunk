@@ -1,7 +1,7 @@
 use super::SubCommand;
 use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
-use crate::config;
+use crate::config::{self, ExtensionConfiguration};
 use crate::manifest::Manifest;
 use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::{anyhow, Context};
@@ -78,6 +78,7 @@ pub struct PublishSettings {
     repository: Option<String>,
     system_dependencies: Option<SystemDependencies>,
     categories: Option<Vec<String>>,
+    configurations: Option<Vec<ExtensionConfiguration>>,
 }
 
 impl PublishCommand {
@@ -176,6 +177,11 @@ impl PublishCommand {
             .and_then(|toml| toml.dependencies.as_ref())
             .cloned();
 
+        let configurations = trunk_toml
+            .as_ref()
+            .and_then(|toml| toml.extension.configurations.as_ref())
+            .cloned();
+
         Ok(PublishSettings {
             version,
             file,
@@ -191,6 +197,7 @@ impl PublishCommand {
             system_dependencies,
             categories,
             preload_libraries,
+            configurations,
         })
     }
 }
@@ -359,6 +366,7 @@ impl SubCommand for PublishCommand {
             "system_dependencies": publish_settings.system_dependencies,
             "categories": publish_settings.categories,
             "libraries": publish_settings.preload_libraries,
+            "configurations": publish_settings.configurations
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
         let form = reqwest::multipart::Form::new()
