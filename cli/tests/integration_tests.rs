@@ -135,8 +135,6 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(extension_path.as_os_str());
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.arg("--preload-libraries");
-    cmd.arg("test_pgrx_extension_spl");
     cmd.assert().code(0);
     assert!(std::path::Path::new(
         format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str()
@@ -178,8 +176,6 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
-    assert!(stdout.contains("Add the following to your postgresql.conf:"));
-    assert!(stdout.contains("shared_preload_libraries = 'test_pgrx_extension_spl'"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -275,8 +271,6 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("1.0.3");
     cmd.arg("--name");
     cmd.arg("pg_tle");
-    cmd.arg("--preload-libraries");
-    cmd.arg("pg_tle_spl");
     cmd.assert().code(0);
     assert!(std::path::Path::new(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str()).exists());
     // assert any license files are included
@@ -304,7 +298,6 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"pg_tle\""));
-    assert!(stdout.contains("\"pg_tle_spl\""));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -361,8 +354,6 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     cmd.arg("1.5.0");
     cmd.arg("--name");
     cmd.arg("pgsql_http");
-    cmd.arg("--preload-libraries");
-    cmd.arg("pgsql_http_spl");
     cmd.assert().code(0);
     assert!(
         std::path::Path::new(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str()).exists()
@@ -393,7 +384,6 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     // Note - name and extension_name are different here
     assert!(stdout.contains("\"name\": \"pgsql_http\""));
     assert!(stdout.contains("\"extension_name\": \"http\""));
-    assert!(stdout.contains("\"pgsql_http_spl\""));
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -471,8 +461,6 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("1.10");
     cmd.arg("--name");
     cmd.arg("pg_stat_statements");
-    cmd.arg("--preload-libraries");
-    cmd.arg("pg_stat_statements_spl");
     cmd.assert().code(0);
     assert!(
         std::path::Path::new(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
@@ -503,7 +491,6 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"pg_stat_statements\""));
-    assert!(stdout.contains("\"pg_stat_statements_spl\""));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
@@ -785,8 +772,6 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("15.3.0");
     cmd.arg("--name");
     cmd.arg("auto_explain");
-    cmd.arg("--preload-libraries");
-    cmd.arg("auto_explain_spl");
     cmd.assert().code(0);
     assert!(
         std::path::Path::new(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str()).exists()
@@ -815,8 +800,8 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
         .output()
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
+
     assert!(stdout.contains("\"extension_name\": \"auto_explain\""));
-    assert!(stdout.contains("\"auto_explain_spl\""));
 
     // assert post installation steps contain correct shared_preload_libraries command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -824,12 +809,8 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--file");
     cmd.arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str());
     cmd.arg("auto_explain");
-    let output = cmd.output()?;
-    let stdout = String::from_utf8(output.stdout)?;
-    cmd.assert().code(0);
-    assert!(stdout.contains("Add the following to your postgresql.conf:"));
-    assert!(stdout.contains("shared_preload_libraries = 'auto_explain_spl'"));
 
+    cmd.assert().code(0);
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
