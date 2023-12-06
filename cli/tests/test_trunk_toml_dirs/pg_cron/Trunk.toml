@@ -2,11 +2,15 @@
 name = "pg_cron"
 extension_name = "extension_name_from_toml"
 extension_dependencies = ["btree_gin"]
-preload_libraries = ["shared_preload_libraries_from_toml"]
 version = "1.5.2"
 repository = "https://github.com/tembo-io/trunk"
 license = "PostgreSQL"
 categories = []
+loadable_libraries = [
+    { library_name = "shared_preload_libraries_from_toml", requires_restart = true, priority = 1 },
+    { library_name = "shared_preload_libraries_from_toml_2", requires_restart = false, priority = 2 }
+]
+
 
 [build]
 dockerfile = "Dockerfile"
