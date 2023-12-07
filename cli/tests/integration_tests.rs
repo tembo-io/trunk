@@ -149,7 +149,7 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name and loadable_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
@@ -282,7 +282,7 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/LICENSE"));
     assert!(stdout.contains("licenses/NOTICE"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str())
@@ -366,7 +366,7 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.md"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str())
@@ -475,7 +475,7 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/COPYRIGHT"));
     assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
@@ -524,7 +524,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name and loadable_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str())
@@ -539,7 +539,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
-    assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
+    assert!(stdout.contains("\"loadable_libraries\": [\n    {\n      \"library_name\": \"shared_preload_libraries_from_toml\",\n      \"requires_restart\": true,\n      \"priority\": 1\n    },\n    {\n      \"library_name\": \"shared_preload_libraries_from_toml_2\",\n      \"requires_restart\": false,\n      \"priority\": 2\n    }\n  ]"));
     assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ],\n    \"dnf\": [\n      \"libpq-devel\"\n    ]\n  }") ||
             stdout.contains("\"dependencies\": {\n    \"dnf\": [\n      \"libpq-devel\"\n    ],\n    \"apt\": [\n      \"libpq5\"\n    ]\n  }"));
     // assert post installation steps contain correct CREATE EXTENSION command
@@ -557,6 +557,8 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("libpq5"));
     assert!(stdout.contains("On systems using dnf:"));
     assert!(stdout.contains("libpq-devel"));
+    assert!(stdout.contains("Add the following to your postgresql.conf:"));
+    assert!(stdout.contains("shared_preload_libraries = 'shared_preload_libraries_from_toml, shared_preload_libraries_from_toml_2'"));
 
     // assert that the dependencies were written to manifest
     let manifest = Command::new("cat")
@@ -607,7 +609,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name and loadable_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
@@ -622,7 +624,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
-    assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
+    assert!(stdout.contains("\"loadable_libraries\": [\n    {\n      \"library_name\": \"shared_preload_libraries_from_toml\",\n      \"requires_restart\": true,\n      \"priority\": 1\n    },\n    {\n      \"library_name\": \"another_shared_preload_library\",\n      \"requires_restart\": false,\n      \"priority\": 2\n    }\n  ]"));
     assert!(stdout.contains("\"another_shared_preload_library\""));
     assert!(stdout.contains("\"libpq5\""));
 
@@ -649,7 +651,6 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
-    dbg!(&stdout);
     assert!(!stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
     assert!(stdout.contains("Install the following system-level dependencies:"));
@@ -786,7 +787,7 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("licenses/COPYRIGHT"));
     assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
         .arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str())
@@ -803,7 +804,6 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
 
     assert!(stdout.contains("\"extension_name\": \"auto_explain\""));
 
-    // assert post installation steps contain correct shared_preload_libraries command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
