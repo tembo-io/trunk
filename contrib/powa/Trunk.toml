@@ -1,0 +1,20 @@
+[extension]
+name = "powa"
+version = "4.2.1"
+repository = "https://github.com/powa-team/powa-archivist"
+license = "PostgreSQL"
+description = "PostgreSQL Workload Analyser-core."
+homepage = "https://powa.readthedocs.io/en/latest/"
+documentation = "https://powa.readthedocs.io/en/latest/"
+categories = ["metrics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/powa-archivist && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

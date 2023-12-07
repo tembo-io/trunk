@@ -7,6 +7,7 @@ use crate::categories::{get_categories_for_extension, update_extension_categorie
 use crate::config::Config;
 use crate::errors::ExtensionRegistryError;
 use crate::extensions::{add_extension_owner, check_input, extension_owners};
+use crate::readme::GithubApiClient;
 use crate::repository::Registry;
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
@@ -37,6 +38,7 @@ pub async fn publish(
     cfg: web::Data<Config>,
     conn: web::Data<Pool<Postgres>>,
     registry: web::Data<Registry>,
+    github_client: web::Data<GithubApiClient>,
     aws_config: web::Data<SdkConfig>,
     mut payload: Multipart,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
@@ -305,10 +307,17 @@ pub async fn publish(
         new_extension.name, new_extension.vers
     ));
 
-    match insert_into_v1(new_extension, registry.as_ref(), gzipped_archive.as_ref()).await {
-        Ok(()) => {}
-        Err(err) => error!("Failed to insert extension into v1 in /publish: {err}"),
-    }
+    let _ = crate::readme::fetch_and_save_readme(
+        github_client.as_ref(),
+        registry.as_ref(),
+        &new_extension.name,
+    )
+    .await
+    .map_err(|err| error!("Failed to fetch README in /publish: {err}"));
+
+    let _ = insert_into_v1(new_extension, registry.as_ref(), gzipped_archive.as_ref())
+        .await
+        .map_err(|err| error!("Failed to insert extension into v1 in /publish: {err}"));
 
     Ok(response)
 }

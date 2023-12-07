@@ -626,6 +626,7 @@ fn prepare_sharedir_file<'p>(
 pub async fn locate_makefile(
     docker: &Docker,
     container_id: &str,
+    extension_name: &str,
 ) -> anyhow::Result<Option<PathBuf>> {
     let stdout = exec_in_container(
         docker,
@@ -639,7 +640,10 @@ pub async fn locate_makefile(
     //
     // The idea here is that the "root" Makefile of a project would
     // therefore be the Makefile with the smallest path
-    let maybe_makefile = stdout.lines().filter(|line| line.contains("cube")).min();
+    let maybe_makefile = stdout
+        .lines()
+        .filter(|line| line.contains(extension_name))
+        .min();
 
     let maybe_makefile = maybe_makefile.or_else(|| stdout.lines().min());
 
