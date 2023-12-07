@@ -6,6 +6,8 @@ use std::{
 };
 use tar::EntryType;
 
+use crate::views::extension_publish::ExtensionUpload;
+
 use super::repository::ExtensionView;
 
 pub struct ControlFile {
@@ -17,6 +19,7 @@ pub struct ControlFile {
 pub fn extract_extension_view(
     tar_gz: &[u8],
     trunk_project_name: &str,
+    new_extensions: &ExtensionUpload,
 ) -> anyhow::Result<Vec<ExtensionView>> {
     let control_files = extract_control_files(tar_gz)?;
 
@@ -27,8 +30,9 @@ pub fn extract_extension_view(
             version: control_file.default_version.unwrap_or_default(),
             trunk_project_name: trunk_project_name.to_string(),
             dependencies_extension_names: control_file.dependencies,
-            loadable_libraries: None,
-            configurations: None,
+            // TODO: should we clone this for every extension in a Trunk project?
+            loadable_libraries: new_extensions.libraries.clone(),
+            configurations: new_extensions.configurations.clone(),
         })
         .collect();
 

@@ -1480,6 +1480,21 @@
     },
     "query": "\n            UPDATE categories\n            SET extension_count = extension_count + 1\n            WHERE id = $1\n            "
   },
+  "f5c4444586051427aaf351b423d8dba82b213eef6e707a1cf5b54854769ce1b9": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text",
+          "Bool",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)\n                VALUES ($1, $2, $3, $4)"
+  },
   "f77d6c607d830e7ea1d564c34ec42b998e0c2657f4cdb8a89dd211a29b4a7d65": {
     "describe": {
       "columns": [],
