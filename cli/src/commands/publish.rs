@@ -26,6 +26,8 @@ pub struct PublishCommand {
     name: Option<String>,
     #[arg(short = 'e', long = "extension_name")]
     extension_name: Option<String>,
+    #[arg(short = 'x', long = "extension_dependencies")]
+    extension_dependencies: Option<Vec<String>>,
     #[arg(short = 's', long = "preload_libraries")]
     preload_libraries: Option<Vec<String>>,
     #[arg(long = "version", short = 'v')]
@@ -64,6 +66,7 @@ pub struct Category {
 pub struct PublishSettings {
     name: String,
     extension_name: Option<String>,
+    extension_dependencies: Option<Vec<String>>,
     preload_libraries: Option<Vec<String>>,
     version: String,
     file: Option<PathBuf>,
@@ -103,6 +106,12 @@ impl PublishCommand {
             &trunk_toml,
         );
 
+        let extension_dependencies = cli_or_trunk_opt(
+            &self.extension_dependencies,
+            |toml| &toml.extension.extension_dependencies,
+            &trunk_toml,
+        );
+
         let preload_libraries = cli_or_trunk_opt(
             &self.preload_libraries,
             |toml| &toml.extension.preload_libraries,
@@ -120,17 +129,14 @@ impl PublishCommand {
             .file
             .as_ref()
             .or_else(|| {
-                trunk_toml
-                    .as_ref()
-                    .map(|toml| {
-                        let file = toml.extension.file.as_ref()?;
-                        info!(
-                            "Trunk.toml: using setting `extension.file`: {}",
-                            file.display()
-                        );
-                        Some(file.into())
-                    })
-                    .flatten()
+                trunk_toml.as_ref().and_then(|toml| {
+                    let file = toml.extension.file.as_ref()?;
+                    info!(
+                        "Trunk.toml: using setting `extension.file`: {}",
+                        file.display()
+                    );
+                    Some(file)
+                })
             })
             .cloned();
 
@@ -167,8 +173,7 @@ impl PublishCommand {
 
         let system_dependencies = trunk_toml
             .as_ref()
-            .map(|toml| toml.dependencies.as_ref())
-            .flatten()
+            .and_then(|toml| toml.dependencies.as_ref())
             .cloned();
 
         Ok(PublishSettings {
@@ -182,6 +187,7 @@ impl PublishCommand {
             repository,
             name,
             extension_name,
+            extension_dependencies,
             system_dependencies,
             categories,
             preload_libraries,
@@ -214,7 +220,6 @@ impl SubCommand for PublishCommand {
                     // Fall back to local file if we fail to fetch valid slugs from registry
                     error!("Error fetching valid category slugs from {}/categories/all. Falling back to local definitions in categories.rs", publish_settings.registry);
                     slugs = VALID_CATEGORY_SLUGS
-                        .to_vec()
                         .into_iter()
                         .map(|x| x.to_string())
                         .collect();
@@ -344,6 +349,7 @@ impl SubCommand for PublishCommand {
         let m = json!({
             "name": publish_settings.name,
             "extension_name": publish_settings.extension_name,
+            "extension_dependencies": publish_settings.extension_dependencies,
             "vers": publish_settings.version,
             "description": publish_settings.description,
             "documentation": publish_settings.documentation,

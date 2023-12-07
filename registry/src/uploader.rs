@@ -11,16 +11,16 @@ use tracing::{debug, info};
 const CACHE_CONTROL_IMMUTABLE: &str = "public,max-age=31536000,immutable";
 
 /// Returns the internal path of an uploaded extension's version archive.
-pub fn extension_path(name: &str, version: &str) -> String {
+fn extension_path(name: &str, version: &str) -> String {
     format!("extensions/{name}/{name}-{version}.tar.gz")
 }
 
 /// Returns the URL of an uploaded extension's version archive.
 ///
 /// The function doesn't check for the existence of the file.
-pub fn extension_location(bucket_name: &str, extension_name: &str, version: &str) -> String {
+pub fn extension_location(bucket_name: &str, project_name: &str, version: &str) -> String {
     let host = format!("{bucket_name}.s3.amazonaws.com");
-    let path = extension_path(extension_name, version);
+    let path = extension_path(project_name, version);
     format!("https://{host}/{path}")
 }
 

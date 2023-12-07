@@ -1,6 +1,6 @@
 [extension]
 name = "wrappers"
-version = "0.1.15"
+version = "0.2.0"
 repository = "https://github.com/supabase/wrappers"
 license = "Apache-2.0"
 description = "Postgres Foreign Data Wrapper development framework in Rust."

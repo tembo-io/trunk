@@ -13,7 +13,6 @@ use log::error;
 use log::Level;
 
 use colorful::{Color, Colorful, RGB};
-use env_logger;
 use std::io::Write;
 use std::{process::ExitCode, time::Duration};
 use tokio_task_manager::{Task, TaskManager};
@@ -35,8 +34,8 @@ enum SubCommands {
     Publish(commands::publish::PublishCommand),
     /// Install a Postgres extension from the Trunk registry
     Install(commands::install::InstallCommand),
-    /// Test a Postgres extension (coming soon)
-    Test(commands::test::TestCommand),
+    /// Verify a local install of a Postgres extension by running its regression tests
+    Verify(commands::verify::VerifyCommand),
 }
 
 #[async_trait]
@@ -46,7 +45,7 @@ impl SubCommand for SubCommands {
             SubCommands::Build(cmd) => cmd.execute(task).await,
             SubCommands::Publish(cmd) => cmd.execute(task).await,
             SubCommands::Install(cmd) => cmd.execute(task).await,
-            SubCommands::Test(cmd) => cmd.execute(task).await,
+            SubCommands::Verify(cmd) => cmd.execute(task).await,
         }
     }
 }
@@ -66,7 +65,7 @@ fn main() -> ExitCode {
                 Level::Debug => String::from("debug").color(RGB::new(234, 67, 118)),
                 Level::Trace => String::from("trace").color(Color::Green),
             };
-            return writeln!(buf, "{}: {}", level_str, record.args());
+            writeln!(buf, "{}: {}", level_str, record.args())
         })
         .try_init()
         .ok();
@@ -89,7 +88,7 @@ fn main() -> ExitCode {
             // Any errors returned will get propogated up and gracefuly logged to the user here
             print!("{}", indent(1));
             error!("{}", e);
-            return ExitCode::from(1);
+            ExitCode::from(1)
         }
     }
 }

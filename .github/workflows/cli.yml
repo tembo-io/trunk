@@ -13,8 +13,7 @@ on:
       - ".github/workflows/cli.yml"
       - "cli/**"
       - "!cli/README.md"
-    paths-ignore:
-      - "cli/.gitignore"
+      - "!cli/.gitignore"
   push:
     branches:
       - main
@@ -22,8 +21,7 @@ on:
       - ".github/workflows/cli.yml"
       - "cli/**"
       - "!cli/README.md"
-    paths-ignore:
-      - "cli/.gitignore"
+      - "!cli/.gitignore"
 
 jobs:
   lint:

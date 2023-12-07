@@ -49,6 +49,7 @@ pub struct Manifest {
     ///    'apt': ['libgroonga-dev'],
     /// }
     /// ```
+    pub extension_dependencies: Option<Vec<String>>,
     pub dependencies: Option<HashMap<String, Vec<String>>>,
     #[serde(rename = "version")]
     pub extension_version: String,

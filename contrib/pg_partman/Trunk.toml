@@ -6,6 +6,7 @@ license = "PostgreSQL"
 description = "Extension to manage partitioned tables by time or ID."
 documentation = "https://github.com/pgpartman/pg_partman"
 categories = ["featured", "orchestration"]
+preload_libraries = ["pg_partman_bgw"]
 
 [dependencies]
 apt = ["libc6"]

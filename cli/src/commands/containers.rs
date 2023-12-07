@@ -1,8 +1,9 @@
-use anyhow::Context;
+use anyhow::{bail, Context};
 use bollard::container::{
     CreateContainerOptions, DownloadFromContainerOptions, StartContainerOptions,
 };
 use bollard::exec::{CreateExecOptions, StartExecOptions, StartExecResults};
+use bollard::service::ExecInspectResponse;
 use bollard::Docker;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -12,7 +13,7 @@ use bollard::image::BuildImageOptions;
 use bollard::models::{BuildInfo, HostConfig};
 use std::fs::File;
 use std::io::Cursor;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::commands::generic_build::GenericBuildError;
 use crate::control_file::ControlFile;
@@ -62,13 +63,23 @@ impl Drop for ReclaimableContainer {
         });
     }
 }
-
 pub async fn exec_in_container(
     docker: &Docker,
     container_id: &str,
     command: Vec<&str>,
     env: Option<Vec<&str>>,
 ) -> Result<String, anyhow::Error> {
+    exec_in_container_with_exit_code(docker, container_id, command, env)
+        .await
+        .map(|(output, _code)| output)
+}
+
+pub async fn exec_in_container_with_exit_code(
+    docker: &Docker,
+    container_id: &str,
+    command: Vec<&str>,
+    env: Option<Vec<&str>>,
+) -> Result<(String, Option<i64>), anyhow::Error> {
     println!("Executing in container: {:?}", command.join(" "));
 
     let config = CreateExecOptions {
@@ -78,7 +89,6 @@ pub async fn exec_in_container(
         attach_stderr: Some(true),
         ..Default::default()
     };
-
     let exec = docker.create_exec(container_id, config).await?;
     let start_exec_options = Some(StartExecOptions {
         detach: false,
@@ -86,7 +96,6 @@ pub async fn exec_in_container(
     });
     let log_output = docker.start_exec(&exec.id, start_exec_options);
     let start_exec_result = log_output.await?;
-
     let mut total_output = String::new();
     match start_exec_result {
         StartExecResults::Attached { output, .. } => {
@@ -99,7 +108,6 @@ pub async fn exec_in_container(
                     Err(error) => eprintln!("Error while reading log output: {error}"),
                 })
                 .fuse();
-
             // Run the output stream to completion.
             while output.next().await.is_some() {}
         }
@@ -107,7 +115,10 @@ pub async fn exec_in_container(
             println!("Exec started in detached mode");
         }
     }
-    Ok::<String, anyhow::Error>(total_output)
+
+    let ExecInspectResponse { exit_code, .. } = docker.inspect_exec(&exec.id).await?;
+
+    Ok((total_output, exit_code))
 }
 
 pub async fn run_temporary_container(
@@ -178,13 +189,8 @@ pub async fn find_installed_extension_files(
         exec_in_container(docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
     let sharedir = sharedir.trim();
 
-    let pkglibdir = exec_in_container(
-        &docker,
-        container_id,
-        vec!["pg_config", "--pkglibdir"],
-        None,
-    )
-    .await?;
+    let pkglibdir =
+        exec_in_container(docker, container_id, vec!["pg_config", "--pkglibdir"], None).await?;
     let pkglibdir = pkglibdir.trim();
 
     // collect changes from container filesystem
@@ -388,6 +394,7 @@ pub async fn build_image(
 
 // Scan sharedir and package lib dir from a Trunk builder container for files from a provided list.
 // Package these files into a Trunk package.
+#[allow(clippy::too_many_arguments)]
 pub async fn package_installed_extension_files(
     docker: Docker,
     container_id: &str,
@@ -397,6 +404,7 @@ pub async fn package_installed_extension_files(
     name: &str,
     mut extension_name: Option<String>,
     extension_version: &str,
+    extension_dependencies: Option<Vec<String>>,
     inclusion_patterns: Vec<glob::Pattern>,
 ) -> Result<(), anyhow::Error> {
     let name = name.to_owned();
@@ -422,7 +430,6 @@ pub async fn package_installed_extension_files(
         find_installed_extension_files(&docker, container_id, &inclusion_patterns).await?;
     let license_files = find_license_files(&docker, container_id).await?;
 
-    let control_file = extension_files.control_file;
     let sharedir_list = extension_files.sharedir;
     let pkglibdir_list = extension_files.pkglibdir;
     let licensedir_list = license_files;
@@ -446,6 +453,9 @@ pub async fn package_installed_extension_files(
     // Looping over everything in that directory makes this way slower.
     let options_usrdir = Some(DownloadFromContainerOptions { path: "/usr" });
     let file_stream = docker.download_from_container(container_id, options_usrdir);
+
+    // TODO: If extension_dependencies is none, check for control file and fetch 'requires' field (similar to below)
+    //  example: https://github.com/paradedb/paradedb/blob/9a0b1601a9c7026e5c89eef51a422b9d284b3058/pg_search/pg_search.control#L6C1-L6C9
 
     if let Some(control) = sharedir_list.iter().find(|path| path.contains(".control")) {
         // If extension_name parameter is none, check for control file and fetch extension_name
@@ -475,7 +485,7 @@ pub async fn package_installed_extension_files(
     // Create a sync task within the tokio runtime to copy the file from docker to tar
     let tar_handle = task::spawn_blocking(move || {
         // Send ownership of the control file to the closure
-        let control_file = control_file;
+        let control_file = extension_files.control_file;
         let mut archive = Archive::new(receiver);
         let mut new_archive = Builder::new(flate2::write::GzEncoder::new(
             file,
@@ -485,6 +495,7 @@ pub async fn package_installed_extension_files(
             name,
             extension_name,
             extension_version,
+            extension_dependencies,
             manifest_version: 2,
             preload_libraries,
             architecture: target_arch,
@@ -593,7 +604,7 @@ fn prepare_sharedir_file<'p>(
 
     // If the control file was not supplied, or it was and didn't have the `directory` field filled in,
     // assume the file should go to `$(sharedir)/extension`.
-    let maybe_directory = control_file.map(|file| file.directory.as_ref()).flatten();
+    let maybe_directory = control_file.and_then(|file| file.directory.as_ref());
 
     let file_to_package = file_to_package.strip_prefix(sharedir)?;
 
@@ -609,4 +620,102 @@ fn prepare_sharedir_file<'p>(
         }
         None => Ok(file_to_package.into()),
     }
+}
+
+/// Attempt to locate the path of the Makefile within this container
+pub async fn locate_makefile(
+    docker: &Docker,
+    container_id: &str,
+    extension_name: &str,
+) -> anyhow::Result<Option<PathBuf>> {
+    let stdout = exec_in_container(
+        docker,
+        container_id,
+        vec!["find", ".", "-type", "f", "-iname", "Makefile"],
+        None,
+    )
+    .await?;
+
+    // A project may contain several Makefiles.
+    //
+    // The idea here is that the "root" Makefile of a project would
+    // therefore be the Makefile with the smallest path
+    let maybe_makefile = stdout
+        .lines()
+        .filter(|line| line.contains(extension_name))
+        .min();
+
+    let maybe_makefile = maybe_makefile.or_else(|| stdout.lines().min());
+
+    let Some(makefile) = maybe_makefile else {
+        return Ok(None);
+    };
+
+    let path = Path::new(makefile);
+
+    Ok(Some(
+        path.parent()
+            .with_context(|| "Makefile should have a parent folder")?
+            .to_owned(),
+    ))
+}
+
+/// Returns true if the file in `path` exists
+pub async fn file_exists(docker: &Docker, container_id: &str, path: &str) -> bool {
+    exec_in_container_with_exit_code(docker, container_id, vec!["test", "-e", path], None)
+        .await
+        .map(|(_, exit_code)| exit_code == Some(0))
+        .unwrap_or(false)
+}
+
+/// Returns true if the Makefile in this container contains the given target
+pub async fn makefile_contains_target(
+    docker: &Docker,
+    container_id: &str,
+    dir: &str,
+    target: &str,
+) -> anyhow::Result<bool> {
+    let command = vec!["make", "-C", dir, "-q", target];
+
+    let (output, exit_code) =
+        exec_in_container_with_exit_code(docker, container_id, command, None).await?;
+
+    if output.contains("is not supported") {
+        return Ok(false);
+    }
+
+    let successful = matches!(exit_code, Some(0) | Some(1));
+
+    Ok(successful)
+}
+
+pub async fn start_postgres(docker: &Docker, container_id: &str) -> anyhow::Result<()> {
+    // Make /app writable by the Postgres user. This is important if pg_regress tries to save files to the filesystem.
+    exec_in_container(
+        docker,
+        container_id,
+        vec!["chown", "-R", "postgres:postgres", "/app"],
+        None,
+    )
+    .await?;
+
+    let (_output, status_code) = exec_in_container_with_exit_code(
+        docker,
+        container_id,
+        vec![
+            "su",
+            "postgres",
+            "-c",
+            "bash -c \"mkdir db/ && /usr/lib/postgresql/15/bin/initdb -D /app/db && /usr/lib/postgresql/15/bin/pg_ctl -D /app/db -l logfile start\"",
+        ],
+        None,
+    ).await?;
+
+    if status_code == Some(0) {
+        println!("Postgres is up!");
+    } else {
+        bail!("Failed to start Postgres!");
+    }
+
+    Ok(())
 }

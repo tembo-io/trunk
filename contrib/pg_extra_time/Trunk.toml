@@ -1,0 +1,18 @@
+[extension]
+name = "pg_extra_time"
+version = "1.1.0"
+repository = "https://github.com/bigsmoke/pg_extra_time"
+license = "PostgreSQL"
+description = "Additional date time functions."
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_extra_time && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
