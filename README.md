@@ -64,7 +64,7 @@ Publish extensions to the registry, making them available to the Postgres commun
 ```
 
 ### `trunk install`
-Downloads Postgres extensions from the Trunk registry and installs into your environment (only Ubuntu suppot at this time).
+Downloads Postgres extensions from the Trunk registry and installs into your environment (only Ubuntu support at this time).
 
 Supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
 

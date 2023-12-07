@@ -37,6 +37,9 @@ pub struct BuildCommand {
     dockerfile_path: Option<String>,
     #[arg(short = 'i', long = "install-command")]
     install_command: Option<String>,
+    /// Run this integration tests after building, if any are found
+    #[clap(long, short, action)]
+    test: bool,
 }
 
 pub struct BuildSettings {
@@ -52,6 +55,7 @@ pub struct BuildSettings {
     pub platform: Option<String>,
     pub dockerfile_path: Option<String>,
     pub install_command: Option<String>,
+    pub should_test: bool,
 }
 
 impl BuildCommand {
@@ -127,8 +131,7 @@ impl BuildCommand {
 
         let system_dependencies = trunk_toml
             .as_ref()
-            .map(|toml| toml.dependencies.as_ref())
-            .flatten()
+            .and_then(|toml| toml.dependencies.as_ref())
             .cloned();
 
         // Dockerfile is handled slightly differently in Trunk.toml as the CLI.
@@ -160,6 +163,7 @@ impl BuildCommand {
             platform,
             dockerfile_path,
             install_command,
+            should_test: self.test,
         })
     }
 }
@@ -277,6 +281,7 @@ impl SubCommand for BuildCommand {
             build_settings.version.clone().unwrap().as_str(),
             build_settings.glob_patterns_to_include,
             task,
+            build_settings.should_test,
         )
         .await?;
         return Ok(());
