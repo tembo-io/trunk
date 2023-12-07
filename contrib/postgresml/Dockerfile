@@ -1,5 +1,5 @@
 ARG PG_VERSION=15
-ARG RELEASE
+ARG RELEASE=v2.7.13
 
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.0
 USER root
