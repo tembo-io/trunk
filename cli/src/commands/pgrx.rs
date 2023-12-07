@@ -22,6 +22,7 @@ use tokio_task_manager::Task;
 use toml::Value;
 
 #[derive(Error, Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum PgrxBuildError {
     #[error("IO Error: {0}")]
     IoError(#[from] std::io::Error),
@@ -56,7 +57,8 @@ pub enum PgrxBuildError {
 
 fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     let versions = [
-        "0.10.0", "0.9.8", "0.9.7", "0.9.1", "0.9.0", "0.8.4", "0.8.3", "0.8.0", "0.7.4",
+        "0.11.0", "0.10.2", "0.10.1", "0.10.0", "0.9.8", "0.9.7", "0.9.1", "0.9.0", "0.8.4",
+        "0.8.3", "0.8.0", "0.7.4",
     ];
 
     if versions.contains(&pgrx_range) {
@@ -90,18 +92,19 @@ fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
 fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
     if let Some(dockerfile_path) = path {
         println!("Using Dockerfile at {}", &dockerfile_path);
-        return Ok(fs::read_to_string(dockerfile_path.as_str())?);
+        Ok(fs::read_to_string(dockerfile_path.as_str())?)
     } else {
-        return Ok(include_str!("./builders/Dockerfile.pgrx").to_string());
+        Ok(include_str!("./builders/Dockerfile.pgrx").to_string())
     }
 }
-
+#[allow(clippy::too_many_arguments)]
 pub async fn build_pgrx(
     dockerfile_path: Option<String>,
     platform: Option<String>,
     path: &Path,
     output_path: &str,
     extension_name: Option<String>,
+    extension_dependencies: Option<Vec<String>>,
     preload_libraries: Option<Vec<String>>,
     cargo_toml: toml::Table,
     system_dependencies: Option<SystemDependencies>,
@@ -233,6 +236,7 @@ pub async fn build_pgrx(
         name,
         extension_name,
         extension_version,
+        extension_dependencies,
         inclusion_patterns,
     )
     .await?;
@@ -251,6 +255,7 @@ mod tests {
         assert_eq!(result.unwrap(), "0.8.3");
         let result = semver_from_range("0.8.4");
         assert_eq!(result.unwrap(), "0.8.4");
+        let result = semver_from_range("0.8.4");
     }
 
     #[test]
@@ -270,6 +275,6 @@ mod tests {
         let result = semver_from_range(">=0.9.0, <0.10.0");
         assert_eq!(result.unwrap(), "0.9.8");
         let result = semver_from_range(">=0.10.0, <0.11.0");
-        assert_eq!(result.unwrap(), "0.10.0");
+        assert_eq!(result.unwrap(), "0.10.2");
     }
 }

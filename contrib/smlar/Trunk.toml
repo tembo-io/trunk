@@ -1,0 +1,19 @@
+[extension]
+name = "smlar"
+version = "1.0.0"
+repository = "https://github.com/jirutka/smlar/"
+license = "PostgreSQL"
+description = "PostgreSQL extension for an effective similarity search"
+documentation = "https://github.com/jirutka/smlar/"
+categories = ["search"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/smlar && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

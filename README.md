@@ -10,6 +10,7 @@
 [![Slack](https://img.shields.io/badge/%40trunk-community?logo=slack&label=slack)](https://join.slack.com/t/trunk-community/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg)
 
 Trunk is an open source package manager and registry for PostgreSQL (Postgres) extensions:
+
 - Visit [pgt.dev](https://pgt.dev) to discover and learn more about the building blocks of this rich ecosystem 
 - Use the Trunk CLI ([pg-trunk](https://crates.io/crates/pg-trunk)) to build, publish and install Postgres extensions _of all kinds_.
 
@@ -63,7 +64,7 @@ Publish extensions to the registry, making them available to the Postgres commun
 ```
 
 ### `trunk install`
-Downloads Postgres extensions from the Trunk registry and installs into your environment (only Ubuntu suppot at this time).
+Downloads Postgres extensions from the Trunk registry and installs into your environment (only Ubuntu support at this time).
 
 Supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
 
@@ -87,6 +88,9 @@ their dependencies as compiled artifacts from this registry.
 - Extension discovery and search
 - Publish extensions for community use
 - Install extensions in Postgres
+
+It's our goal to develop Trunk to allow for:
+
 - Usage metrics to provide insight into popular and well-maintained extensions
 - Version tracking and new release email notifications
 
