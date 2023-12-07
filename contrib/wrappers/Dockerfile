@@ -1,5 +1,5 @@
 ARG PG_VERSION=15
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.9.7
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.0
 USER root
 # quay.io/coredb/pgrx-builder:pg15-pgrx0.9.7
 # Extension build dependencies
@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN cargo install cargo-pgrx --version 0.11.0 --locked
 
 # Set default Rust version
 RUN /root/.cargo/bin/rustup default stable
@@ -32,7 +33,7 @@ RUN /root/.cargo/bin/rustup default stable
 # Clone repository
 RUN git clone https://github.com/supabase/wrappers.git
 
-ARG RELEASE=v0.1.15
+ARG RELEASE=v0.2.0
 
 # Build the extension
 RUN cd wrappers/wrappers && \
@@ -40,4 +41,4 @@ RUN cd wrappers/wrappers && \
 	git fetch origin ${RELEASE} && \
 	git checkout ${RELEASE} && \
 	cargo pgrx init --pg15 /usr/bin/pg_config && \
-	cargo pgrx package
+	cargo pgrx package -F all_fdws
