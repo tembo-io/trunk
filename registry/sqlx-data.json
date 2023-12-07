@@ -101,26 +101,6 @@
     },
     "query": "INSERT INTO v1.extension_versions (extension_name, trunk_project_version_id, version)\n                VALUES ($1, $2, $3)\n                ON CONFLICT (extension_name, trunk_project_version_id, version) \n                DO NOTHING\n                RETURNING id"
   },
-  "0ec912188b91f592b2a280bb062de992ec509b3a831bca400733d82850c471ba": {
-    "describe": {
-      "columns": [
-        {
-          "name": "result",
-          "ordinal": 0,
-          "type_info": "Json"
-        }
-      ],
-      "nullable": [
-        null
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      }
-    },
-    "query": "WITH latest_extension_version AS (\n                SELECT\n                    ev.extension_name,\n                    MAX(ev.id) AS max_ev_id\n                FROM\n                    v1.extension_versions ev\n                WHERE\n                    ev.extension_name = $1\n                GROUP BY\n                    ev.extension_name\n            ),\n            latest_trunk_project_version AS (\n                SELECT\n                    tpv.*\n                FROM\n                    v1.trunk_project_versions tpv\n                INNER JOIN\n                    latest_extension_version lev ON tpv.id = lev.max_ev_id\n            )\n            SELECT\n                json_build_object(\n                    'name', tpv.trunk_project_name,\n                    'description', tpv.description,\n                    'documentation_link', tpv.documentation_link,\n                    'repository_link', tpv.repository_link,\n                    'version', tpv.version,\n                    'extensions', (\n                        SELECT json_agg(json_build_object(\n                            'extension_name', ev.extension_name,\n                            'version', ev.version,\n                            'trunk_project_name', tpv.trunk_project_name,\n                            'dependencies_extension_names', (\n                                SELECT json_agg(ed.depends_on_extension_name)\n                                FROM v1.extension_dependency ed\n                                WHERE ed.extension_version_id = ev.id\n                            ),\n                            'loadable_libraries', (\n                                SELECT json_agg(json_build_object(\n                                    'library_name', ell.library_name,\n                                    'requires_restart', ell.requires_restart,\n                                    'priority', ell.priority\n                                ))\n                                FROM v1.extensions_loadable_libraries ell\n                                WHERE ell.extension_version_id = ev.id\n                            ),\n                            'configurations', (\n                                SELECT json_agg(json_build_object(\n                                    'name', ec.configuration_name,\n                                    'is_required', ec.is_required,\n                                    'recommended_default', ec.recommended_default_value\n                                ))\n                                FROM v1.extension_configurations ec\n                                WHERE ec.extension_version_id = ev.id\n                            )\n                        ))\n                        FROM v1.extension_versions ev\n                        WHERE ev.id = (SELECT max_ev_id FROM latest_extension_version)\n                    )\n                ) AS result\n            FROM\n                latest_trunk_project_version tpv;            \n            "
-  },
   "12ce7de3da92187f4468a89f5e1795da2b0471f90373200a5870448dae264aa0": {
     "describe": {
       "columns": [
@@ -1467,6 +1447,26 @@
       }
     },
     "query": "\n                    INSERT INTO versions(extension_id, num, created_at, yanked, license, published_by, extension_name, system_dependencies, libraries)\n                    VALUES ($1, $2, (now() at time zone 'utc'), $3, $4, $5, $6, $7::jsonb, $8::jsonb)\n                    "
+  },
+  "e76de020f649e65247b5b4d24346eddbf53fe5d28cb97e4b96ad27caa800550d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "result",
+          "ordinal": 0,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT\n                json_build_object(\n                    'name', tpv.trunk_project_name,\n                    'description', tpv.description,\n                    'documentation_link', tpv.documentation_link,\n                    'repository_link', tpv.repository_link,\n                    'version', tpv.version,\n                    'extensions', (\n                        SELECT json_agg(json_build_object(\n                            'extension_name', ev.extension_name,\n                            'version', ev.version,\n                            'trunk_project_name', tpv.trunk_project_name,\n                            'dependencies_extension_names', (\n                                SELECT json_agg(ed.depends_on_extension_name)\n                                FROM v1.extension_dependency ed\n                                WHERE ed.extension_version_id = ev.id\n                            ),\n                            'loadable_libraries', (\n                                SELECT json_agg(json_build_object(\n                                    'library_name', ell.library_name,\n                                    'requires_restart', ell.requires_restart,\n                                    'priority', ell.priority\n                                ))\n                                FROM v1.extensions_loadable_libraries ell\n                                WHERE ell.extension_version_id = ev.id\n                            ),\n                            'configurations', (\n                                SELECT json_agg(json_build_object(\n                                    'name', ec.configuration_name,\n                                    'is_required', ec.is_required,\n                                    'recommended_default', ec.recommended_default_value\n                                ))\n                                FROM v1.extension_configurations ec\n                                WHERE ec.extension_version_id = ev.id\n                            )\n                        ))\n                        FROM v1.extension_versions ev\n                        WHERE ev.trunk_project_version_id = tpv.id\n                    )\n                ) AS result\n            FROM\n                v1.trunk_project_versions tpv\n            JOIN v1.extension_versions ev ON ev.trunk_project_version_id = tpv.id\n            JOIN (\n                SELECT extension_name, MAX(string_to_array(version, '.')::int[]) as max_version\n                FROM v1.extension_versions\n                WHERE extension_name = $1\n                GROUP BY extension_name\n            ) sub_ev ON ev.extension_name = sub_ev.extension_name AND string_to_array(ev.version, '.')::int[] = sub_ev.max_version\n            "
   },
   "f29a9769c67e94ef0eb534c3ea009496dc13426c6d46f545ada1f9ebc9def26b": {
     "describe": {

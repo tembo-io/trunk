@@ -1,0 +1,20 @@
+[extension]
+name = "age"
+version = "1.4.0"
+repository = "https://github.com/apache/age"
+license = "Apache-2.0"
+description = "Leverage a graph database on top of the existing relational database."
+homepage = "https://age.apache.org/"
+documentation = "https://age.apache.org/age-manual/master/index.html"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/age && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

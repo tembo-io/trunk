@@ -8,7 +8,7 @@ use crate::repository::Registry;
 pub struct TrunkProjectView {
     pub name: String,
     pub description: String,
-    pub documentation_link: String,
+    pub documentation_link: Option<String>,
     pub repository_link: String,
     pub version: String,
     pub extensions: Vec<ExtensionView>,
@@ -110,26 +110,7 @@ impl Registry {
         extension_name: &str,
     ) -> Result<Vec<TrunkProjectView>> {
         let records = sqlx::query!(
-            "WITH latest_extension_version AS (
-                SELECT
-                    ev.extension_name,
-                    MAX(ev.id) AS max_ev_id
-                FROM
-                    v1.extension_versions ev
-                WHERE
-                    ev.extension_name = $1
-                GROUP BY
-                    ev.extension_name
-            ),
-            latest_trunk_project_version AS (
-                SELECT
-                    tpv.*
-                FROM
-                    v1.trunk_project_versions tpv
-                INNER JOIN
-                    latest_extension_version lev ON tpv.id = lev.max_ev_id
-            )
-            SELECT
+            "SELECT
                 json_build_object(
                     'name', tpv.trunk_project_name,
                     'description', tpv.description,
@@ -166,16 +147,20 @@ impl Registry {
                             )
                         ))
                         FROM v1.extension_versions ev
-                        WHERE ev.id = (SELECT max_ev_id FROM latest_extension_version)
+                        WHERE ev.trunk_project_version_id = tpv.id
                     )
                 ) AS result
             FROM
-                latest_trunk_project_version tpv;            
-            ",
-            extension_name
-        )
-        .fetch_all(&self.pool)
-        .await?;
+                v1.trunk_project_versions tpv
+            JOIN v1.extension_versions ev ON ev.trunk_project_version_id = tpv.id
+            JOIN (
+                SELECT extension_name, MAX(string_to_array(version, '.')::int[]) as max_version
+                FROM v1.extension_versions
+                WHERE extension_name = $1
+                GROUP BY extension_name
+            ) sub_ev ON ev.extension_name = sub_ev.extension_name AND string_to_array(ev.version, '.')::int[] = sub_ev.max_version
+            ", extension_name
+        ).fetch_all(&self.pool).await?;
 
         Ok(records
             .into_iter()

@@ -1,0 +1,20 @@
+[extension]
+name = "pg_store_plans"
+version = "1.7.0"
+repository = "https://github.com/ossc-db/pg_store_plans"
+license = "Copyright"
+description = "Track plan statistics of all SQL statements executed."
+documentation = "https://ossc-db.github.io/pg_store_plans/"
+categories = ["metrics"]
+preload_libraries = ["pg_store_plans"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgres/contrib/pg_store_plans && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
