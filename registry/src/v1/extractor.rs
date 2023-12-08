@@ -18,8 +18,7 @@ pub struct ControlFile {
 
 pub fn extract_extension_view(
     tar_gz: &[u8],
-    trunk_project_name: &str,
-    new_extensions: &ExtensionUpload,
+    new_extension: &ExtensionUpload,
 ) -> anyhow::Result<Vec<ExtensionView>> {
     let control_files = extract_control_files(tar_gz)?;
 
@@ -28,11 +27,11 @@ pub fn extract_extension_view(
         .map(|control_file| ExtensionView {
             extension_name: control_file.extension_name,
             version: control_file.default_version.unwrap_or_default(),
-            trunk_project_name: trunk_project_name.to_string(),
+            trunk_project_name: new_extension.name.to_string(),
             dependencies_extension_names: control_file.dependencies,
             // TODO: should we clone this for every extension in a Trunk project?
-            loadable_libraries: new_extensions.libraries.clone(),
-            configurations: new_extensions.configurations.clone(),
+            loadable_libraries: new_extension.libraries.clone(),
+            configurations: new_extension.configurations.clone(),
         })
         .collect();
 

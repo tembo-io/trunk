@@ -329,7 +329,6 @@ async fn insert_into_v1(
 ) -> anyhow::Result<()> {
     let extension_views = crate::v1::extractor::extract_extension_view(
         gzipped_archive,
-        &new_extension.name,
         &new_extension,
     )?;
 
