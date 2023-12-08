@@ -18,7 +18,7 @@ use crate::commands::containers::{
     start_postgres,
 };
 use crate::commands::license::{copy_licenses, find_licenses};
-use crate::config::ExtensionConfiguration;
+use crate::config::{ExtensionConfiguration, LoadableLibrary};
 use crate::trunk_toml::SystemDependencies;
 
 #[derive(Error, Debug)]
@@ -75,13 +75,13 @@ pub async fn build_generic(
     name: &str,
     extension_name: Option<String>,
     extension_dependencies: Option<Vec<String>>,
-    preload_libraries: Option<Vec<String>>,
     system_dependencies: Option<SystemDependencies>,
     extension_version: &str,
     inclusion_patterns: Vec<glob::Pattern>,
     _task: Task,
     should_test: bool,
     configurations: Option<Vec<ExtensionConfiguration>>,
+    loadable_libraries: Option<Vec<LoadableLibrary>>,
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
@@ -151,7 +151,6 @@ pub async fn build_generic(
         docker.clone(),
         &temp_container.id,
         output_path,
-        preload_libraries,
         system_dependencies,
         name,
         extension_name,
@@ -159,6 +158,7 @@ pub async fn build_generic(
         extension_dependencies,
         inclusion_patterns,
         configurations,
+        loadable_libraries,
     )
     .await?;
 

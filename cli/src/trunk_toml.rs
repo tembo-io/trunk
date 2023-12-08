@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use glob::PatternError;
 
-use crate::config::ExtensionConfiguration;
+use crate::config::{ExtensionConfiguration, LoadableLibrary};
 
 pub type SystemDependencies = HashMap<String, Vec<String>>;
 
@@ -32,6 +32,7 @@ pub struct TomlExtensionData {
     pub registry: Option<String>,
     pub preload_libraries: Option<Vec<String>>,
     pub configurations: Option<Vec<ExtensionConfiguration>>,
+    pub loadable_libraries: Option<Vec<LoadableLibrary>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

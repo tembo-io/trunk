@@ -1,7 +1,7 @@
 use super::SubCommand;
 use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
-use crate::config::{self, ExtensionConfiguration};
+use crate::config::{ExtensionConfiguration, LoadableLibrary};
 use crate::manifest::Manifest;
 use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::{anyhow, Context};
@@ -67,7 +67,6 @@ pub struct PublishSettings {
     name: String,
     extension_name: Option<String>,
     extension_dependencies: Option<Vec<String>>,
-    preload_libraries: Option<Vec<String>>,
     version: String,
     file: Option<PathBuf>,
     description: Option<String>,
@@ -79,6 +78,7 @@ pub struct PublishSettings {
     system_dependencies: Option<SystemDependencies>,
     categories: Option<Vec<String>>,
     configurations: Option<Vec<ExtensionConfiguration>>,
+    loadable_libraries: Option<Vec<LoadableLibrary>>,
 }
 
 impl PublishCommand {
@@ -113,11 +113,10 @@ impl PublishCommand {
             &trunk_toml,
         );
 
-        let preload_libraries = cli_or_trunk_opt(
-            &self.preload_libraries,
-            |toml| &toml.extension.preload_libraries,
-            &trunk_toml,
-        );
+        let loadable_libraries = trunk_toml
+            .as_ref()
+            .and_then(|toml| toml.extension.loadable_libraries.as_ref())
+            .cloned();
 
         let maybe_version =
             cli_or_trunk(&self.version, |toml| &toml.extension.version, &trunk_toml);
@@ -198,6 +197,7 @@ impl PublishCommand {
             categories,
             preload_libraries,
             configurations,
+            loadable_libraries,
         })
     }
 }
@@ -367,6 +367,7 @@ impl SubCommand for PublishCommand {
             "categories": publish_settings.categories,
             "libraries": publish_settings.preload_libraries,
             "configurations": publish_settings.configurations
+            "libraries": publish_settings.loadable_libraries,
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
         let form = reqwest::multipart::Form::new()

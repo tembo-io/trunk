@@ -24,6 +24,13 @@ pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Err
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LoadableLibrary {
+    pub library_name: String,
+    pub requires_restart: bool,
+    pub priority: i32,
+}
+
 #[cfg(test)]
 mod tests {
     use crate::config::parse_trunk_toml;
