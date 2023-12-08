@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use crate::config::LoadableLibrary;
+use crate::config::{ExtensionConfiguration, LoadableLibrary};
 
 /// Packaged file
 #[derive(Serialize, Deserialize, Debug)]
@@ -59,6 +59,7 @@ pub struct Manifest {
     pub sys: String,
     pub architecture: String,
     pub files: Option<HashMap<PathBuf, PackagedFile>>,
+    pub configurations: Option<Vec<ExtensionConfiguration>>,
     pub loadable_libraries: Option<Vec<LoadableLibrary>>,
 }
 

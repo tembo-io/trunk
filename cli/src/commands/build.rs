@@ -1,7 +1,7 @@
 use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
-use crate::config::{self, LoadableLibrary};
+use crate::config::{self, ExtensionConfiguration, LoadableLibrary};
 use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::anyhow;
 use async_trait::async_trait;
@@ -49,6 +49,7 @@ pub struct BuildSettings {
     pub name: Option<String>,
     pub extension_name: Option<String>,
     pub extension_dependencies: Option<Vec<String>>,
+    pub configurations: Option<Vec<ExtensionConfiguration>>,
     pub system_dependencies: Option<SystemDependencies>,
     pub glob_patterns_to_include: Vec<glob::Pattern>,
     pub platform: Option<String>,
@@ -128,6 +129,11 @@ impl BuildCommand {
             glob_patterns_to_include.display()
         );
 
+        let configurations = trunk_toml
+            .as_ref()
+            .and_then(|toml| toml.extension.configurations.as_ref())
+            .cloned();
+
         let system_dependencies = trunk_toml
             .as_ref()
             .and_then(|toml| toml.dependencies.as_ref())
@@ -162,6 +168,7 @@ impl BuildCommand {
             dockerfile_path,
             install_command,
             should_test: self.test,
+            configurations,
             loadable_libraries,
         })
     }
@@ -234,6 +241,7 @@ impl SubCommand for BuildCommand {
                     cargo_toml,
                     build_settings.system_dependencies,
                     build_settings.glob_patterns_to_include,
+                    build_settings.configurations,
                     build_settings.loadable_libraries,
                     task,
                 )
@@ -280,6 +288,7 @@ impl SubCommand for BuildCommand {
             build_settings.glob_patterns_to_include,
             task,
             build_settings.should_test,
+            build_settings.configurations,
             build_settings.loadable_libraries,
         )
         .await?;
