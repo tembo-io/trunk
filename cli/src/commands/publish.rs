@@ -1,7 +1,7 @@
 use super::SubCommand;
 use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
-use crate::config::{ExtensionConfiguration, LoadableLibrary};
+use crate::config::{self, ExtensionConfiguration, LoadableLibrary};
 use crate::manifest::Manifest;
 use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::{anyhow, Context};
@@ -195,7 +195,6 @@ impl PublishCommand {
             extension_dependencies,
             system_dependencies,
             categories,
-            preload_libraries,
             configurations,
             loadable_libraries,
         })
@@ -365,9 +364,8 @@ impl SubCommand for PublishCommand {
             "repository": publish_settings.repository,
             "system_dependencies": publish_settings.system_dependencies,
             "categories": publish_settings.categories,
-            "libraries": publish_settings.preload_libraries,
-            "configurations": publish_settings.configurations
-            "libraries": publish_settings.loadable_libraries,
+            "configurations": publish_settings.configurations,
+            "libraries": publish_settings.loadable_libraries
         });
         let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
         let form = reqwest::multipart::Form::new()
