@@ -16,6 +16,7 @@ use std::io::Cursor;
 use std::path::{Path, PathBuf};
 
 use crate::commands::generic_build::GenericBuildError;
+use crate::config::LoadableLibrary;
 use crate::control_file::ControlFile;
 use crate::manifest::Manifest;
 use crate::sync_utils::{ByteStreamSyncReceiver, ByteStreamSyncSender};
@@ -399,13 +400,13 @@ pub async fn package_installed_extension_files(
     docker: Docker,
     container_id: &str,
     package_path: &str,
-    preload_libraries: Option<Vec<String>>,
     system_dependencies: Option<SystemDependencies>,
     name: &str,
     mut extension_name: Option<String>,
     extension_version: &str,
     extension_dependencies: Option<Vec<String>>,
     inclusion_patterns: Vec<glob::Pattern>,
+    loadable_libraries: Option<Vec<LoadableLibrary>>,
 ) -> Result<(), anyhow::Error> {
     let name = name.to_owned();
     let extension_version = extension_version.to_owned();
@@ -497,11 +498,11 @@ pub async fn package_installed_extension_files(
             extension_version,
             extension_dependencies,
             manifest_version: 2,
-            preload_libraries,
             architecture: target_arch,
             sys: "linux".to_string(),
             files: None,
             dependencies: system_dependencies,
+            loadable_libraries,
         };
         // If the docker copy command starts to stream data
         println!("Create Trunk bundle:");

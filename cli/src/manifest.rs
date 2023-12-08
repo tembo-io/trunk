@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
+use crate::config::LoadableLibrary;
+
 /// Packaged file
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type", rename_all = "kebab-case")]
@@ -54,10 +56,10 @@ pub struct Manifest {
     #[serde(rename = "version")]
     pub extension_version: String,
     pub manifest_version: i32,
-    pub preload_libraries: Option<Vec<String>>,
     pub sys: String,
     pub architecture: String,
     pub files: Option<HashMap<PathBuf, PackagedFile>>,
+    pub loadable_libraries: Option<Vec<LoadableLibrary>>,
 }
 
 impl Manifest {

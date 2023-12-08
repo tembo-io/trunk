@@ -1,7 +1,7 @@
 use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
-use crate::config;
+use crate::config::{self, LoadableLibrary};
 use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::anyhow;
 use async_trait::async_trait;
@@ -49,13 +49,13 @@ pub struct BuildSettings {
     pub name: Option<String>,
     pub extension_name: Option<String>,
     pub extension_dependencies: Option<Vec<String>>,
-    pub preload_libraries: Option<Vec<String>>,
     pub system_dependencies: Option<SystemDependencies>,
     pub glob_patterns_to_include: Vec<glob::Pattern>,
     pub platform: Option<String>,
     pub dockerfile_path: Option<String>,
     pub install_command: Option<String>,
     pub should_test: bool,
+    pub loadable_libraries: Option<Vec<LoadableLibrary>>,
 }
 
 impl BuildCommand {
@@ -90,6 +90,11 @@ impl BuildCommand {
 
         let name = cli_or_trunk(&self.name, |toml| &toml.extension.name, &trunk_toml);
 
+        let loadable_libraries = trunk_toml
+            .as_ref()
+            .and_then(|toml| toml.extension.loadable_libraries.as_ref())
+            .cloned();
+
         let extension_name = cli_or_trunk_opt(
             &self.extension_name,
             |toml| &toml.extension.extension_name,
@@ -99,12 +104,6 @@ impl BuildCommand {
         let extension_dependencies = cli_or_trunk_opt(
             &self.extension_dependencies,
             |toml| &toml.extension.extension_dependencies,
-            &trunk_toml,
-        );
-
-        let preload_libraries = cli_or_trunk_opt(
-            &self.preload_libraries,
-            |toml| &toml.extension.preload_libraries,
             &trunk_toml,
         );
 
@@ -157,13 +156,13 @@ impl BuildCommand {
             name,
             extension_name,
             extension_dependencies,
-            preload_libraries,
             system_dependencies,
             glob_patterns_to_include,
             platform,
             dockerfile_path,
             install_command,
             should_test: self.test,
+            loadable_libraries,
         })
     }
 }
@@ -232,10 +231,10 @@ impl SubCommand for BuildCommand {
                     &build_settings.output_path,
                     build_settings.extension_name,
                     build_settings.extension_dependencies,
-                    build_settings.preload_libraries,
                     cargo_toml,
                     build_settings.system_dependencies,
                     build_settings.glob_patterns_to_include,
+                    build_settings.loadable_libraries,
                     task,
                 )
                 .await?;
@@ -276,12 +275,12 @@ impl SubCommand for BuildCommand {
             build_settings.name.clone().unwrap().as_str(),
             build_settings.extension_name,
             build_settings.extension_dependencies,
-            build_settings.preload_libraries,
             build_settings.system_dependencies,
             build_settings.version.clone().unwrap().as_str(),
             build_settings.glob_patterns_to_include,
             task,
             build_settings.should_test,
+            build_settings.loadable_libraries,
         )
         .await?;
         return Ok(());

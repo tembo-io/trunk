@@ -1,4 +1,5 @@
 use log::warn;
+use serde::{Deserialize, Serialize};
 use std::io::Read;
 
 use crate::trunk_toml::TrunkToml;
@@ -14,6 +15,13 @@ pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Err
             Err(e.into())
         }
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LoadableLibrary {
+    pub library_name: String,
+    pub requires_restart: bool,
+    pub priority: i32,
 }
 
 #[cfg(test)]
