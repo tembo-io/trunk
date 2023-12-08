@@ -7,6 +7,7 @@ use crate::trunk_toml::TrunkToml;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ExtensionConfiguration {
     configuration_name: String,
+    #[serde(default)]
     is_required: bool,
     recommended_default_value: Option<String>,
 }
