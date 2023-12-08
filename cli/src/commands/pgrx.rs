@@ -12,6 +12,7 @@ use bollard::Docker;
 use crate::commands::containers::{
     build_image, exec_in_container, package_installed_extension_files, run_temporary_container,
 };
+use crate::config::LoadableLibrary;
 use crate::trunk_toml::SystemDependencies;
 use tokio::sync::mpsc;
 
@@ -105,10 +106,10 @@ pub async fn build_pgrx(
     output_path: &str,
     extension_name: Option<String>,
     extension_dependencies: Option<Vec<String>>,
-    preload_libraries: Option<Vec<String>>,
     cargo_toml: toml::Table,
     system_dependencies: Option<SystemDependencies>,
     inclusion_patterns: Vec<glob::Pattern>,
+    loadable_libraries: Option<Vec<LoadableLibrary>>,
     _task: Task,
 ) -> Result<(), PgrxBuildError> {
     let cargo_package_info = cargo_toml
@@ -231,13 +232,13 @@ pub async fn build_pgrx(
         docker.clone(),
         &temp_container.id,
         output_path,
-        preload_libraries,
         system_dependencies,
         name,
         extension_name,
         extension_version,
         extension_dependencies,
         inclusion_patterns,
+        loadable_libraries,
     )
     .await?;
 
