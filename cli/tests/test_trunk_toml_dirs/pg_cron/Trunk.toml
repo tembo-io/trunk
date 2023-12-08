@@ -12,8 +12,8 @@ loadable_libraries = [
 ]
 
 configurations = [
-    { configuration_name = "ip_address", is_required = true },
-    { configuration_name = "port", recommended_default_value = "8801"}
+    { name = "ip_address", required = true },
+    { name = "port", recommended_default_value = "8801"}
 ]
 
 [build]

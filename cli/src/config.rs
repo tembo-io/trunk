@@ -6,9 +6,12 @@ use crate::trunk_toml::TrunkToml;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ExtensionConfiguration {
+    #[serde(alias = "name")]
     configuration_name: String,
     #[serde(default)]
+    #[serde(alias = "required")]
     is_required: bool,
+    #[serde(alias = "default")]
     recommended_default_value: Option<String>,
 }
 
