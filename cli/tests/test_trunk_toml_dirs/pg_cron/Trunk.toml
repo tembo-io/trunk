@@ -11,6 +11,10 @@ loadable_libraries = [
     { library_name = "shared_preload_libraries_from_toml_2", requires_restart = false, priority = 2 }
 ]
 
+configurations = [
+    { configuration_name = "ip_address", is_required = true },
+    { configuration_name = "port", recommended_default_value = "8801"}
+]
 
 [build]
 dockerfile = "Dockerfile"

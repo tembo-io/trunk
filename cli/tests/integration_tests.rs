@@ -540,6 +540,14 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
     assert!(stdout.contains("\"loadable_libraries\": [\n    {\n      \"library_name\": \"shared_preload_libraries_from_toml\",\n      \"requires_restart\": true,\n      \"priority\": 1\n    },\n    {\n      \"library_name\": \"shared_preload_libraries_from_toml_2\",\n      \"requires_restart\": false,\n      \"priority\": 2\n    }\n  ]"));
+    // Config name
+    assert!(stdout.contains("ip_address"));
+    // Is required
+    assert!(stdout.contains("is_required\": true"));
+    // Config name
+    assert!(stdout.contains("port"));
+    // Recommended default value
+    assert!(stdout.contains("8801"));
     assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ],\n    \"dnf\": [\n      \"libpq-devel\"\n    ]\n  }") ||
             stdout.contains("\"dependencies\": {\n    \"dnf\": [\n      \"libpq-devel\"\n    ],\n    \"apt\": [\n      \"libpq5\"\n    ]\n  }"));
     // assert post installation steps contain correct CREATE EXTENSION command
