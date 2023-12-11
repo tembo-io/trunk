@@ -58,7 +58,7 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
@@ -127,7 +127,7 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
@@ -191,7 +191,7 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
@@ -252,7 +252,7 @@ impl Registry {
                             SELECT json_agg(json_build_object(
                                 'name', ec.configuration_name,
                                 'is_required', ec.is_required,
-                                'recommended_default', ec.recommended_default_value
+                                'default', ec.recommended_default_value
                             ))
                             FROM v1.extension_configurations ec
                             WHERE ec.extension_version_id = ev.id

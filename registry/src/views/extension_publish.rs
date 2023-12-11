@@ -31,7 +31,9 @@ pub struct LoadableLibrary {
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct ExtensionConfiguration {
+    #[serde(alias = "name")]
     pub configuration_name: String,
     pub is_required: bool,
+    #[serde(alias = "default")]
     pub recommended_default_value: Option<String>,
 }
