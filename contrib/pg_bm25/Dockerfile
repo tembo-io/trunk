@@ -2,7 +2,7 @@ ARG PG_VERSION=15
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.9.7
 USER root
 
-ARG RELEASE=v0.2.21
+ARG RELEASE=v0.3.12
 
 # Extension build dependencies
 RUN apt-get update && apt-get install -y \
