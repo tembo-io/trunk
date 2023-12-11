@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN cargo install cargo-pgrx --version 0.11.1 --locked
 
 # Set default Rust version
 RUN /root/.cargo/bin/rustup default stable && /root/.cargo/bin/rustup override set 1.72.0
