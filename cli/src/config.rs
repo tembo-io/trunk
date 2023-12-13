@@ -1,7 +1,19 @@
 use log::warn;
+use serde::{Deserialize, Serialize};
 use std::io::Read;
 
 use crate::trunk_toml::TrunkToml;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ExtensionConfiguration {
+    #[serde(alias = "name")]
+    configuration_name: String,
+    #[serde(default)]
+    #[serde(alias = "required")]
+    is_required: bool,
+    #[serde(alias = "default")]
+    recommended_default_value: Option<String>,
+}
 
 pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Error> {
     let mut body = String::new();
@@ -14,6 +26,13 @@ pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Err
             Err(e.into())
         }
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LoadableLibrary {
+    pub library_name: String,
+    pub requires_restart: bool,
+    pub priority: i32,
 }
 
 #[cfg(test)]
