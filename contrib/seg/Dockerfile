@@ -15,8 +15,6 @@ RUN apt-get update && apt-get install -y \
 	xsltproc \
 	ccache
 
-# Temp line
-
 # Clone repository
 RUN git clone https://github.com/postgres/postgres.git
 
