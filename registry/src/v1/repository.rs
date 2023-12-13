@@ -3,6 +3,7 @@ use utoipa::{ToResponse, ToSchema};
 
 use crate::errors::Result;
 use crate::repository::Registry;
+use crate::views::extension_publish::{ExtensionConfiguration, LoadableLibrary};
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct TrunkProjectView {
@@ -14,28 +15,14 @@ pub struct TrunkProjectView {
     pub extensions: Vec<ExtensionView>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
-pub struct ExtensionConfigurationView {
-    pub name: String,
-    pub is_required: bool,
-    pub recommended_default: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct ExtensionPreloadLibrariesView {
-    library_name: String,
-    requires_restart: bool,
-    priority: i32,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct ExtensionView {
     pub extension_name: String,
     pub version: String,
     pub trunk_project_name: String,
     pub dependencies_extension_names: Option<Vec<String>>,
-    pub loadable_libraries: Option<Vec<ExtensionPreloadLibrariesView>>,
-    pub configurations: Option<Vec<ExtensionConfigurationView>>,
+    pub loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pub configurations: Option<Vec<ExtensionConfiguration>>,
 }
 
 impl Registry {
@@ -71,7 +58,7 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
@@ -140,7 +127,7 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
@@ -204,7 +191,7 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
@@ -265,7 +252,7 @@ impl Registry {
                             SELECT json_agg(json_build_object(
                                 'name', ec.configuration_name,
                                 'is_required', ec.is_required,
-                                'recommended_default', ec.recommended_default_value
+                                'default', ec.recommended_default_value
                             ))
                             FROM v1.extension_configurations ec
                             WHERE ec.extension_version_id = ev.id
@@ -360,29 +347,50 @@ impl Registry {
             }
 
             // 5. insert extension configurations
-            for config in configurations {
-                sqlx::query!(
+            self.insert_configurations(extension_version_id, configurations)
+                .await?;
+
+            // 6. insert shared preload libraries
+            self.insert_loadable_libraries(extension_version_id, loadable_libraries)
+                .await?;
+        }
+        Ok(())
+    }
+
+    async fn insert_configurations(
+        &self,
+        extension_version_id: i32,
+        configurations: impl Iterator<Item = &ExtensionConfiguration>,
+    ) -> Result {
+        for config in configurations {
+            sqlx::query!(
                     "INSERT INTO v1.extension_configurations (extension_version_id, is_required, configuration_name, recommended_default_value)
                     VALUES ($1, $2, $3, $4)",
                     extension_version_id,
                     config.is_required,
-                    config.name,
-                    config.recommended_default,
+                    config.configuration_name,
+                    config.recommended_default_value,
                 ).execute(&self.pool).await?;
-            }
-
-            // 6. insert shared preload libraries
-            for library in loadable_libraries {
-                sqlx::query!(
-                    "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)
-                    VALUES ($1, $2, $3, $4)",
-                    extension_version_id,
-                    library.library_name,
-                    library.requires_restart,
-                    library.priority,
-                ).execute(&self.pool).await?;
-            }
         }
+        Ok(())
+    }
+
+    async fn insert_loadable_libraries(
+        &self,
+        extension_version_id: i32,
+        loadable_libraries: impl Iterator<Item = &LoadableLibrary>,
+    ) -> Result {
+        for library in loadable_libraries {
+            sqlx::query!(
+                "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)
+                VALUES ($1, $2, $3, $4)",
+                extension_version_id,
+                library.library_name,
+                library.requires_restart,
+                library.priority,
+            ).execute(&self.pool).await?;
+        }
+
         Ok(())
     }
 }

@@ -328,7 +328,7 @@ async fn insert_into_v1(
     gzipped_archive: &[u8],
 ) -> anyhow::Result<()> {
     let extension_views =
-        crate::v1::extractor::extract_extension_view(gzipped_archive, &new_extension.name)?;
+        crate::v1::extractor::extract_extension_view(gzipped_archive, &new_extension)?;
 
     let trunk_project = TrunkProjectView {
         name: new_extension.name,
