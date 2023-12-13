@@ -83,6 +83,7 @@ jobs:
         pg_version:
           - "14"
           - "15"
+          - "16"
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
