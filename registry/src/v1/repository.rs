@@ -12,6 +12,7 @@ pub struct TrunkProjectView {
     pub documentation_link: Option<String>,
     pub repository_link: String,
     pub version: String,
+    pub postgres_versions: Option<Vec<u8>>,
     pub extensions: Vec<ExtensionView>,
 }
 
@@ -35,6 +36,12 @@ impl Registry {
                     'documentation_link', latest_tpvs.documentation_link,
                     'repository_link', latest_tpvs.repository_link,
                     'version', latest_tpvs.version,
+                    'postgres_versions', (
+                        SELECT json_agg(pg.major)
+                        FROM v1.trunk_project_postgres_support tpps
+                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                        WHERE tpps.trunk_project_version_id = latest_tpvs.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -104,6 +111,12 @@ impl Registry {
                     'documentation_link', tpv.documentation_link,
                     'repository_link', tpv.repository_link,
                     'version', tpv.version,
+                    'postgres_versions', (
+                        SELECT json_agg(pg.major)
+                        FROM v1.trunk_project_postgres_support tpps
+                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                        WHERE tpps.trunk_project_version_id = tpv.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -168,6 +181,12 @@ impl Registry {
                     'version', tpv.version,
                     'documentation_link', tpv.documentation_link,
                     'repository_link', tpv.repository_link,
+                    'postgres_versions', (
+                        SELECT json_agg(pg.major)
+                        FROM v1.trunk_project_postgres_support tpps
+                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                        WHERE tpps.trunk_project_version_id = tpv.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -229,6 +248,12 @@ impl Registry {
                 'version', tpv.version,
                 'documentation_link', tpv.documentation_link,
                 'repository_link', tpv.repository_link,
+                'postgres_versions', (
+                    SELECT json_agg(pg.major)
+                    FROM v1.trunk_project_postgres_support tpps
+                    JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                    WHERE tpps.trunk_project_version_id = tpv.id
+                ),
                 'extensions', (
                     SELECT json_agg(json_build_object(
                         'extension_name', ev.extension_name,
