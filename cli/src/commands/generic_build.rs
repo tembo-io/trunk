@@ -19,6 +19,7 @@ use crate::commands::containers::{
 };
 use crate::commands::license::{copy_licenses, find_licenses};
 use crate::config::{ExtensionConfiguration, LoadableLibrary};
+use crate::pg_version_to_str;
 use crate::trunk_toml::SystemDependencies;
 
 #[derive(Error, Debug)]
@@ -82,6 +83,7 @@ pub async fn build_generic(
     should_test: bool,
     configurations: Option<Vec<ExtensionConfiguration>>,
     loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pg_version: u8,
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
@@ -89,6 +91,7 @@ pub async fn build_generic(
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", name);
     build_args.insert("EXTENSION_VERSION", extension_version);
+    build_args.insert("PG_VERSION", pg_version_to_str(pg_version));
 
     let image_name_prefix = "make_builder_".to_string();
 

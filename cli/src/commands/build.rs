@@ -40,6 +40,8 @@ pub struct BuildCommand {
     /// Run this integration tests after building, if any are found
     #[clap(long, short, action)]
     test: bool,
+    #[clap(default_value = "15")]
+    pg_version: u8,
 }
 
 pub struct BuildSettings {
@@ -57,6 +59,7 @@ pub struct BuildSettings {
     pub install_command: Option<String>,
     pub should_test: bool,
     pub loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pub pg_version: u8,
 }
 
 impl BuildCommand {
@@ -170,6 +173,7 @@ impl BuildCommand {
             should_test: self.test,
             configurations,
             loadable_libraries,
+            pg_version: self.pg_version,
         })
     }
 }
@@ -290,6 +294,7 @@ impl SubCommand for BuildCommand {
             build_settings.should_test,
             build_settings.configurations,
             build_settings.loadable_libraries,
+            build_settings.pg_version,
         )
         .await?;
         return Ok(());

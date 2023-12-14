@@ -92,3 +92,12 @@ fn main() -> ExitCode {
         }
     }
 }
+
+pub fn pg_version_to_str(pg_version: u8) -> &'static str {
+    match pg_version {
+        14 => "14",
+        15 => "15",
+        16 => "16",
+        _ => panic!("Unsupported Postgres version!"),
+    }
+}
