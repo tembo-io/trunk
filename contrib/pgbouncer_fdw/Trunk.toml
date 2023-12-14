@@ -1,6 +1,6 @@
 [extension]
 name = "pgbouncer_fdw"
-version = "1.0.1"
+version = "1.1.0"
 repository = "https://github.com/CrunchyData/pgbouncer_fdw"
 license = "PostgreSQL"
 description = "PostgreSQL Foreign Data Wrapper to Connect to pgbouncer."
