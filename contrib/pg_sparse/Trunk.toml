@@ -1,0 +1,20 @@
+[extension]
+name = "pg_sparse"
+version = "0.4.2"
+repository = "https://github.com/paradedb/paradedb/tree/dev/pg_sparse"
+license = "AGPL-3.0"
+description = "Sparse Vector Similarity Search Inside Postgres"
+homepage = "https://www.paradedb.com/"
+documentation = "https://docs.paradedb.com/blog/introducing_sparse"
+categories = ["search"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd paradedb/pg_sparse && make install
+"""
