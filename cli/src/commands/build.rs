@@ -37,10 +37,11 @@ pub struct BuildCommand {
     dockerfile_path: Option<String>,
     #[arg(short = 'i', long = "install-command")]
     install_command: Option<String>,
-    /// Run this integration tests after building, if any are found
+    /// Run this extension's integration tests after building, if any are found
     #[clap(long, short, action)]
     test: bool,
-    #[clap(default_value = "15")]
+    /// The PostgreSQL version to build this extension against. Experimental for versions other than Postgres 15.
+    #[clap(default_value = "15", long, action)]
     pg_version: u8,
 }
 
