@@ -19,8 +19,8 @@ use crate::commands::containers::{
 };
 use crate::commands::license::{copy_licenses, find_licenses};
 use crate::config::{ExtensionConfiguration, LoadableLibrary};
-use crate::{pg_version_to_str, pg_release_for_version};
 use crate::trunk_toml::SystemDependencies;
+use crate::{pg_release_for_version, pg_version_to_str};
 
 #[derive(Error, Debug)]
 #[allow(clippy::enum_variant_names)]
