@@ -58,7 +58,8 @@ pub enum PgrxBuildError {
 
 fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     let versions = [
-        "0.11.1, 0.11.0",
+        "0.11.1",
+        "0.11.0",
         "0.10.2",
         "0.10.1",
         "0.10.0",
