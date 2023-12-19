@@ -3,7 +3,9 @@ use utoipa::{ToResponse, ToSchema};
 
 use crate::errors::Result;
 use crate::repository::Registry;
-use crate::views::extension_publish::{ExtensionConfiguration, LoadableLibrary};
+use crate::views::extension_publish::{
+    ControlFileMetadata, ExtensionConfiguration, LoadableLibrary,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct TrunkProjectView {
@@ -24,6 +26,7 @@ pub struct ExtensionView {
     pub dependencies_extension_names: Option<Vec<String>>,
     pub loadable_libraries: Option<Vec<LoadableLibrary>>,
     pub configurations: Option<Vec<ExtensionConfiguration>>,
+    pub control_file: Option<ControlFileMetadata>,
 }
 
 impl Registry {
@@ -281,6 +284,14 @@ impl Registry {
                             ))
                             FROM v1.extension_configurations ec
                             WHERE ec.extension_version_id = ev.id
+                        ),
+                        'control_file', (
+                            SELECT json_build_object(
+                                'absent', cf.absent,
+                                'content', cf.content
+                            )
+                            FROM v1.control_file cf
+                            WHERE cf.extension_version_id = ev.id
                         )
                     ))
                     FROM v1.extension_versions ev
@@ -313,6 +324,7 @@ impl Registry {
     ///   4. insert extension dependencies
     ///   5. insert extension configurations
     ///   6. insert shared preload libraries
+    ///   7. Insert control file metadata
     pub async fn insert_trunk_project(&self, trunk_project: TrunkProjectView) -> Result<()> {
         // 1. insert trunk project name
         sqlx::query!(
@@ -378,6 +390,12 @@ impl Registry {
             // 6. insert shared preload libraries
             self.insert_loadable_libraries(extension_version_id, loadable_libraries)
                 .await?;
+
+            // 7. Insert control file metadata
+            if let Some(control_file) = &extension.control_file {
+                self.insert_control_file(extension_version_id, control_file.clone())
+                    .await?;
+            }
         }
         Ok(())
     }
@@ -415,6 +433,24 @@ impl Registry {
                 library.priority,
             ).execute(&self.pool).await?;
         }
+
+        Ok(())
+    }
+
+    async fn insert_control_file(
+        &self,
+        extension_version_id: i32,
+        control_file: ControlFileMetadata,
+    ) -> Result {
+        sqlx::query!(
+            "INSERT INTO v1.control_file (extension_version_id, absent, content)
+            VALUES ($1, $2, $3)",
+            extension_version_id,
+            control_file.absent,
+            control_file.content,
+        )
+        .execute(&self.pool)
+        .await?;
 
         Ok(())
     }

@@ -20,6 +20,7 @@ pub struct ExtensionUpload {
     pub system_dependencies: Option<SystemDependencies>,
     pub libraries: Option<Vec<LoadableLibrary>>,
     pub configurations: Option<Vec<ExtensionConfiguration>>,
+    pub control_file: Option<ControlFileMetadata>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
@@ -36,4 +37,10 @@ pub struct ExtensionConfiguration {
     pub is_required: bool,
     #[serde(alias = "default")]
     pub recommended_default_value: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct ControlFileMetadata {
+    pub absent: bool,
+    pub content: Option<String>,
 }
