@@ -72,6 +72,14 @@ impl Registry {
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
+                            ),
+                            'control_file', (
+                                SELECT json_build_object(
+                                    'absent', cf.absent,
+                                    'content', cf.content
+                                )
+                                FROM v1.control_file cf
+                                WHERE cf.extension_version_id = ev.id
                             )
                         ))
                         FROM v1.extension_versions ev
@@ -147,6 +155,14 @@ impl Registry {
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
+                            ),
+                            'control_file', (
+                                SELECT json_build_object(
+                                    'absent', cf.absent,
+                                    'content', cf.content
+                                )
+                                FROM v1.control_file cf
+                                WHERE cf.extension_version_id = ev.id
                             )
                         ))
                         FROM v1.extension_versions ev
@@ -217,6 +233,14 @@ impl Registry {
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
+                            ),
+                            'control_file', (
+                                SELECT json_build_object(
+                                    'absent', cf.absent,
+                                    'content', cf.content
+                                )
+                                FROM v1.control_file cf
+                                WHERE cf.extension_version_id = ev.id
                             )
                         ))
                         FROM v1.extension_versions ev
