@@ -277,7 +277,7 @@ mod tests {
         assert_eq!(result.unwrap(), "0.8.4");
         let result = semver_from_range(">=0.9.0, <0.10.0");
         assert_eq!(result.unwrap(), "0.9.8");
-        let result = semver_from_range(">=0.10.0, <0.11.1");
+        let result = semver_from_range(">=0.10.0, <0.11.0");
         assert_eq!(result.unwrap(), "0.10.2");
     }
 }
