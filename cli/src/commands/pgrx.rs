@@ -242,7 +242,7 @@ pub async fn build_pgrx(
         inclusion_patterns,
         configurations,
         loadable_libraries,
-        pg_version
+        pg_version,
     )
     .await?;
 

@@ -61,7 +61,7 @@ pub struct Manifest {
     pub files: Option<HashMap<PathBuf, PackagedFile>>,
     pub configurations: Option<Vec<ExtensionConfiguration>>,
     pub loadable_libraries: Option<Vec<LoadableLibrary>>,
-    pub pg_version: u8
+    pub pg_version: u8,
 }
 
 impl Manifest {

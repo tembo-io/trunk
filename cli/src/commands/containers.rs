@@ -506,7 +506,7 @@ pub async fn package_installed_extension_files(
             dependencies: system_dependencies,
             configurations,
             loadable_libraries,
-            pg_version
+            pg_version,
         };
         // If the docker copy command starts to stream data
         println!("Create Trunk bundle:");

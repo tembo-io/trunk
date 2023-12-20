@@ -163,7 +163,7 @@ pub async fn build_generic(
         inclusion_patterns,
         configurations,
         loadable_libraries,
-        pg_version
+        pg_version,
     )
     .await?;
 
