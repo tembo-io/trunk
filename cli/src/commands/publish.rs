@@ -16,6 +16,7 @@ use serde::Deserialize;
 use serde_json::json;
 use std::fs::File;
 use std::io::Seek;
+use std::ops::Not;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 use tar::{Archive, EntryType};
@@ -264,11 +265,17 @@ impl SubCommand for PublishCommand {
                         publish_settings.name, publish_settings.version, suffix
                     );
                     let path = Path::new(&file);
+                    if path.exists().not() {
+                        continue;
+                    }
                     let file_name = path.file_name().unwrap().to_str().unwrap().to_owned();
-                    let bytes = fs::read(path)
-                        .with_context(|| format!("Could not find file '{}'", path.display()))?;
+                    let bytes = fs::read(path)?;
 
                     files.push((bytes, file_name))
+                }
+
+                if files.is_empty() {
+                    anyhow::bail!("No Trunk archive found!");
                 }
 
                 files
