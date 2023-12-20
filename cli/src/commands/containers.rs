@@ -442,7 +442,7 @@ pub async fn package_installed_extension_files(
     let licensedir = "/usr/licenses".to_owned();
 
     // In this function, we open and work with .tar only, then we finalize the package with a .gz in a separate call
-    let package_path = format!("{package_path}/{name}-{extension_version}.tar.gz");
+    let package_path = format!("{package_path}/{name}-{extension_version}-{pg_version}.tar.gz");
     println!("Creating package at: {package_path}");
     let file = File::create(&package_path)?;
 
