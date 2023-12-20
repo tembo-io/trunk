@@ -27,7 +27,7 @@ fn install_manifest_v1_extension() -> Result<(), Box<dyn std::error::Error>> {
     // Construct a path relative to the current file's directory
     let mut extension_path = std::path::PathBuf::from(file!());
     extension_path.pop(); // Remove the file name from the path
-    extension_path.push("artifact-v1/my_extension-0.0.0-pg15.tar.gz");
+    extension_path.push("artifact-v1/my_extension-0.0.0.tar.gz");
 
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
@@ -86,7 +86,7 @@ fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std:
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(Path::new(&output_dir).join("pljava-1.6.5-pg15-pg15.tar.gz"));
+    cmd.arg(Path::new(&output_dir).join("pljava-1.6.5-pg15.tar.gz"));
     cmd.arg("pljava");
     cmd.assert().code(0);
 
@@ -143,7 +143,7 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
-        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15-pg15.tar.gz").as_str())
+        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str())
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
@@ -152,7 +152,7 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     // assert extension_name and loadable_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
-        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15-pg15.tar.gz").as_str())
+        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str())
         .arg("-C")
         .arg(format!("{output_dir}").as_str())
         .output()
@@ -169,7 +169,7 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15-pg15.tar.gz").as_str());
+    cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str());
     cmd.arg("test_pgrx_extension");
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
@@ -271,7 +271,9 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--name");
     cmd.arg("pg_tle");
     cmd.assert().code(0);
-    assert!(std::path::Path::new(format!("{output_dir}/pg_tle-1.0.3-pg15.tar.gz").as_str()).exists());
+    assert!(
+        std::path::Path::new(format!("{output_dir}/pg_tle-1.0.3-pg15.tar.gz").as_str()).exists()
+    );
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
@@ -355,7 +357,8 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     cmd.arg("pgsql_http");
     cmd.assert().code(0);
     assert!(
-        std::path::Path::new(format!("{output_dir}/pgsql_http-1.5.0-pg15.tar.gz").as_str()).exists()
+        std::path::Path::new(format!("{output_dir}/pgsql_http-1.5.0-pg15.tar.gz").as_str())
+            .exists()
     );
     // assert any license files are included
     let output = Command::new("tar")
@@ -461,10 +464,10 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--name");
     cmd.arg("pg_stat_statements");
     cmd.assert().code(0);
-    assert!(
-        std::path::Path::new(format!("{output_dir}/pg_stat_statements-1.10-pg15.tar.gz").as_str())
-            .exists()
-    );
+    assert!(std::path::Path::new(
+        format!("{output_dir}/pg_stat_statements-1.10-pg15.tar.gz").as_str()
+    )
+    .exists());
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
@@ -514,7 +517,9 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
-    assert!(std::path::Path::new(format!("{output_dir}/pg_cron-1.5.2-pg15.tar.gz").as_str()).exists());
+    assert!(
+        std::path::Path::new(format!("{output_dir}/pg_cron-1.5.2-pg15.tar.gz").as_str()).exists()
+    );
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
@@ -783,7 +788,8 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("auto_explain");
     cmd.assert().code(0);
     assert!(
-        std::path::Path::new(format!("{output_dir}/auto_explain-15.3.0-pg15.tar.gz").as_str()).exists()
+        std::path::Path::new(format!("{output_dir}/auto_explain-15.3.0-pg15.tar.gz").as_str())
+            .exists()
     );
     // assert any license files are included
     let output = Command::new("tar")
@@ -883,7 +889,9 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
-    assert!(file_exists(format!("{output_dir}/postgis-3.4.0-pg15.tar.gz")));
+    assert!(file_exists(format!(
+        "{output_dir}/postgis-3.4.0-pg15.tar.gz"
+    )));
 
     // Get output of 'pg_config --sharedir'
     let output = Command::new("pg_config")

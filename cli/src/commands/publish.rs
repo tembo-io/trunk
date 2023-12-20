@@ -306,9 +306,6 @@ impl SubCommand for PublishCommand {
                 }
             };
 
-            // From here on out
-            // for file in files {}
-
             let f = File::open(&file)?;
             let input = match &file
                 .extension()
