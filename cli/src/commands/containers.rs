@@ -408,6 +408,7 @@ pub async fn package_installed_extension_files(
     inclusion_patterns: Vec<glob::Pattern>,
     configurations: Option<Vec<ExtensionConfiguration>>,
     loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pg_version: u8,
 ) -> Result<(), anyhow::Error> {
     let name = name.to_owned();
     let extension_version = extension_version.to_owned();
@@ -505,6 +506,7 @@ pub async fn package_installed_extension_files(
             dependencies: system_dependencies,
             configurations,
             loadable_libraries,
+            pg_version
         };
         // If the docker copy command starts to stream data
         println!("Create Trunk bundle:");

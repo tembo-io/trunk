@@ -111,6 +111,7 @@ pub async fn build_pgrx(
     inclusion_patterns: Vec<glob::Pattern>,
     configurations: Option<Vec<ExtensionConfiguration>>,
     loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pg_version: u8,
     _task: Task,
 ) -> Result<(), PgrxBuildError> {
     let cargo_package_info = cargo_toml
@@ -241,6 +242,7 @@ pub async fn build_pgrx(
         inclusion_patterns,
         configurations,
         loadable_libraries,
+        pg_version
     )
     .await?;
 
