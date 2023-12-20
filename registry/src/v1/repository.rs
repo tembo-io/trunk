@@ -3,6 +3,9 @@ use utoipa::{ToResponse, ToSchema};
 
 use crate::errors::Result;
 use crate::repository::Registry;
+use crate::views::extension_publish::{
+    ControlFileMetadata, ExtensionConfiguration, LoadableLibrary,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct TrunkProjectView {
@@ -11,21 +14,8 @@ pub struct TrunkProjectView {
     pub documentation_link: Option<String>,
     pub repository_link: String,
     pub version: String,
+    pub postgres_versions: Option<Vec<u8>>,
     pub extensions: Vec<ExtensionView>,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
-pub struct ExtensionConfigurationView {
-    pub name: String,
-    pub is_required: bool,
-    pub recommended_default: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct ExtensionPreloadLibrariesView {
-    library_name: String,
-    requires_restart: bool,
-    priority: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
@@ -34,8 +24,9 @@ pub struct ExtensionView {
     pub version: String,
     pub trunk_project_name: String,
     pub dependencies_extension_names: Option<Vec<String>>,
-    pub loadable_libraries: Option<Vec<ExtensionPreloadLibrariesView>>,
-    pub configurations: Option<Vec<ExtensionConfigurationView>>,
+    pub loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pub configurations: Option<Vec<ExtensionConfiguration>>,
+    pub control_file: Option<ControlFileMetadata>,
 }
 
 impl Registry {
@@ -48,6 +39,12 @@ impl Registry {
                     'documentation_link', latest_tpvs.documentation_link,
                     'repository_link', latest_tpvs.repository_link,
                     'version', latest_tpvs.version,
+                    'postgres_versions', (
+                        SELECT json_agg(pg.major)
+                        FROM v1.trunk_project_postgres_support tpps
+                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                        WHERE tpps.trunk_project_version_id = latest_tpvs.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -71,10 +68,18 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
+                            ),
+                            'control_file', (
+                                SELECT json_build_object(
+                                    'absent', cf.absent,
+                                    'content', cf.content
+                                )
+                                FROM v1.control_file cf
+                                WHERE cf.extension_version_id = ev.id
                             )
                         ))
                         FROM v1.extension_versions ev
@@ -117,6 +122,12 @@ impl Registry {
                     'documentation_link', tpv.documentation_link,
                     'repository_link', tpv.repository_link,
                     'version', tpv.version,
+                    'postgres_versions', (
+                        SELECT json_agg(pg.major)
+                        FROM v1.trunk_project_postgres_support tpps
+                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                        WHERE tpps.trunk_project_version_id = tpv.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -140,10 +151,18 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
+                            ),
+                            'control_file', (
+                                SELECT json_build_object(
+                                    'absent', cf.absent,
+                                    'content', cf.content
+                                )
+                                FROM v1.control_file cf
+                                WHERE cf.extension_version_id = ev.id
                             )
                         ))
                         FROM v1.extension_versions ev
@@ -181,6 +200,12 @@ impl Registry {
                     'version', tpv.version,
                     'documentation_link', tpv.documentation_link,
                     'repository_link', tpv.repository_link,
+                    'postgres_versions', (
+                        SELECT json_agg(pg.major)
+                        FROM v1.trunk_project_postgres_support tpps
+                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                        WHERE tpps.trunk_project_version_id = tpv.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -204,10 +229,18 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
+                            ),
+                            'control_file', (
+                                SELECT json_build_object(
+                                    'absent', cf.absent,
+                                    'content', cf.content
+                                )
+                                FROM v1.control_file cf
+                                WHERE cf.extension_version_id = ev.id
                             )
                         ))
                         FROM v1.extension_versions ev
@@ -242,6 +275,12 @@ impl Registry {
                 'version', tpv.version,
                 'documentation_link', tpv.documentation_link,
                 'repository_link', tpv.repository_link,
+                'postgres_versions', (
+                    SELECT json_agg(pg.major)
+                    FROM v1.trunk_project_postgres_support tpps
+                    JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                    WHERE tpps.trunk_project_version_id = tpv.id
+                ),
                 'extensions', (
                     SELECT json_agg(json_build_object(
                         'extension_name', ev.extension_name,
@@ -265,10 +304,18 @@ impl Registry {
                             SELECT json_agg(json_build_object(
                                 'name', ec.configuration_name,
                                 'is_required', ec.is_required,
-                                'recommended_default', ec.recommended_default_value
+                                'default', ec.recommended_default_value
                             ))
                             FROM v1.extension_configurations ec
                             WHERE ec.extension_version_id = ev.id
+                        ),
+                        'control_file', (
+                            SELECT json_build_object(
+                                'absent', cf.absent,
+                                'content', cf.content
+                            )
+                            FROM v1.control_file cf
+                            WHERE cf.extension_version_id = ev.id
                         )
                     ))
                     FROM v1.extension_versions ev
@@ -301,6 +348,7 @@ impl Registry {
     ///   4. insert extension dependencies
     ///   5. insert extension configurations
     ///   6. insert shared preload libraries
+    ///   7. Insert control file metadata
     pub async fn insert_trunk_project(&self, trunk_project: TrunkProjectView) -> Result<()> {
         // 1. insert trunk project name
         sqlx::query!(
@@ -360,29 +408,74 @@ impl Registry {
             }
 
             // 5. insert extension configurations
-            for config in configurations {
-                sqlx::query!(
+            self.insert_configurations(extension_version_id, configurations)
+                .await?;
+
+            // 6. insert shared preload libraries
+            self.insert_loadable_libraries(extension_version_id, loadable_libraries)
+                .await?;
+
+            // 7. Insert control file metadata
+            if let Some(control_file) = &extension.control_file {
+                self.insert_control_file(extension_version_id, control_file.clone())
+                    .await?;
+            }
+        }
+        Ok(())
+    }
+
+    async fn insert_configurations(
+        &self,
+        extension_version_id: i32,
+        configurations: impl Iterator<Item = &ExtensionConfiguration>,
+    ) -> Result {
+        for config in configurations {
+            sqlx::query!(
                     "INSERT INTO v1.extension_configurations (extension_version_id, is_required, configuration_name, recommended_default_value)
                     VALUES ($1, $2, $3, $4)",
                     extension_version_id,
                     config.is_required,
-                    config.name,
-                    config.recommended_default,
+                    config.configuration_name,
+                    config.recommended_default_value,
                 ).execute(&self.pool).await?;
-            }
-
-            // 6. insert shared preload libraries
-            for library in loadable_libraries {
-                sqlx::query!(
-                    "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)
-                    VALUES ($1, $2, $3, $4)",
-                    extension_version_id,
-                    library.library_name,
-                    library.requires_restart,
-                    library.priority,
-                ).execute(&self.pool).await?;
-            }
         }
+        Ok(())
+    }
+
+    async fn insert_loadable_libraries(
+        &self,
+        extension_version_id: i32,
+        loadable_libraries: impl Iterator<Item = &LoadableLibrary>,
+    ) -> Result {
+        for library in loadable_libraries {
+            sqlx::query!(
+                "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)
+                VALUES ($1, $2, $3, $4)",
+                extension_version_id,
+                library.library_name,
+                library.requires_restart,
+                library.priority,
+            ).execute(&self.pool).await?;
+        }
+
+        Ok(())
+    }
+
+    async fn insert_control_file(
+        &self,
+        extension_version_id: i32,
+        control_file: ControlFileMetadata,
+    ) -> Result {
+        sqlx::query!(
+            "INSERT INTO v1.control_file (extension_version_id, absent, content)
+            VALUES ($1, $2, $3)",
+            extension_version_id,
+            control_file.absent,
+            control_file.content,
+        )
+        .execute(&self.pool)
+        .await?;
+
         Ok(())
     }
 }

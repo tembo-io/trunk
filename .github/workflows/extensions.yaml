@@ -50,6 +50,30 @@ jobs:
           changed_relative_to_ref: ${{ steps.versions.outputs.changed_relative_to_ref }}
           ignore_dirs: ".tembo cli"
 
+  test:
+    name: Test extensions
+    runs-on:
+      - self-hosted
+      - dind
+      - large-8x8
+    container:
+      image: quay.io/tembo/trunk-test-tembo:0.0.27
+      options: --user root
+    needs:
+      - find_directories
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.find_directories.outputs.directories) }}
+    steps:
+      - uses: actions/checkout@v3.5.3
+      - name: Install system dependencies
+        run: |
+          set -xe
+          apt-get update
+          apt-get install -y pkg-config libssl-dev gosu
+      - name: Test the extension within Docker
+        run: cd ${{ matrix.path }} && trunk build --test
+
   build:
     name: Build extensions
     runs-on:
@@ -57,7 +81,7 @@ jobs:
       - dind
       - large-8x8
     container:
-      image: quay.io/tembo/trunk-test-tembo:0.0.26
+      image: quay.io/tembo/trunk-test-tembo:0.0.27
       options: --user root
     needs:
       - find_directories
