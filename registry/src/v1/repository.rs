@@ -350,6 +350,9 @@ impl Registry {
     ///   6. insert shared preload libraries
     ///   7. Insert control file metadata
     pub async fn insert_trunk_project(&self, trunk_project: TrunkProjectView) -> Result<()> {
+        // 0. insert Postgres version
+        tracing::info!("Inserting Postgres version!");
+
         // 1. insert trunk project name
         sqlx::query!(
             "INSERT INTO v1.trunk_project (name) 
@@ -359,15 +362,25 @@ impl Registry {
         )
         .execute(&self.pool)
         .await?;
+        tracing::info!("Inserted Trunk project name");
 
         // 2. insert trunk project version
         // Note: UNIQUE constraint will avoid re-inserting a previously existing tuple of Trunk name and version
         let record = sqlx::query!(
             "INSERT INTO v1.trunk_project_versions (trunk_project_name, version, description, repository_link, documentation_link)
             VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (trunk_project_name, version) 
+            DO UPDATE SET 
+                description = EXCLUDED.description,
+                repository_link = EXCLUDED.repository_link,
+                documentation_link = EXCLUDED.documentation_link,
+                -- Dummy update to ensure a row is always returned
+                id = v1.trunk_project_versions.id
             RETURNING id",
             trunk_project.name, trunk_project.version, trunk_project.description, trunk_project.repository_link, trunk_project.documentation_link
         ).fetch_one(&self.pool).await?;
+        tracing::info!("Inserted Trunk project version");
+
         let trunk_project_version_id = record.id;
 
         for extension in &trunk_project.extensions {
@@ -376,13 +389,17 @@ impl Registry {
                 "INSERT INTO v1.extension_versions (extension_name, trunk_project_version_id, version)
                 VALUES ($1, $2, $3)
                 ON CONFLICT (extension_name, trunk_project_version_id, version) 
-                DO NOTHING
+                DO UPDATE SET
+                    -- Dummy update to ensure a row is always returned
+                    id = v1.extension_versions.id
                 RETURNING id",
                 extension.extension_name,
                 trunk_project_version_id,
                 extension.version
             ).fetch_one(&self.pool).await?;
             let extension_version_id = record.id;
+            tracing::info!("Inserted extension version");
+
 
             let dependencies = extension
                 .dependencies_extension_names
@@ -401,7 +418,9 @@ impl Registry {
             for dependency_name in dependencies {
                 sqlx::query!(
                     "INSERT INTO v1.extension_dependency (extension_version_id, depends_on_extension_name)
-                    VALUES ($1, $2)",
+                    VALUES ($1, $2)
+                    ON CONFLICT (extension_version_id, depends_on_extension_name) 
+                    DO NOTHING",
                     extension_version_id,
                     dependency_name,
                 ).execute(&self.pool).await?;
@@ -432,7 +451,11 @@ impl Registry {
         for config in configurations {
             sqlx::query!(
                     "INSERT INTO v1.extension_configurations (extension_version_id, is_required, configuration_name, recommended_default_value)
-                    VALUES ($1, $2, $3, $4)",
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (extension_version_id, configuration_name)
+                    DO UPDATE SET 
+                        is_required = EXCLUDED.is_required,
+                        recommended_default_value = EXCLUDED.recommended_default_value",
                     extension_version_id,
                     config.is_required,
                     config.configuration_name,
@@ -450,7 +473,11 @@ impl Registry {
         for library in loadable_libraries {
             sqlx::query!(
                 "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)
-                VALUES ($1, $2, $3, $4)",
+                VALUES ($1, $2, $3, $4)
+                ON CONFLICT (extension_version_id, library_name)
+                DO UPDATE SET 
+                    requires_restart = EXCLUDED.requires_restart,
+                    priority = EXCLUDED.priority",
                 extension_version_id,
                 library.library_name,
                 library.requires_restart,
@@ -468,7 +495,11 @@ impl Registry {
     ) -> Result {
         sqlx::query!(
             "INSERT INTO v1.control_file (extension_version_id, absent, content)
-            VALUES ($1, $2, $3)",
+            VALUES ($1, $2, $3)
+            ON CONFLICT (extension_version_id) 
+            DO UPDATE SET 
+                absent = EXCLUDED.absent,
+                content = EXCLUDED.content",
             extension_version_id,
             control_file.absent,
             control_file.content,
