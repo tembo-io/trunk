@@ -408,6 +408,7 @@ pub async fn package_installed_extension_files(
     inclusion_patterns: Vec<glob::Pattern>,
     configurations: Option<Vec<ExtensionConfiguration>>,
     loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pg_version: u8,
 ) -> Result<(), anyhow::Error> {
     let name = name.to_owned();
     let extension_version = extension_version.to_owned();
@@ -441,7 +442,7 @@ pub async fn package_installed_extension_files(
     let licensedir = "/usr/licenses".to_owned();
 
     // In this function, we open and work with .tar only, then we finalize the package with a .gz in a separate call
-    let package_path = format!("{package_path}/{name}-{extension_version}.tar.gz");
+    let package_path = format!("{package_path}/{name}-{extension_version}-pg{pg_version}.tar.gz");
     println!("Creating package at: {package_path}");
     let file = File::create(&package_path)?;
 
@@ -505,6 +506,7 @@ pub async fn package_installed_extension_files(
             dependencies: system_dependencies,
             configurations,
             loadable_libraries,
+            pg_version,
         };
         // If the docker copy command starts to stream data
         println!("Create Trunk bundle:");

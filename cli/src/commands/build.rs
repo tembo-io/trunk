@@ -248,6 +248,7 @@ impl SubCommand for BuildCommand {
                     build_settings.glob_patterns_to_include,
                     build_settings.configurations,
                     build_settings.loadable_libraries,
+                    build_settings.pg_version,
                     task,
                 )
                 .await?;

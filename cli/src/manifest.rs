@@ -61,6 +61,12 @@ pub struct Manifest {
     pub files: Option<HashMap<PathBuf, PackagedFile>>,
     pub configurations: Option<Vec<ExtensionConfiguration>>,
     pub loadable_libraries: Option<Vec<LoadableLibrary>>,
+    #[serde(default = "default_pg_version")]
+    pub pg_version: u8,
+}
+
+const fn default_pg_version() -> u8 {
+    15
 }
 
 impl Manifest {

@@ -16,6 +16,7 @@ use serde::Deserialize;
 use serde_json::json;
 use std::fs::File;
 use std::io::Seek;
+use std::ops::Not;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 use tar::{Archive, EntryType};
@@ -240,28 +241,44 @@ impl SubCommand for PublishCommand {
             }
         }
 
-        let (file, name) = match &publish_settings.file {
+        // Vec of file contents and their filenames
+        //  =
+        let files = match &publish_settings.file {
             Some(..) => {
                 // If file is specified, use it
                 let path = publish_settings.file.clone().unwrap();
                 let name = path.file_name().unwrap().to_str().unwrap().to_owned();
                 let f = fs::read(publish_settings.file.clone().unwrap())
                     .context(format!("Could not find file '{}'", path.to_str().unwrap()))?;
-                (f, name)
+                vec![(f, name)]
             }
             None => {
+                let mut files = Vec::new();
                 // If no file is specified, read file from working dir with format
                 // .trunk/<extension_name>-<version>.tar.gz.
                 // Error if file is not found
-                let mut path = PathBuf::new();
-                let _ = &path.push(format!(
-                    ".trunk/{}-{}.tar.gz",
-                    publish_settings.name, publish_settings.version
-                ));
-                let name = path.file_name().unwrap().to_str().unwrap().to_owned();
-                let f = fs::read(path.clone())
-                    .context(format!("Could not find file '{}'", path.to_str().unwrap()))?;
-                (f, name)
+                let possible_suffixes = ["", "-pg14", "-pg15", "-pg16"];
+
+                for suffix in possible_suffixes {
+                    let file = format!(
+                        ".trunk/{}-{}{}.tar.gz",
+                        publish_settings.name, publish_settings.version, suffix
+                    );
+                    let path = Path::new(&file);
+                    if path.exists().not() {
+                        continue;
+                    }
+                    let file_name = path.file_name().unwrap().to_str().unwrap().to_owned();
+                    let bytes = fs::read(path)?;
+
+                    files.push((bytes, file_name))
+                }
+
+                if files.is_empty() {
+                    anyhow::bail!("No Trunk archive found!");
+                }
+
+                files
             }
         };
 
@@ -344,44 +361,46 @@ impl SubCommand for PublishCommand {
             }
         }
 
-        let mut headers = HeaderMap::new();
-        headers.insert(CONTENT_TYPE, "application/octet-stream".parse().unwrap());
-        // Add token header from env var
-        let auth = env::var("TRUNK_API_TOKEN").expect("TRUNK_API_TOKEN not set");
-        headers.insert(AUTHORIZATION, auth.parse()?);
-        let file_part = reqwest::multipart::Part::bytes(file)
-            .file_name(name)
-            .headers(headers.clone());
-        let m = json!({
-            "name": publish_settings.name,
-            "extension_name": publish_settings.extension_name,
-            "extension_dependencies": publish_settings.extension_dependencies,
-            "vers": publish_settings.version,
-            "description": publish_settings.description,
-            "documentation": publish_settings.documentation,
-            "homepage": publish_settings.homepage,
-            "license": publish_settings.license,
-            "repository": publish_settings.repository,
-            "system_dependencies": publish_settings.system_dependencies,
-            "categories": publish_settings.categories,
-            "configurations": publish_settings.configurations,
-            "libraries": publish_settings.loadable_libraries
-        });
-        let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
-        let form = reqwest::multipart::Form::new()
-            .part("metadata", metadata)
-            .part("file", file_part);
-        let client = reqwest::Client::new();
-        let url = format!("{}/extensions/new", publish_settings.registry);
-        let res = client
-            .post(url)
-            .multipart(form)
-            .send()
-            .await?
-            .text()
-            .await?;
-        // Print response from registry
-        println!("{res}");
+        for (file, name) in files {
+            let mut headers = HeaderMap::new();
+            headers.insert(CONTENT_TYPE, "application/octet-stream".parse().unwrap());
+            // Add token header from env var
+            let auth = env::var("TRUNK_API_TOKEN").expect("TRUNK_API_TOKEN not set");
+            headers.insert(AUTHORIZATION, auth.parse()?);
+            let file_part = reqwest::multipart::Part::bytes(file)
+                .file_name(name)
+                .headers(headers.clone());
+            let m = json!({
+                "name": publish_settings.name,
+                "extension_name": publish_settings.extension_name,
+                "extension_dependencies": publish_settings.extension_dependencies,
+                "vers": publish_settings.version,
+                "description": publish_settings.description,
+                "documentation": publish_settings.documentation,
+                "homepage": publish_settings.homepage,
+                "license": publish_settings.license,
+                "repository": publish_settings.repository,
+                "system_dependencies": publish_settings.system_dependencies,
+                "categories": publish_settings.categories,
+                "configurations": publish_settings.configurations,
+                "libraries": publish_settings.loadable_libraries
+            });
+            let metadata = reqwest::multipart::Part::text(m.to_string()).headers(headers);
+            let form = reqwest::multipart::Form::new()
+                .part("metadata", metadata)
+                .part("file", file_part);
+            let client = reqwest::Client::new();
+            let url = format!("{}/extensions/new", publish_settings.registry);
+            let res = client
+                .post(url)
+                .multipart(form)
+                .send()
+                .await?
+                .text()
+                .await?;
+            // Print response from registry
+            println!("{res}");
+        }
         Ok(())
     }
 }
