@@ -328,7 +328,7 @@ async fn insert_into_v1(
     gzipped_archive: &[u8],
 ) -> anyhow::Result<()> {
     let extension_views =
-        crate::v1::extractor::extract_extension_view(gzipped_archive, &new_extension.name)?;
+        crate::v1::extractor::extract_extension_view(gzipped_archive, &new_extension)?;
 
     let trunk_project = TrunkProjectView {
         name: new_extension.name,
@@ -336,6 +336,8 @@ async fn insert_into_v1(
         documentation_link: new_extension.documentation,
         repository_link: new_extension.repository.unwrap_or_default(),
         version: new_extension.vers.to_string(),
+        // TODO: state in Trunk.toml the supported versions
+        postgres_versions: None,
         extensions: extension_views,
     };
 

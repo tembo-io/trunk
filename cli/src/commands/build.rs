@@ -1,7 +1,7 @@
 use super::SubCommand;
 use crate::commands::generic_build::build_generic;
 use crate::commands::pgrx::build_pgrx;
-use crate::config;
+use crate::config::{self, ExtensionConfiguration, LoadableLibrary};
 use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::anyhow;
 use async_trait::async_trait;
@@ -37,9 +37,12 @@ pub struct BuildCommand {
     dockerfile_path: Option<String>,
     #[arg(short = 'i', long = "install-command")]
     install_command: Option<String>,
-    /// Run this integration tests after building, if any are found
+    /// Run this extension's integration tests after building, if any are found
     #[clap(long, short, action)]
     test: bool,
+    /// The PostgreSQL version to build this extension against. Experimental for versions other than Postgres 15.
+    #[clap(default_value = "15", long, action)]
+    pg_version: u8,
 }
 
 pub struct BuildSettings {
@@ -49,13 +52,15 @@ pub struct BuildSettings {
     pub name: Option<String>,
     pub extension_name: Option<String>,
     pub extension_dependencies: Option<Vec<String>>,
-    pub preload_libraries: Option<Vec<String>>,
+    pub configurations: Option<Vec<ExtensionConfiguration>>,
     pub system_dependencies: Option<SystemDependencies>,
     pub glob_patterns_to_include: Vec<glob::Pattern>,
     pub platform: Option<String>,
     pub dockerfile_path: Option<String>,
     pub install_command: Option<String>,
     pub should_test: bool,
+    pub loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pub pg_version: u8,
 }
 
 impl BuildCommand {
@@ -90,6 +95,11 @@ impl BuildCommand {
 
         let name = cli_or_trunk(&self.name, |toml| &toml.extension.name, &trunk_toml);
 
+        let loadable_libraries = trunk_toml
+            .as_ref()
+            .and_then(|toml| toml.extension.loadable_libraries.as_ref())
+            .cloned();
+
         let extension_name = cli_or_trunk_opt(
             &self.extension_name,
             |toml| &toml.extension.extension_name,
@@ -99,12 +109,6 @@ impl BuildCommand {
         let extension_dependencies = cli_or_trunk_opt(
             &self.extension_dependencies,
             |toml| &toml.extension.extension_dependencies,
-            &trunk_toml,
-        );
-
-        let preload_libraries = cli_or_trunk_opt(
-            &self.preload_libraries,
-            |toml| &toml.extension.preload_libraries,
             &trunk_toml,
         );
 
@@ -128,6 +132,11 @@ impl BuildCommand {
             "will include files matching {}",
             glob_patterns_to_include.display()
         );
+
+        let configurations = trunk_toml
+            .as_ref()
+            .and_then(|toml| toml.extension.configurations.as_ref())
+            .cloned();
 
         let system_dependencies = trunk_toml
             .as_ref()
@@ -157,13 +166,15 @@ impl BuildCommand {
             name,
             extension_name,
             extension_dependencies,
-            preload_libraries,
             system_dependencies,
             glob_patterns_to_include,
             platform,
             dockerfile_path,
             install_command,
             should_test: self.test,
+            configurations,
+            loadable_libraries,
+            pg_version: self.pg_version,
         })
     }
 }
@@ -232,10 +243,12 @@ impl SubCommand for BuildCommand {
                     &build_settings.output_path,
                     build_settings.extension_name,
                     build_settings.extension_dependencies,
-                    build_settings.preload_libraries,
                     cargo_toml,
                     build_settings.system_dependencies,
                     build_settings.glob_patterns_to_include,
+                    build_settings.configurations,
+                    build_settings.loadable_libraries,
+                    build_settings.pg_version,
                     task,
                 )
                 .await?;
@@ -276,12 +289,14 @@ impl SubCommand for BuildCommand {
             build_settings.name.clone().unwrap().as_str(),
             build_settings.extension_name,
             build_settings.extension_dependencies,
-            build_settings.preload_libraries,
             build_settings.system_dependencies,
             build_settings.version.clone().unwrap().as_str(),
             build_settings.glob_patterns_to_include,
             task,
             build_settings.should_test,
+            build_settings.configurations,
+            build_settings.loadable_libraries,
+            build_settings.pg_version,
         )
         .await?;
         return Ok(());

@@ -86,7 +86,7 @@ fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std:
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(Path::new(&output_dir).join("pljava-1.6.5.tar.gz"));
+    cmd.arg(Path::new(&output_dir).join("pljava-1.6.5-pg15.tar.gz"));
     cmd.arg("pljava");
     cmd.assert().code(0);
 
@@ -135,26 +135,24 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(extension_path.as_os_str());
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
-    cmd.arg("--preload-libraries");
-    cmd.arg("test_pgrx_extension_spl");
     cmd.assert().code(0);
     assert!(std::path::Path::new(
-        format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str()
+        format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str()
     )
     .exists());
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
-        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
+        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str())
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name and loadable_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
-        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
+        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str())
         .arg("-C")
         .arg(format!("{output_dir}").as_str())
         .output()
@@ -166,20 +164,17 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"test_pgrx_extension\""));
-    assert!(stdout.contains("\"test_pgrx_extension_spl\""));
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str());
+    cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str());
     cmd.arg("test_pgrx_extension");
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
-    assert!(stdout.contains("Add the following to your postgresql.conf:"));
-    assert!(stdout.contains("shared_preload_libraries = 'test_pgrx_extension_spl'"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -275,24 +270,24 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("1.0.3");
     cmd.arg("--name");
     cmd.arg("pg_tle");
-    cmd.arg("--preload-libraries");
-    cmd.arg("pg_tle_spl");
     cmd.assert().code(0);
-    assert!(std::path::Path::new(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str()).exists());
+    assert!(
+        std::path::Path::new(format!("{output_dir}/pg_tle-1.0.3-pg15.tar.gz").as_str()).exists()
+    );
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
-        .arg(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str())
+        .arg(format!("{output_dir}/pg_tle-1.0.3-pg15.tar.gz").as_str())
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE"));
     assert!(stdout.contains("licenses/NOTICE"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
-        .arg(format!("{output_dir}/pg_tle-1.0.3.tar.gz").as_str())
+        .arg(format!("{output_dir}/pg_tle-1.0.3-pg15.tar.gz").as_str())
         .arg("-C")
         .arg(format!("{output_dir}").as_str())
         .output()
@@ -304,7 +299,6 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"pg_tle\""));
-    assert!(stdout.contains("\"pg_tle_spl\""));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -361,25 +355,24 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     cmd.arg("1.5.0");
     cmd.arg("--name");
     cmd.arg("pgsql_http");
-    cmd.arg("--preload-libraries");
-    cmd.arg("pgsql_http_spl");
     cmd.assert().code(0);
     assert!(
-        std::path::Path::new(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str()).exists()
+        std::path::Path::new(format!("{output_dir}/pgsql_http-1.5.0-pg15.tar.gz").as_str())
+            .exists()
     );
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
-        .arg(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str())
+        .arg(format!("{output_dir}/pgsql_http-1.5.0-pg15.tar.gz").as_str())
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.md"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
-        .arg(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str())
+        .arg(format!("{output_dir}/pgsql_http-1.5.0-pg15.tar.gz").as_str())
         .arg("-C")
         .arg(format!("{output_dir}").as_str())
         .output()
@@ -393,13 +386,12 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     // Note - name and extension_name are different here
     assert!(stdout.contains("\"name\": \"pgsql_http\""));
     assert!(stdout.contains("\"extension_name\": \"http\""));
-    assert!(stdout.contains("\"pgsql_http_spl\""));
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(format!("{output_dir}/pgsql_http-1.5.0.tar.gz").as_str());
+    cmd.arg(format!("{output_dir}/pgsql_http-1.5.0-pg15.tar.gz").as_str());
     cmd.arg("pgsql_http");
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
@@ -471,27 +463,25 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("1.10");
     cmd.arg("--name");
     cmd.arg("pg_stat_statements");
-    cmd.arg("--preload-libraries");
-    cmd.arg("pg_stat_statements_spl");
     cmd.assert().code(0);
-    assert!(
-        std::path::Path::new(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
-            .exists()
-    );
+    assert!(std::path::Path::new(
+        format!("{output_dir}/pg_stat_statements-1.10-pg15.tar.gz").as_str()
+    )
+    .exists());
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
-        .arg(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
+        .arg(format!("{output_dir}/pg_stat_statements-1.10-pg15.tar.gz").as_str())
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/COPYRIGHT"));
     assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
-        .arg(format!("{output_dir}/pg_stat_statements-1.10.tar.gz").as_str())
+        .arg(format!("{output_dir}/pg_stat_statements-1.10-pg15.tar.gz").as_str())
         .arg("-C")
         .arg(format!("{output_dir}").as_str())
         .output()
@@ -503,7 +493,6 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"pg_stat_statements\""));
-    assert!(stdout.contains("\"pg_stat_statements_spl\""));
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
@@ -528,20 +517,22 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
-    assert!(std::path::Path::new(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str()).exists());
+    assert!(
+        std::path::Path::new(format!("{output_dir}/pg_cron-1.5.2-pg15.tar.gz").as_str()).exists()
+    );
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
-        .arg(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str())
+        .arg(format!("{output_dir}/pg_cron-1.5.2-pg15.tar.gz").as_str())
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name and loadable_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
-        .arg(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str())
+        .arg(format!("{output_dir}/pg_cron-1.5.2-pg15.tar.gz").as_str())
         .arg("-C")
         .arg(format!("{output_dir}").as_str())
         .output()
@@ -553,14 +544,22 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
-    assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
+    assert!(stdout.contains("\"loadable_libraries\": [\n    {\n      \"library_name\": \"shared_preload_libraries_from_toml\",\n      \"requires_restart\": true,\n      \"priority\": 1\n    },\n    {\n      \"library_name\": \"shared_preload_libraries_from_toml_2\",\n      \"requires_restart\": false,\n      \"priority\": 2\n    }\n  ]"));
+    // Config name
+    assert!(stdout.contains("ip_address"));
+    // Is required
+    assert!(stdout.contains("is_required\": true"));
+    // Config name
+    assert!(stdout.contains("port"));
+    // Recommended default value
+    assert!(stdout.contains("8801"));
     assert!(stdout.contains("\"dependencies\": {\n    \"apt\": [\n      \"libpq5\"\n    ],\n    \"dnf\": [\n      \"libpq-devel\"\n    ]\n  }") ||
             stdout.contains("\"dependencies\": {\n    \"dnf\": [\n      \"libpq-devel\"\n    ],\n    \"apt\": [\n      \"libpq5\"\n    ]\n  }"));
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(format!("{output_dir}/pg_cron-1.5.2.tar.gz").as_str());
+    cmd.arg(format!("{output_dir}/pg_cron-1.5.2-pg15.tar.gz").as_str());
     cmd.arg("pg_cron");
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
@@ -571,6 +570,8 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("libpq5"));
     assert!(stdout.contains("On systems using dnf:"));
     assert!(stdout.contains("libpq-devel"));
+    assert!(stdout.contains("Add the following to your postgresql.conf:"));
+    assert!(stdout.contains("shared_preload_libraries = 'shared_preload_libraries_from_toml, shared_preload_libraries_from_toml_2'"));
 
     // assert that the dependencies were written to manifest
     let manifest = Command::new("cat")
@@ -609,22 +610,22 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
     assert!(std::path::Path::new(
-        format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str()
+        format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str()
     )
     .exists());
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
-        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
+        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str())
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/LICENSE.txt"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name and loadable_libraries is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
-        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str())
+        .arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str())
         .arg("-C")
         .arg(format!("{output_dir}").as_str())
         .output()
@@ -636,7 +637,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
     assert!(stdout.contains("\"extension_name\": \"extension_name_from_toml\""));
-    assert!(stdout.contains("\"shared_preload_libraries_from_toml\""));
+    assert!(stdout.contains("\"loadable_libraries\": [\n    {\n      \"library_name\": \"shared_preload_libraries_from_toml\",\n      \"requires_restart\": true,\n      \"priority\": 1\n    },\n    {\n      \"library_name\": \"another_shared_preload_library\",\n      \"requires_restart\": false,\n      \"priority\": 2\n    }\n  ]"));
     assert!(stdout.contains("\"another_shared_preload_library\""));
     assert!(stdout.contains("\"libpq5\""));
 
@@ -658,7 +659,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0.tar.gz").as_str());
+    cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str());
     cmd.arg("test_pgrx_extension");
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
@@ -669,7 +670,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("On systems using apt:"));
     assert!(stdout.contains("libpq5"));
     assert!(stdout.contains("Add the following to your postgresql.conf:"));
-    assert!(stdout.contains("shared_preload_libraries = 'shared_preload_libraries_from_toml,another_shared_preload_library'"));
+    assert!(stdout.contains("shared_preload_libraries = 'shared_preload_libraries_from_toml, another_shared_preload_library'"));
 
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
@@ -785,26 +786,25 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("15.3.0");
     cmd.arg("--name");
     cmd.arg("auto_explain");
-    cmd.arg("--preload-libraries");
-    cmd.arg("auto_explain_spl");
     cmd.assert().code(0);
     assert!(
-        std::path::Path::new(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str()).exists()
+        std::path::Path::new(format!("{output_dir}/auto_explain-15.3.0-pg15.tar.gz").as_str())
+            .exists()
     );
     // assert any license files are included
     let output = Command::new("tar")
         .arg("-tvf")
-        .arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str())
+        .arg(format!("{output_dir}/auto_explain-15.3.0-pg15.tar.gz").as_str())
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(stdout.contains("licenses/COPYRIGHT"));
     assert!(stdout.contains("licenses/COPYRIGHT.~1~"));
 
-    // assert extension_name and preload_libraries is in manifest.json
+    // assert extension_name is in manifest.json
     let _extract = Command::new("tar")
         .arg("-xvf")
-        .arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str())
+        .arg(format!("{output_dir}/auto_explain-15.3.0-pg15.tar.gz").as_str())
         .arg("-C")
         .arg(format!("{output_dir}").as_str())
         .output()
@@ -815,21 +815,16 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
         .output()
         .expect("failed to run cat command");
     let stdout = String::from_utf8(manifest.stdout).unwrap();
-    assert!(stdout.contains("\"extension_name\": \"auto_explain\""));
-    assert!(stdout.contains("\"auto_explain_spl\""));
 
-    // assert post installation steps contain correct shared_preload_libraries command
+    assert!(stdout.contains("\"extension_name\": \"auto_explain\""));
+
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(format!("{output_dir}/auto_explain-15.3.0.tar.gz").as_str());
+    cmd.arg(format!("{output_dir}/auto_explain-15.3.0-pg15.tar.gz").as_str());
     cmd.arg("auto_explain");
-    let output = cmd.output()?;
-    let stdout = String::from_utf8(output.stdout)?;
-    cmd.assert().code(0);
-    assert!(stdout.contains("Add the following to your postgresql.conf:"));
-    assert!(stdout.contains("shared_preload_libraries = 'auto_explain_spl'"));
 
+    cmd.assert().code(0);
     // delete the temporary file
     std::fs::remove_dir_all(output_dir)?;
 
@@ -840,7 +835,7 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
 fn build_pg_unit() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::thread_rng();
     let output_dir = format!("/tmp/postgresql_unit_test_{}", rng.gen_range(0..1000000));
-    let package_name = "postgresql_unit-7.0.0.tar.gz";
+    let package_name = "postgresql_unit-7.0.0-pg15.tar.gz";
 
     // Construct a path relative to the current file's directory
     let mut extension_path = std::path::PathBuf::from(file!());
@@ -894,7 +889,9 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--output-path");
     cmd.arg(output_dir.clone());
     cmd.assert().code(0);
-    assert!(file_exists(format!("{output_dir}/postgis-3.4.0.tar.gz")));
+    assert!(file_exists(format!(
+        "{output_dir}/postgis-3.4.0-pg15.tar.gz"
+    )));
 
     // Get output of 'pg_config --sharedir'
     let output = Command::new("pg_config")
@@ -915,7 +912,7 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--file");
-    cmd.arg(format!("{output_dir}/postgis-3.4.0.tar.gz").as_str());
+    cmd.arg(format!("{output_dir}/postgis-3.4.0-pg15.tar.gz").as_str());
     cmd.arg("postgis");
     let output = cmd.output()?;
     let stderr = String::from_utf8(output.stderr)?;

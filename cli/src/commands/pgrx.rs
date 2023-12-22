@@ -12,6 +12,7 @@ use bollard::Docker;
 use crate::commands::containers::{
     build_image, exec_in_container, package_installed_extension_files, run_temporary_container,
 };
+use crate::config::{ExtensionConfiguration, LoadableLibrary};
 use crate::trunk_toml::SystemDependencies;
 use tokio::sync::mpsc;
 
@@ -57,8 +58,8 @@ pub enum PgrxBuildError {
 
 fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     let versions = [
-        "0.11.0", "0.10.2", "0.10.1", "0.10.0", "0.9.8", "0.9.7", "0.9.1", "0.9.0", "0.8.4",
-        "0.8.3", "0.8.0", "0.7.4",
+        "0.11.1", "0.11.0", "0.10.2", "0.10.1", "0.10.0", "0.9.8", "0.9.7", "0.9.1", "0.9.0",
+        "0.8.4", "0.8.3", "0.8.0", "0.7.4",
     ];
 
     if versions.contains(&pgrx_range) {
@@ -105,10 +106,12 @@ pub async fn build_pgrx(
     output_path: &str,
     extension_name: Option<String>,
     extension_dependencies: Option<Vec<String>>,
-    preload_libraries: Option<Vec<String>>,
     cargo_toml: toml::Table,
     system_dependencies: Option<SystemDependencies>,
     inclusion_patterns: Vec<glob::Pattern>,
+    configurations: Option<Vec<ExtensionConfiguration>>,
+    loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pg_version: u8,
     _task: Task,
 ) -> Result<(), PgrxBuildError> {
     let cargo_package_info = cargo_toml
@@ -231,13 +234,15 @@ pub async fn build_pgrx(
         docker.clone(),
         &temp_container.id,
         output_path,
-        preload_libraries,
         system_dependencies,
         name,
         extension_name,
         extension_version,
         extension_dependencies,
         inclusion_patterns,
+        configurations,
+        loadable_libraries,
+        pg_version,
     )
     .await?;
 

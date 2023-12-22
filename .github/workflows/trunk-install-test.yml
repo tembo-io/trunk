@@ -18,7 +18,7 @@ jobs:
       - dind
       - large-8x8
     container:
-      image: quay.io/tembo/trunk-test-tembo:0.0.26
+      image: quay.io/tembo/trunk-test-tembo:0.0.27
       options: --user root
     env:
       PGHOST: "localhost"

@@ -6,9 +6,12 @@ use std::{
 };
 use tar::EntryType;
 
+use crate::views::extension_publish::{ControlFileMetadata, ExtensionUpload};
+
 use super::repository::ExtensionView;
 
 pub struct ControlFile {
+    content: Option<String>,
     extension_name: String,
     dependencies: Option<Vec<String>>,
     default_version: Option<String>,
@@ -16,7 +19,7 @@ pub struct ControlFile {
 
 pub fn extract_extension_view(
     tar_gz: &[u8],
-    trunk_project_name: &str,
+    new_extension: &ExtensionUpload,
 ) -> anyhow::Result<Vec<ExtensionView>> {
     let control_files = extract_control_files(tar_gz)?;
 
@@ -25,10 +28,22 @@ pub fn extract_extension_view(
         .map(|control_file| ExtensionView {
             extension_name: control_file.extension_name,
             version: control_file.default_version.unwrap_or_default(),
-            trunk_project_name: trunk_project_name.to_string(),
+            trunk_project_name: new_extension.name.to_string(),
             dependencies_extension_names: control_file.dependencies,
-            loadable_libraries: None,
-            configurations: None,
+            // TODO: should we clone this for every extension in a Trunk project?
+            loadable_libraries: new_extension.libraries.clone(),
+            configurations: new_extension.configurations.clone(),
+            control_file: if control_file.content.is_none() {
+                Some(ControlFileMetadata {
+                    absent: true,
+                    content: None,
+                })
+            } else {
+                Some(ControlFileMetadata {
+                    absent: false,
+                    content: control_file.content,
+                })
+            },
         })
         .collect();
 
@@ -93,6 +108,13 @@ fn parse_control_file(extension_name: String, control_file: String) -> ControlFi
         trimmed.trim_matches('\'')
     }
 
+    // Grab all lines from the control file and set as string. None if no lines.
+    let control_file_content = if control_file.is_empty() {
+        None
+    } else {
+        Some(control_file.clone())
+    };
+
     for line in control_file.lines() {
         if let Some(rest) = line.strip_prefix("requires") {
             let requires = strip_value(rest)
@@ -113,6 +135,7 @@ fn parse_control_file(extension_name: String, control_file: String) -> ControlFi
     }
 
     ControlFile {
+        content: control_file_content,
         extension_name,
         dependencies: if dependencies.is_empty() {
             None

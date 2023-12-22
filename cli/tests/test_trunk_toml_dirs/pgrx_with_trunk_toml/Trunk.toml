@@ -1,11 +1,14 @@
 [extension]
 name = "test_pgrx_extension"
 extension_name = "extension_name_from_toml"
-preload_libraries = ["shared_preload_libraries_from_toml", "another_shared_preload_library"]
 version = "0.0.0"
 repository = "https://github.com/tembo-io/trunk"
 license = "PostgreSQL"
 categories = []
+loadable_libraries = [
+    { library_name = "shared_preload_libraries_from_toml", requires_restart = true, priority = 1 },
+    { library_name = "another_shared_preload_library", requires_restart = false, priority = 2 }
+]
 
 [build]
 platform = "linux/amd64"
