@@ -1,6 +1,5 @@
 use anyhow::Context;
 use flate2::read::GzDecoder;
-use futures::io::BufReader;
 use serde::Deserialize;
 use std::{
     ffi::OsStr,
