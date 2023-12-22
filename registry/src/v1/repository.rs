@@ -412,7 +412,6 @@ impl Registry {
             let extension_version_id = record.id;
             tracing::info!("Inserted extension version");
 
-
             let dependencies = extension
                 .dependencies_extension_names
                 .iter()
