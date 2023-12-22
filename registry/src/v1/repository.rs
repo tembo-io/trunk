@@ -350,9 +350,6 @@ impl Registry {
     ///   6. insert shared preload libraries
     ///   7. Insert control file metadata
     pub async fn insert_trunk_project(&self, trunk_project: TrunkProjectView) -> Result<()> {
-        // 0. insert Postgres version
-        tracing::info!("Inserting Postgres version!");
-
         // 1. insert trunk project name
         sqlx::query!(
             "INSERT INTO v1.trunk_project (name) 
@@ -383,8 +380,23 @@ impl Registry {
 
         let trunk_project_version_id = record.id;
 
+        // 3. insert Postgres version
+        tracing::info!("Inserting Postgres version!");
+        if let Some(supported_postgres_versions) = trunk_project.postgres_versions {
+            for pg_version in supported_postgres_versions {
+                sqlx::query!(
+                    "INSERT INTO v1.trunk_project_postgres_support(postgres_version_id, trunk_project_version_id)
+                    SELECT pg.id, $1
+                    FROM v1.postgres_version pg
+                    WHERE pg.major = $2",
+                    trunk_project_version_id,
+                    pg_version as i32
+                ).execute(&self.pool).await?;
+            }
+        }
+
         for extension in &trunk_project.extensions {
-            // 3. insert extension version (or versions)
+            // 4. insert extension version (or versions)
             let record = sqlx::query!(
                 "INSERT INTO v1.extension_versions (extension_name, trunk_project_version_id, version)
                 VALUES ($1, $2, $3)
@@ -414,7 +426,7 @@ impl Registry {
                 .iter()
                 .flat_map(|libs| libs.iter());
 
-            // 4. insert extension dependencies
+            // 5. insert extension dependencies
             for dependency_name in dependencies {
                 sqlx::query!(
                     "INSERT INTO v1.extension_dependency (extension_version_id, depends_on_extension_name)
@@ -426,15 +438,15 @@ impl Registry {
                 ).execute(&self.pool).await?;
             }
 
-            // 5. insert extension configurations
+            // 6. insert extension configurations
             self.insert_configurations(extension_version_id, configurations)
                 .await?;
 
-            // 6. insert shared preload libraries
+            // 7. insert shared preload libraries
             self.insert_loadable_libraries(extension_version_id, loadable_libraries)
                 .await?;
 
-            // 7. Insert control file metadata
+            // 8. Insert control file metadata
             if let Some(control_file) = &extension.control_file {
                 self.insert_control_file(extension_version_id, control_file.clone())
                     .await?;

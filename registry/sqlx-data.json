@@ -1024,6 +1024,19 @@
     },
     "query": "\n            INSERT INTO api_tokens(user_id, user_name, token, created_at)\n            VALUES ($1, $2, $3, (now() at time zone 'utc'))\n            "
   },
+  "809655bbc51de789fdc2df55a9442378e6c521b0ecbd807ce596fcb37a60131d": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int2"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.trunk_project_postgres_support(postgres_version_id, trunk_project_version_id)\n                    SELECT pg.id, $1\n                    FROM v1.postgres_version pg\n                    WHERE pg.major = $2"
+  },
   "8a3643fa646f1768ce6b3abdc949b6daade8f796a8f2b9a388f436e486425299": {
     "describe": {
       "columns": [],
