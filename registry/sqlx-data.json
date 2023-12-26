@@ -662,6 +662,21 @@
     },
     "query": "SELECT id FROM extensions WHERE name = $1"
   },
+  "5e36534d2b37be402ba576dee05354f240f51f902eedd3c9bae0a318c5fd5407": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int2",
+          "Int4",
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.trunk_project_downloads (\n                platform_id,\n                postgres_version_id,\n                trunk_project_version_id,\n                download_url,\n                sha256\n            ) VALUES (\n                -- TODO: this works because this is currently the only platform supported, must change\n                -- if more get supported\n                (SELECT id FROM v1.platform WHERE platform_name = 'linux/amd64'),\n                (SELECT id FROM v1.postgres_version WHERE major = $1),\n                $2,\n                $3,\n                $4\n            )\n            ON CONFLICT (platform_id, postgres_version_id, trunk_project_version_id, download_url)\n            DO UPDATE SET\n                sha256 = EXCLUDED.sha256,\n                download_url = EXCLUDED.download_url"
+  },
   "65eec92a739b8837322c565e5b85b2c82c4bfc29fd4153c79bf45a2ac3320678": {
     "describe": {
       "columns": [

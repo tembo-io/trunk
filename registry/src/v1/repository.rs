@@ -16,6 +16,15 @@ pub struct TrunkProjectView {
     pub version: String,
     pub postgres_versions: Option<Vec<u8>>,
     pub extensions: Vec<ExtensionView>,
+    pub downloads: Option<Vec<Download>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct Download {
+    pub link: String,
+    pub pg_version: u8,
+    pub architecture: String,
+    pub sha256: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
@@ -341,14 +350,6 @@ impl Registry {
     }
 
     /// Insert a Trunk project (and related information) into the database.
-    /// Follows the given steps:
-    ///   1. insert trunk project name
-    ///   2. insert trunk project version
-    ///   3. insert extension version
-    ///   4. insert extension dependencies
-    ///   5. insert extension configurations
-    ///   6. insert shared preload libraries
-    ///   7. Insert control file metadata
     pub async fn insert_trunk_project(&self, trunk_project: TrunkProjectView) -> Result<()> {
         // 1. insert trunk project name
         sqlx::query!(
@@ -380,9 +381,10 @@ impl Registry {
 
         let trunk_project_version_id = record.id;
 
-        // 3. insert Postgres version
+        // 3. insert Postgres version and download URLs
         tracing::info!("Inserting Postgres version!");
         if let Some(supported_postgres_versions) = trunk_project.postgres_versions {
+            let downloads = trunk_project.downloads.as_deref().unwrap_or_default();
             for pg_version in supported_postgres_versions {
                 sqlx::query!(
                     "INSERT INTO v1.trunk_project_postgres_support(postgres_version_id, trunk_project_version_id)
@@ -392,6 +394,20 @@ impl Registry {
                     trunk_project_version_id,
                     pg_version as i32
                 ).execute(&self.pool).await?;
+
+                let maybe_download = downloads
+                    .iter()
+                    .find(|download| download.pg_version == pg_version);
+
+                if let Some(download) = maybe_download {
+                    self.insert_download_link(
+                        pg_version,
+                        trunk_project_version_id,
+                        &download.link,
+                        &download.sha256,
+                    )
+                    .await?;
+                }
             }
         }
 
@@ -451,6 +467,7 @@ impl Registry {
                     .await?;
             }
         }
+
         Ok(())
     }
 
@@ -514,6 +531,44 @@ impl Registry {
             extension_version_id,
             control_file.absent,
             control_file.content,
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    async fn insert_download_link(
+        &self,
+        postgres_major: u8,
+        trunk_project_version_id: i32,
+        download_url: &str,
+        sha256: &str,
+    ) -> Result {
+        sqlx::query!(
+            "INSERT INTO v1.trunk_project_downloads (
+                platform_id,
+                postgres_version_id,
+                trunk_project_version_id,
+                download_url,
+                sha256
+            ) VALUES (
+                -- TODO: this works because this is currently the only platform supported, must change
+                -- if more get supported
+                (SELECT id FROM v1.platform WHERE platform_name = 'linux/amd64'),
+                (SELECT id FROM v1.postgres_version WHERE major = $1),
+                $2,
+                $3,
+                $4
+            )
+            ON CONFLICT (platform_id, postgres_version_id, trunk_project_version_id, download_url)
+            DO UPDATE SET
+                sha256 = EXCLUDED.sha256,
+                download_url = EXCLUDED.download_url",
+            postgres_major as i32,
+            trunk_project_version_id,
+            download_url,
+            sha256
         )
         .execute(&self.pool)
         .await?;

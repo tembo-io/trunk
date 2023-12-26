@@ -350,6 +350,7 @@ async fn insert_into_v1(
         version: new_extension.vers.to_string(),
         // TODO: state in Trunk.toml the supported versions
         postgres_versions: Some(vec![pg_version]),
+        downloads: None,
         extensions: extension_views,
     };
 
