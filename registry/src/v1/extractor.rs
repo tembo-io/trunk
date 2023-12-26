@@ -40,31 +40,41 @@ pub fn extract_extension_view(
         manifest,
     } = extract_archive(tar_gz)?;
 
-    let extension_views = control_files
+    let mut extension_views: Vec<ExtensionView> = control_files
         .into_iter()
         .map(|control_file| ExtensionView {
-            extension_name: control_file.extension_name,
+            extension_name: control_file.extension_name.clone(),
             version: control_file.default_version.unwrap_or_default(),
             trunk_project_name: new_extension.name.to_string(),
             dependencies_extension_names: control_file.dependencies,
             // TODO: should we clone this for every extension in a Trunk project?
             loadable_libraries: new_extension.libraries.clone(),
             configurations: new_extension.configurations.clone(),
-            control_file: if control_file.content.is_none() {
-                Some(ControlFileMetadata {
-                    absent: true,
-                    content: None,
-                })
-            } else {
-                Some(ControlFileMetadata {
-                    absent: false,
-                    content: control_file.content,
-                })
-            },
+            control_file: Some(ControlFileMetadata {
+                absent: false,
+                content: control_file.content,
+            }),
         })
         .collect();
 
-    Ok((extension_views, manifest.pg_version))
+    // If no control files found, we still want to return extension view information we have available.
+    // This includes control_file.absent = true and control_file.content = None
+    if extension_views.is_empty() {
+        extension_views.push(ExtensionView {
+            extension_name: new_extension.extension_name.clone().unwrap_or_default(),
+            version: new_extension.vers.to_string(),
+            trunk_project_name: new_extension.name.to_string(),
+            dependencies_extension_names: None,
+            loadable_libraries: new_extension.libraries.clone(),
+            configurations: new_extension.configurations.clone(),
+            control_file: Some(ControlFileMetadata {
+                absent: true,
+                content: None,
+            }),
+        });
+    }
+
+    Ok(extension_views)
 }
 
 fn extract_archive(tar_gz: &[u8]) -> anyhow::Result<ExtractedArchive> {
