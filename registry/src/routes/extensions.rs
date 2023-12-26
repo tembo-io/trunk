@@ -355,7 +355,6 @@ async fn insert_into_v1(
         documentation_link: new_extension.documentation,
         repository_link: new_extension.repository.unwrap_or_default(),
         version: new_extension.vers.to_string(),
-        // TODO: state in Trunk.toml the supported versions
         postgres_versions: Some(vec![pg_version]),
         downloads: Some(vec![Download {
             link: uploaded_path,

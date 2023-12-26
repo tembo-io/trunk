@@ -74,7 +74,7 @@ pub fn extract_extension_view(
         });
     }
 
-    Ok(extension_views)
+    Ok((extension_views, manifest.pg_version))
 }
 
 fn extract_archive(tar_gz: &[u8]) -> anyhow::Result<ExtractedArchive> {
