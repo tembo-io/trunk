@@ -53,6 +53,8 @@ pub async fn upload(
 }
 
 /// Uploads an extension file.
+///
+/// Returns the path of the uploaded archive.
 pub async fn upload_extension(
     bucket_name: &str,
     s3_client: &aws_sdk_s3::Client,
@@ -64,5 +66,6 @@ pub async fn upload_extension(
     let path = extension_path(&extension.name, &extension_version.to_string(), pg_version);
     info!("Uploading extension: {:?}", extension);
     upload(bucket_name, s3_client, &path, file, "application/gzip").await?;
-    Ok("Successfully uploaded extension".to_owned())
+
+    Ok(path)
 }
