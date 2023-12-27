@@ -7,8 +7,7 @@ description = "The auto_explain module provides a means for logging execution pl
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/auto-explain.html"
 categories = ["featured", "auditing_logging"]
-preload_libraries = ["auto_explain"]
-
+loadable_libraries = [{ library_name = "shared_preload_libraries_from_toml", requires_restart = true }]
 [dependencies]
 apt = ["libc6"]
 
