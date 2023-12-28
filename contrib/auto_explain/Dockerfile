@@ -18,11 +18,11 @@ RUN apt-get update && apt-get install -y \
 # Clone repository
 RUN git clone https://github.com/postgres/postgres.git
 
-ARG PG_RELEASE=REL_15_3
+ARG PG_RELEASE_VERSION=REL_15_3
 
 RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
-	git checkout ${PG_RELEASE} && \
+	git fetch origin ${PG_RELEASE_VERSION} && \
+	git checkout ${PG_RELEASE_VERSION} && \
 	./configure && \
 	cd contrib/auto_explain && \
 	make
