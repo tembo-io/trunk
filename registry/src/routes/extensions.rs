@@ -11,7 +11,8 @@ use crate::readme::GithubApiClient;
 use crate::repository::Registry;
 use crate::token::validate_token;
 use crate::uploader::upload_extension;
-use crate::v1::repository::TrunkProjectView;
+use crate::v1::extractor;
+use crate::v1::repository::{Download, ExtensionView, TrunkProjectView};
 use crate::views::extension_publish::ExtensionUpload;
 use crate::views::user_info::UserInfo;
 use actix_multipart::Multipart;
@@ -290,15 +291,25 @@ pub async fn publish(
     // The uploaded contents in .tar.gz
     let gzipped_archive = file.freeze();
 
+    let digest = sha256::digest(&*gzipped_archive);
+
+    // Extract the .tar.gz and its relevant contentss
+    let (extension_views, pg_version) =
+        extractor::extract_extension_view(&gzipped_archive, &new_extension).map_err(|err| {
+            tracing::error!("Failed to decompress archive: {err}");
+            ExtensionRegistryError::ArchiveError
+        })?;
+
     // TODO(ianstanton) Generate checksum
     let file_byte_stream = ByteStream::from(gzipped_archive.clone());
     let client = aws_sdk_s3::Client::new(&aws_config);
-    upload_extension(
+    let uploaded_path = upload_extension(
         &cfg.bucket_name,
         &client,
         file_byte_stream,
         &new_extension,
         &new_extension.vers,
+        pg_version,
     )
     .await?;
 
@@ -315,29 +326,42 @@ pub async fn publish(
     .await
     .map_err(|err| error!("Failed to fetch README in /publish: {err}"));
 
-    let _ = insert_into_v1(new_extension, registry.as_ref(), gzipped_archive.as_ref())
-        .await
-        .map_err(|err| error!("Failed to insert extension into v1 in /publish: {err}"));
+    // Insert into v1 tables
+    let _ = insert_into_v1(
+        new_extension,
+        extension_views,
+        pg_version,
+        uploaded_path,
+        digest,
+        registry.as_ref(),
+    )
+    .await
+    .map_err(|err| error!("Failed to insert extension into v1 in /publish: {err}"));
 
     Ok(response)
 }
 
 async fn insert_into_v1(
     new_extension: ExtensionUpload,
+    extension_views: Vec<ExtensionView>,
+    pg_version: u8,
+    uploaded_path: String,
+    digest: String,
     registry: &Registry,
-    gzipped_archive: &[u8],
 ) -> anyhow::Result<()> {
-    let extension_views =
-        crate::v1::extractor::extract_extension_view(gzipped_archive, &new_extension)?;
-
     let trunk_project = TrunkProjectView {
         name: new_extension.name,
         description: new_extension.description.unwrap_or_default(),
         documentation_link: new_extension.documentation,
         repository_link: new_extension.repository.unwrap_or_default(),
         version: new_extension.vers.to_string(),
-        // TODO: state in Trunk.toml the supported versions
-        postgres_versions: None,
+        postgres_versions: Some(vec![pg_version]),
+        downloads: Some(vec![Download {
+            link: uploaded_path,
+            pg_version,
+            architecture: "linux/amd64".into(),
+            sha256: digest,
+        }]),
         extensions: extension_views,
     };
 

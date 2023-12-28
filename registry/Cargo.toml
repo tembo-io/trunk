@@ -39,3 +39,4 @@ utoipa-swagger-ui = { version = "4.0.0", features = ["actix-web"] }
 tar = "0.4.40"
 flate2 = "1.0.28"
 bytes = "1.5.0"
+sha256 = "1.4.0"

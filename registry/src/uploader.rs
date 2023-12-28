@@ -11,16 +11,23 @@ use tracing::{debug, info};
 const CACHE_CONTROL_IMMUTABLE: &str = "public,max-age=31536000,immutable";
 
 /// Returns the internal path of an uploaded extension's version archive.
-fn extension_path(name: &str, version: &str) -> String {
-    format!("extensions/{name}/{name}-{version}.tar.gz")
+fn extension_path(name: &str, extension_version: &str, pg_version: u8) -> String {
+    format!("extensions/{name}/{name}-pg{pg_version}-{extension_version}.tar.gz")
 }
 
 /// Returns the URL of an uploaded extension's version archive.
 ///
 /// The function doesn't check for the existence of the file.
-pub fn extension_location(bucket_name: &str, project_name: &str, version: &str) -> String {
+pub fn extension_location(
+    bucket_name: &str,
+    project_name: &str,
+    extension_version: &str,
+) -> String {
+    // Note(vini): the current download endpoint only supports Postgres 15
+    let pg_version = 15;
+
     let host = format!("{bucket_name}.s3.amazonaws.com");
-    let path = extension_path(project_name, version);
+    let path = extension_path(project_name, extension_version, pg_version);
     format!("https://{host}/{path}")
 }
 
@@ -46,15 +53,19 @@ pub async fn upload(
 }
 
 /// Uploads an extension file.
+///
+/// Returns the path of the uploaded archive.
 pub async fn upload_extension(
     bucket_name: &str,
     s3_client: &aws_sdk_s3::Client,
     file: ByteStream,
     extension: &ExtensionUpload,
-    vers: &semver::Version,
+    extension_version: &semver::Version,
+    pg_version: u8,
 ) -> Result<String, ExtensionRegistryError> {
-    let path = extension_path(&extension.name, &vers.to_string());
+    let path = extension_path(&extension.name, &extension_version.to_string(), pg_version);
     info!("Uploading extension: {:?}", extension);
     upload(bucket_name, s3_client, &path, file, "application/gzip").await?;
-    Ok("Successfully uploaded extension".to_owned())
+
+    Ok(path)
 }
