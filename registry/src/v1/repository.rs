@@ -23,7 +23,7 @@ pub struct TrunkProjectView {
 pub struct Download {
     pub link: String,
     pub pg_version: u8,
-    pub architecture: String,
+    pub platform: String,
     pub sha256: String,
 }
 
@@ -53,6 +53,18 @@ impl Registry {
                         FROM v1.trunk_project_postgres_support tpps
                         JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
                         WHERE tpps.trunk_project_version_id = latest_tpvs.id
+                    ),
+                    'downloads', (
+                        SELECT json_agg(json_build_object(
+                            'link', tpd.download_url,
+                            'pg_version', pg.major,
+                            'platform', plt.platform_name,
+                            'sha256', tpd.sha256
+                        ))
+                        FROM v1.trunk_project_downloads tpd
+                        JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id
+                        JOIN v1.platform plt ON tpd.platform_id = plt.id
+                        WHERE tpd.trunk_project_version_id = latest_tpvs.id
                     ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
@@ -137,6 +149,18 @@ impl Registry {
                         JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
                         WHERE tpps.trunk_project_version_id = tpv.id
                     ),
+                    'downloads', (
+                        SELECT json_agg(json_build_object(
+                            'link', tpd.download_url,
+                            'pg_version', pg.major,
+                            'platform', plt.platform_name,
+                            'sha256', tpd.sha256
+                        ))
+                        FROM v1.trunk_project_downloads tpd
+                        JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id
+                        JOIN v1.platform plt ON tpd.platform_id = plt.id
+                        WHERE tpd.trunk_project_version_id = tpv.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -215,6 +239,18 @@ impl Registry {
                         JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
                         WHERE tpps.trunk_project_version_id = tpv.id
                     ),
+                    'downloads', (
+                        SELECT json_agg(json_build_object(
+                            'link', tpd.download_url,
+                            'pg_version', pg.major,
+                            'platform', plt.platform_name,
+                            'sha256', tpd.sha256
+                        ))
+                        FROM v1.trunk_project_downloads tpd
+                        JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id
+                        JOIN v1.platform plt ON tpd.platform_id = plt.id
+                        WHERE tpd.trunk_project_version_id = tpv.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -289,6 +325,18 @@ impl Registry {
                     FROM v1.trunk_project_postgres_support tpps
                     JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
                     WHERE tpps.trunk_project_version_id = tpv.id
+                ),
+                'downloads', (
+                    SELECT json_agg(json_build_object(
+                        'link', tpd.download_url,
+                        'pg_version', pg.major,
+                        'platform', plt.platform_name,
+                        'sha256', tpd.sha256
+                    ))
+                    FROM v1.trunk_project_downloads tpd
+                    JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id
+                    JOIN v1.platform plt ON tpd.platform_id = plt.id
+                    WHERE tpd.trunk_project_version_id = tpv.id
                 ),
                 'extensions', (
                     SELECT json_agg(json_build_object(

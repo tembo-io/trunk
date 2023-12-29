@@ -359,7 +359,7 @@ async fn insert_into_v1(
         downloads: Some(vec![Download {
             link: uploaded_path,
             pg_version,
-            architecture: "linux/amd64".into(),
+            platform: "linux/amd64".into(),
             sha256: digest,
         }]),
         extensions: extension_views,
