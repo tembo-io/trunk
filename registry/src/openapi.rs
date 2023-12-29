@@ -1,9 +1,11 @@
 use utoipa::openapi::License;
 use utoipa::OpenApi;
 
-use crate::v1::repository::{ExtensionView, TrunkProjectView};
+use crate::v1::repository::{Download, ExtensionView, TrunkProjectView};
 use crate::v1::routes as v1;
-use crate::views::extension_publish::{ExtensionConfiguration, LoadableLibrary};
+use crate::views::extension_publish::{
+    ControlFileMetadata, ExtensionConfiguration, LoadableLibrary,
+};
 
 // v1 API documentation
 #[derive(OpenApi)]
@@ -19,6 +21,8 @@ use crate::views::extension_publish::{ExtensionConfiguration, LoadableLibrary};
         LoadableLibrary,
         ExtensionConfiguration,
         TrunkProjectView,
+        ControlFileMetadata,
+        Download
     ))
 )]
 pub struct V1ApiDoc;
