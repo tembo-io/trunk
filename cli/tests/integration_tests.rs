@@ -31,6 +31,8 @@ fn install_manifest_v1_extension() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
+    cmd.arg("--pg-version");
+    cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(extension_path.as_os_str());
     cmd.arg("--version");
@@ -85,6 +87,8 @@ fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std:
 
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
+    cmd.arg("--pg-version");
+    cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(Path::new(&output_dir).join("pljava-1.6.5-pg15.tar.gz"));
     cmd.arg("pljava");
@@ -168,6 +172,8 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
+    cmd.arg("--pg-version");
+    cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str());
     cmd.arg("test_pgrx_extension");
@@ -390,6 +396,8 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
+    cmd.arg("--pg-version");
+    cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(format!("{output_dir}/pgsql_http-1.5.0-pg15.tar.gz").as_str());
     cmd.arg("pgsql_http");
@@ -558,6 +566,8 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
+    cmd.arg("--pg-version");
+    cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(format!("{output_dir}/pg_cron-1.5.2-pg15.tar.gz").as_str());
     cmd.arg("pg_cron");
@@ -658,6 +668,8 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
+    cmd.arg("--pg-version");
+    cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(format!("{output_dir}/test_pgrx_extension-0.0.0-pg15.tar.gz").as_str());
     cmd.arg("test_pgrx_extension");
@@ -820,6 +832,8 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
+    cmd.arg("--pg-version");
+    cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(format!("{output_dir}/auto_explain-15.3.0-pg15.tar.gz").as_str());
     cmd.arg("auto_explain");
@@ -911,6 +925,8 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     // This is a dependency of postgis_tiger_geocoder, which is included in the postgis tar.gz
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
+    cmd.arg("--pg-version");
+    cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(format!("{output_dir}/postgis-3.4.0-pg15.tar.gz").as_str());
     cmd.arg("postgis");
