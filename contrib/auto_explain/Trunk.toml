@@ -9,6 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/auto-explain.html"
 categories = ["featured", "auditing_logging"]
 loadable_libraries = [{ library_name = "auto_explain", requires_restart = true }]
 
+
 [dependencies]
 apt = ["libc6"]
 
