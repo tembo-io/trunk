@@ -156,14 +156,7 @@ async fn install(
         let bytes = response.bytes().await?;
         dest_file.write_all(&bytes)?;
 
-        install_file(
-            name.clone(),
-            &dest_path,
-            package_lib_dir,
-            sharedir,
-            registry,
-        )
-        .await?;
+        install_file(name, &dest_path, package_lib_dir, sharedir, registry).await?;
     }
     Ok(())
 }
