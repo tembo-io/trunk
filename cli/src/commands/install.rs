@@ -172,7 +172,11 @@ async fn fetch_archive_from_v1(
                 format!("Found no Trunk project with name {name} and version {version}")
             })?;
 
-        let download = project.downloads.with_context(|| "Trunk project had no `downloads` object")?.into_iter().find(|download| download.pg_version == postgres_version).with_context(|| format!("Failed to find an archive for {name} v{version} built for PostgreSQL {postgres_version}"))?;
+        let download = project.downloads
+            .with_context(|| "Trunk project had no `downloads` object")?
+            .into_iter()
+            .find(|download| download.pg_version == postgres_version)
+            .with_context(|| format!("Failed to find an archive for {name} v{version} built for PostgreSQL {postgres_version}"))?;
 
         Url::parse(&download.link).with_context(|| "Failed to parse URL")
     } else {
