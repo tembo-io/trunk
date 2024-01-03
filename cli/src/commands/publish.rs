@@ -4,7 +4,7 @@ use crate::commands::publish::PublishError::InvalidExtensionName;
 use crate::config::{self, ExtensionConfiguration, LoadableLibrary};
 use crate::manifest::Manifest;
 use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
-use anyhow::{anyhow, Context};
+use anyhow::anyhow;
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
@@ -248,9 +248,7 @@ impl SubCommand for PublishCommand {
                 // If file is specified, use it
                 let path = publish_settings.file.clone().unwrap();
                 let name = path.file_name().unwrap().to_str().unwrap().to_owned();
-                let f = fs::read(publish_settings.file.clone().unwrap())
-                    .context(format!("Could not find file '{}'", path.to_str().unwrap()))?;
-                vec![(f, name)]
+                vec![(path, name)]
             }
             None => {
                 let mut files = Vec::new();
@@ -269,9 +267,9 @@ impl SubCommand for PublishCommand {
                         continue;
                     }
                     let file_name = path.file_name().unwrap().to_str().unwrap().to_owned();
-                    let bytes = fs::read(path)?;
-
-                    files.push((bytes, file_name))
+                    // Convert path to PathBuf
+                    let path = PathBuf::from(path);
+                    files.push((path, file_name))
                 }
 
                 if files.is_empty() {
@@ -284,90 +282,74 @@ impl SubCommand for PublishCommand {
 
         // TODO(ianstanton) DRY this up
         // TODO(ianstanton) Read system dependencies and preload_libraries from manifest.json
-        // If extension_name is not provided by the user, check for value in manifest.json
-        if publish_settings.extension_name.is_none() {
-            info!("Fetching extension_name from manifest.json...");
-            // Get file path
-            let file = match &publish_settings.file {
-                Some(..) => {
-                    // If file is specified, use it
-                    publish_settings.file.clone().unwrap()
-                }
-                None => {
-                    // If no file is specified, read file from working dir with format
-                    // .trunk/<extension_name>-<version>.tar.gz.
-                    // Error if file is not found
-                    let mut path = PathBuf::new();
-                    let _ = &path.push(format!(
-                        ".trunk/{}-{}.tar.gz",
-                        publish_settings.name, publish_settings.version
-                    ));
-                    path
-                }
-            };
+        for (file, name) in files {
+            // If extension_name is not provided by the user, check for value in manifest.json
+            if publish_settings.extension_name.is_none() {
+                info!("Fetching extension_name from manifest.json...");
 
-            let f = File::open(&file)?;
-            let input = match &file
-                .extension()
-                .into_iter()
-                .filter_map(|s| s.to_str())
-                .next()
-            {
-                Some("gz") => {
-                    // unzip the archive into a temporary file
-                    let decoder = GzDecoder::new(f);
-                    let mut tempfile = tempfile::tempfile()?;
-                    use read_write_pipe::*;
-                    tempfile.write_reader(decoder)?;
-                    tempfile.rewind()?;
-                    tempfile
-                }
-                Some("tar") => f,
-                _ => return Err(InvalidExtensionName)?,
-            };
+                let f = File::open(&file)?;
+                let input = match &file
+                    .extension()
+                    .into_iter()
+                    .filter_map(|s| s.to_str())
+                    .next()
+                {
+                    Some("gz") => {
+                        // unzip the archive into a temporary file
+                        let decoder = GzDecoder::new(f);
+                        let mut tempfile = tempfile::tempfile()?;
+                        use read_write_pipe::*;
+                        tempfile.write_reader(decoder)?;
+                        tempfile.rewind()?;
+                        tempfile
+                    }
+                    Some("tar") => f,
+                    _ => return Err(InvalidExtensionName)?,
+                };
 
-            let mut archive = Archive::new(&input);
-            let mut manifest: Option<Manifest> = None;
-            {
-                let entries = archive.entries_with_seek()?;
-                for this_entry in entries {
-                    let entry = this_entry?;
-                    let fname = entry.path()?;
-                    if entry.header().entry_type() == EntryType::file()
-                        && fname.clone() == Path::new("manifest.json")
-                    {
-                        let manifest_json = serde_json::from_reader(entry)?;
-                        let manifest_result = serde_json::from_value(manifest_json);
-                        manifest.replace(manifest_result?);
+                let mut archive = Archive::new(&input);
+                let mut manifest: Option<Manifest> = None;
+                {
+                    let entries = archive.entries_with_seek()?;
+                    for this_entry in entries {
+                        let entry = this_entry?;
+                        let fname = entry.path()?;
+                        if entry.header().entry_type() == EntryType::file()
+                            && fname.clone() == Path::new("manifest.json")
+                        {
+                            let manifest_json = serde_json::from_reader(entry)?;
+                            let manifest_result = serde_json::from_value(manifest_json);
+                            manifest.replace(manifest_result?);
+                        }
                     }
                 }
-            }
 
-            if let Some(manifest) = manifest {
-                publish_settings.extension_name = Option::from(
-                    manifest
-                        .extension_name
-                        .unwrap_or(publish_settings.name.clone()),
-                );
-                info!(
-                    "Found extension_name: {}",
-                    publish_settings.extension_name.clone().unwrap()
-                );
-            } else {
-                info!(
-                    "Did not find extension_name in manifest.json. Falling back to '{}'",
-                    publish_settings.name.clone()
-                );
+                if let Some(manifest) = manifest {
+                    publish_settings.extension_name = Option::from(
+                        manifest
+                            .extension_name
+                            .unwrap_or(publish_settings.name.clone()),
+                    );
+                    info!(
+                        "Found extension_name: {}",
+                        publish_settings.extension_name.clone().unwrap()
+                    );
+                } else {
+                    info!(
+                        "Did not find extension_name in manifest.json. Falling back to '{}'",
+                        publish_settings.name.clone()
+                    );
+                }
             }
-        }
+            // Convert file to bytes
+            let file_bytes = fs::read(file)?;
 
-        for (file, name) in files {
             let mut headers = HeaderMap::new();
             headers.insert(CONTENT_TYPE, "application/octet-stream".parse().unwrap());
             // Add token header from env var
             let auth = env::var("TRUNK_API_TOKEN").expect("TRUNK_API_TOKEN not set");
             headers.insert(AUTHORIZATION, auth.parse()?);
-            let file_part = reqwest::multipart::Part::bytes(file)
+            let file_part = reqwest::multipart::Part::bytes(file_bytes)
                 .file_name(name)
                 .headers(headers.clone());
             let m = json!({
