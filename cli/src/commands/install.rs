@@ -72,11 +72,15 @@ impl PgConfig {
     fn exec(&self, arg: &str) -> anyhow::Result<String> {
         use std::process::Command;
 
-        let bytes = Command::new(&self.pg_config_path)
+        let mut bytes = Command::new(&self.pg_config_path)
             .arg(arg)
             .output()
             .with_context(|| format!("Failed to run pgconfig {arg}"))?
             .stdout;
+
+        if bytes.last() == Some(&b'\n') {
+            bytes.pop();
+        }
 
         String::from_utf8(bytes).with_context(|| "pgconfig returned invalid UTF-8")
     }
