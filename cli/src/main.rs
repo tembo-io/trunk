@@ -5,6 +5,7 @@ mod manifest;
 mod sync_utils;
 mod trunk_toml;
 mod tui;
+mod v1;
 
 use crate::commands::SubCommand;
 use async_trait::async_trait;
