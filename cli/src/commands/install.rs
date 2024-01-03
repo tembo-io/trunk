@@ -1,7 +1,7 @@
 use super::SubCommand;
 use crate::control_file::ControlFile;
 use crate::manifest::{Manifest, PackagedFile};
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
@@ -11,7 +11,7 @@ use reqwest;
 use reqwest::Url;
 use slicedisplay::SliceDisplay;
 use std::ffi::OsStr;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{Read, Seek, Write};
 use std::ops::Not;
 use std::path::{Path, PathBuf};
@@ -35,6 +35,16 @@ pub struct InstallCommand {
     registry: String,
 }
 
+impl InstallCommand {
+    pub fn pgconfig(&self) -> anyhow::Result<PgConfig> {
+        let installed_pg_config = which::which("pg_config")?;
+
+        let pg_config_path = self.pg_config.clone().unwrap_or(installed_pg_config);
+
+        Ok(PgConfig { pg_config_path })
+    }
+}
+
 #[derive(thiserror::Error, Debug)]
 pub enum InstallError {
     #[error("unknown file type")]
@@ -53,34 +63,41 @@ pub enum InstallError {
     ManifestNotFound,
 }
 
+pub struct PgConfig {
+    pub pg_config_path: PathBuf,
+}
+
+impl PgConfig {
+    fn exec(&self, arg: &str) -> anyhow::Result<String> {
+        use std::process::Command;
+
+        let bytes = Command::new(&self.pg_config_path)
+            .arg(arg)
+            .output()
+            .with_context(|| format!("Failed to run pgconfig {arg}"))?
+            .stdout;
+
+        String::from_utf8(bytes).with_context(|| "pgconfig returned invalid UTF-8")
+    }
+
+    pub fn pkglibdir(&self) -> anyhow::Result<PathBuf> {
+        fs::canonicalize(self.exec("--pkglibdir")?)
+            .with_context(|| "Failed to canonicalize pkglibdir")
+    }
+
+    pub fn sharedir(&self) -> anyhow::Result<PathBuf> {
+        self.exec("--sharedir").map(PathBuf::from)
+    }
+}
+
 #[async_trait]
 impl SubCommand for InstallCommand {
     async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
-        let installed_pg_config = which::which("pg_config").ok();
-        let pg_config = self
-            .pg_config
-            .as_ref()
-            .or_else(|| installed_pg_config.as_ref())
-            .ok_or(InstallError::PgConfigNotFound)?;
-        println!("Using pg_config: {}", pg_config.display());
+        let pg_config = self.pgconfig()?;
 
-        let package_lib_dir = std::process::Command::new(pg_config)
-            .arg("--pkglibdir")
-            .output()?
-            .stdout;
+        let package_lib_dir = pg_config.pkglibdir()?;
 
-        let package_lib_dir = String::from_utf8_lossy(&package_lib_dir)
-            .trim_end()
-            .to_string();
-
-        let package_lib_dir = std::fs::canonicalize(package_lib_dir)?;
-
-        let sharedir = std::process::Command::new(pg_config)
-            .arg("--sharedir")
-            .output()?
-            .stdout;
-
-        let sharedir = PathBuf::from(String::from_utf8_lossy(&sharedir).trim_end().to_string());
+        let sharedir = pg_config.sharedir()?;
 
         if !package_lib_dir.exists() && !package_lib_dir.is_dir() {
             println!(
