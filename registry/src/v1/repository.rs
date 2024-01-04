@@ -568,9 +568,7 @@ impl Registry {
         control_file: Option<&ControlFileMetadata>,
     ) -> Result {
         let absent = control_file.is_none();
-        let content = control_file
-            .map(|control_file| control_file.content.as_ref())
-            .flatten();
+        let content = control_file.and_then(|control_file| control_file.content.as_ref());
 
         sqlx::query!(
             "INSERT INTO v1.control_file (extension_version_id, absent, content)
