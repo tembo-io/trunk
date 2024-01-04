@@ -63,9 +63,19 @@ pub async fn upload_extension(
     extension_version: &semver::Version,
     pg_version: u8,
 ) -> Result<String, ExtensionRegistryError> {
-    let path = extension_path(&extension.name, &extension_version.to_string(), pg_version);
+    let path_in_bucket =
+        extension_path(&extension.name, &extension_version.to_string(), pg_version);
     info!("Uploading extension: {:?}", extension);
-    upload(bucket_name, s3_client, &path, file, "application/gzip").await?;
+    upload(
+        bucket_name,
+        s3_client,
+        &path_in_bucket,
+        file,
+        "application/gzip",
+    )
+    .await?;
 
-    Ok(path)
+    let http_path = format!("https://{bucket_name}.s3.amazonaws.com/{path_in_bucket}");
+
+    Ok(http_path)
 }
