@@ -1,4 +1,4 @@
-DATABASE_URL := "postgresql://postgres:postgres@0.0.0.0:5432/postgres"
+DATABASE_URL := "postgresql://postgres:postgres@localhost:5432/postgres"
 
 format:
     cargo +nightly fmt --all
@@ -6,11 +6,16 @@ format:
     cargo sqlx prepare
 
 run-migrations:
-    sqlx migrate run
+    DATABASE_URL={{DATABASE_URL}} cargo sqlx migrate run
+
+run-postgres:
+    docker-compose kill || true
+    docker rm --force trunk-registry-pg
+    docker-compose up --build -d
 
 run:
     RUST_LOG=debug \
-    DATABASE_URL=${DATABASE_URL} \
+    DATABASE_URL={{DATABASE_URL}} \
     RUST_BACKTRACE=full \
-    RUST_LOG=debug \
+    GITHUB_TOKEN=$(gh auth token) \
     cargo run
