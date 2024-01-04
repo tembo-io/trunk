@@ -568,7 +568,9 @@ impl Registry {
         extension_version_id: i32,
         control_file: Option<&ControlFileMetadata>,
     ) -> Result {
-        let absent = control_file.map(|control_file| control_file.absent).unwrap_or(true);
+        let absent = control_file
+            .map(|control_file| control_file.absent)
+            .unwrap_or(true);
         let content = control_file.and_then(|control_file| control_file.content.as_ref());
 
         sqlx::query!(
