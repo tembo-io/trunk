@@ -438,7 +438,8 @@ impl Registry {
                     "INSERT INTO v1.trunk_project_postgres_support(postgres_version_id, trunk_project_version_id)
                     SELECT pg.id, $1
                     FROM v1.postgres_version pg
-                    WHERE pg.major = $2",
+                    WHERE pg.major = $2
+                    ON CONFLICT ON CONSTRAINT unique_trunk_project_postgres_support DO NOTHING",
                     trunk_project_version_id,
                     pg_version as i32
                 ).execute(&self.pool).await?;
