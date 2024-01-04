@@ -510,10 +510,8 @@ impl Registry {
                 .await?;
 
             // 8. Insert control file metadata
-            if let Some(control_file) = &extension.control_file {
-                self.insert_control_file(extension_version_id, control_file.clone())
-                    .await?;
-            }
+            self.insert_control_file(extension_version_id, extension.control_file.as_ref())
+                .await?;
         }
 
         Ok(())
@@ -567,8 +565,13 @@ impl Registry {
     async fn insert_control_file(
         &self,
         extension_version_id: i32,
-        control_file: ControlFileMetadata,
+        control_file: Option<&ControlFileMetadata>,
     ) -> Result {
+        let absent = control_file.is_none();
+        let content = control_file
+            .map(|control_file| control_file.content.as_ref())
+            .flatten();
+
         sqlx::query!(
             "INSERT INTO v1.control_file (extension_version_id, absent, content)
             VALUES ($1, $2, $3)
@@ -577,8 +580,8 @@ impl Registry {
                 absent = EXCLUDED.absent,
                 content = EXCLUDED.content",
             extension_version_id,
-            control_file.absent,
-            control_file.content,
+            absent,
+            content,
         )
         .execute(&self.pool)
         .await?;
