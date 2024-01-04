@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  local-tembo:
+    container_name: trunk-registry-pg
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    ports:
+      - "5432:5432"
+
