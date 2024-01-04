@@ -99,6 +99,19 @@
     },
     "query": "SELECT user_id\n                FROM api_tokens\n                WHERE\n                    token = $1"
   },
+  "13f5a1bc9134e46f5afd23f334b270a5e0daccd7021955c708aa1554d7aa1b05": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int2"
+        ]
+      }
+    },
+    "query": "INSERT INTO v1.trunk_project_postgres_support(postgres_version_id, trunk_project_version_id)\n                    SELECT pg.id, $1\n                    FROM v1.postgres_version pg\n                    WHERE pg.major = $2\n                    ON CONFLICT ON CONSTRAINT unique_trunk_project_postgres_support DO NOTHING"
+  },
   "152d01b0e157fa58129e96f5bd3e7536e393feb12f12adcafadbabebd0918fa9": {
     "describe": {
       "columns": [
@@ -1037,19 +1050,6 @@
       }
     },
     "query": "\n            INSERT INTO api_tokens(user_id, user_name, token, created_at)\n            VALUES ($1, $2, $3, (now() at time zone 'utc'))\n            "
-  },
-  "809655bbc51de789fdc2df55a9442378e6c521b0ecbd807ce596fcb37a60131d": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Int2"
-        ]
-      }
-    },
-    "query": "INSERT INTO v1.trunk_project_postgres_support(postgres_version_id, trunk_project_version_id)\n                    SELECT pg.id, $1\n                    FROM v1.postgres_version pg\n                    WHERE pg.major = $2"
   },
   "8a3643fa646f1768ce6b3abdc949b6daade8f796a8f2b9a388f436e486425299": {
     "describe": {
