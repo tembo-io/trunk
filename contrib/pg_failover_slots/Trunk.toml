@@ -7,7 +7,7 @@ description = "PG Failover Slots avoids the need for you to reseed your logical 
 homepage = "https://www.enterprisedb.com/"
 documentation = "https://www.enterprisedb.com/docs/pg_extensions/pg_failover_slots/"
 categories = ["orchestration"]
-preload_libraries = ["pg_failover_slots"]
+loadable_libraries = [{ library_name = "pg_failover_slots", requires_restart = true }]
 
 [dependencies]
 apt = ["libc6", "libpq5"]
