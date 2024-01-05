@@ -6,7 +6,7 @@ license = "GPL-3.0"
 description = "PostgreSQL dynamic data anonymization."
 documentation = "https://github.com/rjuju/pg_anonymize"
 categories = ["security"]
-preload_libraries = ["pg_anonymize"]
+loadable_libraries = [{ library_name = "pg_anonymize", requires_restart = true }]
 
 [dependencies]
 apt = ["libc6"]
