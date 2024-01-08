@@ -4,7 +4,8 @@ USER root
 
 # Extension build dependencies
 RUN apt-get update && apt-get install -y \
-    libkrb5-dev
+    libkrb5-dev \
+    libipc-run-perl
 
 # Clone repository
 RUN git clone https://github.com/EnterpriseDB/pg_failover_slots.git
