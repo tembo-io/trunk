@@ -2,6 +2,7 @@ mod commands;
 mod config;
 mod control_file;
 mod manifest;
+mod semver;
 mod sync_utils;
 mod trunk_toml;
 mod tui;

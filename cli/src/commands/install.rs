@@ -1,6 +1,7 @@
 use super::SubCommand;
 use crate::control_file::ControlFile;
 use crate::manifest::{Manifest, PackagedFile};
+use crate::semver::compare_by_semver;
 use crate::v1::TrunkProjectView;
 use anyhow::{anyhow, bail, Context};
 use async_recursion::async_recursion;
@@ -169,12 +170,20 @@ async fn fetch_archive_from_v1(
     if status.is_success() {
         let body: Vec<TrunkProjectView> = response.json().await?;
 
-        let project = body
-            .into_iter()
-            .find(|project| project.name == name && project.version == version)
-            .with_context(|| {
-                format!("Found no Trunk project with name {name} and version {version}")
-            })?;
+        let project = if version == "latest" {
+            let mut projects: Vec<_> = body.into_iter().filter(|proj| proj.name == name).collect();
+            projects.sort_by(|a, b| compare_by_semver(&a.version, &b.version));
+            // Take the last element since, now we've sorted, it'll be the element with the latest version
+            projects
+                .pop()
+                .with_context(|| format!("Found no Trunk project with name {name}"))?
+        } else {
+            body.into_iter()
+                .find(|project| project.name == name && project.version == version)
+                .with_context(|| {
+                    format!("Found no Trunk project with name {name} and version {version}")
+                })?
+        };
 
         let download = project.downloads
             .with_context(|| "Trunk project had no `downloads` object")?
