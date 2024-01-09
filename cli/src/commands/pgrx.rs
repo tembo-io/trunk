@@ -14,6 +14,7 @@ use crate::commands::containers::{
 };
 use crate::config::{ExtensionConfiguration, LoadableLibrary};
 use crate::trunk_toml::SystemDependencies;
+use crate::{pg_release_for_version, pg_version_to_str};
 use tokio::sync::mpsc;
 
 use tokio::task::JoinError;
@@ -167,6 +168,8 @@ pub async fn build_pgrx(
     build_args.insert("EXTENSION_NAME", name);
     build_args.insert("EXTENSION_VERSION", extension_version);
     build_args.insert("PGRX_VERSION", pgrx_version.as_str());
+    build_args.insert("PG_VERSION", pg_version_to_str(pg_version));
+    build_args.insert("PG_RELEASE", pg_release_for_version(pg_version));
 
     let image_name_prefix = "pgrx_builder_".to_string();
 
