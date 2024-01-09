@@ -197,7 +197,7 @@ pub async fn build_pgrx(
             "cp",
             "--verbose",
             "-R",
-            format!("target/release/{name}-pg15/usr").as_str(),
+            format!("target/release/{name}-pg{pg_version}/usr").as_str(),
             "/",
         ],
         None,
