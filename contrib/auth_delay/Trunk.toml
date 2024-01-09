@@ -7,7 +7,7 @@ description = "auth_delay causes the server to pause briefly before reporting au
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/auth-delay.html"
 categories = ["security"]
-preload_libraries = ["auth_delay"]
+loadable_libraries = [{ library_name = "auth_delay", requires_restart = true }]
 
 [build]
 postgres_version = "15"

@@ -32,7 +32,13 @@ pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Err
 pub struct LoadableLibrary {
     pub library_name: String,
     pub requires_restart: bool,
-    pub priority: i32,
+    // set default to 2147483647
+    #[serde(default = "default_priority")]
+    pub priority: Option<i32>,
+}
+
+fn default_priority() -> Option<i32> {
+    Some(2147483647)
 }
 
 #[cfg(test)]

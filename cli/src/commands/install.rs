@@ -1,7 +1,9 @@
 use super::SubCommand;
 use crate::control_file::ControlFile;
 use crate::manifest::{Manifest, PackagedFile};
-use anyhow::anyhow;
+use crate::semver::compare_by_semver;
+use crate::v1::TrunkProjectView;
+use anyhow::{anyhow, bail, Context};
 use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
@@ -11,7 +13,7 @@ use reqwest;
 use reqwest::Url;
 use slicedisplay::SliceDisplay;
 use std::ffi::OsStr;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{Read, Seek, Write};
 use std::ops::Not;
 use std::path::{Path, PathBuf};
@@ -33,15 +35,25 @@ pub struct InstallCommand {
         default_value = "https://registry.pgtrunk.io"
     )]
     registry: String,
+    /// The PostgreSQL version for which this extension should be installed. Experimental for versions other than Postgres 15.
+    #[clap(long, action)]
+    pg_version: Option<u8>,
+}
+
+impl InstallCommand {
+    pub fn pgconfig(&self) -> anyhow::Result<PgConfig> {
+        let installed_pg_config = which::which("pg_config")?;
+
+        let pg_config_path = self.pg_config.clone().unwrap_or(installed_pg_config);
+
+        Ok(PgConfig { pg_config_path })
+    }
 }
 
 #[derive(thiserror::Error, Debug)]
 pub enum InstallError {
     #[error("unknown file type")]
     UnknownFileType,
-
-    #[error("pg_config not found")]
-    PgConfigNotFound,
 
     #[error("IO Error: {0}")]
     IoError(#[from] std::io::Error),
@@ -53,34 +65,62 @@ pub enum InstallError {
     ManifestNotFound,
 }
 
+pub struct PgConfig {
+    pub pg_config_path: PathBuf,
+}
+
+impl PgConfig {
+    fn exec(&self, arg: &str) -> anyhow::Result<String> {
+        use std::process::Command;
+
+        let mut bytes = Command::new(&self.pg_config_path)
+            .arg(arg)
+            .output()
+            .with_context(|| format!("Failed to run pgconfig {arg}"))?
+            .stdout;
+
+        if bytes.last() == Some(&b'\n') {
+            bytes.pop();
+        }
+
+        String::from_utf8(bytes).with_context(|| "pgconfig returned invalid UTF-8")
+    }
+
+    pub fn pkglibdir(&self) -> anyhow::Result<PathBuf> {
+        fs::canonicalize(self.exec("--pkglibdir")?)
+            .with_context(|| "Failed to canonicalize pkglibdir")
+    }
+
+    pub fn sharedir(&self) -> anyhow::Result<PathBuf> {
+        self.exec("--sharedir").map(PathBuf::from)
+    }
+
+    /// The major version of the currently set PostgreSQL server
+    pub fn postgres_version(&self) -> anyhow::Result<u8> {
+        let version = self.exec("--version")?;
+
+        let version = if version.starts_with("PostgreSQL 14") {
+            14
+        } else if version.starts_with("PostgreSQL 15") {
+            15
+        } else if version.starts_with("PostgreSQL 16") {
+            16
+        } else {
+            bail!("Currently unsupported Postgres version: {version}")
+        };
+
+        Ok(version)
+    }
+}
+
 #[async_trait]
 impl SubCommand for InstallCommand {
     async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
-        let installed_pg_config = which::which("pg_config").ok();
-        let pg_config = self
-            .pg_config
-            .as_ref()
-            .or_else(|| installed_pg_config.as_ref())
-            .ok_or(InstallError::PgConfigNotFound)?;
-        println!("Using pg_config: {}", pg_config.display());
+        let pg_config = self.pgconfig()?;
 
-        let package_lib_dir = std::process::Command::new(pg_config)
-            .arg("--pkglibdir")
-            .output()?
-            .stdout;
+        let package_lib_dir = pg_config.pkglibdir()?;
 
-        let package_lib_dir = String::from_utf8_lossy(&package_lib_dir)
-            .trim_end()
-            .to_string();
-
-        let package_lib_dir = std::fs::canonicalize(package_lib_dir)?;
-
-        let sharedir = std::process::Command::new(pg_config)
-            .arg("--sharedir")
-            .output()?
-            .stdout;
-
-        let sharedir = PathBuf::from(String::from_utf8_lossy(&sharedir).trim_end().to_string());
+        let sharedir = pg_config.sharedir()?;
 
         if !package_lib_dir.exists() && !package_lib_dir.is_dir() {
             println!(
@@ -90,8 +130,15 @@ impl SubCommand for InstallCommand {
             return Ok(());
         }
 
+        let postgres_version = if let Some(pg_version) = self.pg_version {
+            pg_version
+        } else {
+            pg_config.postgres_version()?
+        };
+
         println!("Using pkglibdir: {package_lib_dir:?}");
         println!("Using sharedir: {sharedir:?}");
+        println!("Using Postgres version: {postgres_version}");
 
         install(
             &self.name,
@@ -100,10 +147,72 @@ impl SubCommand for InstallCommand {
             &self.registry,
             package_lib_dir,
             sharedir,
+            postgres_version,
         )
         .await?;
 
         Ok(())
+    }
+}
+
+async fn fetch_archive_from_v1(
+    registry: &str,
+    name: &str,
+    version: &str,
+    postgres_version: u8,
+) -> anyhow::Result<Url> {
+    // Assuming name is a Trunk project name
+    let endpoint = format!("{registry}/api/v1/trunk-projects/{name}");
+
+    let response = reqwest::get(endpoint).await?;
+    let status = response.status();
+
+    if status.is_success() {
+        let body: Vec<TrunkProjectView> = response.json().await?;
+
+        let project = if version == "latest" {
+            let mut projects: Vec<_> = body.into_iter().filter(|proj| proj.name == name).collect();
+            projects.sort_by(|a, b| compare_by_semver(&a.version, &b.version));
+            // Take the last element since, now we've sorted, it'll be the element with the latest version
+            projects
+                .pop()
+                .with_context(|| format!("Found no Trunk project with name {name}"))?
+        } else {
+            body.into_iter()
+                .find(|project| project.name == name && project.version == version)
+                .with_context(|| {
+                    format!("Found no Trunk project with name {name} and version {version}")
+                })?
+        };
+
+        let download = project.downloads
+            .with_context(|| "Trunk project had no `downloads` object")?
+            .into_iter()
+            .find(|download| download.pg_version == postgres_version)
+            .with_context(|| format!("Failed to find an archive for {name} v{version} built for PostgreSQL {postgres_version}"))?;
+
+        Url::parse(&download.link).with_context(|| "Failed to parse URL")
+    } else {
+        let body = response.text().await?;
+
+        Err(anyhow!("Request to registry failed: {body}"))
+    }
+}
+
+async fn fetch_archive_legacy(registry: &str, name: &str, version: &str) -> anyhow::Result<Url> {
+    let endpoint = format!("{}/extensions/{}/{}/download", registry, name, version);
+
+    let response = reqwest::get(endpoint).await?;
+    let status = response.status();
+
+    if status.is_success() {
+        let body = response.text().await?;
+
+        Url::parse(&body).with_context(|| "Failed to parse URL")
+    } else {
+        let body = response.text().await?;
+
+        Err(anyhow!("Request to registry failed: {body}"))
     }
 }
 
@@ -115,56 +224,69 @@ async fn install(
     registry: &str,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
+    postgres_version: u8,
 ) -> Result<(), anyhow::Error> {
     // If file is specified
     if let Some(ref file) = file {
-        install_file(name, file, package_lib_dir, sharedir, registry).await?;
-    } else {
-        // If a file is not specified, then we will query the registry
-        // and download the latest version of the package
-        // Using the reqwest crate, we will run the equivalent of this curl command:
-        // curl --request GET --url 'http://localhost:8080/extensions/{self.name}/{self.version}/download'
-        let response = reqwest::get(&format!(
-            "{}/extensions/{}/{}/download",
-            registry, name, version
-        ))
-        .await?;
-
-        let response_body = response.text().await?;
-        info!("Downloading from: {response_body}");
-
-        let url = Url::parse(&response_body)?;
-
-        // Get the path segments as an iterator
-        let segments = url
-            .path_segments()
-            .ok_or(anyhow!("Cannot extract path segments"))?;
-
-        // Get the last segment, which should be the file name
-        let file_name = segments
-            .last()
-            .ok_or(anyhow!("Cannot extract file name from URL"))?;
-
-        // Write the bytes of the archive to a temporary directory
-        let temp_dir = tempfile::tempdir()?;
-        let dest_path = temp_dir.path().join(file_name);
-
-        let response = reqwest::get(url).await?;
-
-        let mut dest_file = File::create(&dest_path)?;
-        // write the response body to the file
-        let bytes = response.bytes().await?;
-        dest_file.write_all(&bytes)?;
-
-        install_file(
-            name.clone(),
-            &dest_path,
+        return install_file(
+            name,
+            file,
             package_lib_dir,
             sharedir,
             registry,
+            postgres_version,
         )
-        .await?;
+        .await;
     }
+
+    // If a file is not specified, then we will query the registry
+    // and download the latest version of the package
+    let url = match fetch_archive_from_v1(registry, name, version, postgres_version).await {
+        Ok(url) => url,
+        Err(err) if postgres_version == 15 => {
+            eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
+            // Fallback to fetch archive from the older endpoint
+            fetch_archive_legacy(registry, name, version).await?
+        }
+        Err(err) => {
+            eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
+            bail!("Cannot install extension for Postgres version {postgres_version} through the legacy endpoint");
+        }
+    };
+
+    info!("Downloading from: {url}");
+
+    // Get the path segments as an iterator
+    let segments = url
+        .path_segments()
+        .ok_or(anyhow!("Cannot extract path segments"))?;
+
+    // Get the last segment, which should be the file name
+    let file_name = segments
+        .last()
+        .ok_or(anyhow!("Cannot extract file name from URL"))?;
+
+    // Write the bytes of the archive to a temporary directory
+    let temp_dir = tempfile::tempdir()?;
+    let dest_path = temp_dir.path().join(file_name);
+
+    let response = reqwest::get(url).await?;
+
+    let mut dest_file = File::create(&dest_path)?;
+    // write the response body to the file
+    let bytes = response.bytes().await?;
+    dest_file.write_all(&bytes)?;
+
+    install_file(
+        name.clone(),
+        &dest_path,
+        package_lib_dir,
+        sharedir,
+        registry,
+        postgres_version,
+    )
+    .await?;
+
     Ok(())
 }
 
@@ -174,6 +296,7 @@ async fn install_file(
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
     registry: &str,
+    postgres_version: u8,
 ) -> Result<(), anyhow::Error> {
     let f = File::open(file)?;
 
@@ -302,6 +425,7 @@ async fn install_file(
                 registry,
                 package_lib_dir.clone(),
                 sharedir.clone(),
+                postgres_version,
             )
             .await?;
         }

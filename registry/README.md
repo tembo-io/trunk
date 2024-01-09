@@ -47,38 +47,35 @@ Extensions are grouped according to developer-centric use cases:
 ## Development
 ### Getting Started
 
-1. Start postgres database
+1. Start postgres
     ```
-    docker run -it --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:latest
+    just start-postgres
     ```
 
-2. Set connection string environment variable. This can also be configured in `.env`.
+2. Set AWS environment variables
     ```
-    export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres"
+    export AWS_ACCESS_KEY_ID=<my-id>
+    export AWS_SECRET_ACCESS_KEY=<my-key>
+    export AWS_REGION=<my-region>
+    export AWS_SESSION_TOKEN=<my-token>
+    export S3_BUCKET=<my-bucket>
     ```
 
 3. Initialize database (must install [sqlx](https://crates.io/crates/sqlx-cli))
     ```
-    cargo sqlx migrate run
+    just run-migrations
     ```
 
-4. Run, with automatic reloads (uses [cargo watch](https://crates.io/crates/cargo-watch))
+4. Run the registry code
     ```
-    cargo watch -x run
+    just run
     ```
 
 ### Usage
 The registry will run at `http://localhost:8080` by default. The [Trunk CLI](../cli) can be configured to interact with
 a local registry by using the `--registry` flag. Example:
 ```shell
-trunk publish pgmq \
---version 0.5.0 \
---description "Message queue for Postgres" \
---documentation "https://github.com/tembo-io/coredb/tree/main/pgmq/extension" \
---repository "https://github.com/tembo-io/coredb/tree/main/pgmq/extension" \
---license "Apache-2.0" \
---homepage "https://github.com/tembo-io/coredb" \
---registry http://localhost:8080
+TRUNK_API_TOKEN=<my-token> trunk publish --registry http://localhost:8080
 ```
 
 Routes can also be called with tools like `curl`. Examples:
