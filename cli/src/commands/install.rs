@@ -278,7 +278,7 @@ async fn install(
     dest_file.write_all(&bytes)?;
 
     install_file(
-        name.clone(),
+        name,
         &dest_path,
         package_lib_dir,
         sharedir,
