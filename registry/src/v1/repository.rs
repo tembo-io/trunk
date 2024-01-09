@@ -613,7 +613,7 @@ impl Registry {
                 $3,
                 $4
             )
-            ON CONFLICT (platform_id, postgres_version_id, trunk_project_version_id, download_url)
+            ON CONFLICT (platform_id, postgres_version_id, trunk_project_version_id)
             DO UPDATE SET
                 sha256 = EXCLUDED.sha256,
                 download_url = EXCLUDED.download_url",
