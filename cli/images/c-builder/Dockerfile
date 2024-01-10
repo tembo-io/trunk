@@ -16,5 +16,7 @@ RUN apt-get update && \
       pkg-config libssl-dev build-essential libclang-dev clang && \
     rm -rf /var/lib/apt/lists/*
 
+# Set the path to the version-specific Postgres install.
+ENV PATH="/usr/lib/postgresql/${PG_VERSION}/bin:${PATH}"
 USER postgres
 WORKDIR /app
