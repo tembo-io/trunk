@@ -89,7 +89,7 @@ mod tests {
         // Generate API token
         let req = test::TestRequest::post()
             .uri("/token/new")
-            .insert_header(("Authorization", dummy_jwt.clone()))
+            .insert_header(("Authorization", dummy_jwt))
             .to_request();
         let resp = test::call_service(&app, req).await;
         let token = test::read_body(resp).await;

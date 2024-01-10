@@ -263,7 +263,6 @@ mod tests {
         assert_eq!(result.unwrap(), "0.8.3");
         let result = semver_from_range("0.8.4");
         assert_eq!(result.unwrap(), "0.8.4");
-        let result = semver_from_range("0.8.4");
     }
 
     #[test]
