@@ -1,6 +1,6 @@
 [package]
 name = "pg-trunk"
-version = "0.12.7"
+version = "0.12.8"
 edition = "2021"
 authors = ["Steven Miller", "Ian Stanton", "Vinícius Miguel"]
 description = "A package manager for PostgreSQL extensions"
@@ -59,3 +59,4 @@ which = "4.4.0"
 assert_cmd = "2.0.8"
 git2 = "0.17.0"
 predicates = "2.1.5"
+tempfile = "3"
