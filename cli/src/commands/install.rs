@@ -160,7 +160,7 @@ async fn fetch_archive_from_v1(
     name: &str,
     version: &str,
     postgres_version: u8,
-) -> anyhow::Result<Url> {
+) -> anyhow::Result<(Url, String)> {
     // Assuming name is a Trunk project name
     let endpoint = format!("{registry}/api/v1/trunk-projects/{name}");
 
@@ -191,7 +191,8 @@ async fn fetch_archive_from_v1(
             .find(|download| download.pg_version == postgres_version)
             .with_context(|| format!("Failed to find an archive for {name} v{version} built for PostgreSQL {postgres_version}"))?;
 
-        Url::parse(&download.link).with_context(|| "Failed to parse URL")
+        let url = Url::parse(&download.link).with_context(|| "Failed to parse URL")?;
+        Ok((url, download.sha256))
     } else {
         let body = response.text().await?;
 
@@ -241,12 +242,14 @@ async fn install(
 
     // If a file is not specified, then we will query the registry
     // and download the latest version of the package
-    let url = match fetch_archive_from_v1(registry, name, version, postgres_version).await {
-        Ok(url) => url,
+    let (url, maybe_hash) = match fetch_archive_from_v1(registry, name, version, postgres_version)
+        .await
+    {
+        Ok((url, hash)) => (url, Some(hash)),
         Err(err) if postgres_version == 15 => {
             eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
             // Fallback to fetch archive from the older endpoint
-            fetch_archive_legacy(registry, name, version).await?
+            (fetch_archive_legacy(registry, name, version).await?, None)
         }
         Err(err) => {
             eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
@@ -274,11 +277,14 @@ async fn install(
 
     let mut dest_file = File::create(&dest_path)?;
     // write the response body to the file
+
     let bytes = response.bytes().await?;
+    assert_sha256_matches(&bytes, maybe_hash)?;
+
     dest_file.write_all(&bytes)?;
 
     install_file(
-        name.clone(),
+        name,
         &dest_path,
         package_lib_dir,
         sharedir,
@@ -578,4 +584,19 @@ fn print_post_installation_guide(manifest: &Manifest) {
 
     println!("\nEnable the extension with:");
     println!("\tCREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
+}
+
+fn assert_sha256_matches(contents: &[u8], maybe_hash: Option<String>) -> Result<(), anyhow::Error> {
+    if let Some(expected_hash) = maybe_hash {
+        let hash_gotten = sha256::digest(contents);
+
+        anyhow::ensure!(
+            hash_gotten == expected_hash,
+            "Expected SHA-256 {}, got {}!",
+            hash_gotten,
+            expected_hash
+        );
+    }
+
+    Ok(())
 }
