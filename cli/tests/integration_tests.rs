@@ -1,6 +1,7 @@
 use assert_cmd::prelude::*; // Add methods on commands
 use git2::Repository;
 use predicates::prelude::*; // Used for writing assertions
+use serial_test::serial;
 use std::fs;
 use std::path::Path;
 use std::process::Command; // Run programs
@@ -133,6 +134,7 @@ fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std:
 }
 
 #[test]
+#[serial(install_pgrx)]
 fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     // Set up a temporary directory that will be deleted when the test finishes.
     let tmp_dir = TempDir::with_prefix("test_pgrx_")?;
@@ -181,6 +183,9 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
         );
         return Ok(());
     }
+
+    // Remove test_pgrx_extension.so if it exists (ignore errors).
+    let _ = remove_installed_file("test_pgrx_extension.so");
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -566,6 +571,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
+#[serial(install_pgrx)]
 fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     // Set up a temporary directory that will be deleted when the test finishes.
     let tmp_dir = TempDir::with_prefix("test_pgrx_trunk_toml_")?;
@@ -613,14 +619,6 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(manifest.contains("\"another_shared_preload_library\""));
     assert!(manifest.contains("\"libpq5\""));
 
-    // Get output of 'pg_config --pkglibdir'
-    let output = Command::new("pg_config")
-        .arg("--pkglibdir")
-        .output()
-        .expect("failed to find pkglibdir, is pg_config in path?");
-    let pkglibdir = String::from_utf8(output.stdout)?;
-    let pkglibdir = pkglibdir.trim();
-
     if !cfg!(target_arch = "x86_64") {
         eprintln!(
             "TODO: Trunk currently only supports the x86_64 architecture; skipping installation tests"
@@ -628,8 +626,8 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    // Remove .so if it exists
-    std::fs::remove_file(format!("{pkglibdir}/test_pgrx_extension.so").as_str())?;
+    // Remove test_pgrx_extension.so if it exists (ignore errors).
+    let _ = remove_installed_file("test_pgrx_extension.so");
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -649,6 +647,21 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("libpq5"));
     assert!(stdout.contains("Add the following to your postgresql.conf:"));
     assert!(stdout.contains("shared_preload_libraries = 'shared_preload_libraries_from_toml, another_shared_preload_library'"));
+
+    Ok(())
+}
+
+fn remove_installed_file(file: &str) -> Result<(), Box<dyn std::error::Error>> {
+    // Get output of 'pg_config --pkglibdir'
+    let output = Command::new("pg_config")
+        .arg("--pkglibdir")
+        .output()
+        .expect("failed to find pkglibdir, is pg_config in path?");
+    let pkglibdir = String::from_utf8(output.stdout)?;
+    let pkglibdir = Path::new(pkglibdir.trim());
+
+    // Remove .so if it exists.
+    std::fs::remove_file(pkglibdir.join(file))?;
 
     Ok(())
 }
