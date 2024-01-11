@@ -87,6 +87,7 @@ pub async fn build_generic(
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
+    println!("Building for PostgreSQL {pg_version}");
 
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", name);
@@ -231,7 +232,7 @@ async fn run_tests(
         return Ok(());
     }
 
-    if dbg!(has("installcheck").await)? {
+    if has("installcheck").await? {
         start_postgres(docker, container_id).await?;
 
         println!("make installcheck was found in the Makefile");
