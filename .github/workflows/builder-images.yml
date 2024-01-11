@@ -43,6 +43,23 @@ jobs:
           - "0.10.2"
           - "0.11.0"
           - "0.11.1"
+        exclude:
+          - pg_version: "16"
+            pgrx_version: "0.7.4"
+          - pg_version: "16"
+            pgrx_version: "0.8.0"
+          - pg_version: "16"
+            pgrx_version: "0.8.3"
+          - pg_version: "16"
+            pgrx_version: "0.8.4"
+          - pg_version: "16"
+            pgrx_version: "0.9.0"
+          - pg_version: "16"
+            pgrx_version: "0.9.1"
+          - pg_version: "16"
+            pgrx_version: "0.9.7"
+          - pg_version: "16"
+            pgrx_version: "0.9.8"
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
