@@ -7,8 +7,8 @@ The Trunk CLI test suite requires:
     [`pg_config`]) in the path.
 *   [Docker] to run containers that build extensions
 *   The `tar` utility (for now)
-*   Linux on `x86_64`; test will pass on ARM platforms like macOS, but many will
-    be skipped
+*   Linux on `x86_64`; tests will pass on ARM platforms like macOS, but many
+    will be skipped
 
 To run the tests:
 

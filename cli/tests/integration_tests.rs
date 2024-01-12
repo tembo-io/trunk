@@ -2,15 +2,11 @@ use assert_cmd::prelude::*; // Add methods on commands
 use git2::Repository;
 use predicates::prelude::*; // Used for writing assertions
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command; // Run programs
 use tempfile::TempDir;
 
 const CARGO_BIN: &str = "trunk";
-
-fn file_exists<P: AsRef<Path>>(path: P) -> bool {
-    path.as_ref().exists()
-}
 
 #[test]
 fn help() -> Result<(), Box<dyn std::error::Error>> {
@@ -40,30 +36,15 @@ fn install_manifest_v1_extension() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("my_extension");
     cmd.assert().code(0);
 
-    // Get output of 'pg_config --sharedir'
-    let output = Command::new("pg_config")
-        .arg("--sharedir")
-        .output()
-        .expect("failed to find sharedir, is pg_config in path?");
-    let sharedir = String::from_utf8(output.stdout)?;
-    let sharedir = sharedir.trim();
+    // Get output of 'pg_config --sharedir' and '--pkgdir'
+    let sharedir = pg_config_path("sharedir")?;
+    let pkglibdir = pg_config_path("pkglibdir")?;
 
-    let output = Command::new("pg_config")
-        .arg("--pkglibdir")
-        .output()
-        .expect("failed to find pkglibdir, is pg_config in path?");
-    let pkglibdir = String::from_utf8(output.stdout)?;
-    let pkglibdir = pkglibdir.trim();
+    // Make sure files were installed.
+    assert!(sharedir.join("extension/my_extension.control").exists());
+    assert!(sharedir.join("extension/my_extension--0.0.0.sql").exists());
+    assert!(pkglibdir.join("my_extension.so").exists());
 
-    assert!(
-        std::path::Path::new(format!("{sharedir}/extension/my_extension.control").as_str())
-            .exists()
-    );
-    assert!(
-        std::path::Path::new(format!("{sharedir}/extension/my_extension--0.0.0.sql").as_str())
-            .exists()
-    );
-    assert!(std::path::Path::new(format!("{pkglibdir}/my_extension.so").as_str()).exists());
     Ok(())
 }
 
@@ -103,32 +84,16 @@ fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std:
     cmd.arg("pljava");
     cmd.assert().code(0);
 
-    // Get output of 'pg_config --sharedir'
-    let output = Command::new("pg_config")
-        .arg("--sharedir")
-        .output()
-        .expect("failed to find sharedir, is pg_config in path?");
-    let sharedir = String::from_utf8(output.stdout)?;
-    let sharedir = sharedir.trim();
+    // Get output of 'pg_config --sharedir' and '--pkgdir'
+    let sharedir = pg_config_path("sharedir")?;
+    let pkglibdir = pg_config_path("pkglibdir")?;
 
-    let output = Command::new("pg_config")
-        .arg("--pkglibdir")
-        .output()
-        .expect("failed to find pkglibdir, is pg_config in path?");
-    let pkglibdir = String::from_utf8(output.stdout)?;
-    let pkglibdir = pkglibdir.trim();
-
-    assert!(file_exists(format!("{sharedir}/pljava/pljava.control")));
-
-    assert!(file_exists(format!("{sharedir}/pljava/pljava-1.6.5.jar")));
-
-    assert!(file_exists(format!(
-        "{sharedir}/pljava/pljava-api-1.6.5.jar"
-    )));
-
-    assert!(file_exists(format!("{sharedir}/pljava/pljava--1.6.5.sql")));
-
-    assert!(file_exists(format!("{pkglibdir}/libpljava-so-1.6.5.so")));
+    // Make sure files were installed.
+    assert!(sharedir.join("pljava/pljava.control").exists());
+    assert!(sharedir.join("pljava/pljava-1.6.5.jar").exists());
+    assert!(sharedir.join("pljava/pljava-api-1.6.5.jar").exists());
+    assert!(sharedir.join("pljava/pljava--1.6.5.sql").exists());
+    assert!(pkglibdir.join("libpljava-so-1.6.5.so").exists());
     Ok(())
 }
 
@@ -194,6 +159,12 @@ fn build_pgrx_extension() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
+
+    // Make sure the custom-named .so was installed.
+    // Get output of 'pg_config '--pkgdir' and make sure the .so was installed.
+    let pkglibdir = pg_config_path("pkglibdir")?;
+    // Make sure the custom-named .so was installed.
+    assert!(pkglibdir.join("test_pgrx_extension.so").exists());
 
     Ok(())
 }
@@ -613,24 +584,12 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(manifest.contains("\"another_shared_preload_library\""));
     assert!(manifest.contains("\"libpq5\""));
 
-    // Get output of 'pg_config --pkglibdir'
-    let output = Command::new("pg_config")
-        .arg("--pkglibdir")
-        .output()
-        .expect("failed to find pkglibdir, is pg_config in path?");
-    let pkglibdir = String::from_utf8(output.stdout)?;
-    let pkglibdir = pkglibdir.trim();
-
     if !cfg!(target_arch = "x86_64") {
         eprintln!(
             "TODO: Trunk currently only supports the x86_64 architecture; skipping installation tests"
         );
         return Ok(());
     }
-
-    // Remove .so if it exists
-    let _ = std::fs::remove_file(format!("{pkglibdir}/pgrx_with_trunk_toml.so").as_str());
-
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
@@ -649,6 +608,11 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stdout.contains("libpq5"));
     assert!(stdout.contains("Add the following to your postgresql.conf:"));
     assert!(stdout.contains("shared_preload_libraries = 'shared_preload_libraries_from_toml, another_shared_preload_library'"));
+
+    // Get output of 'pg_config '--pkgdir' and make sure the .so was installed.
+    let pkglibdir = pg_config_path("pkglibdir")?;
+    // Make sure the custom-named .so was installed.
+    assert!(pkglibdir.join("pgrx_with_trunk_toml.so").exists());
 
     Ok(())
 }
@@ -852,18 +816,10 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Get output of 'pg_config --sharedir'
-    let output = Command::new("pg_config")
-        .arg("--sharedir")
-        .output()
-        .expect("failed to find sharedir, is pg_config in path?");
-    let sharedir = String::from_utf8(output.stdout)?;
-    let sharedir = sharedir.trim();
+    let sharedir = pg_config_path("sharedir")?;
 
     // Remove fuzzystrmatch if it exists
-    let _rm_fuzzystrmatch = Command::new("rm")
-        .arg(format!("{sharedir}/extension/fuzzystrmatch.control").as_str())
-        .output()
-        .expect("failed to remove fuzzystrmatch");
+    let _ = std::fs::remove_file(sharedir.join("extension/fuzzystrmatch.control"));
 
     // Assert we recognize fuzzystrmatch as a dependency and install it
     // This is a dependency of postgis_tiger_geocoder, which is included in the postgis tar.gz
@@ -880,10 +836,23 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     assert!(stderr.contains("Dependent extensions to be installed: [\"fuzzystrmatch\"]"));
     assert!(stderr.contains("Installing fuzzystrmatch"));
 
-    assert!(file_exists(format!(
-        "{sharedir}/extension/fuzzystrmatch.control"
-    )));
-    assert!(file_exists(format!("{sharedir}/extension/postgis.control")));
+    // Make sure files were installed.
+    assert!(sharedir.join("extension/fuzzystrmatch.control").exists());
+    assert!(sharedir.join("extension/postgis.control").exists());
 
     Ok(())
+}
+
+fn pg_config_path(opt: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    // Get output from pg_config
+    let output = Command::new("pg_config")
+        .arg(format!("--{opt}"))
+        .output()
+        .expect("Error executing; pg_config; is it in the path?");
+
+    // Convert output to String and handle possible UTF-8 conversion error
+    let cfg = String::from_utf8(output.stdout)?;
+
+    // Trim the output string and create a Path
+    Ok(Path::new(cfg.trim()).to_owned())
 }
