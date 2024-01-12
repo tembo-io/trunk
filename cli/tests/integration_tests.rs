@@ -570,7 +570,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     // Set up a temporary directory that will be deleted when the test finishes.
     let tmp_dir = TempDir::with_prefix("test_pgrx_trunk_toml_")?;
     let output_dir = tmp_dir.path();
-    let tarball = &output_dir.join("test_pgrx_extension-0.0.0-pg15.tar.gz");
+    let tarball = &output_dir.join("pgrx_with_trunk_toml-0.0.0-pg15.tar.gz");
     let manifest_file = &output_dir.join("manifest.json");
 
     // Construct a path relative to the current file's directory
@@ -629,7 +629,7 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Remove .so if it exists
-    std::fs::remove_file(format!("{pkglibdir}/test_pgrx_extension.so").as_str())?;
+    let _ = std::fs::remove_file(format!("{pkglibdir}/pgrx_with_trunk_toml.so").as_str());
 
     // assert post installation steps contain correct CREATE EXTENSION command
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
@@ -638,11 +638,11 @@ fn build_pgrx_with_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(tarball);
-    cmd.arg("test_pgrx_extension");
+    cmd.arg("pgrx_with_trunk_toml");
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
     cmd.assert().code(0);
-    assert!(!stdout.contains("CREATE EXTENSION IF NOT EXISTS test_pgrx_extension CASCADE;"));
+    assert!(!stdout.contains("CREATE EXTENSION IF NOT EXISTS pgrx_with_trunk_toml CASCADE;"));
     assert!(stdout.contains("CREATE EXTENSION IF NOT EXISTS extension_name_from_toml CASCADE;"));
     assert!(stdout.contains("Install the following system-level dependencies:"));
     assert!(stdout.contains("On systems using apt:"));
