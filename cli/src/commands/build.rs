@@ -8,6 +8,7 @@ use async_trait::async_trait;
 use clap::Args;
 use log::{info, warn};
 use slicedisplay::SliceDisplay;
+use std::borrow::Cow;
 use std::fs;
 use std::fs::File;
 use std::path::Path;
@@ -265,8 +266,13 @@ impl SubCommand for BuildCommand {
 
         let dockerfile: String = get_dockerfile(build_settings.dockerfile_path.clone()).unwrap();
 
+        let processed_install_command = build_settings
+            .install_command
+            .as_ref()
+            .map(|command| process_install_command(command, build_settings.pg_version));
+
         let mut install_command_split: Vec<&str> = vec![];
-        if let Some(install_command) = build_settings.install_command.as_ref() {
+        if let Some(install_command) = processed_install_command.as_deref() {
             install_command_split.push("/bin/sh");
             install_command_split.push("-c");
             install_command_split.push(install_command);
@@ -300,5 +306,14 @@ impl SubCommand for BuildCommand {
         )
         .await?;
         return Ok(());
+    }
+}
+
+fn process_install_command(install_command: &str, pg_version: u8) -> Cow<'_, str> {
+    if pg_version == 15 {
+        Cow::Borrowed(install_command)
+    } else {
+        let target = format!("postgresql/{pg_version}/");
+        Cow::Owned(install_command.replace("postgresql/15/", &target))
     }
 }
