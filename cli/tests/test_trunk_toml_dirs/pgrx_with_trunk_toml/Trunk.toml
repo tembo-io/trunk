@@ -1,5 +1,5 @@
 [extension]
-name = "test_pgrx_extension"
+name = "pgrx_with_trunk_toml"
 extension_name = "extension_name_from_toml"
 version = "0.0.0"
 repository = "https://github.com/tembo-io/trunk"
