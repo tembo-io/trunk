@@ -7,6 +7,7 @@ description = "Read dead but unvacuumed tuples from a PostgreSQL relation."
 documentation = "https://github.com/df7cb/pg_dirtyread"
 categories = ["search"]
 
+
 [dependencies]
 apt = ["libc6"]
 
