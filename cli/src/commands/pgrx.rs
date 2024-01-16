@@ -201,6 +201,7 @@ pub async fn build_pgrx(
             "/",
         ],
         None,
+        None,
     )
     .await?;
 
@@ -213,6 +214,7 @@ pub async fn build_pgrx(
         &docker,
         &temp_container.id,
         vec!["mkdir", "/usr/licenses/"],
+        None,
         None,
     )
     .await?;

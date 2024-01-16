@@ -1,8 +1,2 @@
-pg_tle
-pg_tle/**
-postgres/**
-postgres*
 .trunk
 .trunk/**
-pgsql-http/**
-pgsql-http

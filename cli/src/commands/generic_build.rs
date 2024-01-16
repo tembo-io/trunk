@@ -13,7 +13,7 @@ use tokio::sync::mpsc;
 use tokio_task_manager::Task;
 
 use crate::commands::containers::{
-    build_image, exec_in_container, exec_in_container_with_exit_code, file_exists, locate_makefile,
+    build_image, exec_in_container, exec_in_container_with_exit_code, locate_makefile,
     makefile_contains_target, package_installed_extension_files, run_temporary_container,
     start_postgres,
 };
@@ -87,6 +87,7 @@ pub async fn build_generic(
 ) -> Result<(), GenericBuildError> {
     println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
+    println!("Building for PostgreSQL {pg_version}");
 
     let mut build_args = HashMap::new();
     build_args.insert("EXTENSION_NAME", name);
@@ -120,7 +121,7 @@ pub async fn build_generic(
 
     println!("Determining installation files...");
     let _exec_output =
-        exec_in_container(&docker, &temp_container.id, install_command, None).await?;
+        exec_in_container(&docker, &temp_container.id, install_command, None, None).await?;
 
     // Search for license files to include
     println!("Determining license files to include...");
@@ -131,6 +132,7 @@ pub async fn build_generic(
         &docker,
         &temp_container.id,
         vec!["mkdir", "/usr/licenses/"],
+        None,
         None,
     )
     .await?;
@@ -190,40 +192,14 @@ async fn run_tests(
         println!("make check was found in the Makefile");
         start_postgres(docker, container_id).await?;
 
-        let configure_file = project_dir.join("configure");
-        let configure_file = configure_file.to_str().unwrap();
-
-        let configure_exists = file_exists(docker, container_id, configure_file).await;
-        let exit_code = if configure_exists {
-            let (_, exit_code) = exec_in_container_with_exit_code(
-                docker,
-                container_id,
-                vec![
-                    "su",
-                    "postgres",
-                    "-c",                    
-                    &format!("bash -c \"./{configure_file} && make -C {project_dir_utf8} check && echo done\"")
-                ],
-                None,
-            )
-            .await?;
-
-            exit_code
-        } else {
-            let (_, exit_code) = exec_in_container_with_exit_code(
-                docker,
-                container_id,
-                vec![
-                    "su",
-                    "postgres",
-                    "-c",
-                    &format!("make -C {project_dir_utf8} check"),
-                ],
-                None,
-            )
-            .await?;
-            exit_code
-        };
+        let (_, exit_code) = exec_in_container_with_exit_code(
+            docker,
+            container_id,
+            vec!["make", "check"],
+            Some(project_dir_utf8),
+            Some(vec!["PGUSER=postgres"]),
+        )
+        .await?;
 
         anyhow::ensure!(matches!(exit_code, Some(0)), "Tests failed!");
 
@@ -231,27 +207,24 @@ async fn run_tests(
         return Ok(());
     }
 
-    if dbg!(has("installcheck").await)? {
+    if has("installcheck").await? {
         start_postgres(docker, container_id).await?;
 
         println!("make installcheck was found in the Makefile");
         exec_in_container(
             docker,
             container_id,
-            vec!["make", "-C", project_dir_utf8, "install"],
+            vec!["make", "install"],
+            Some(project_dir_utf8),
             None,
         )
         .await?;
         let (_output, exit_code) = exec_in_container_with_exit_code(
             docker,
             container_id,
-            vec![
-                "su",
-                "postgres",
-                "-c",
-                &format!("make -C {project_dir_utf8} installcheck"),
-            ],
-            None,
+            vec!["make", "installcheck"],
+            Some(project_dir_utf8),
+            Some(vec!["PGUSER=postgres"]),
         )
         .await?;
 
