@@ -291,17 +291,15 @@ pub async fn publish(
     // The uploaded contents in .tar.gz
     let gzipped_archive = file.freeze();
 
-    let digest = sha256::digest(&*gzipped_archive);
-
-    // Extract the .tar.gz and its relevant contentss
+    // Extract the .tar.gz and its relevant contents
     let (extension_views, pg_version) =
         extractor::extract_extension_view(&gzipped_archive, &new_extension).map_err(|err| {
             tracing::error!("Failed to decompress archive: {err}");
             ExtensionRegistryError::ArchiveError
         })?;
 
-    // TODO(ianstanton) Generate checksum
-    let file_byte_stream = ByteStream::from(gzipped_archive.clone());
+    let digest = sha256::digest(&*gzipped_archive);
+    let file_byte_stream = ByteStream::from(gzipped_archive);
     let client = aws_sdk_s3::Client::new(&aws_config);
     let uploaded_path = upload_extension(
         &cfg.bucket_name,
@@ -310,6 +308,7 @@ pub async fn publish(
         &new_extension,
         &new_extension.vers,
         pg_version,
+        &digest,
     )
     .await?;
 
