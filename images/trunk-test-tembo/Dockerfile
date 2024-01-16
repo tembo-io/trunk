@@ -1,4 +1,4 @@
-FROM quay.io/tembo/tembo-pg-cnpg:15.3.0-5-ad4d64e
+FROM quay.io/tembo/tembo-pg-cnpg:15.3.0-5-99e701e
 
 USER root
 RUN apt-get update && apt-get install -y \
