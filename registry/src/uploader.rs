@@ -37,6 +37,7 @@ pub async fn upload(
     path: &str,
     content: ByteStream,
     content_type: &str,
+    sha256: &str,
 ) -> Result<PutObjectOutput, SdkError<PutObjectError>> {
     let obj = s3_client
         .put_object()
@@ -46,6 +47,7 @@ pub async fn upload(
         .key(path)
         .cache_control(CACHE_CONTROL_IMMUTABLE)
         .set_server_side_encryption(Some(Aes256))
+        .checksum_sha256(sha256)
         .send()
         .await;
     debug!("OBJECT: {:?}", obj);
@@ -62,6 +64,7 @@ pub async fn upload_extension(
     extension: &ExtensionUpload,
     extension_version: &semver::Version,
     pg_version: u8,
+    sha256: &str,
 ) -> Result<String, ExtensionRegistryError> {
     let path_in_bucket =
         extension_path(&extension.name, &extension_version.to_string(), pg_version);
@@ -72,6 +75,7 @@ pub async fn upload_extension(
         &path_in_bucket,
         file,
         "application/gzip",
+        sha256,
     )
     .await?;
 
