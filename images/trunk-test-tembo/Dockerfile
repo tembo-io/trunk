@@ -45,6 +45,7 @@ RUN apt-get update && apt-get install -y \
     libsfcgal1 \
     openjdk-11-jdk \
     libaio1 \
+    libbson-dev \
     && rm -rf /var/lib/apt/lists/*
 RUN ln -s /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /usr/lib/x86_64-linux-gnu/libjvm.so
 RUN wget https://download.oracle.com/otn_software/linux/instantclient/1920000/instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip && \
