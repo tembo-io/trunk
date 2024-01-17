@@ -1,6 +1,6 @@
 [extension]
 name = "pg_graphql"
-version = "1.4.1"
+version = "1.4.4"
 repository = "https://github.com/supabase/pg_graphql"
 license = "Apache-2.0"
 description = "pg_graphql adds GraphQL support to your PostgreSQL database."

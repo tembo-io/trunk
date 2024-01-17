@@ -1,5 +1,4 @@
 ARG PG_VERSION=15
-ARG RELEASE=v1.4.1
 
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.2
 USER root
@@ -21,6 +20,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN /root/.cargo/bin/rustup default stable && /root/.cargo/bin/rustup override set 1.75.0
 
 RUN git clone https://github.com/supabase/pg_graphql.git
+
+ARG RELEASE=v1.4.4
 
 # build
 RUN cd pg_graphql && \
