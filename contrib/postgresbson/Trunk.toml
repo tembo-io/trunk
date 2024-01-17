@@ -1,0 +1,22 @@
+[extension]
+name = "pgbson"
+version = "2.0.0"
+repository = "https://github.com/buzzm/postgresbson"
+license = "MIT"
+description = "Postgres support for BSON."
+documentation = "https://github.com/buzzm/postgresbson"
+categories = ["data_transformations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgresbson && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
