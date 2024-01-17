@@ -1,0 +1,24 @@
+[extension]
+name = "postgresbson"
+version = "2.0.0"
+repository = "https://github.com/buzzm/postgresbson"
+license = "MIT"
+description = "This PostgreSQL extension realizes the BSON data type, together with functions to create and inspect BSON objects for the purposes of expressive and performant querying."
+homepage = "https://github.com/buzzm/postgresbson"
+documentation = "https://github.com/buzzm/postgresbson"
+categories = ["data_transformations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd postgresbson && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
+
