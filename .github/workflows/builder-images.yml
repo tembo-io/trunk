@@ -43,6 +43,7 @@ jobs:
           - "0.10.2"
           - "0.11.0"
           - "0.11.1"
+          - "0.11.2"
         exclude:
           - pg_version: "16"
             pgrx_version: "0.7.4"
