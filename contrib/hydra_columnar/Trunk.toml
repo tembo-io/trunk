@@ -8,6 +8,7 @@ homepage = "https://www.hydra.so"
 documentation = "https://github.com/hydradatabase/hydra"
 categories = ["analytics"]
 
+
 [dependencies]
 apt = ["libc6", "libzstd1", "liblz4-1"]
 

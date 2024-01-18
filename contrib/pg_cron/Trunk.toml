@@ -1,12 +1,12 @@
 [extension]
 name = "pg_cron"
-version = "1.5.0"
+version = "1.6.2"
 repository = "https://github.com/citusdata/pg_cron"
 license = "PostgreSQL"
 description = "Job scheduler for PostgreSQL."
 homepage = "https://www.citusdata.com/"
 categories = ["orchestration"]
-preload_libraries = ["pg_cron"]
+loadable_libraries = [{ library_name = "pg_cron", requires_restart = true }]
 
 [dependencies]
 apt = ["libpq5", "libc6"]

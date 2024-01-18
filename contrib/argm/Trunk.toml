@@ -1,11 +1,12 @@
 [extension]
 name = "argm"
-version = "1.1.1"
+version = "1.1.2"
 repository = "https://github.com/bashtanov/argm"
 license = "PostgreSQL"
 description = "Argm postgresql extension: argmax/argmin and anyold aggregate functions."
 documentation = "https://github.com/bashtanov/argm"
 categories = ["query_optimizations"]
+
 
 [dependencies]
 apt = ["libc6"]
