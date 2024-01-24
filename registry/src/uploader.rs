@@ -5,6 +5,7 @@ use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::put_object::{PutObjectError, PutObjectOutput};
 use aws_sdk_s3::primitives::ByteStream;
 use aws_sdk_s3::types::ServerSideEncryption::Aes256;
+use base64::prelude::{Engine as _, BASE64_STANDARD};
 use tracing::{debug, info};
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
@@ -37,7 +38,7 @@ pub async fn upload(
     path: &str,
     content: ByteStream,
     content_type: &str,
-    sha256: &str,
+    sha256: &[u8],
 ) -> Result<PutObjectOutput, SdkError<PutObjectError>> {
     let obj = s3_client
         .put_object()
@@ -47,7 +48,7 @@ pub async fn upload(
         .key(path)
         .cache_control(CACHE_CONTROL_IMMUTABLE)
         .set_server_side_encryption(Some(Aes256))
-        .checksum_sha256(sha256)
+        .checksum_sha256(&BASE64_STANDARD.encode(sha256))
         .send()
         .await;
     debug!("OBJECT: {:?}", obj);
@@ -64,7 +65,7 @@ pub async fn upload_extension(
     extension: &ExtensionUpload,
     extension_version: &semver::Version,
     pg_version: u8,
-    sha256: &str,
+    sha256: &[u8],
 ) -> Result<String, ExtensionRegistryError> {
     let path_in_bucket =
         extension_path(&extension.name, &extension_version.to_string(), pg_version);

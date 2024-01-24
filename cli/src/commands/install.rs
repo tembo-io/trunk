@@ -11,6 +11,7 @@ use flate2::read::GzDecoder;
 use log::{error, info, warn};
 use reqwest;
 use reqwest::Url;
+use sha2::{Digest, Sha256};
 use slicedisplay::SliceDisplay;
 use std::ffi::OsStr;
 use std::fs::{self, File};
@@ -588,7 +589,10 @@ fn print_post_installation_guide(manifest: &Manifest) {
 
 fn assert_sha256_matches(contents: &[u8], maybe_hash: Option<String>) -> Result<(), anyhow::Error> {
     if let Some(expected_hash) = maybe_hash {
-        let hash_gotten = sha256::digest(contents);
+        let mut hasher = Sha256::new();
+        hasher.update(contents);
+        let digest = hasher.finalize();
+        let hash_gotten = hex::encode(digest);
 
         anyhow::ensure!(
             hash_gotten == expected_hash,

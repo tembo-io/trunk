@@ -330,17 +330,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "224afbd727c3d6e4b90103ece64b8d1b67fbb1973b1046c2281eed3f3803f800"
 
 [[package]]
-name = "async-trait"
-version = "0.1.75"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdf6721fb0140e4f897002dd086c06f6c27775df19cfe1fccb21181a48fd2c98"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.37",
-]
-
-[[package]]
 name = "atoi"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2561,19 +2550,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sha256"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7895c8ae88588ccead14ff438b939b0c569cd619116f14b4d13fdff7b8333386"
-dependencies = [
- "async-trait",
- "bytes",
- "hex",
- "sha2",
- "tokio",
-]
-
-[[package]]
 name = "sharded-slab"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3083,6 +3059,7 @@ dependencies = [
  "env_logger",
  "flate2",
  "futures",
+ "hex",
  "nom",
  "rand",
  "reqwest",
@@ -3090,7 +3067,6 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "sha256",
  "sqlx",
  "tar",
  "thiserror",

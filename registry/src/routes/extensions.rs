@@ -24,6 +24,7 @@ use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
 use serde::ser::Serializer;
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use sqlx::types::chrono::Utc;
 use sqlx::{Pool, Postgres};
 use tracing::{error, info};
@@ -298,7 +299,11 @@ pub async fn publish(
             ExtensionRegistryError::ArchiveError
         })?;
 
-    let digest = sha256::digest(&*gzipped_archive);
+    // Create the SHA-256 checksum.
+    let mut hasher = Sha256::new();
+    hasher.update(&*gzipped_archive);
+    let digest = hasher.finalize();
+
     let file_byte_stream = ByteStream::from(gzipped_archive);
     let client = aws_sdk_s3::Client::new(&aws_config);
     let uploaded_path = upload_extension(
@@ -331,7 +336,7 @@ pub async fn publish(
         extension_views,
         pg_version,
         uploaded_path,
-        digest,
+        hex::encode(digest),
         registry.as_ref(),
     )
     .await
