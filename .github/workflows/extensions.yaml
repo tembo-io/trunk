@@ -55,7 +55,7 @@ jobs:
     runs-on:
       - self-hosted
       - dind
-      - large-8x8
+      - xlarge-16x16
     container:
       image: quay.io/tembo/trunk-test-tembo:0.0.32
       options: --user root
@@ -79,7 +79,7 @@ jobs:
     runs-on:
       - self-hosted
       - dind
-      - large-8x8
+      - xlarge-16x16
     container:
       image: quay.io/tembo/trunk-test-tembo:0.0.32
       options: --user root
