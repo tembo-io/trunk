@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
 # Clone repository
 RUN git clone https://github.com/plv8/plv8.git
 
-ARG RELEASE=v3.1.10
+ARG RELEASE=v3.2.2
 
 RUN cd plv8 && \
 	git fetch origin ${RELEASE} && \

@@ -1,6 +1,6 @@
 [extension]
 name = "plcoffee"
-version = "3.1.10"
+version = "3.2.2"
 repository = "https://github.com/plv8/plv8"
 license = "Copyright"
 description = "PL/CoffeeScript (v8) trusted procedural language"
