@@ -6,26 +6,30 @@ USER root
 
 # Install build dependencies for parquet_s3_fdw and its dependent libraries
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    libreadline-dev \
-    zlib1g-dev \
-    flex \
+    automake \
     bison \
-    libxml2-dev \
-    libxslt-dev \
-    libssl-dev \
-    libxml2-utils \
-    xsltproc \
+    build-essential \
     ccache \
-    libprotobuf-dev \
-    protobuf-compiler \
-    libprotoc-dev \
+    cmake \
+    flex \
+    g++ \
+    git \
     libboost-all-dev \
     libcurl4-openssl-dev \
-    cmake \
-    git \
-    g++ \
+    libevent-dev \
+    libprotobuf-dev \
+    libprotoc-dev \
+    libreadline-dev \
+    libssl-dev \
+    libtool \
+    libxml2-dev \
+    libxml2-utils \
+    libxslt-dev \
     make \
+    pkg-config \
+    protobuf-compiler \
+    xsltproc \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone and build AWS SDK for C++
@@ -34,9 +38,10 @@ RUN git clone https://github.com/aws/aws-sdk-cpp.git && \
     git checkout 1.9.263 && \
     git submodule update --init --recursive && \
     mkdir build && cd build && \
-    cmake -DCMAKE_PREFIX_PATH=/usr/ -DCMAKE_INSTALL_PREFIX=/usr/ -DBUILD_ONLY="s3;core;config;sts;cognito-identity;transfer;identity-management" -DAUTORUN_UNIT_TESTS=OFF -DCMAKE_CXX_FLAGS=-Wno-error=deprecated-declarations .. && \
+    cmake -DBUILD_ONLY="s3;core;config;sts;cognito-identity;transfer;identity-management" -DAUTORUN_UNIT_TESTS=OFF -DCMAKE_CXX_FLAGS=-Wno-error=deprecated-declarations .. && \
     make -j$(nproc) && \
-    make install
+    make install && \
+    cd ../../ && rm -rf aws-sdk-cpp
 
 # Clone and build Apache Arrow
 RUN git clone https://github.com/apache/arrow.git && \
@@ -44,16 +49,13 @@ RUN git clone https://github.com/apache/arrow.git && \
     git checkout apache-arrow-7.0.1 && \
     cd cpp && \
     mkdir build && cd build && \
-    cmake -DCMAKE_PREFIX_PATH=/usr/ -DCMAKE_INSTALL_PREFIX=/usr/ -DARROW_PARQUET=ON -DARROW_S3=ON -DARROW_WITH_SNAPPY=ON .. && \
+    cmake -DARROW_PARQUET=ON -DARROW_S3=ON -DARROW_WITH_SNAPPY=ON .. && \
     make -j$(nproc) && \
-    make install
+    make install && \
+    cd ../../ && rm -rf arrow
 
 # Clone and build parquet_s3_fdw
 RUN git clone https://github.com/pgspider/parquet_s3_fdw.git && \
     cd parquet_s3_fdw && \
-    git checkout v1.0.0 && \
-    make USE_PGXS=1 install
+    git checkout v1.1.0
 
-# Clean up to keep the container slim
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /aws-sdk-cpp /arrow /parquet_s3_fdw

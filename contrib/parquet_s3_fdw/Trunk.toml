@@ -1,6 +1,6 @@
 [extension]
 name = "parquet_s3_fdw"
-version = "1.0.0"
+version = "1.1.0"
 repository = "https://github.com/pgspider/parquet_s3_fdw"
 license = "Copyright"
 description = "Foreign data wrapper for Parquet files stored on S3."
@@ -17,6 +17,6 @@ dockerfile = "Dockerfile"
 install_command = """
     cd parquet_s3_fdw && make USE_PGXS=1 install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/${POSTGRES_VERSION}/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/${POSTGRES_VERSION}/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
