@@ -9,7 +9,7 @@ ARG PG_VERSION=15
 
 RUN apt-get update \
     && apt-get install -y \
-      build-essential clang llvm llvm-dev llvm-runtime \
+      build-essential clang llvm llvm-dev llvm-runtime cmake \
       ca-certificates zip curl wget git software-properties-common flex \
       libicu-dev libxml2 locales ssl-cert \
       pkg-config libssl-dev libclang-dev \
