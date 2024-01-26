@@ -26,6 +26,9 @@ jobs:
       - self-hosted
       - dind
       - large-8x8
+    strategy:
+      matrix:
+        pg_version: ["14", "15", "16"]
     outputs:
       short_sha: ${{ steps.versions.outputs.SHORT_SHA }}
     steps:
@@ -35,12 +38,12 @@ jobs:
         id: versions
         run: |
           echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-      - name: Build image
+      - name: Build and tag image
         run: |
           set -xe
-          docker build -t trunk-test-tembo .
-          docker tag trunk-test-tembo trunk-test-tembo:latest
-          docker tag trunk-test-tembo trunk-test-tembo:${{ steps.versions.outputs.SHORT_SHA }}
+          docker build --build-arg PG_VERSION=${{ matrix.pg_version }} -t trunk-test-tembo:pg${{ matrix.pg_version }} .
+          docker tag trunk-test-tembo:pg${{ matrix.pg_version }} trunk-test-tembo:latest
+          docker tag trunk-test-tembo:pg${{ matrix.pg_version }} trunk-test-tembo:${{ steps.versions.outputs.SHORT_SHA }}-pg${{ matrix.pg_version }}
       - name: Login to Quay
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v2
