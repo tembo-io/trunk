@@ -1,16 +1,26 @@
-DATABASE_URL := "postgresql://postgres:postgres@0.0.0.0:5432/postgres"
+export DATABASE_URL := env('DATABASE_URL', "postgresql://postgres:postgres@localhost:5432/postgres")
 
 format:
     cargo +nightly fmt --all
-    DATABASE_URL=${DATABASE_URL} cargo clippy
+    cargo clippy
     cargo sqlx prepare
 
 run-migrations:
-    sqlx migrate run
+    cargo sqlx migrate run
+
+run-postgres:
+    docker-compose kill || true
+    docker rm --force trunk-registry-pg
+    docker-compose up --build -d
+
+stop-postgres:
+    docker compose down
 
 run:
     RUST_LOG=debug \
-    DATABASE_URL=${DATABASE_URL} \
     RUST_BACKTRACE=full \
-    RUST_LOG=debug \
+    GITHUB_TOKEN=$(gh auth token) \
     cargo run
+
+test:
+    cargo test -- --nocapture

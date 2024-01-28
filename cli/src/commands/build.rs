@@ -8,6 +8,7 @@ use async_trait::async_trait;
 use clap::Args;
 use log::{info, warn};
 use slicedisplay::SliceDisplay;
+use std::borrow::Cow;
 use std::fs;
 use std::fs::File;
 use std::path::Path;
@@ -37,9 +38,12 @@ pub struct BuildCommand {
     dockerfile_path: Option<String>,
     #[arg(short = 'i', long = "install-command")]
     install_command: Option<String>,
-    /// Run this integration tests after building, if any are found
+    /// Run this extension's integration tests after building, if any are found
     #[clap(long, short, action)]
     test: bool,
+    /// The PostgreSQL version to build this extension against. Experimental for versions other than Postgres 15.
+    #[clap(default_value = "15", long, action)]
+    pg_version: u8,
 }
 
 pub struct BuildSettings {
@@ -57,6 +61,7 @@ pub struct BuildSettings {
     pub install_command: Option<String>,
     pub should_test: bool,
     pub loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pub pg_version: u8,
 }
 
 impl BuildCommand {
@@ -170,6 +175,7 @@ impl BuildCommand {
             should_test: self.test,
             configurations,
             loadable_libraries,
+            pg_version: self.pg_version,
         })
     }
 }
@@ -243,6 +249,7 @@ impl SubCommand for BuildCommand {
                     build_settings.glob_patterns_to_include,
                     build_settings.configurations,
                     build_settings.loadable_libraries,
+                    build_settings.pg_version,
                     task,
                 )
                 .await?;
@@ -259,8 +266,13 @@ impl SubCommand for BuildCommand {
 
         let dockerfile: String = get_dockerfile(build_settings.dockerfile_path.clone()).unwrap();
 
+        let processed_install_command = build_settings
+            .install_command
+            .as_ref()
+            .map(|command| process_install_command(command, build_settings.pg_version));
+
         let mut install_command_split: Vec<&str> = vec![];
-        if let Some(install_command) = build_settings.install_command.as_ref() {
+        if let Some(install_command) = processed_install_command.as_deref() {
             install_command_split.push("/bin/sh");
             install_command_split.push("-c");
             install_command_split.push(install_command);
@@ -290,8 +302,18 @@ impl SubCommand for BuildCommand {
             build_settings.should_test,
             build_settings.configurations,
             build_settings.loadable_libraries,
+            build_settings.pg_version,
         )
         .await?;
         return Ok(());
+    }
+}
+
+fn process_install_command(install_command: &str, pg_version: u8) -> Cow<'_, str> {
+    if pg_version == 15 {
+        Cow::Borrowed(install_command)
+    } else {
+        let target = format!("postgresql/{pg_version}/");
+        Cow::Owned(install_command.replace("postgresql/15/", &target))
     }
 }

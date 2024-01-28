@@ -53,10 +53,7 @@ async fn extract_sql_and_expected_files(
     github_project: GitHubProject<'_>,
 ) -> Result<ExtractedTestCases> {
     fn check_parent(expected_parent: &str, path: &Path) -> bool {
-        let Some(parent_obtained) = path
-            .parent()
-            .map(|parent| parent.components().last())
-            .flatten()
+        let Some(parent_obtained) = path.parent().and_then(|parent| parent.components().last())
         else {
             return false;
         };
@@ -167,7 +164,7 @@ impl SubCommand for VerifyCommand {
                 bail!("Found no matching SQL file for {:?}", expected_file);
             };
 
-            let obtained = run_psql(&sql_path, &self.connstring)?;
+            let obtained = run_psql(sql_path, &self.connstring)?;
             let obtained = obtained.lines().map(remove_psql_message);
             let expected = std::fs::read_to_string(expected_file)?;
 

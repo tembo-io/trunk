@@ -2,9 +2,11 @@ mod commands;
 mod config;
 mod control_file;
 mod manifest;
+mod semver;
 mod sync_utils;
 mod trunk_toml;
 mod tui;
+mod v1;
 
 use crate::commands::SubCommand;
 use async_trait::async_trait;
@@ -90,5 +92,23 @@ fn main() -> ExitCode {
             error!("{}", e);
             ExitCode::from(1)
         }
+    }
+}
+
+pub fn pg_version_to_str(pg_version: u8) -> &'static str {
+    match pg_version {
+        14 => "14",
+        15 => "15",
+        16 => "16",
+        _ => panic!("Unsupported Postgres version!"),
+    }
+}
+
+pub fn pg_release_for_version(pg_version: u8) -> &'static str {
+    match pg_version {
+        14 => "REL_14_10",
+        15 => "REL_15_3",
+        16 => "REL_16_1",
+        _ => panic!("Unsupported Postgres version!"),
     }
 }
