@@ -1,0 +1,24 @@
+[extension]
+name = "pg-telemetry"
+extension_name = "pgtelemetry"
+version = "1.6.0"
+repository = "https://github.com/adjust/pg-telemetry"
+license = "PostgreSQL"
+description = "Useful monitoring views for PostgreSQL. Monitors replication, disk usage, sources of concurrent queries and WAL throughput."
+homepage = "https://github.com/adjust/pg-telemetry"
+documentation = "https://github.com/adjust/pg-telemetry/blob/master/doc/pgtelemetry.html"
+categories = ["tooling_admin", "metrics"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg-telemetry && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
