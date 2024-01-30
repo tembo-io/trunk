@@ -1,5 +1,5 @@
 [extension]
-name = "pgbase62"
+name = "pg_base62"
 extension_name = "base62"
 version = "0.0.1"
 repository = "https://github.com/adjust/pg-base62"
