@@ -1,5 +1,5 @@
 [extension]
-name = "pg-telemetry"
+name = "pgtelemetry"
 extension_name = "pgtelemetry"
 version = "1.6.0"
 repository = "https://github.com/adjust/pg-telemetry"
