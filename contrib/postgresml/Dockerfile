@@ -1,4 +1,4 @@
-FROM quay.io/coredb/pgrx-builder:pg$15-pgrx0.11.2
+FROM quay.io/coredb/pgrx-builder:pg15-pgrx0.11.2
 
 USER root
 # quay.io/coredb/pgrx-builder:pg15-pgrx0.9.7
