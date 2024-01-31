@@ -58,6 +58,6 @@ jobs:
           set -xe
           IFS=' ' read -ra TAG_ARRAY <<< "latest ${{ steps.versions.outputs.SHORT_SHA }}"
           for tag in "${TAG_ARRAY[@]}"; do
-            docker tag trunk-test-tembo:$tag quay.io/tembo/trunk-test-tembo:$tag
-            docker push quay.io/tembo/trunk-test-tembo:$tag
+            docker tag trunk-test-tembo:${{ steps.versions.outputs.SHORT_SHA }}-pg${{ matrix.pg_version }} quay.io/tembo/trunk-test-tembo:${{ steps.versions.outputs.SHORT_SHA }}-pg${{ matrix.pg_version }}
+            docker push quay.io/tembo/trunk-test-tembo:${{ steps.versions.outputs.SHORT_SHA }}-pg${{ matrix.pg_version }}
           done
