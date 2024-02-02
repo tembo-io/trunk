@@ -114,11 +114,10 @@ jobs:
           sleep 5
           export EXTENSIONS=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements')";)
           for EXTENSION in $EXTENSIONS; do
-                if [ "$EXTENSION" == "timescaledb" ]; then
+        if: ${{ EXTENSION == "timescaledb" }} 
                    psql postgres://postgres:postgres@localhost:5432 -c "set timescaledb.allow_install_without_preload=1;" -c "create extension if not exists \"$EXTENSION\" cascade;"
-                else
+        if: ${{ EXTENSION != "timescaledb" }} 
                    psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
-                fi
           done
       - name: Publish the extension
         if: ${{ github.ref == 'refs/heads/main' }}
