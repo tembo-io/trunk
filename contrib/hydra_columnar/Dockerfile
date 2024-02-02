@@ -12,7 +12,7 @@ USER root
 # Clone repository
 RUN git clone https://github.com/hydradatabase/hydra
 
-ARG RELEASE=v1.0.0-beta
+ARG RELEASE=v1.1.1
 
 RUN cd hydra/columnar &&  \
     git checkout ${RELEASE} &&  \
