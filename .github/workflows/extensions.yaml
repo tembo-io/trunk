@@ -108,7 +108,7 @@ jobs:
       - name: Install the extension
         run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
       - name: Modify pgconf if required
-        if: ${{ $(basename ${{ matrix.path }}) == "timescaledb" }}
+        if: contains(matrix.path, 'timescaledb') 
         run: |
           echo "shared_preload_libraries = 'timescaledb'" >> /var/lib/postgresql/data2/postgresql.conf
       - name: Enable the extension
