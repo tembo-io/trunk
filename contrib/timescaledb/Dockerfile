@@ -18,6 +18,6 @@ ARG RELEASE=2.11.1
 RUN cd timescaledb && \
     git fetch origin ${RELEASE} && \
     git checkout ${RELEASE} && \
-    ./bootstrap -DAPACHE_ONLY=1 && \
+    ./bootstrap && \
     cd build && \
     make
