@@ -7,7 +7,7 @@ description = "basebackup_to_shell adds a custom basebackup target called shell.
 homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/basebackup-to-shell.html"
 categories = ["tooling_admin"]
-preload_libraries = ["basebackup_to_shell"]
+loadable_libraries = [{ library_name = "basebackup_to_shell", requires_restart = true }]
 
 [dependencies]
 apt = ["libc6"]

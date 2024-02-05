@@ -51,7 +51,7 @@ pub fn routes_config(configuration: &mut web::ServiceConfig) {
 pub async fn server() -> std::io::Result<()> {
     // load configurations from environment
     let cfg = config::Config::default();
-    let aws_config = aws_config::load_from_env().await;
+    let aws_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
 
     let registry = Registry::connect(&cfg.database_url)
         .await

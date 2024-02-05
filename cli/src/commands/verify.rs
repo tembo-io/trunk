@@ -42,15 +42,18 @@ struct ExtractedTestCases {
     expected_files: Vec<PathBuf>,
 }
 
+#[derive(Default)]
+struct TestSummary {
+    lines_equal: u32,
+    lines_differed: u32,
+}
+
 async fn extract_sql_and_expected_files(
     tempdir: &TempDir,
     github_project: GitHubProject<'_>,
 ) -> Result<ExtractedTestCases> {
     fn check_parent(expected_parent: &str, path: &Path) -> bool {
-        let Some(parent_obtained) = path
-            .parent()
-            .map(|parent| parent.components().last())
-            .flatten()
+        let Some(parent_obtained) = path.parent().and_then(|parent| parent.components().last())
         else {
             return false;
         };
@@ -143,6 +146,8 @@ impl SubCommand for VerifyCommand {
             expected_files,
         } = extract_sql_and_expected_files(&tempdir, github_project).await?;
 
+        let mut summary = TestSummary::default();
+
         // Now, run every test file with psql and compare its output
         for expected_file in expected_files {
             let test_stem = expected_file
@@ -159,7 +164,7 @@ impl SubCommand for VerifyCommand {
                 bail!("Found no matching SQL file for {:?}", expected_file);
             };
 
-            let obtained = run_psql(&sql_path, &self.connstring)?;
+            let obtained = run_psql(sql_path, &self.connstring)?;
             let obtained = obtained.lines().map(remove_psql_message);
             let expected = std::fs::read_to_string(expected_file)?;
 
@@ -168,14 +173,30 @@ impl SubCommand for VerifyCommand {
 
                 for change in diff.iter_all_changes() {
                     let sign = match change.tag() {
-                        ChangeTag::Delete => "-",
-                        ChangeTag::Insert => "+",
-                        ChangeTag::Equal => " ",
+                        ChangeTag::Delete => {
+                            summary.lines_differed += 1;
+                            "-"
+                        }
+                        ChangeTag::Insert => {
+                            summary.lines_differed += 1;
+                            "+"
+                        }
+                        ChangeTag::Equal => {
+                            summary.lines_equal += 1;
+                            " "
+                        }
                     };
                     print!("{}{}", sign, change);
                 }
             }
         }
+
+        println!(
+            "Summary: {} lines equal, {} lines differed, {} lines total.",
+            summary.lines_equal,
+            summary.lines_differed,
+            summary.lines_equal + summary.lines_differed
+        );
 
         Ok(())
     }

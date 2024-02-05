@@ -20,7 +20,7 @@ jobs:
       directories: ${{ steps.find_directories.outputs.build_matrix }}
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Find commit to compare with
@@ -37,7 +37,7 @@ jobs:
           fi
           echo "changed_relative_to_ref=${changed_relative_to_ref}" >> $GITHUB_OUTPUT
       - name: Check out the coredb repo to reuse some actions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: tembo-io/tembo
           path: ./.tembo
@@ -50,14 +50,38 @@ jobs:
           changed_relative_to_ref: ${{ steps.versions.outputs.changed_relative_to_ref }}
           ignore_dirs: ".tembo cli"
 
+  test:
+    name: Test extensions
+    runs-on:
+      - self-hosted
+      - dind
+      - xlarge-16x16
+    container:
+      image: quay.io/tembo/trunk-test-tembo:0.0.32
+      options: --user root
+    needs:
+      - find_directories
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.find_directories.outputs.directories) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system dependencies
+        run: |
+          set -xe
+          apt-get update
+          apt-get install -y pkg-config libssl-dev gosu
+      - name: Test the extension within Docker
+        run: cd ${{ matrix.path }} && trunk build --test
+
   build:
     name: Build extensions
     runs-on:
       - self-hosted
       - dind
-      - large-8x8
+      - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:0.0.26
+      image: quay.io/tembo/trunk-test-tembo:0.0.32
       options: --user root
     needs:
       - find_directories
@@ -73,7 +97,7 @@ jobs:
       PGPASSWORD: "postgres"
       POSTGRES_PASSWORD: "password"
     steps:
-      - uses: actions/checkout@v3.5.3
+      - uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -xe

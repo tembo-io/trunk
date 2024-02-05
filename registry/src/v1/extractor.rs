@@ -1,14 +1,31 @@
 use anyhow::Context;
 use flate2::read::GzDecoder;
+use serde::Deserialize;
 use std::{
+    ffi::OsStr,
     io::{Cursor, Read},
     ops::Not,
 };
 use tar::EntryType;
 
+use crate::views::extension_publish::{ControlFileMetadata, ExtensionUpload};
+
 use super::repository::ExtensionView;
 
+pub type PostgresVersion = u8;
+
+pub struct ExtractedArchive {
+    control_files: Vec<ControlFile>,
+    manifest: Manifest,
+}
+
+#[derive(Deserialize)]
+pub struct Manifest {
+    pg_version: PostgresVersion,
+}
+
 pub struct ControlFile {
+    content: Option<String>,
     extension_name: String,
     dependencies: Option<Vec<String>>,
     default_version: Option<String>,
@@ -16,26 +33,52 @@ pub struct ControlFile {
 
 pub fn extract_extension_view(
     tar_gz: &[u8],
-    trunk_project_name: &str,
-) -> anyhow::Result<Vec<ExtensionView>> {
-    let control_files = extract_control_files(tar_gz)?;
+    new_extension: &ExtensionUpload,
+) -> anyhow::Result<(Vec<ExtensionView>, PostgresVersion)> {
+    let ExtractedArchive {
+        control_files,
+        manifest,
+    } = extract_archive(tar_gz)?;
 
-    let extension_views = control_files
+    let mut extension_views: Vec<ExtensionView> = control_files
         .into_iter()
         .map(|control_file| ExtensionView {
-            extension_name: control_file.extension_name,
+            extension_name: control_file.extension_name.clone(),
             version: control_file.default_version.unwrap_or_default(),
-            trunk_project_name: trunk_project_name.to_string(),
+            trunk_project_name: new_extension.name.to_string(),
             dependencies_extension_names: control_file.dependencies,
-            loadable_libraries: None,
-            configurations: None,
+            // TODO: should we clone this for every extension in a Trunk project?
+            loadable_libraries: new_extension.libraries.clone(),
+            configurations: new_extension.configurations.clone(),
+            control_file: Some(ControlFileMetadata {
+                absent: false,
+                content: control_file.content,
+            }),
         })
         .collect();
 
-    Ok(extension_views)
+    // If no control files found, we still want to return extension view information we have available.
+    // This includes control_file.absent = true and control_file.content = None
+    if extension_views.is_empty() {
+        extension_views.push(ExtensionView {
+            extension_name: new_extension.extension_name.clone().unwrap_or_default(),
+            version: new_extension.vers.to_string(),
+            trunk_project_name: new_extension.name.to_string(),
+            dependencies_extension_names: None,
+            loadable_libraries: new_extension.libraries.clone(),
+            configurations: new_extension.configurations.clone(),
+            control_file: Some(ControlFileMetadata {
+                absent: true,
+                content: None,
+            }),
+        });
+    }
+
+    Ok((extension_views, manifest.pg_version))
 }
 
-fn extract_control_files(tar_gz: &[u8]) -> anyhow::Result<Vec<ControlFile>> {
+fn extract_archive(tar_gz: &[u8]) -> anyhow::Result<ExtractedArchive> {
+    let mut manifest_json = None;
     let mut control_files = vec![];
     let mut buf = Vec::with_capacity(tar_gz.len() * 8);
     GzDecoder::new(tar_gz).read_to_end(&mut buf)?;
@@ -63,23 +106,50 @@ fn extract_control_files(tar_gz: &[u8]) -> anyhow::Result<Vec<ControlFile>> {
                     .with_context(|| "Control file had no file stem")?
                     .to_string_lossy()
                     .into();
-                let contents = {
-                    let mut buf = Vec::with_capacity(entry_size as usize);
 
-                    entry.read_to_end(&mut buf)?;
-                    buf
-                };
-
-                let cargo_toml_contents = String::from_utf8(contents)?;
+                let cargo_toml_contents = decompress_file(&mut entry, entry_size)?;
                 let control_file = parse_control_file(extension_name, cargo_toml_contents);
 
                 control_files.push(control_file);
+            }
+            Some(ext)
+                if ext == "json"
+                    && path.file_stem().and_then(OsStr::to_str) == Some("manifest") =>
+            {
+                // We're now iterating through manifest.json
+                let manifest = decompress_file(&mut entry, entry_size)?;
+                let manifest: Manifest = serde_json::from_str(&manifest)
+                    .with_context(|| "Failed to deserialize manifest.json")?;
+
+                manifest_json = Some(manifest);
             }
             Some(_) | None => continue,
         }
     }
 
-    Ok(control_files)
+    anyhow::ensure!(
+        manifest_json.is_some(),
+        "Failed to find manifest.json in archive being uploaded"
+    );
+
+    Ok(ExtractedArchive {
+        control_files,
+        manifest: manifest_json.unwrap(),
+    })
+}
+
+fn decompress_file(
+    entry: &mut tar::Entry<'_, Cursor<Vec<u8>>>,
+    entry_size: u64,
+) -> anyhow::Result<String> {
+    let contents = {
+        let mut buf = Vec::with_capacity(entry_size as usize);
+
+        entry.read_to_end(&mut buf)?;
+        buf
+    };
+
+    String::from_utf8(contents).map_err(Into::into)
 }
 
 fn parse_control_file(extension_name: String, control_file: String) -> ControlFile {
@@ -92,6 +162,13 @@ fn parse_control_file(extension_name: String, control_file: String) -> ControlFi
         let trimmed = stripped.trim_start();
         trimmed.trim_matches('\'')
     }
+
+    // Grab all lines from the control file and set as string. None if no lines.
+    let control_file_content = if control_file.is_empty() {
+        None
+    } else {
+        Some(control_file.clone())
+    };
 
     for line in control_file.lines() {
         if let Some(rest) = line.strip_prefix("requires") {
@@ -113,6 +190,7 @@ fn parse_control_file(extension_name: String, control_file: String) -> ControlFi
     }
 
     ControlFile {
+        content: control_file_content,
         extension_name,
         dependencies: if dependencies.is_empty() {
             None

@@ -1,8 +1,8 @@
 ARG PG_VERSION=15
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.9.7
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.1
 USER root
 
-ARG RELEASE=v0.2.21
+ARG RELEASE=v0.3.12
 
 # Extension build dependencies
 RUN apt-get update && apt-get install -y \
@@ -10,9 +10,11 @@ RUN apt-get update && apt-get install -y \
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN cargo install cargo-pgrx --version 0.11.0 --locked
 
 # Set default Rust version
-RUN /root/.cargo/bin/rustup default stable && /root/.cargo/bin/rustup override set 1.72.0
+RUN /root/.cargo/bin/rustup default stable
+
 
 # Clone repository
 RUN git clone https://github.com/paradedb/paradedb.git && \

@@ -1,12 +1,13 @@
 [extension]
 name = "hydra_columnar"
-version = "1.0.0"
+version = "1.1.1"
 repository = "https://github.com/hydradatabase/hydra"
 license = "GNU AGPL"
 description = "Columnar storage for Postgres"
 homepage = "https://www.hydra.so"
 documentation = "https://github.com/hydradatabase/hydra"
 categories = ["analytics"]
+
 
 [dependencies]
 apt = ["libc6", "libzstd1", "liblz4-1"]

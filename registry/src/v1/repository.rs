@@ -3,6 +3,9 @@ use utoipa::{ToResponse, ToSchema};
 
 use crate::errors::Result;
 use crate::repository::Registry;
+use crate::views::extension_publish::{
+    ControlFileMetadata, ExtensionConfiguration, LoadableLibrary,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct TrunkProjectView {
@@ -11,21 +14,17 @@ pub struct TrunkProjectView {
     pub documentation_link: Option<String>,
     pub repository_link: String,
     pub version: String,
+    pub postgres_versions: Option<Vec<u8>>,
     pub extensions: Vec<ExtensionView>,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
-pub struct ExtensionConfigurationView {
-    pub name: String,
-    pub is_required: bool,
-    pub recommended_default: Option<String>,
+    pub downloads: Option<Vec<Download>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct ExtensionPreloadLibrariesView {
-    library_name: String,
-    requires_restart: bool,
-    priority: i32,
+pub struct Download {
+    pub link: String,
+    pub pg_version: u8,
+    pub platform: String,
+    pub sha256: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
@@ -34,8 +33,9 @@ pub struct ExtensionView {
     pub version: String,
     pub trunk_project_name: String,
     pub dependencies_extension_names: Option<Vec<String>>,
-    pub loadable_libraries: Option<Vec<ExtensionPreloadLibrariesView>>,
-    pub configurations: Option<Vec<ExtensionConfigurationView>>,
+    pub loadable_libraries: Option<Vec<LoadableLibrary>>,
+    pub configurations: Option<Vec<ExtensionConfiguration>>,
+    pub control_file: Option<ControlFileMetadata>,
 }
 
 impl Registry {
@@ -48,6 +48,24 @@ impl Registry {
                     'documentation_link', latest_tpvs.documentation_link,
                     'repository_link', latest_tpvs.repository_link,
                     'version', latest_tpvs.version,
+                    'postgres_versions', (
+                        SELECT json_agg(pg.major)
+                        FROM v1.trunk_project_postgres_support tpps
+                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                        WHERE tpps.trunk_project_version_id = latest_tpvs.id
+                    ),
+                    'downloads', (
+                        SELECT json_agg(json_build_object(
+                            'link', tpd.download_url,
+                            'pg_version', pg.major,
+                            'platform', plt.platform_name,
+                            'sha256', tpd.sha256
+                        ))
+                        FROM v1.trunk_project_downloads tpd
+                        JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id
+                        JOIN v1.platform plt ON tpd.platform_id = plt.id
+                        WHERE tpd.trunk_project_version_id = latest_tpvs.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -71,10 +89,18 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
+                            ),
+                            'control_file', (
+                                SELECT json_build_object(
+                                    'absent', cf.absent,
+                                    'content', cf.content
+                                )
+                                FROM v1.control_file cf
+                                WHERE cf.extension_version_id = ev.id
                             )
                         ))
                         FROM v1.extension_versions ev
@@ -117,6 +143,24 @@ impl Registry {
                     'documentation_link', tpv.documentation_link,
                     'repository_link', tpv.repository_link,
                     'version', tpv.version,
+                    'postgres_versions', (
+                        SELECT json_agg(pg.major)
+                        FROM v1.trunk_project_postgres_support tpps
+                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                        WHERE tpps.trunk_project_version_id = tpv.id
+                    ),
+                    'downloads', (
+                        SELECT json_agg(json_build_object(
+                            'link', tpd.download_url,
+                            'pg_version', pg.major,
+                            'platform', plt.platform_name,
+                            'sha256', tpd.sha256
+                        ))
+                        FROM v1.trunk_project_downloads tpd
+                        JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id
+                        JOIN v1.platform plt ON tpd.platform_id = plt.id
+                        WHERE tpd.trunk_project_version_id = tpv.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -140,10 +184,18 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
+                            ),
+                            'control_file', (
+                                SELECT json_build_object(
+                                    'absent', cf.absent,
+                                    'content', cf.content
+                                )
+                                FROM v1.control_file cf
+                                WHERE cf.extension_version_id = ev.id
                             )
                         ))
                         FROM v1.extension_versions ev
@@ -181,6 +233,24 @@ impl Registry {
                     'version', tpv.version,
                     'documentation_link', tpv.documentation_link,
                     'repository_link', tpv.repository_link,
+                    'postgres_versions', (
+                        SELECT json_agg(pg.major)
+                        FROM v1.trunk_project_postgres_support tpps
+                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                        WHERE tpps.trunk_project_version_id = tpv.id
+                    ),
+                    'downloads', (
+                        SELECT json_agg(json_build_object(
+                            'link', tpd.download_url,
+                            'pg_version', pg.major,
+                            'platform', plt.platform_name,
+                            'sha256', tpd.sha256
+                        ))
+                        FROM v1.trunk_project_downloads tpd
+                        JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id
+                        JOIN v1.platform plt ON tpd.platform_id = plt.id
+                        WHERE tpd.trunk_project_version_id = tpv.id
+                    ),
                     'extensions', (
                         SELECT json_agg(json_build_object(
                             'extension_name', ev.extension_name,
@@ -204,10 +274,18 @@ impl Registry {
                                 SELECT json_agg(json_build_object(
                                     'name', ec.configuration_name,
                                     'is_required', ec.is_required,
-                                    'recommended_default', ec.recommended_default_value
+                                    'default', ec.recommended_default_value
                                 ))
                                 FROM v1.extension_configurations ec
                                 WHERE ec.extension_version_id = ev.id
+                            ),
+                            'control_file', (
+                                SELECT json_build_object(
+                                    'absent', cf.absent,
+                                    'content', cf.content
+                                )
+                                FROM v1.control_file cf
+                                WHERE cf.extension_version_id = ev.id
                             )
                         ))
                         FROM v1.extension_versions ev
@@ -242,6 +320,24 @@ impl Registry {
                 'version', tpv.version,
                 'documentation_link', tpv.documentation_link,
                 'repository_link', tpv.repository_link,
+                'postgres_versions', (
+                    SELECT json_agg(pg.major)
+                    FROM v1.trunk_project_postgres_support tpps
+                    JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id
+                    WHERE tpps.trunk_project_version_id = tpv.id
+                ),
+                'downloads', (
+                    SELECT json_agg(json_build_object(
+                        'link', tpd.download_url,
+                        'pg_version', pg.major,
+                        'platform', plt.platform_name,
+                        'sha256', tpd.sha256
+                    ))
+                    FROM v1.trunk_project_downloads tpd
+                    JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id
+                    JOIN v1.platform plt ON tpd.platform_id = plt.id
+                    WHERE tpd.trunk_project_version_id = tpv.id
+                ),
                 'extensions', (
                     SELECT json_agg(json_build_object(
                         'extension_name', ev.extension_name,
@@ -265,10 +361,18 @@ impl Registry {
                             SELECT json_agg(json_build_object(
                                 'name', ec.configuration_name,
                                 'is_required', ec.is_required,
-                                'recommended_default', ec.recommended_default_value
+                                'default', ec.recommended_default_value
                             ))
                             FROM v1.extension_configurations ec
                             WHERE ec.extension_version_id = ev.id
+                        ),
+                        'control_file', (
+                            SELECT json_build_object(
+                                'absent', cf.absent,
+                                'content', cf.content
+                            )
+                            FROM v1.control_file cf
+                            WHERE cf.extension_version_id = ev.id
                         )
                     ))
                     FROM v1.extension_versions ev
@@ -294,13 +398,6 @@ impl Registry {
     }
 
     /// Insert a Trunk project (and related information) into the database.
-    /// Follows the given steps:
-    ///   1. insert trunk project name
-    ///   2. insert trunk project version
-    ///   3. insert extension version
-    ///   4. insert extension dependencies
-    ///   5. insert extension configurations
-    ///   6. insert shared preload libraries
     pub async fn insert_trunk_project(&self, trunk_project: TrunkProjectView) -> Result<()> {
         // 1. insert trunk project name
         sqlx::query!(
@@ -311,30 +408,74 @@ impl Registry {
         )
         .execute(&self.pool)
         .await?;
+        tracing::info!("Inserted Trunk project name");
 
         // 2. insert trunk project version
         // Note: UNIQUE constraint will avoid re-inserting a previously existing tuple of Trunk name and version
         let record = sqlx::query!(
             "INSERT INTO v1.trunk_project_versions (trunk_project_name, version, description, repository_link, documentation_link)
             VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (trunk_project_name, version) 
+            DO UPDATE SET 
+                description = EXCLUDED.description,
+                repository_link = EXCLUDED.repository_link,
+                documentation_link = EXCLUDED.documentation_link,
+                -- Dummy update to ensure a row is always returned
+                id = v1.trunk_project_versions.id
             RETURNING id",
             trunk_project.name, trunk_project.version, trunk_project.description, trunk_project.repository_link, trunk_project.documentation_link
         ).fetch_one(&self.pool).await?;
+        tracing::info!("Inserted Trunk project version");
+
         let trunk_project_version_id = record.id;
 
+        // 3. insert Postgres version and download URLs
+        tracing::info!("Inserting Postgres version!");
+        if let Some(supported_postgres_versions) = trunk_project.postgres_versions {
+            let downloads = trunk_project.downloads.as_deref().unwrap_or_default();
+            for pg_version in supported_postgres_versions {
+                sqlx::query!(
+                    "INSERT INTO v1.trunk_project_postgres_support(postgres_version_id, trunk_project_version_id)
+                    SELECT pg.id, $1
+                    FROM v1.postgres_version pg
+                    WHERE pg.major = $2
+                    ON CONFLICT ON CONSTRAINT unique_trunk_project_postgres_support DO NOTHING",
+                    trunk_project_version_id,
+                    pg_version as i32
+                ).execute(&self.pool).await?;
+
+                let maybe_download = downloads
+                    .iter()
+                    .find(|download| download.pg_version == pg_version);
+
+                if let Some(download) = maybe_download {
+                    self.insert_download_link(
+                        pg_version,
+                        trunk_project_version_id,
+                        &download.link,
+                        &download.sha256,
+                    )
+                    .await?;
+                }
+            }
+        }
+
         for extension in &trunk_project.extensions {
-            // 3. insert extension version (or versions)
+            // 4. insert extension version (or versions)
             let record = sqlx::query!(
                 "INSERT INTO v1.extension_versions (extension_name, trunk_project_version_id, version)
                 VALUES ($1, $2, $3)
                 ON CONFLICT (extension_name, trunk_project_version_id, version) 
-                DO NOTHING
+                DO UPDATE SET
+                    -- Dummy update to ensure a row is always returned
+                    id = v1.extension_versions.id
                 RETURNING id",
                 extension.extension_name,
                 trunk_project_version_id,
                 extension.version
             ).fetch_one(&self.pool).await?;
             let extension_version_id = record.id;
+            tracing::info!("Inserted extension version");
 
             let dependencies = extension
                 .dependencies_extension_names
@@ -349,40 +490,141 @@ impl Registry {
                 .iter()
                 .flat_map(|libs| libs.iter());
 
-            // 4. insert extension dependencies
+            // 5. insert extension dependencies
             for dependency_name in dependencies {
                 sqlx::query!(
                     "INSERT INTO v1.extension_dependency (extension_version_id, depends_on_extension_name)
-                    VALUES ($1, $2)",
+                    VALUES ($1, $2)
+                    ON CONFLICT (extension_version_id, depends_on_extension_name) 
+                    DO NOTHING",
                     extension_version_id,
                     dependency_name,
                 ).execute(&self.pool).await?;
             }
 
-            // 5. insert extension configurations
-            for config in configurations {
-                sqlx::query!(
+            // 6. insert extension configurations
+            self.insert_configurations(extension_version_id, configurations)
+                .await?;
+
+            // 7. insert shared preload libraries
+            self.insert_loadable_libraries(extension_version_id, loadable_libraries)
+                .await?;
+
+            // 8. Insert control file metadata
+            self.insert_control_file(extension_version_id, extension.control_file.as_ref())
+                .await?;
+        }
+
+        Ok(())
+    }
+
+    async fn insert_configurations(
+        &self,
+        extension_version_id: i32,
+        configurations: impl Iterator<Item = &ExtensionConfiguration>,
+    ) -> Result {
+        for config in configurations {
+            sqlx::query!(
                     "INSERT INTO v1.extension_configurations (extension_version_id, is_required, configuration_name, recommended_default_value)
-                    VALUES ($1, $2, $3, $4)",
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (extension_version_id, configuration_name)
+                    DO UPDATE SET 
+                        is_required = EXCLUDED.is_required,
+                        recommended_default_value = EXCLUDED.recommended_default_value",
                     extension_version_id,
                     config.is_required,
-                    config.name,
-                    config.recommended_default,
+                    config.configuration_name,
+                    config.recommended_default_value,
                 ).execute(&self.pool).await?;
-            }
-
-            // 6. insert shared preload libraries
-            for library in loadable_libraries {
-                sqlx::query!(
-                    "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)
-                    VALUES ($1, $2, $3, $4)",
-                    extension_version_id,
-                    library.library_name,
-                    library.requires_restart,
-                    library.priority,
-                ).execute(&self.pool).await?;
-            }
         }
+        Ok(())
+    }
+
+    async fn insert_loadable_libraries(
+        &self,
+        extension_version_id: i32,
+        loadable_libraries: impl Iterator<Item = &LoadableLibrary>,
+    ) -> Result {
+        for library in loadable_libraries {
+            sqlx::query!(
+                "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)
+                VALUES ($1, $2, $3, $4)
+                ON CONFLICT (extension_version_id, library_name)
+                DO UPDATE SET 
+                    requires_restart = EXCLUDED.requires_restart,
+                    priority = EXCLUDED.priority",
+                extension_version_id,
+                library.library_name,
+                library.requires_restart,
+                library.priority,
+            ).execute(&self.pool).await?;
+        }
+
+        Ok(())
+    }
+
+    async fn insert_control_file(
+        &self,
+        extension_version_id: i32,
+        control_file: Option<&ControlFileMetadata>,
+    ) -> Result {
+        let absent = control_file
+            .map(|control_file| control_file.absent)
+            .unwrap_or(true);
+        let content = control_file.and_then(|control_file| control_file.content.as_ref());
+
+        sqlx::query!(
+            "INSERT INTO v1.control_file (extension_version_id, absent, content)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (extension_version_id) 
+            DO UPDATE SET 
+                absent = EXCLUDED.absent,
+                content = EXCLUDED.content",
+            extension_version_id,
+            absent,
+            content,
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    async fn insert_download_link(
+        &self,
+        postgres_major: u8,
+        trunk_project_version_id: i32,
+        download_url: &str,
+        sha256: &str,
+    ) -> Result {
+        sqlx::query!(
+            "INSERT INTO v1.trunk_project_downloads (
+                platform_id,
+                postgres_version_id,
+                trunk_project_version_id,
+                download_url,
+                sha256
+            ) VALUES (
+                -- TODO: this works because this is currently the only platform supported, must change
+                -- if more get supported
+                (SELECT id FROM v1.platform WHERE platform_name = 'linux/amd64'),
+                (SELECT id FROM v1.postgres_version WHERE major = $1),
+                $2,
+                $3,
+                $4
+            )
+            ON CONFLICT (platform_id, postgres_version_id, trunk_project_version_id)
+            DO UPDATE SET
+                sha256 = EXCLUDED.sha256,
+                download_url = EXCLUDED.download_url",
+            postgres_major as i32,
+            trunk_project_version_id,
+            download_url,
+            sha256
+        )
+        .execute(&self.pool)
+        .await?;
+
         Ok(())
     }
 }

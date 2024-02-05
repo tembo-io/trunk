@@ -6,7 +6,7 @@ FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 RUN git clone https://github.com/CrunchyData/pgbouncer_fdw.git
 
 # Set project version
-ARG RELEASE=v1.0.1
+ARG RELEASE=v1.1.0
 
 # Build extension
 RUN cd pgbouncer_fdw && \
