@@ -104,18 +104,7 @@ jobs:
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
       - name: Build the extension
-        run: |
-          cd ${{ matrix.path }}
-          echo "Current path: ${{ matrix.path }}"
-          if [[ "${{ matrix.path }}" == *"pghydro"* ]]; then
-            echo "Building pghydro extension..."
-            trunk build --extension_name pghydro
-            echo "Trunk build command executed for pghydro"
-          else
-            echo "Building other extension..."
-            trunk build
-            echo "Trunk build command executed for other extension"
-          fi
+        run: cd ${{ matrix.path }} && trunk build
       - name: Install the extension
         run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
       - name: Enable the extension
