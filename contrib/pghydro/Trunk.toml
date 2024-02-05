@@ -6,14 +6,14 @@ license = "GPL-2.0"
 description = "Provide drainage network analysis functionality to PostGIS."
 documentation = "https://github.com/pghydro/pghydro"
 categories = ["data_transformations"]
-preload_libraries = ["pghydro", "postgis", "plpgsql"]
+preload_libraries = ["postgis", "plpgsql"]
 
 [build]
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    cd pghydro
+    cd pghydro && make install
     set -x
     mv *.sql /usr/share/postgresql/15/extension
     mv *.control /usr/share/postgresql/15/extension
