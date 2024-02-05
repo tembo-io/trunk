@@ -1,0 +1,19 @@
+[extension]
+name = "pgh_consistency"
+version = "6.6.0"
+repository = "https://github.com/pghydro/pghydro"
+license = "GPL-2.0"
+description = "Managing and ensuring the constistency hydrological data according to the Pfafstetter Coding System."
+documentation = "https://github.com/pghydro/pghydro"
+categories = ["data_transformations"]
+preload_libraries = ["pghydro", "postgis"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pghydro
+    set -x
+    mv pgh_consistency* /usr/share/postgresql/15/extension
+    """
