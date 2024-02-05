@@ -6,7 +6,7 @@ license = "GPL-2.0"
 description = "Provide drainage network analysis functionality to PostGIS."
 documentation = "https://github.com/pghydro/pghydro"
 categories = ["data_transformations"]
-preload_libraries = ["postgis", "plpgsql"]
+preload_libraries = ["pghydro", "postgis"]
 
 [build]
 postgres_version = "15"
