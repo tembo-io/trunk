@@ -9,5 +9,4 @@ ARG RELEASE=v.6.6
 # Build extension
 RUN cd pghydro && \
     git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+    git checkout ${RELEASE}
