@@ -93,4 +93,7 @@ pub enum ExtensionRegistryError {
 
     #[error("Not a GitHub repository: {0}")]
     InvalidGithubRepo(String),
+
+    #[error("Failed to decompress Trunk archive")]
+    ArchiveError,
 }

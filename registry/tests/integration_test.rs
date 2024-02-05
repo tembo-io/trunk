@@ -6,7 +6,6 @@ mod tests {
     use actix_web::body::to_bytes;
     use actix_web::test;
     use actix_web::web::Bytes;
-    use sqlx;
     use trunk_registry::connect;
     use trunk_registry::routes::categories::get_all_categories;
     use trunk_registry::routes::download::download;
@@ -89,7 +88,7 @@ mod tests {
         // Generate API token
         let req = test::TestRequest::post()
             .uri("/token/new")
-            .insert_header(("Authorization", dummy_jwt.clone()))
+            .insert_header(("Authorization", dummy_jwt))
             .to_request();
         let resp = test::call_service(&app, req).await;
         let token = test::read_body(resp).await;

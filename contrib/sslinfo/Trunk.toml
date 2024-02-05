@@ -8,6 +8,7 @@ homepage = "https://www.postgresql.org"
 documentation = "https://www.postgresql.org/docs/current/sslinfo.html"
 categories = ["security"]
 
+
 [dependencies]
 apt = ["libc6", "openssl"]
 
