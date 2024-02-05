@@ -15,6 +15,8 @@ dockerfile = "Dockerfile"
 install_command = """
     cd pghydro
     set -x
+    cp *.sql /var/lib/postgresql/data/tembo
+    cp *.control /var/lib/postgresql/data/tembo
     mv *.sql /usr/share/postgresql/15/extension
     mv *.control /usr/share/postgresql/15/extension
     """
