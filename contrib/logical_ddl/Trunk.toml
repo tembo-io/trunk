@@ -1,0 +1,12 @@
+[extension]
+name = "logical_ddl"
+version = "0.1.0"
+license = "mit"
+repository = "https://github.com/samedyildirim/logical_ddl"
+description = "logical_ddl extension captures DDL operations on tables and helps them to replicate over logical replication to subscribers."
+homepage = "https://github.com/samedyildirim/logical_ddl"
+documentation = "https://github.com/samedyildirim/logical_ddl"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
