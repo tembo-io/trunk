@@ -1,0 +1,12 @@
+[extension]
+name = "colnames"
+version = "1.7.0"
+license = "postgresql"
+repository = "http://github.com/theory/colnames/"
+description = "Lists the column names in a PostgreSQL RECORD value"
+homepage = "http://github.com/theory/colnames/"
+documentation = "http://github.com/theory/colnames/"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
