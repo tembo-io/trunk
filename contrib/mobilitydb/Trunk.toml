@@ -8,7 +8,7 @@ homepage = "https://mobilitydb.com/"
 documentation = "https://mobilitydb.com/documentation.html"
 categories = ["data_transformations"]
 loadable_libraries = [{ library_name = "postgis-3.4", requires_restart = true },
-                      { library_name = "mobilitydb", requires_restart = true }
+                      { library_name = "libMobilityDB-1.0", requires_restart = true }
 ]
 
 # [dependencies]
