@@ -1,0 +1,24 @@
+[extension]
+name = "mobilitydb"
+version = "1.0.0"
+repository = "https://github.com/MobilityDB/MobilityDB"
+license = "PostgreSQL"
+description = "Geospatial trajectory data management."
+homepage = "https://mobilitydb.com/"
+documentation = "https://mobilitydb.com/documentation.html"
+categories = ["data_transformations"]
+loadable_libraries = [{ library_name = "postgis-3.4", requires_restart = true }]
+
+# [dependencies]
+# apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd MobilityDB/build && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
