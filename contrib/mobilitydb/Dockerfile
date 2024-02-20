@@ -9,10 +9,11 @@ RUN apt-get update && \
     libprotobuf-c-dev \
     protobuf-c-compiler \
     libgdal-dev \
-    libgsl-dev
+    libgsl-dev \
+    libjson-c-dev
 
 # Set the library path
-ENV LD_LIBRARY_PATH=/usr/lib/postgresql/15/lib:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+# ENV LD_LIBRARY_PATH=/usr/lib/postgresql/15/lib:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 
 # Download and build PostGIS
 RUN wget https://download.osgeo.org/postgis/source/postgis-3.4.0.tar.gz && \
@@ -22,16 +23,20 @@ RUN wget https://download.osgeo.org/postgis/source/postgis-3.4.0.tar.gz && \
     make && \
     make install
 
-# Clone repository
-RUN git clone https://github.com/MobilityDB/MobilityDB
+# # Clone repository
+# RUN git clone https://github.com/MobilityDB/MobilityDB
+#
+# # Set project version
+# ARG RELEASE=v1.0
 
-# Set project version
-ARG RELEASE=v1.0
+RUN wget -O mobilitydb-1.0.tar.gz https://github.com/MobilityDB/MobilityDB/archive/v1.0.tar.gz && \
+    tar xvfz mobilitydb-1.0.tar.gz && \
+    ls -l
 
 # Build extension
-RUN cd MobilityDB && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
+RUN cd MobilityDB-1.0 && \
+    # git fetch origin ${RELEASE} && \
+    # git checkout ${RELEASE} && \
     mkdir build && \
     cd build && \
     cmake .. && \
