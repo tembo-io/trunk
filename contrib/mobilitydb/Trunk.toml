@@ -26,6 +26,7 @@ install_command = """
     ls -l /usr/lib/postgresql/15/lib
     find / -name \"libgsl.so.27\" -exec echo Found GSL library at: {} \\;
     cp /usr/lib/x86_64-linux-gnu/libgsl.so.27 /usr/lib/postgresql/15/lib/
+    ln -s /usr/lib/x86_64-linux-gnu/libgsl.so.27 /usr/lib/postgresql/15/lib/libgsl.so.27
     ls -l /usr/lib/postgresql/15/lib/libgsl.so.27
     ldconfig
     ldd /usr/lib/postgresql/15/lib/libgsl.so.27
