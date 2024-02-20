@@ -17,19 +17,5 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    export LD_LIBRARY_PATH=/usr/lib/postgresql/15/lib:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
     cd MobilityDB/build && make install
-    set -x
-    ls -l /usr/share/postgresql/15/extension
-    ls -l /usr/lib/postgresql/15/lib
-    find / -name \"libgsl.so.27\" -exec echo Found GSL library at: {} \\;
-    cp /usr/lib/x86_64-linux-gnu/libgsl.so.27 /usr/lib/postgresql/15/lib/
-    ln -s /usr/lib/x86_64-linux-gnu/libgsl.so.27 /usr/lib/postgresql/15/lib/libgsl.so.27
-    ls -l /usr/lib/postgresql/15/lib/libgsl.so.27
-    ldconfig
-    ldd /usr/lib/postgresql/15/lib/libgsl.so.27
-    ldd /usr/lib/postgresql/15/lib/libMobilityDB-1.0.so
 """
-
-    # mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    # mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
