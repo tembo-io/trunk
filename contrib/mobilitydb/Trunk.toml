@@ -28,6 +28,7 @@ install_command = """
     ls -l /usr/lib/postgresql/15/lib/libgsl.so.27
     ldconfig
     ldd /usr/lib/postgresql/15/lib/libgsl.so.27
+    ldd /usr/lib/postgresql/15/lib/libMobilityDB-1.0.so
 """
 
     # mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
