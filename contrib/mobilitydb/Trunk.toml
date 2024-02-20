@@ -19,6 +19,7 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
+    export LD_LIBRARY_PATH=/usr/lib/postgresql/15/lib:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
     cd MobilityDB-1.0/build && make install
     set -x
     ls -l /usr/share/postgresql/15/extension
