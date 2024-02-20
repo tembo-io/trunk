@@ -23,5 +23,5 @@ install_command = """
     set -x
     mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
     mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    ln -s /usr/lib/x86_64-linux-gnu/libgsl.so.27 /usr/lib/postgresql/15/lib/libgsl.so.27
+    cp /usr/lib/x86_64-linux-gnu/libgsl.so.27 /usr/lib/postgresql/15/lib/
     """
