@@ -11,6 +11,9 @@ RUN apt-get update && \
     libgdal-dev \
     libgsl-dev
 
+# Set the library path
+ENV LD_LIBRARY_PATH=/usr/lib/postgresql/15/lib:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+
 # Download and build PostGIS
 RUN wget https://download.osgeo.org/postgis/source/postgis-3.4.0.tar.gz && \
     tar xvf postgis-3.4.0.tar.gz && \
