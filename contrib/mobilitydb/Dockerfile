@@ -24,20 +24,22 @@ RUN wget https://download.osgeo.org/postgis/source/postgis-3.4.0.tar.gz && \
     make && \
     make install
 
-# # Clone repository
-# RUN git clone https://github.com/MobilityDB/MobilityDB
-#
-# # Set project version
-# ARG RELEASE=v1.0
+# Clone repository
+RUN git clone https://github.com/MobilityDB/MobilityDB
 
-RUN wget -O mobilitydb-1.0.tar.gz https://github.com/MobilityDB/MobilityDB/archive/v1.0.tar.gz && \
-    tar xvfz mobilitydb-1.0.tar.gz && \
-    ls -l
+# Set project version
+ARG RELEASE=v1.1.0rc1
+
+# RUN wget -O mobilitydb-1.0.tar.gz https://github.com/MobilityDB/MobilityDB/archive/v1.0.tar.gz && \
+#     tar xvfz mobilitydb-1.0.tar.gz && \
+#     ls -l
+
+
 
 # Build extension
-RUN cd MobilityDB-1.0 && \
-    # git fetch origin ${RELEASE} && \
-    # git checkout ${RELEASE} && \
+RUN cd MobilityDB && \
+    git fetch origin ${RELEASE} && \
+    git checkout ${RELEASE} && \
     mkdir build && \
     cd build && \
     cmake .. && \
