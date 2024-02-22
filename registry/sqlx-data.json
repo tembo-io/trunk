@@ -1287,6 +1287,26 @@
     },
     "query": "SELECT * FROM versions WHERE extension_id = $1 AND num = $2"
   },
+  "b14dd62cf7bee8504f20f10da0b5236a52adf648f945ddd038c6b351dd5a3ee6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "result",
+          "ordinal": 0,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT\n                json_build_object(\n                    'name', tpv.trunk_project_name,\n                    'description', tpv.description,\n                    'documentation_link', tpv.documentation_link,\n                    'repository_link', tpv.repository_link,\n                    'version', tpv.version,\n                    'postgres_versions', (\n                        SELECT json_agg(pg.major)\n                        FROM v1.trunk_project_postgres_support tpps\n                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id\n                        WHERE tpps.trunk_project_version_id = tpv.id\n                    ),\n                    'downloads', (\n                        SELECT json_agg(json_build_object(\n                            'link', tpd.download_url,\n                            'pg_version', pg.major,\n                            'platform', plt.platform_name,\n                            'sha256', tpd.sha256\n                        ))\n                        FROM v1.trunk_project_downloads tpd\n                        JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id\n                        JOIN v1.platform plt ON tpd.platform_id = plt.id\n                        WHERE tpd.trunk_project_version_id = tpv.id\n                    ),\n                    'extensions', (\n                        SELECT json_agg(json_build_object(\n                            'extension_name', ev.extension_name,\n                            'version', ev.version,\n                            'trunk_project_name', tpv.trunk_project_name,\n                            'dependencies_extension_names', (\n                                SELECT json_agg(ed.depends_on_extension_name)\n                                FROM v1.extension_dependency ed\n                                WHERE ed.extension_version_id = ev.id\n                            ),\n                            'loadable_libraries', (\n                                SELECT json_agg(json_build_object(\n                                    'library_name', ell.library_name,\n                                    'requires_restart', ell.requires_restart,\n                                    'priority', ell.priority\n                                ))\n                                FROM v1.extensions_loadable_libraries ell\n                                WHERE ell.extension_version_id = ev.id\n                            ),\n                            'configurations', (\n                                SELECT json_agg(json_build_object(\n                                    'name', ec.configuration_name,\n                                    'is_required', ec.is_required,\n                                    'default', ec.recommended_default_value\n                                ))\n                                FROM v1.extension_configurations ec\n                                WHERE ec.extension_version_id = ev.id\n                            ),\n                            'control_file', (\n                                SELECT json_build_object(\n                                    'absent', cf.absent,\n                                    'content', cf.content\n                                )\n                                FROM v1.control_file cf\n                                WHERE cf.extension_version_id = ev.id\n                            )\n                        ))\n                        FROM v1.extension_versions ev\n                        WHERE ev.trunk_project_version_id = tpv.id\n                    )\n                ) AS result\n            FROM\n                v1.trunk_project_versions tpv\n            JOIN v1.extension_versions ev ON ev.trunk_project_version_id = tpv.id\n            JOIN (\n                SELECT extension_name, MAX(regexp_split_to_array(version, '[.-]')::int[]) as max_version\n                FROM v1.extension_versions\n                WHERE extension_name = $1\n                GROUP BY extension_name\n            ) sub_ev ON ev.extension_name = sub_ev.extension_name AND regexp_split_to_array(ev.version,'[.-]')::int[] = sub_ev.max_version\n            "
+  },
   "ba0aacc024a0e656c5294bace29609287aef47b6b35c2ce4bd34765d15f20210": {
     "describe": {
       "columns": [
@@ -1513,25 +1533,5 @@
       }
     },
     "query": "UPDATE versions\n        SET download_count = download_count + 1\n        WHERE extension_id = $1"
-  },
-  "fca4a019601519047f25e1cab6e15b87646d22cf717a78db51cceb9b8abca8b0": {
-    "describe": {
-      "columns": [
-        {
-          "name": "result",
-          "ordinal": 0,
-          "type_info": "Json"
-        }
-      ],
-      "nullable": [
-        null
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      }
-    },
-    "query": "SELECT\n                json_build_object(\n                    'name', tpv.trunk_project_name,\n                    'description', tpv.description,\n                    'documentation_link', tpv.documentation_link,\n                    'repository_link', tpv.repository_link,\n                    'version', tpv.version,\n                    'postgres_versions', (\n                        SELECT json_agg(pg.major)\n                        FROM v1.trunk_project_postgres_support tpps\n                        JOIN v1.postgres_version pg ON tpps.postgres_version_id = pg.id\n                        WHERE tpps.trunk_project_version_id = tpv.id\n                    ),\n                    'downloads', (\n                        SELECT json_agg(json_build_object(\n                            'link', tpd.download_url,\n                            'pg_version', pg.major,\n                            'platform', plt.platform_name,\n                            'sha256', tpd.sha256\n                        ))\n                        FROM v1.trunk_project_downloads tpd\n                        JOIN v1.postgres_version pg ON tpd.postgres_version_id = pg.id\n                        JOIN v1.platform plt ON tpd.platform_id = plt.id\n                        WHERE tpd.trunk_project_version_id = tpv.id\n                    ),\n                    'extensions', (\n                        SELECT json_agg(json_build_object(\n                            'extension_name', ev.extension_name,\n                            'version', ev.version,\n                            'trunk_project_name', tpv.trunk_project_name,\n                            'dependencies_extension_names', (\n                                SELECT json_agg(ed.depends_on_extension_name)\n                                FROM v1.extension_dependency ed\n                                WHERE ed.extension_version_id = ev.id\n                            ),\n                            'loadable_libraries', (\n                                SELECT json_agg(json_build_object(\n                                    'library_name', ell.library_name,\n                                    'requires_restart', ell.requires_restart,\n                                    'priority', ell.priority\n                                ))\n                                FROM v1.extensions_loadable_libraries ell\n                                WHERE ell.extension_version_id = ev.id\n                            ),\n                            'configurations', (\n                                SELECT json_agg(json_build_object(\n                                    'name', ec.configuration_name,\n                                    'is_required', ec.is_required,\n                                    'default', ec.recommended_default_value\n                                ))\n                                FROM v1.extension_configurations ec\n                                WHERE ec.extension_version_id = ev.id\n                            ),\n                            'control_file', (\n                                SELECT json_build_object(\n                                    'absent', cf.absent,\n                                    'content', cf.content\n                                )\n                                FROM v1.control_file cf\n                                WHERE cf.extension_version_id = ev.id\n                            )\n                        ))\n                        FROM v1.extension_versions ev\n                        WHERE ev.trunk_project_version_id = tpv.id\n                    )\n                ) AS result\n            FROM\n                v1.trunk_project_versions tpv\n            JOIN v1.extension_versions ev ON ev.trunk_project_version_id = tpv.id\n            JOIN (\n                SELECT extension_name, MAX(string_to_array(version, '.')::int[]) as max_version\n                FROM v1.extension_versions\n                WHERE extension_name = $1\n                GROUP BY extension_name\n            ) sub_ev ON ev.extension_name = sub_ev.extension_name AND string_to_array(ev.version, '.')::int[] = sub_ev.max_version\n            "
   }
 }
