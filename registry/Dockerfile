@@ -11,5 +11,5 @@ RUN cargo install --path .
 FROM quay.io/coredb/debian:11.6-slim
 COPY --from=builder /usr/local/cargo/bin/* /usr/local/bin/
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends ca-certificates
+RUN apt-get install -y --no-install-recommends ca-certificates libssl-dev
 RUN update-ca-certificates
