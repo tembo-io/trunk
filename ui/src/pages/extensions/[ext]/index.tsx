@@ -39,7 +39,6 @@ export default function Page({
   }, [showFeedback]);
 
   if (!extension && !router.isFallback) {
-    console.log('EXT MISSING DATA');
     return (
       <div>
         <h1>Error</h1>
