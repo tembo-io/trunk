@@ -8,8 +8,8 @@ RUN cargo build --release && \
 RUN cargo install --path .
 
 # second stage.
-FROM quay.io/coredb/debian:11.6-slim
+FROM quay.io/tembo/debian:12.5-slim
 COPY --from=builder /usr/local/cargo/bin/* /usr/local/bin/
-RUN apt-get update
+RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends ca-certificates
 RUN update-ca-certificates
