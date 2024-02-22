@@ -79,9 +79,11 @@ export default function ExtGrid({
             <div className={styles.titleRow}>
               <p className={styles.interMed16}>{ext.name}</p>
             </div>
-            <p className={cx(styles.interReg12, styles.description)}>
-              {truncate(ext.description)}
-            </p>
+            {ext?.description && (
+              <p className={cx(styles.interReg12, styles.description)}>
+                {truncate(ext.description)}
+              </p>
+            )}
             {ext && (
               <CategoryTags
                 extension={ext}

@@ -27,9 +27,13 @@ const Search: React.FC<SearchProps> = ({ doOnClick }) => {
     isLoading || isError
       ? []
       : extensions.filter(
-        (ext) =>
-          (ext.name ? ext.name.toLowerCase() : '').includes(searchString.toLowerCase()) ||
-          (ext.description ? ext.description.toLowerCase() : '').includes(searchString.toLowerCase())
+          (ext) =>
+            (ext.name ? ext.name.toLowerCase() : '').includes(
+              searchString.toLowerCase()
+            ) ||
+            (ext.description ? ext.description.toLowerCase() : '').includes(
+              searchString.toLowerCase()
+            )
         );
 
   const resultContainerRef: RefObject<HTMLInputElement> = useRef(null);
@@ -110,9 +114,11 @@ const Search: React.FC<SearchProps> = ({ doOnClick }) => {
                   href={`/extensions/${ext.name}`}>
                   <div>
                     <p className={styles.extName}>{ext.name}</p>
-                    <p className={styles.extDesc}>
-                      {truncate(ext.description)}
-                    </p>
+                    {ext?.description && (
+                      <p className={styles.extDesc}>
+                        {truncate(ext.description)}
+                      </p>
+                    )}
                   </div>
                   {ext?.categories[0] && (
                     <div className={styles.extCategory}>

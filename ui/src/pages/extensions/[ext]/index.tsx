@@ -39,7 +39,6 @@ export default function Page({
   }, [showFeedback]);
 
   if (!extension && !router.isFallback) {
-    console.log('EXT MISSING DATA');
     return (
       <div>
         <h1>Error</h1>
@@ -249,7 +248,9 @@ async function getReadme(extensionName: string): Promise<string> {
     if (readmeResponse.status === 200) {
       return respBody;
     } else {
-      console.error(`Fetching README for ${extensionName} failed: ${readmeResponse.status}`);
+      console.error(
+        `Fetching README for ${extensionName} failed: ${readmeResponse.status}`
+      );
       return ''; // Return empty string on non-200 status
     }
   } catch (err) {
@@ -257,7 +258,6 @@ async function getReadme(extensionName: string): Promise<string> {
     return ''; // Return empty string on error
   }
 }
-
 
 // Lexicographically compare semantic version tags
 const compareBySemver = (a: string, b: string) => {
