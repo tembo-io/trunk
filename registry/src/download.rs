@@ -10,7 +10,7 @@ pub async fn latest_version(
     // Create a transaction on the database
     let mut tx = conn.begin().await?;
     let latest = sqlx::query!("SELECT num FROM versions WHERE extension_id = $1 ORDER BY string_to_array(num, '.')::int[] DESC LIMIT 1;", extension_id)
-        .fetch_one(&mut tx)
+        .fetch_one(&mut *tx)
         .await?;
     Ok(latest.num.unwrap())
 }

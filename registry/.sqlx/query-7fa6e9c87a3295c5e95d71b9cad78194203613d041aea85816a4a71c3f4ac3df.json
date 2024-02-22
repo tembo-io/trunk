@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO v1.trunk_project (name) \n            VALUES ($1)\n            ON CONFLICT (name) DO NOTHING",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7fa6e9c87a3295c5e95d71b9cad78194203613d041aea85816a4a71c3f4ac3df"
+}
