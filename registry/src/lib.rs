@@ -39,6 +39,7 @@ pub fn conn_options(url: &str) -> Result<PgConnectOptions, errors::ExtensionRegi
         .port(parsed.port().ok_or(ParseError::InvalidPort)?)
         .username(parsed.username())
         .password(parsed.password().ok_or(ParseError::IdnaError)?)
-        .database(path_segments.next().unwrap()).log_statements(LevelFilter::Debug);
+        .database(path_segments.next().unwrap())
+        .log_statements(LevelFilter::Debug);
     Ok(options)
 }
