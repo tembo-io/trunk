@@ -136,7 +136,8 @@ impl Registry {
         extension_name: &str,
     ) -> Result<Vec<TrunkProjectView>> {
         let records = sqlx::query!(
-            "SELECT
+            "set enable_hashjoin to false;
+            SELECT
                 json_build_object(
                     'name', tpv.trunk_project_name,
                     'description', tpv.description,
