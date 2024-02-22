@@ -210,7 +210,7 @@ impl Registry {
                 FROM v1.extension_versions
                 WHERE extension_name = $1
                 GROUP BY extension_name
-            ) sub_ev ON ev.extension_name = sub_ev.extension_name AND regexp_split_to_array(ev.version,'[.-]')::int[] = sub_ev.max_version)
+            ) sub_ev ON ev.extension_name = sub_ev.extension_name AND regexp_split_to_array(ev.version,'[.-]')::int[] = sub_ev.max_version
             ", extension_name
         ).fetch_all(&self.pool).await?;
 
