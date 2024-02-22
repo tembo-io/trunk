@@ -1,4 +1,4 @@
-FROM quay.io/coredb/rust:1.76.0 as builder
+FROM quay.io/coredb/rust:1.74.0-slim-buster as builder
 COPY sqlx-data.json Cargo.toml Cargo.lock ./
 COPY src ./src
 COPY migrations ./migrations/
