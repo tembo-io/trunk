@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM versions\n             WHERE extension_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a355d51ccf9b49a96bf62078f00fb982ba11a3026d8b9f120d948b6c5e40d317"
+}

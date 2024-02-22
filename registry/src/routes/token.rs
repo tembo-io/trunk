@@ -43,7 +43,7 @@ pub async fn new_token(
         claims.userName,
         &token_sha
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     tx.commit().await?;
     Ok(HttpResponse::Ok().body(token))

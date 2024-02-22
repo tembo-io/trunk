@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO v1.trunk_project_downloads (\n                platform_id,\n                postgres_version_id,\n                trunk_project_version_id,\n                download_url,\n                sha256\n            ) VALUES (\n                -- TODO: this works because this is currently the only platform supported, must change\n                -- if more get supported\n                (SELECT id FROM v1.platform WHERE platform_name = 'linux/amd64'),\n                (SELECT id FROM v1.postgres_version WHERE major = $1),\n                $2,\n                $3,\n                $4\n            )\n            ON CONFLICT (platform_id, postgres_version_id, trunk_project_version_id)\n            DO UPDATE SET\n                sha256 = EXCLUDED.sha256,\n                download_url = EXCLUDED.download_url",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int2",
+        "Int4",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "79e13abe94a7d583d810c88d18272123f18672525f3d83254069b0979c35583b"
+}

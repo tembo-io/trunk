@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO extensions(name, created_at, updated_at, description, homepage, documentation, repository)\n            VALUES ($1, (now() at time zone 'utc'), (now() at time zone 'utc'), $2, $3, $4, $5)\n            RETURNING id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "4db2be5140f4d7c0edebcf62616e8ce97c5479134580a654727fbe4a83435319"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO v1.trunk_project_postgres_support(postgres_version_id, trunk_project_version_id)\n                    SELECT pg.id, $1\n                    FROM v1.postgres_version pg\n                    WHERE pg.major = $2\n                    ON CONFLICT ON CONSTRAINT unique_trunk_project_postgres_support DO NOTHING",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int2"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "13f5a1bc9134e46f5afd23f334b270a5e0daccd7021955c708aa1554d7aa1b05"
+}

@@ -1,0 +1,113 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT *\n                FROM versions\n                WHERE \n                    extension_id = $1\n                    and num = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "extension_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "num",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "features",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "yanked",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "license",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "extension_size",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "published_by",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "checksum",
+        "type_info": "Bpchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "links",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "extension_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 13,
+        "name": "system_dependencies",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 14,
+        "name": "libraries",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 15,
+        "name": "download_count",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "7a931ec93bcc1516737bfc65fd24b339401996a7f23891c7770a3b5b5c79ffc2"
+}
