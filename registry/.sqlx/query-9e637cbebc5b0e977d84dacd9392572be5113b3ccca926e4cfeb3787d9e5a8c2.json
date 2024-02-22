@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO readmes (extension_id, readme)\n            VALUES ($1, $2)\n            ON CONFLICT (extension_id)\n            DO UPDATE SET readme = excluded.readme",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9e637cbebc5b0e977d84dacd9392572be5113b3ccca926e4cfeb3787d9e5a8c2"
+}

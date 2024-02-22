@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT user_name\n                FROM api_tokens\n                WHERE\n                    token = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3ef18da25f5c0eeee1c92761e66a68d3733eb17380b5c1863097843fdeef0c1e"
+}

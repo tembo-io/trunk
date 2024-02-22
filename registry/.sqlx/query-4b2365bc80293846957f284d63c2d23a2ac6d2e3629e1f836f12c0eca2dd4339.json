@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM extensions WHERE name = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "description",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "homepage",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "documentation",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "repository",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "4b2365bc80293846957f284d63c2d23a2ac6d2e3629e1f836f12c0eca2dd4339"
+}

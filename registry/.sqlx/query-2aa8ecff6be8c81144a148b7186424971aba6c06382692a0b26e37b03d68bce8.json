@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT *\n                FROM api_tokens\n                WHERE\n                    token = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "token",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 3,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "last_used_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 6,
+        "name": "user_name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "2aa8ecff6be8c81144a148b7186424971aba6c06382692a0b26e37b03d68bce8"
+}

@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO api_tokens(user_id, user_name, token, created_at)\n            VALUES ($1, $2, $3, (now() at time zone 'utc'))\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "805d20f064e4a323d42c611f4719bd0fa4c152c330ff572609310fa306971468"
+}
