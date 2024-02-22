@@ -34,12 +34,11 @@ pub fn conn_options(url: &str) -> Result<PgConnectOptions, errors::ExtensionRegi
     // Parse url
     let parsed = Url::parse(url)?;
     let mut path_segments = parsed.path_segments().ok_or("cannot be base").unwrap();
-    let mut options = PgConnectOptions::new()
+    let options = PgConnectOptions::new()
         .host(parsed.host_str().ok_or(ParseError::EmptyHost)?)
         .port(parsed.port().ok_or(ParseError::InvalidPort)?)
         .username(parsed.username())
         .password(parsed.password().ok_or(ParseError::IdnaError)?)
-        .database(path_segments.next().unwrap());
-    options.log_statements(LevelFilter::Debug);
+        .database(path_segments.next().unwrap()).log_statements(LevelFilter::Debug);
     Ok(options)
 }
