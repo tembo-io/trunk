@@ -27,9 +27,9 @@ const Search: React.FC<SearchProps> = ({ doOnClick }) => {
     isLoading || isError
       ? []
       : extensions.filter(
-          (ext) =>
-            ext.name.toLowerCase().includes(searchString.toLowerCase()) ||
-            ext.description.toLowerCase().includes(searchString.toLowerCase())
+        (ext) =>
+          (ext.name ? ext.name.toLowerCase() : '').includes(searchString.toLowerCase()) ||
+          (ext.description ? ext.description.toLowerCase() : '').includes(searchString.toLowerCase())
         );
 
   const resultContainerRef: RefObject<HTMLInputElement> = useRef(null);
