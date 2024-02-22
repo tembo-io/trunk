@@ -135,7 +135,7 @@ impl Registry {
         &self,
         extension_name: &str,
     ) -> Result<Vec<TrunkProjectView>> {
-        let mut tx = &self.pool.begin().await?;
+        let mut tx = self.pool.begin().await?;
         sqlx::query("set enable_hashjoin to off;")
             .execute(&mut tx)
             .await?;
