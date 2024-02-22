@@ -135,9 +135,12 @@ impl Registry {
         &self,
         extension_name: &str,
     ) -> Result<Vec<TrunkProjectView>> {
+        let mut tx = &self.pool.begin().await?;
+        sqlx::query("set enable_hashjoin to off;")
+            .execute(&mut tx)
+            .await?;
         let records = sqlx::query!(
-            "set enable_hashjoin to false;
-            SELECT
+            "SELECT
                 json_build_object(
                     'name', tpv.trunk_project_name,
                     'description', tpv.description,
@@ -213,7 +216,9 @@ impl Registry {
                 GROUP BY extension_name
             ) sub_ev ON ev.extension_name = sub_ev.extension_name AND string_to_array(ev.version, '.')::int[] = sub_ev.max_version
             ", extension_name
-        ).fetch_all(&self.pool).await?;
+        ).fetch_all(&mut tx).await?;
+
+        tx.commit().await?;
 
         Ok(records
             .into_iter()
