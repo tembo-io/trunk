@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
  	lld
 
 # Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s --default-toolchain=1.75.0 -- -y
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.75.0 -y
 
 # Set default Rust version
 RUN /root/.cargo/bin/rustup default stable
