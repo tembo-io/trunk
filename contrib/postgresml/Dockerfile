@@ -1,7 +1,7 @@
 FROM quay.io/coredb/pgrx-builder:pg15-pgrx0.11.2
 
 USER root
-# quay.io/coredb/pgrx-builder:pg15-pgrx0.9.7
+
 # Extension build dependencies
 RUN apt-get update && apt-get install -y \
 	build-essential \
@@ -25,7 +25,8 @@ RUN apt-get update && apt-get install -y \
  	lld
 
 # Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=1.75.0 -y
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN cargo install cargo-pgrx --version 0.11.2 --locked
 
 # Set default Rust version
 RUN /root/.cargo/bin/rustup default stable
