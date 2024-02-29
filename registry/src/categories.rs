@@ -18,7 +18,7 @@ pub async fn update_extension_categories(
         "SELECT category_id FROM extensions_categories WHERE extension_id = $1;",
         extension_id as i32
     )
-    .fetch_all(&mut tx)
+    .fetch_all(&mut *tx)
     .await?;
 
     let existing_ids: Vec<i64> = existing.into_iter().map(|x| x.category_id as i64).collect();
@@ -38,7 +38,7 @@ pub async fn update_extension_categories(
                 extension_id as i32,
                 category_id as i32
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
             sqlx::query!(
                 "
@@ -48,7 +48,7 @@ pub async fn update_extension_categories(
                 ",
                 category_id as i32
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
         }
     }
@@ -68,7 +68,7 @@ pub async fn update_extension_categories(
                 extension_id as i32,
                 category_id as i32
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
             sqlx::query!(
                 "
@@ -78,7 +78,7 @@ pub async fn update_extension_categories(
                 ",
                 category_id as i32
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
         }
     }

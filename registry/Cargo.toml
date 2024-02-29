@@ -13,7 +13,7 @@ base64 = "0.21.0"
 actix-cors = "0.6.4"
 actix-multipart = "0.6.0"
 anyhow = "1.0.69"
-sqlx = { version = "0.6.2", features = [ "chrono", "json", "runtime-tokio-native-tls" , "postgres", "time", "offline" ] }
+sqlx = { version = "0.7.2", features = [ "chrono", "json", "runtime-tokio-native-tls" , "postgres", "time" ] }
 url = "2.3.1"
 thiserror = "1.0.39"
 semver = { version = "1.0.16", features = ["serde"] }

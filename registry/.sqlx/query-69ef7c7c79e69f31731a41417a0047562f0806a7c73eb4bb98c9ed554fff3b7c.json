@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE extensions\n            SET updated_at = (now() at time zone 'utc'), description = $1, documentation = $2, homepage = $3, repository = $4\n            WHERE name = $5",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "69ef7c7c79e69f31731a41417a0047562f0806a7c73eb4bb98c9ed554fff3b7c"
+}

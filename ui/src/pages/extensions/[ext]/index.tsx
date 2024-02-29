@@ -39,7 +39,6 @@ export default function Page({
   }, [showFeedback]);
 
   if (!extension && !router.isFallback) {
-    console.log('EXT MISSING DATA');
     return (
       <div>
         <h1>Error</h1>
@@ -70,6 +69,7 @@ export default function Page({
     <div className={styles.pageCont}>
       <Head>
         <title>{`Trunk - ${latestVersion.name ?? ''}`}</title>
+
         <meta
           name="description"
           content={
@@ -242,21 +242,21 @@ async function getReadme(extensionName: string): Promise<string> {
   const registryUrl = `https://registry.pgtrunk.io/extensions/details/${extensionName}/readme`;
   console.log(registryUrl);
 
-  const readmeProm = fetch(registryUrl);
-
   try {
-    const readmeResponse = await readmeProm;
+    const readmeResponse = await fetch(registryUrl);
     const respBody = await readmeResponse.text();
 
-    if (readmeResponse.status == 200) {
+    if (readmeResponse.status === 200) {
       return respBody;
     } else {
-      return Promise.reject(
-        Error(`Fetching README for ${extensionName} failed: ${respBody}`)
+      console.error(
+        `Fetching README for ${extensionName} failed: ${readmeResponse.status}`
       );
+      return ''; // Return empty string on non-200 status
     }
   } catch (err) {
-    return Promise.reject(Error(`Fetching README endpoint failed: ${err}`));
+    console.error(`Fetching README endpoint failed: ${err}`);
+    return ''; // Return empty string on error
   }
 }
 

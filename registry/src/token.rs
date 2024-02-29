@@ -36,7 +36,7 @@ pub async fn validate_token(
                     token = $1",
         &token_digest,
     )
-    .fetch_optional(&mut tx)
+    .fetch_optional(&mut *tx)
     .await?;
 
     match token_exists {
@@ -49,7 +49,7 @@ pub async fn validate_token(
                     token = $1",
                 &token_digest,
             )
-            .fetch_one(&mut tx)
+            .fetch_one(&mut *tx)
             .await?;
 
             // TODO(ianstanton) we can perform this in a single query
@@ -60,7 +60,7 @@ pub async fn validate_token(
                     token = $1",
                 &token_digest,
             )
-            .fetch_one(&mut tx)
+            .fetch_one(&mut *tx)
             .await?;
 
             let user = UserInfo {

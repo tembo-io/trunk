@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE versions\n                    SET updated_at = (now() at time zone 'utc'), license = $1, published_by = $2, extension_name = $5, system_dependencies = $6::jsonb, libraries = $7::jsonb\n                    WHERE extension_id = $3\n                    AND num = $4",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Text",
+        "Varchar",
+        "Jsonb",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "32bf8a72aba8e810d4f1303ea516056784356965be367ec8427c5dd374ea937e"
+}

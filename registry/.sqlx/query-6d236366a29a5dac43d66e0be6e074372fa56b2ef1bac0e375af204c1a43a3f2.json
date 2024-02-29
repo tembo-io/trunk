@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO extension_owners(extension_id, owner_id, user_name, created_at, created_by)\n        VALUES ($1, $2, $3, (now() at time zone 'utc'), $2)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6d236366a29a5dac43d66e0be6e074372fa56b2ef1bac0e375af204c1a43a3f2"
+}

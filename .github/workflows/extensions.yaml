@@ -57,7 +57,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:0.0.32
+      image: quay.io/tembo/trunk-test-tembo:0.0.33
       options: --user root
     needs:
       - find_directories
@@ -81,7 +81,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:0.0.32
+      image: quay.io/tembo/trunk-test-tembo:0.0.33
       options: --user root
     needs:
       - find_directories
@@ -107,6 +107,10 @@ jobs:
         run: cd ${{ matrix.path }} && trunk build
       - name: Install the extension
         run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
+      - name: Modify pgconf if required
+        if: contains(matrix.path, 'timescaledb') 
+        run: |
+          echo "shared_preload_libraries = 'timescaledb'" >> /var/lib/postgresql/data2/postgresql.conf
       - name: Enable the extension
         if: ${{ github.ref != 'refs/heads/main' }}
         run: |
@@ -114,7 +118,7 @@ jobs:
           sleep 5
           export EXTENSIONS=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements')";)
           for EXTENSION in $EXTENSIONS; do
-              psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
+            psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
           done
       - name: Publish the extension
         if: ${{ github.ref == 'refs/heads/main' }}

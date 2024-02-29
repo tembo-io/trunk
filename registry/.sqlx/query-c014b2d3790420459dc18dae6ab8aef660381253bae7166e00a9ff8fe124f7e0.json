@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO v1.trunk_project_versions (trunk_project_name, version, description, repository_link, documentation_link)\n            VALUES ($1, $2, $3, $4, $5)\n            ON CONFLICT (trunk_project_name, version) \n            DO UPDATE SET \n                description = EXCLUDED.description,\n                repository_link = EXCLUDED.repository_link,\n                documentation_link = EXCLUDED.documentation_link,\n                -- Dummy update to ensure a row is always returned\n                id = v1.trunk_project_versions.id\n            RETURNING id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c014b2d3790420459dc18dae6ab8aef660381253bae7166e00a9ff8fe124f7e0"
+}

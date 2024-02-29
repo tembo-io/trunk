@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT num FROM versions WHERE extension_id = $1 ORDER BY string_to_array(num, '.')::int[] DESC LIMIT 1;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "num",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "152d01b0e157fa58129e96f5bd3e7536e393feb12f12adcafadbabebd0918fa9"
+}

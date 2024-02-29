@@ -30,7 +30,7 @@ pub async fn add_extension_owner(
         user_id,
         user_name,
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     tx.commit().await?;
     Ok(())
@@ -48,7 +48,7 @@ pub async fn extension_owners(
         "SELECT * FROM extension_owners WHERE extension_id = $1;",
         extension_id
     )
-    .fetch_all(&mut tx)
+    .fetch_all(&mut *tx)
     .await?;
 
     for row in owners.into_iter() {
@@ -77,7 +77,7 @@ pub async fn latest_license(
         extension_id,
         latest_version
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
     Ok(latest_license.license.unwrap_or("".to_string()))
 }

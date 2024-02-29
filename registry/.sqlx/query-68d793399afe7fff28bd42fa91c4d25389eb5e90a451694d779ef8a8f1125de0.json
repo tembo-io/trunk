@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO v1.control_file (extension_version_id, absent, content)\n            VALUES ($1, $2, $3)\n            ON CONFLICT (extension_version_id) \n            DO UPDATE SET \n                absent = EXCLUDED.absent,\n                content = EXCLUDED.content",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Bool",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "68d793399afe7fff28bd42fa91c4d25389eb5e90a451694d779ef8a8f1125de0"
+}

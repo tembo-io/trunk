@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM extension_owners WHERE extension_id = $1;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "extension_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "owner_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_by",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "user_name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "2ecd97b9bf16c6fdbd6fd96122fb24930ffd0c2fc978fd73af9e89847bf92e03"
+}
