@@ -27,12 +27,13 @@ RUN apt-get update && apt-get install -y \
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN cargo install cargo-pgrx --version 0.11.2 --locked
-
 # Set default Rust version
 RUN /root/.cargo/bin/rustup default stable
 
 # Clone repository
 RUN git clone https://github.com/postgresml/postgresml.git
+
+RUN pip3 install xgboost
 
 ARG RELEASE=v2.8.1
 # Build the extension
