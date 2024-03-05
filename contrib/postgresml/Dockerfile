@@ -35,7 +35,7 @@ RUN git clone https://github.com/postgresml/postgresml.git
 
 # python build dependencies
 RUN add-apt-repository ppa:deadsnakes/ppa && \
-	apt update && sudo apt install -y libpython3.12-dev
+	apt update && apt install -y libpython3.12-dev
  
 RUN pip3 install xgboost
 
