@@ -33,6 +33,10 @@ RUN /root/.cargo/bin/rustup default stable
 # Clone repository
 RUN git clone https://github.com/postgresml/postgresml.git
 
+# python build dependencies
+RUN add-apt-repository ppa:deadsnakes/ppa && \
+	apt update && sudo apt install -y libpython3.12-dev
+ 
 RUN pip3 install xgboost
 
 ARG RELEASE=v2.8.1
