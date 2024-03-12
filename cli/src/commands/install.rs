@@ -8,7 +8,7 @@ use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
-use log::{error, info, warn};
+use log::{error, info};
 use reqwest;
 use reqwest::Url;
 use sha2::{Digest, Sha256};
@@ -452,25 +452,14 @@ async fn install_file(
             "Installing {} {}",
             manifest.name, manifest.extension_version
         );
-        let host_arch = if cfg!(target_arch = "aarch64") {
-            "aarch64"
-        } else if cfg!(target_arch = "arm") {
-            "aarch32"
-        } else if cfg!(target_arch = "x86_64") {
-            "x86_64"
-        } else if cfg!(target = "x86") {
-            "x86"
-        } else {
-            "unsupported"
-        };
+        let host_arch = std::env::consts::ARCH;
 
         if manifest.manifest_version > 1 && host_arch != manifest.architecture {
-            warn!(
+            bail!(
                 "This package is not compatible with your architecture: {}, it is compatible with {}",
                 host_arch,
                 manifest.architecture
             );
-            return Ok(());
         }
 
         let entries = archive.entries_with_seek()?;
