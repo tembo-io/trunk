@@ -51,7 +51,7 @@ pub struct InstallCommand {
     pg_version: Option<u8>,
     /// Skip dependency resolution.
     #[clap(long, short, action)]
-    no_deps: bool,
+    skip_dependencies: bool,
 }
 
 impl InstallCommand {
@@ -162,7 +162,7 @@ impl SubCommand for InstallCommand {
             package_lib_dir,
             sharedir,
             postgres_version,
-            self.no_deps,
+            self.skip_dependencies,
         )
         .await?;
 
