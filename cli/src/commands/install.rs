@@ -8,7 +8,7 @@ use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
-use log::{error, info};
+use log::{error, info, warn};
 use reqwest;
 use reqwest::Url;
 use sha2::{Digest, Sha256};
@@ -49,6 +49,9 @@ pub struct InstallCommand {
     /// The PostgreSQL version for which this extension should be installed. Experimental for versions other than Postgres 15.
     #[clap(long, action)]
     pg_version: Option<u8>,
+    /// Skip dependency resolution.
+    #[clap(long, short, action)]
+    no_deps: bool,
 }
 
 impl InstallCommand {
@@ -159,6 +162,7 @@ impl SubCommand for InstallCommand {
             package_lib_dir,
             sharedir,
             postgres_version,
+            self.no_deps,
         )
         .await?;
 
@@ -286,10 +290,19 @@ async fn install<'name: 'async_recursion>(
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
     postgres_version: u8,
+    skip_dependency_resolution: bool,
 ) -> Result<(), anyhow::Error> {
     // If file is specified
     if let Some(ref file) = file {
-        return install_file(file, package_lib_dir, sharedir, registry, postgres_version).await;
+        return install_file(
+            file,
+            package_lib_dir,
+            sharedir,
+            registry,
+            postgres_version,
+            skip_dependency_resolution,
+        )
+        .await;
     }
 
     // If a file is not specified, then we will query the registry
@@ -346,6 +359,7 @@ async fn install<'name: 'async_recursion>(
         sharedir,
         registry,
         postgres_version,
+        skip_dependency_resolution,
     )
     .await?;
 
@@ -358,6 +372,7 @@ async fn install_file(
     sharedir: PathBuf,
     registry: &str,
     postgres_version: u8,
+    skip_dependency_resolution: bool,
 ) -> Result<(), anyhow::Error> {
     let f = File::open(file)?;
 
@@ -471,24 +486,32 @@ async fn install_file(
         }
     }
 
-    info!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
-    for dependency in dependent_extensions_to_install {
-        // check a control file is present in sharedir for each dependency
-        let control_file_path = sharedir
-            .join("extension")
-            .join(format!("{dependency}.control"));
-        if !control_file_path.exists() {
-            info!("Dependency {dependency} not found in sharedir {sharedir:?}. Installing...");
-            install(
-                Name::Extension(&dependency),
-                "latest",
-                &None,
-                registry,
-                package_lib_dir.clone(),
-                sharedir.clone(),
-                postgres_version,
-            )
-            .await?;
+    if skip_dependency_resolution {
+        warn!(
+            "Skipping dependency resolution! {} dependencies are unmet.",
+            dependent_extensions_to_install.len()
+        );
+    } else {
+        info!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
+        for dependency in dependent_extensions_to_install {
+            // check a control file is present in sharedir for each dependency
+            let control_file_path = sharedir
+                .join("extension")
+                .join(format!("{dependency}.control"));
+            if !control_file_path.exists() {
+                info!("Dependency {dependency} not found in sharedir {sharedir:?}. Installing...");
+                install(
+                    Name::Extension(&dependency),
+                    "latest",
+                    &None,
+                    registry,
+                    package_lib_dir.clone(),
+                    sharedir.clone(),
+                    postgres_version,
+                    skip_dependency_resolution,
+                )
+                .await?;
+            }
         }
     }
 
