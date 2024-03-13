@@ -843,6 +843,51 @@ fn build_install_postgis() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+/// Install an extension with a dependency that requires extension name resolution
+#[test]
+fn install_extension_dependency_resolution() -> Result<(), Box<dyn std::error::Error>> {
+    let sharedir = pg_config_path("sharedir")?;
+    let pkglibdir = pg_config_path("pkglibdir")?;
+
+    // pgvector is a dependency of vectorize, so let's make sure it's uninstalled
+    let pgvector_control_file = sharedir.join("extension/vector.control");
+    let pgvector_sql = sharedir.join("extension/vector--0.1.8--0.2.0.sql");
+    let pgvector_so = pkglibdir.join("vector.so");
+
+    if pgvector_control_file.exists() {
+        fs::remove_file(&pgvector_control_file)?;
+    }
+
+    if pgvector_sql.exists() {
+        fs::remove_file(&pgvector_sql)?;
+    }
+
+    if pgvector_so.exists() {
+        fs::remove_file(&pgvector_so)?;
+    }
+
+    let mut cmd = Command::cargo_bin(CARGO_BIN)?;
+    cmd.arg("install");
+    cmd.arg("--pg-version");
+    cmd.arg("15");
+    cmd.arg("--version");
+    cmd.arg("0.12.1");
+    cmd.arg("vectorize");
+    cmd.assert().code(0);
+
+    // Make sure vectorize was installed
+    assert!(sharedir.join("extension/vectorize.control").exists());
+    assert!(sharedir.join("extension/vectorize--0.12.1.sql").exists());
+    assert!(pkglibdir.join("vectorize.so").exists());
+
+    // Also make sure pgvector, one of its dependencies, was also installed
+    assert!(pgvector_control_file.exists());
+    assert!(pgvector_so.exists());
+    assert!(pgvector_sql.exists());
+
+    Ok(())
+}
+
 fn pg_config_path(opt: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
     // Get output from pg_config
     let output = Command::new("pg_config")

@@ -6,6 +6,12 @@ pub struct TrunkProjectView {
     pub version: String,
     pub postgres_versions: Option<Vec<u8>>,
     pub downloads: Option<Vec<Download>>,
+    pub extensions: Vec<Extension>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Extension {
+    pub extension_name: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]

@@ -3,12 +3,12 @@ use crate::control_file::ControlFile;
 use crate::manifest::{Manifest, PackagedFile};
 use crate::semver::compare_by_semver;
 use crate::v1::TrunkProjectView;
-use anyhow::{anyhow, bail, Context};
+use anyhow::{anyhow, bail, ensure, Context};
 use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
 use flate2::read::GzDecoder;
-use log::{error, info};
+use log::{error, info, warn};
 use reqwest;
 use reqwest::Url;
 use sha2::{Digest, Sha256};
@@ -20,6 +20,16 @@ use std::ops::Not;
 use std::path::{Path, PathBuf};
 use tar::{Archive, EntryType};
 use tokio_task_manager::Task;
+
+#[derive(Clone, Copy)]
+/// A Trunk project name versus an extension name.
+/// Although related, a project's name may differ from its extension name.
+/// For example, the `pgvector` project is installed with the extension name `vector`,
+/// meaning its Trunk project name is `pgvector`, while its extension name is `vector`.
+pub enum Name<'a> {
+    TrunkProject(&'a str),
+    Extension(&'a str),
+}
 
 #[derive(Args)]
 pub struct InstallCommand {
@@ -39,6 +49,9 @@ pub struct InstallCommand {
     /// The PostgreSQL version for which this extension should be installed. Experimental for versions other than Postgres 15.
     #[clap(long, action)]
     pg_version: Option<u8>,
+    /// Skip dependency resolution.
+    #[clap(long, short, action)]
+    skip_dependencies: bool,
 }
 
 impl InstallCommand {
@@ -142,13 +155,14 @@ impl SubCommand for InstallCommand {
         println!("Using Postgres version: {postgres_version}");
 
         install(
-            &self.name,
+            Name::TrunkProject(&self.name),
             &self.version,
             &self.file,
             &self.registry,
             package_lib_dir,
             sharedir,
             postgres_version,
+            self.skip_dependencies,
         )
         .await?;
 
@@ -156,14 +170,103 @@ impl SubCommand for InstallCommand {
     }
 }
 
+fn find_trunk_project(
+    projects: Vec<TrunkProjectView>,
+    name: &str,
+    version: &str,
+) -> anyhow::Result<TrunkProjectView> {
+    let project = if version == "latest" {
+        let mut projects: Vec<_> = projects
+            .into_iter()
+            .filter(|proj| proj.name == name)
+            .collect();
+        projects.sort_by(|a, b| compare_by_semver(&a.version, &b.version));
+        // Take the last element since, now we've sorted, it'll be the element with the latest version
+        projects
+            .pop()
+            .with_context(|| format!("Found no Trunk project with name {name}"))?
+    } else {
+        projects
+            .into_iter()
+            .find(|project| project.name == name && project.version == version)
+            .with_context(|| {
+                format!("Found no Trunk project with name {name} and version {version}")
+            })?
+    };
+
+    Ok(project)
+}
+
+fn ensure_extension_uniqueness(
+    projects: &[TrunkProjectView],
+    extension_name: &str,
+) -> anyhow::Result<()> {
+    let mut matching_projects = projects.into_iter().filter(|proj| {
+        proj.extensions
+            .iter()
+            .any(|ext| ext.extension_name == extension_name)
+    });
+
+    let Some(first_project) = matching_projects.next() else {
+        return Ok(());
+    };
+
+    for project in matching_projects {
+        // Err if a different Trunk project provides the same extension
+        ensure!(
+            project.name == first_project.name,
+            "Extension with name {} is provided by both {} and {}",
+            extension_name,
+            project.name,
+            first_project.name
+        );
+    }
+
+    Ok(())
+}
+
+fn find_extension(
+    projects: Vec<TrunkProjectView>,
+    name: &str,
+    version: &str,
+) -> anyhow::Result<TrunkProjectView> {
+    ensure_extension_uniqueness(&projects, name)?;
+
+    let project = if version == "latest" {
+        let mut projects: Vec<_> = projects
+            .into_iter()
+            .filter(|proj| proj.extensions.iter().any(|ext| ext.extension_name == name))
+            .collect();
+        projects.sort_by(|a, b| compare_by_semver(&a.version, &b.version));
+        // Take the last element since, now we've sorted, it'll be the element with the latest version
+        projects
+            .pop()
+            .with_context(|| format!("Found no Trunk project with name {name}"))?
+    } else {
+        projects
+            .into_iter()
+            .find(|proj| {
+                proj.extensions.iter().any(|ext| ext.extension_name == name)
+                    && proj.version == version
+            })
+            .with_context(|| {
+                format!("Found no Trunk project with name {name} and version {version}")
+            })?
+    };
+
+    Ok(project)
+}
+
 async fn fetch_archive_from_v1(
     registry: &str,
-    name: &str,
+    name: Name<'_>,
     version: &str,
     postgres_version: u8,
 ) -> anyhow::Result<(Url, String)> {
-    // Assuming name is a Trunk project name
-    let endpoint = format!("{registry}/api/v1/trunk-projects/{name}");
+    let endpoint = match name {
+        Name::TrunkProject(name) => format!("{registry}/api/v1/trunk-projects/{name}"),
+        Name::Extension(name) => format!("{registry}/api/v1/trunk-projects?extension-name={name}"),
+    };
 
     let response = reqwest::get(endpoint).await?;
     let status = response.status();
@@ -171,19 +274,9 @@ async fn fetch_archive_from_v1(
     if status.is_success() {
         let body: Vec<TrunkProjectView> = response.json().await?;
 
-        let project = if version == "latest" {
-            let mut projects: Vec<_> = body.into_iter().filter(|proj| proj.name == name).collect();
-            projects.sort_by(|a, b| compare_by_semver(&a.version, &b.version));
-            // Take the last element since, now we've sorted, it'll be the element with the latest version
-            projects
-                .pop()
-                .with_context(|| format!("Found no Trunk project with name {name}"))?
-        } else {
-            body.into_iter()
-                .find(|project| project.name == name && project.version == version)
-                .with_context(|| {
-                    format!("Found no Trunk project with name {name} and version {version}")
-                })?
+        let (name, project) = match name {
+            Name::TrunkProject(name) => (name, find_trunk_project(body, name, version)?),
+            Name::Extension(name) => (name, find_extension(body, name, version)?),
         };
 
         let download = project.downloads
@@ -219,24 +312,25 @@ async fn fetch_archive_legacy(registry: &str, name: &str, version: &str) -> anyh
 }
 
 #[async_recursion]
-async fn install(
-    name: &str,
+async fn install<'name: 'async_recursion>(
+    name: Name<'name>,
     version: &str,
     file: &Option<PathBuf>,
     registry: &str,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
     postgres_version: u8,
+    skip_dependency_resolution: bool,
 ) -> Result<(), anyhow::Error> {
     // If file is specified
     if let Some(ref file) = file {
         return install_file(
-            name,
             file,
             package_lib_dir,
             sharedir,
             registry,
             postgres_version,
+            skip_dependency_resolution,
         )
         .await;
     }
@@ -248,11 +342,25 @@ async fn install(
     {
         Ok((url, hash)) => (url, Some(hash)),
         Err(err) if postgres_version == 15 => {
+            let name = match name {
+                Name::TrunkProject(name) => name,
+                Name::Extension(name) => name,
+            };
+
             eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
             // Fallback to fetch archive from the older endpoint
             (fetch_archive_legacy(registry, name, version).await?, None)
         }
         Err(err) => {
+            if let Some(msg) = err.downcast_ref::<String>() {
+                // Found an error of the form "Extension with name {} is provided by both {} and {}".
+                // Warn the user and continue without erroring.
+                if msg.starts_with("Extension with name") {
+                    warn!("Manual intervention required: {msg}");
+                    return Ok(());
+                }
+            }
+
             eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
             bail!("Cannot install extension for Postgres version {postgres_version} through the legacy endpoint");
         }
@@ -285,12 +393,12 @@ async fn install(
     dest_file.write_all(&bytes)?;
 
     install_file(
-        name,
         &dest_path,
         package_lib_dir,
         sharedir,
         registry,
         postgres_version,
+        skip_dependency_resolution,
     )
     .await?;
 
@@ -298,12 +406,12 @@ async fn install(
 }
 
 async fn install_file(
-    _name: &str,
     file: &PathBuf,
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
     registry: &str,
     postgres_version: u8,
+    skip_dependency_resolution: bool,
 ) -> Result<(), anyhow::Error> {
     let f = File::open(file)?;
 
@@ -417,24 +525,32 @@ async fn install_file(
         }
     }
 
-    info!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
-    for dependency in dependent_extensions_to_install {
-        // check a control file is present in sharedir for each dependency
-        let control_file_path = sharedir
-            .join("extension")
-            .join(format!("{dependency}.control"));
-        if !control_file_path.exists() {
-            info!("Dependency {dependency} not found in sharedir {sharedir:?}. Installing...");
-            install(
-                &dependency,
-                "latest",
-                &None,
-                registry,
-                package_lib_dir.clone(),
-                sharedir.clone(),
-                postgres_version,
-            )
-            .await?;
+    if skip_dependency_resolution {
+        warn!(
+            "Skipping dependency resolution! {} dependencies are unmet.",
+            dependent_extensions_to_install.len()
+        );
+    } else {
+        info!("Dependent extensions to be installed: {dependent_extensions_to_install:?}");
+        for dependency in dependent_extensions_to_install {
+            // check a control file is present in sharedir for each dependency
+            let control_file_path = sharedir
+                .join("extension")
+                .join(format!("{dependency}.control"));
+            if !control_file_path.exists() {
+                info!("Dependency {dependency} not found in sharedir {sharedir:?}. Installing...");
+                install(
+                    Name::Extension(&dependency),
+                    "latest",
+                    &None,
+                    registry,
+                    package_lib_dir.clone(),
+                    sharedir.clone(),
+                    postgres_version,
+                    skip_dependency_resolution,
+                )
+                .await?;
+            }
         }
     }
 
