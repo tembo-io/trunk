@@ -3,7 +3,7 @@ use crate::control_file::ControlFile;
 use crate::manifest::{Manifest, PackagedFile};
 use crate::semver::compare_by_semver;
 use crate::v1::TrunkProjectView;
-use anyhow::{anyhow, bail, Context};
+use anyhow::{anyhow, bail, ensure, Context};
 use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
@@ -197,11 +197,41 @@ fn find_trunk_project(
     Ok(project)
 }
 
+fn ensure_extension_uniqueness(
+    projects: &[TrunkProjectView],
+    extension_name: &str,
+) -> anyhow::Result<()> {
+    let mut matching_projects = projects.into_iter().filter(|proj| {
+        proj.extensions
+            .iter()
+            .any(|ext| ext.extension_name == extension_name)
+    });
+
+    let Some(first_project) = matching_projects.next() else {
+        return Ok(());
+    };
+
+    for project in matching_projects {
+        // Err if a different Trunk project provides the same extension
+        ensure!(
+            project.name == first_project.name,
+            "Projects {} and {} both provide an extension with name {}",
+            project.name,
+            first_project.name,
+            extension_name
+        );
+    }
+
+    Ok(())
+}
+
 fn find_extension(
     projects: Vec<TrunkProjectView>,
     name: &str,
     version: &str,
 ) -> anyhow::Result<TrunkProjectView> {
+    ensure_extension_uniqueness(&projects, name)?;
+
     let project = if version == "latest" {
         let mut projects: Vec<_> = projects
             .into_iter()
