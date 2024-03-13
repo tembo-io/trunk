@@ -215,10 +215,10 @@ fn ensure_extension_uniqueness(
         // Err if a different Trunk project provides the same extension
         ensure!(
             project.name == first_project.name,
-            "Projects {} and {} both provide an extension with name {}",
+            "Extension with name {} is provided by both {} and {}",
+            extension_name,
             project.name,
-            first_project.name,
-            extension_name
+            first_project.name
         );
     }
 
@@ -352,6 +352,15 @@ async fn install<'name: 'async_recursion>(
             (fetch_archive_legacy(registry, name, version).await?, None)
         }
         Err(err) => {
+            if let Some(msg) = err.downcast_ref::<String>() {
+                // Found an error of the form "Extension with name {} is provided by both {} and {}".
+                // Warn the user and continue without erroring.
+                if msg.starts_with("Extension with name") {
+                    warn!("Manual intervention required: {msg}");
+                    return Ok(());
+                }
+            }
+
             eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
             bail!("Cannot install extension for Postgres version {postgres_version} through the legacy endpoint");
         }
