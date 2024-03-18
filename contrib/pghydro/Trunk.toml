@@ -1,5 +1,6 @@
 [extension]
 name = "pghydro"
+extension_name = "pghydro"
 version = "6.6.0"
 repository = "https://github.com/pghydro/pghydro"
 license = "GPL-2.0"
