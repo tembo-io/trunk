@@ -4,7 +4,7 @@ FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 # Clone repository
 RUN git clone https://github.com/pghydro/pghydro.git
 
-ARG RELEASE=v.6.6
+ARG RELEASE=master
 
 # Build extension
 RUN cd pghydro && \
