@@ -6,6 +6,7 @@ license = "Copyright"
 description = "A PostgreSQL extension for storing point cloud (LIDAR) data."
 documentation = "https://pgpointcloud.github.io/pointcloud/"
 categories = ["data_transformations"]
+preload_libraries = ["postgis"]
 
 [dependencies]
 apt = ["libc6"]
