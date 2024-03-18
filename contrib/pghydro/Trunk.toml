@@ -15,5 +15,5 @@ dockerfile = "Dockerfile"
 install_command = """
     cd pghydro
     set -x
-    mv pghydro* /usr/share/postgresql/15/extension
+    mv * /usr/share/postgresql/15/extension
     """
