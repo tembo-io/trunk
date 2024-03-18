@@ -17,6 +17,7 @@ install_command = """
     cd pghydro
     set -x
     mv pghydro* /usr/share/postgresql/15/extension
+    mv pgh_output.control /usr/share/postgresql/15/extension
+    mv pgh_output--* /usr/share/postgresql/15/extension
     mv pgh_consistency* /usr/share/postgresql/15/extension
-    mv pgh_output.* /usr/share/postgresql/15/extension
     """
