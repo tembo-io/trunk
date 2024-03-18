@@ -20,11 +20,10 @@ RUN apt-get update && apt-get install -y \
 	python3 \
    	pkg-config
 
-
 # Clone repository
 RUN git clone https://github.com/plv8/plv8.git
 
-ARG RELEASE=v3.1.7
+ARG RELEASE=v3.1.10
 
 RUN cd plv8 && \
 	git fetch origin ${RELEASE} && \

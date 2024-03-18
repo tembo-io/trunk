@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                UPDATE categories\n                SET extension_count = extension_count + 1\n                WHERE id = $1\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1dee7b02e97b471263351d60ab6a3d8a2fe83a4113749e037d246df718457925"
+}

@@ -104,6 +104,7 @@ pub async fn find_licenses(docker: Docker, container_id: &str) -> Result<Vec<Str
             "licen[cs]e.*",
         ],
         None,
+        None,
     )
     .await?;
     let lines = license_output.lines();
@@ -131,6 +132,7 @@ pub async fn copy_licenses(
                 license.to_string().as_str(),
                 "/usr/licenses/",
             ],
+            None,
             env.clone(),
         )
         .await?;

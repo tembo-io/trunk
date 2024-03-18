@@ -12,12 +12,12 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/timescale/timescaledb.git
 
 # Set project version
-ARG RELEASE=2.11.1
+ARG RELEASE=2.13.1
 
 # Build extension
 RUN cd timescaledb && \
     git fetch origin ${RELEASE} && \
     git checkout ${RELEASE} && \
-    ./bootstrap && \
+    ./bootstrap -DAPACHE_ONLY=1 && \
     cd build && \
     make

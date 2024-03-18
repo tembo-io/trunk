@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO v1.extension_configurations (extension_version_id, is_required, configuration_name, recommended_default_value)\n                    VALUES ($1, $2, $3, $4)\n                    ON CONFLICT (extension_version_id, configuration_name)\n                    DO UPDATE SET \n                        is_required = EXCLUDED.is_required,\n                        recommended_default_value = EXCLUDED.recommended_default_value",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Bool",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4ba793c5e681f2bec3e50c82ab9ec580a7f76660cee45f585a368758266b781d"
+}

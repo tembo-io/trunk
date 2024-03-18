@@ -10,8 +10,9 @@ RUN apt-get update && apt-get install -y \
 # Clone repository
 RUN git clone https://github.com/pg-redis-fdw/redis_fdw.git
 
+ARG PG_VERSION=15
 # Set project version
-ARG RELEASE=REL_15_STABLE
+ARG RELEASE=REL_${PG_VERSION}_STABLE
 
 # Build extension
 RUN cd redis_fdw && \

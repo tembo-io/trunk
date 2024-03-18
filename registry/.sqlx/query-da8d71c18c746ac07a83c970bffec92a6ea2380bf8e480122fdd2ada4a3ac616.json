@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO v1.extensions_loadable_libraries (extension_version_id, library_name, requires_restart, priority)\n                VALUES ($1, $2, $3, $4)\n                ON CONFLICT (extension_version_id, library_name)\n                DO UPDATE SET \n                    requires_restart = EXCLUDED.requires_restart,\n                    priority = EXCLUDED.priority",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text",
+        "Bool",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "da8d71c18c746ac07a83c970bffec92a6ea2380bf8e480122fdd2ada4a3ac616"
+}

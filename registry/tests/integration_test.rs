@@ -6,7 +6,6 @@ mod tests {
     use actix_web::body::to_bytes;
     use actix_web::test;
     use actix_web::web::Bytes;
-    use sqlx;
     use trunk_registry::connect;
     use trunk_registry::routes::categories::get_all_categories;
     use trunk_registry::routes::download::download;

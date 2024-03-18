@@ -24,6 +24,7 @@ use aws_sdk_s3::primitives::ByteStream;
 use futures::TryStreamExt;
 use serde::ser::Serializer;
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use sqlx::types::chrono::Utc;
 use sqlx::{Pool, Postgres};
 use tracing::{error, info};
@@ -87,7 +88,7 @@ pub async fn publish(
         "SELECT * FROM extensions WHERE name = $1",
         new_extension.name
     )
-    .fetch_optional(&mut tx)
+    .fetch_optional(&mut *tx)
     .await?;
 
     let system_deps = serde_json::to_value(&new_extension.system_dependencies)?;
@@ -107,7 +108,7 @@ pub async fn publish(
                     extension_id = $1",
                 extension_id as i32
             )
-            .fetch_optional(&mut tx)
+            .fetch_optional(&mut *tx)
             .await?;
             match has_owner {
                 Some(_has_owner) => Ok::<(), ExtensionRegistryError>(()),
@@ -137,7 +138,7 @@ pub async fn publish(
                 extension_id as i32,
                 user_info.user_id
             )
-            .fetch_optional(&mut tx)
+            .fetch_optional(&mut *tx)
             .await?;
             match is_owner {
                 Some(_is_owner) => Ok(()),
@@ -162,7 +163,7 @@ pub async fn publish(
                 extension_id as i32,
                 new_extension.vers.to_string()
             )
-            .fetch_optional(&mut tx)
+            .fetch_optional(&mut *tx)
             .await?;
 
             match version_exists {
@@ -181,7 +182,7 @@ pub async fn publish(
                         system_deps,
                         libraries,
                     )
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
                 }
                 None => {
@@ -200,7 +201,7 @@ pub async fn publish(
                         system_deps,
                         libraries
                     )
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
                 }
             }
@@ -226,7 +227,7 @@ pub async fn publish(
                 new_extension.repository,
                 new_extension.name,
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
             tx.commit().await?;
         }
@@ -245,7 +246,7 @@ pub async fn publish(
                 new_extension.documentation,
                 new_extension.repository
             )
-            .fetch_one(&mut tx)
+            .fetch_one(&mut *tx)
             .await?;
             let extension_id = id_row.id;
 
@@ -264,7 +265,7 @@ pub async fn publish(
                 system_deps,
                 libraries
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
             tx.commit().await?;
 
@@ -291,17 +292,19 @@ pub async fn publish(
     // The uploaded contents in .tar.gz
     let gzipped_archive = file.freeze();
 
-    let digest = sha256::digest(&*gzipped_archive);
-
-    // Extract the .tar.gz and its relevant contentss
+    // Extract the .tar.gz and its relevant contents
     let (extension_views, pg_version) =
         extractor::extract_extension_view(&gzipped_archive, &new_extension).map_err(|err| {
             tracing::error!("Failed to decompress archive: {err}");
             ExtensionRegistryError::ArchiveError
         })?;
 
-    // TODO(ianstanton) Generate checksum
-    let file_byte_stream = ByteStream::from(gzipped_archive.clone());
+    // Create the SHA-256 checksum.
+    let mut hasher = Sha256::new();
+    hasher.update(&*gzipped_archive);
+    let digest = hasher.finalize();
+
+    let file_byte_stream = ByteStream::from(gzipped_archive);
     let client = aws_sdk_s3::Client::new(&aws_config);
     let uploaded_path = upload_extension(
         &cfg.bucket_name,
@@ -310,6 +313,7 @@ pub async fn publish(
         &new_extension,
         &new_extension.vers,
         pg_version,
+        &digest,
     )
     .await?;
 
@@ -332,7 +336,7 @@ pub async fn publish(
         extension_views,
         pg_version,
         uploaded_path,
-        digest,
+        hex::encode(digest),
         registry.as_ref(),
     )
     .await
@@ -443,7 +447,7 @@ pub async fn get_version_history(
     let mut tx = conn.begin().await?;
     // Get extension information
     let row = sqlx::query!("SELECT * FROM extensions WHERE name = $1", name)
-        .fetch_one(&mut tx)
+        .fetch_one(&mut *tx)
         .await?;
     let extension_id: i32 = row.id as i32;
     let description = row.description.to_owned();
@@ -458,7 +462,7 @@ pub async fn get_version_history(
         "SELECT * FROM versions WHERE extension_id = $1",
         extension_id
     )
-    .fetch_all(&mut tx)
+    .fetch_all(&mut *tx)
     .await?;
 
     // TODO(ianstanton) DRY
@@ -500,7 +504,7 @@ pub async fn get_version(
     let mut tx = conn.begin().await?;
     // Get extension information
     let row = sqlx::query!("SELECT * FROM extensions WHERE name = $1", name)
-        .fetch_one(&mut tx)
+        .fetch_one(&mut *tx)
         .await?;
     let extension_id = row.id as i32;
     let description = row.description.to_owned();
@@ -516,7 +520,7 @@ pub async fn get_version(
         extension_id,
         version
     )
-    .fetch_all(&mut tx)
+    .fetch_all(&mut *tx)
     .await?;
 
     // TODO(ianstanton) DRY

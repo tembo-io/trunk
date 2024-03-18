@@ -1,0 +1,24 @@
+[extension]
+name = "pg_quack"
+version = "0.0.1"
+repository = "https://github.com/hydradatabase/pg_quack"
+license = "Apache-2.0"
+description = "PostgreSQL but it's really DuckDB "
+homepage = "https://www.hydra.so"
+documentation = "https://github.com/hydradatabase/pg_quack"
+categories = ["connectors"]
+
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_quack && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

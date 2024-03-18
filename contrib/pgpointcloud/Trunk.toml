@@ -1,0 +1,23 @@
+[extension]
+name = "pointcloud"
+version = "1.2.5"
+repository = "https://github.com/pgpointcloud/pointcloud/"
+license = "Copyright"
+description = "A PostgreSQL extension for storing point cloud (LIDAR) data."
+documentation = "https://pgpointcloud.github.io/pointcloud/"
+categories = ["data_transformations"]
+preload_libraries = ["postgis"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pointcloud && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """

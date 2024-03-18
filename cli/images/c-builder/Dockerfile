@@ -1,20 +1,22 @@
 ARG UBUNTU_VERSION=22.04
 FROM quay.io/coredb/ubuntu:${UBUNTU_VERSION}
 
+ADD https://salsa.debian.org/postgresql/postgresql-common/-/raw/master/pgdg/apt.postgresql.org.sh ./
+
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 ARG PG_VERSION=15
 
-RUN apt-get update && \
-    apt-get install -y \
-      curl unzip gpg wget git software-properties-common flex \
-    && curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg > /dev/null \
-    && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-    && apt-get update  \
+RUN apt-get update \
     && apt-get install -y \
-      postgresql-${PG_VERSION} postgresql-server-dev-${PG_VERSION} \
-      pkg-config libssl-dev build-essential libclang-dev clang && \
-    rm -rf /var/lib/apt/lists/*
+      build-essential clang llvm llvm-dev llvm-runtime cmake \
+      ca-certificates zip curl wget git software-properties-common flex \
+      libicu-dev libxml2 locales ssl-cert \
+      pkg-config libssl-dev libclang-dev \
+    && apt-get -y purge postgresql-client-common \
+    && chmod +x apt.postgresql.org.sh \
+    && ./apt.postgresql.org.sh -i -v ${PG_VERSION} \
+    && rm -rf apt.postgresql.org.sh /var/cache/apt/* /var/lib/apt/lists/*
 
 USER postgres
 WORKDIR /app

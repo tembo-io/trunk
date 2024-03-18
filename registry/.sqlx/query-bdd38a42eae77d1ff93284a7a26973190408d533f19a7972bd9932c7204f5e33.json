@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM extension_owners\n             WHERE extension_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bdd38a42eae77d1ff93284a7a26973190408d533f19a7972bd9932c7204f5e33"
+}

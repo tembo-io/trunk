@@ -48,7 +48,7 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install minimal stable with clippy and rustfmt
         uses: actions-rs/toolchain@v1
         with:
@@ -60,7 +60,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pkg-config libssl-dev
       - name: install sqlx-cli
-        run: cargo install sqlx-cli@0.6.2
+        run: cargo install sqlx-cli@0.7.2
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "lint"
@@ -100,7 +100,7 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -124,12 +124,12 @@ jobs:
     runs-on:
       - self-hosted
       - dind
-      - large-8x8
+      - xlarge-16x16
     outputs:
       short_sha: ${{ steps.versions.outputs.SHORT_SHA }}
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set version strings
         id: versions
         run: |
@@ -179,7 +179,7 @@ jobs:
       - build-push-image
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Check out the repo
         uses: ./.github/actions/argocd-update
         with:

@@ -1,11 +1,12 @@
 [extension]
 name = "pg_dirtyread"
-version = "2.0.0"
+version = "2.6.0"
 repository = "https://github.com/df7cb/pg_dirtyread"
 license = "PostgreSQL"
 description = "Read dead but unvacuumed tuples from a PostgreSQL relation."
 documentation = "https://github.com/df7cb/pg_dirtyread"
 categories = ["search"]
+
 
 [dependencies]
 apt = ["libc6"]

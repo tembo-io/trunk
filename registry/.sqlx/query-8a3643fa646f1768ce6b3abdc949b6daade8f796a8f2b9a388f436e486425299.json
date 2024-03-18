@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                DELETE FROM extensions_categories\n                WHERE extension_id = $1\n                AND category_id = $2\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8a3643fa646f1768ce6b3abdc949b6daade8f796a8f2b9a388f436e486425299"
+}

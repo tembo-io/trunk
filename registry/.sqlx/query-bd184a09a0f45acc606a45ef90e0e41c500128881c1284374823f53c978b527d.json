@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO shared_preload_libraries(name)\n        VALUES ($1)\n        ON CONFLICT (name) DO NOTHING;",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bd184a09a0f45acc606a45ef90e0e41c500128881c1284374823f53c978b527d"
+}

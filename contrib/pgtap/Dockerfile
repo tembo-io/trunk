@@ -4,7 +4,7 @@ FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 # Clone repository
 RUN git clone https://github.com/theory/pgtap.git
 
-ARG RELEASE=v1.2.0
+ARG RELEASE=v1.3.2
 
 RUN cd pgtap && \
     git fetch origin ${RELEASE} && \

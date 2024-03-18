@@ -68,9 +68,10 @@ pub async fn exec_in_container(
     docker: &Docker,
     container_id: &str,
     command: Vec<&str>,
+    dir: Option<&str>,
     env: Option<Vec<&str>>,
 ) -> Result<String, anyhow::Error> {
-    exec_in_container_with_exit_code(docker, container_id, command, env)
+    exec_in_container_with_exit_code(docker, container_id, command, dir, env)
         .await
         .map(|(output, _code)| output)
 }
@@ -79,6 +80,7 @@ pub async fn exec_in_container_with_exit_code(
     docker: &Docker,
     container_id: &str,
     command: Vec<&str>,
+    dir: Option<&str>,
     env: Option<Vec<&str>>,
 ) -> Result<(String, Option<i64>), anyhow::Error> {
     println!("Executing in container: {:?}", command.join(" "));
@@ -86,6 +88,7 @@ pub async fn exec_in_container_with_exit_code(
     let config = CreateExecOptions {
         cmd: Some(command),
         env,
+        working_dir: dir,
         attach_stdout: Some(true),
         attach_stderr: Some(true),
         ..Default::default()
@@ -175,7 +178,7 @@ async fn read_from_container(
     container_id: &str,
     path: &str,
 ) -> anyhow::Result<String> {
-    let contents = exec_in_container(docker, container_id, vec!["cat", path], None).await?;
+    let contents = exec_in_container(docker, container_id, vec!["cat", path], None, None).await?;
 
     Ok(contents)
 }
@@ -186,12 +189,24 @@ pub async fn find_installed_extension_files(
     inclusion_patterns: &[glob::Pattern],
 ) -> Result<ExtensionFiles, anyhow::Error> {
     let mut control_file = None;
-    let sharedir =
-        exec_in_container(docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
+    let sharedir = exec_in_container(
+        docker,
+        container_id,
+        vec!["pg_config", "--sharedir"],
+        None,
+        None,
+    )
+    .await?;
     let sharedir = sharedir.trim();
 
-    let pkglibdir =
-        exec_in_container(docker, container_id, vec!["pg_config", "--pkglibdir"], None).await?;
+    let pkglibdir = exec_in_container(
+        docker,
+        container_id,
+        vec!["pg_config", "--pkglibdir"],
+        None,
+        None,
+    )
+    .await?;
     let pkglibdir = pkglibdir.trim();
 
     // collect changes from container filesystem
@@ -413,17 +428,25 @@ pub async fn package_installed_extension_files(
     let name = name.to_owned();
     let extension_version = extension_version.to_owned();
 
-    let target_arch = exec_in_container(&docker, container_id, vec!["uname", "-m"], None).await?;
+    let target_arch =
+        exec_in_container(&docker, container_id, vec!["uname", "-m"], None, None).await?;
     let target_arch = target_arch.trim().to_string();
 
-    let sharedir =
-        exec_in_container(&docker, container_id, vec!["pg_config", "--sharedir"], None).await?;
+    let sharedir = exec_in_container(
+        &docker,
+        container_id,
+        vec!["pg_config", "--sharedir"],
+        None,
+        None,
+    )
+    .await?;
     let sharedir = sharedir.trim();
 
     let pkglibdir = exec_in_container(
         &docker,
         container_id,
         vec!["pg_config", "--pkglibdir"],
+        None,
         None,
     )
     .await?;
@@ -638,6 +661,7 @@ pub async fn locate_makefile(
         container_id,
         vec!["find", ".", "-type", "f", "-iname", "Makefile"],
         None,
+        None,
     )
     .await?;
 
@@ -665,14 +689,6 @@ pub async fn locate_makefile(
     ))
 }
 
-/// Returns true if the file in `path` exists
-pub async fn file_exists(docker: &Docker, container_id: &str, path: &str) -> bool {
-    exec_in_container_with_exit_code(docker, container_id, vec!["test", "-e", path], None)
-        .await
-        .map(|(_, exit_code)| exit_code == Some(0))
-        .unwrap_or(false)
-}
-
 /// Returns true if the Makefile in this container contains the given target
 pub async fn makefile_contains_target(
     docker: &Docker,
@@ -680,10 +696,10 @@ pub async fn makefile_contains_target(
     dir: &str,
     target: &str,
 ) -> anyhow::Result<bool> {
-    let command = vec!["make", "-C", dir, "-q", target];
+    let command = vec!["make", "-q", target];
 
     let (output, exit_code) =
-        exec_in_container_with_exit_code(docker, container_id, command, None).await?;
+        exec_in_container_with_exit_code(docker, container_id, command, Some(dir), None).await?;
 
     if output.contains("is not supported") {
         return Ok(false);
@@ -701,6 +717,7 @@ pub async fn start_postgres(docker: &Docker, container_id: &str) -> anyhow::Resu
         container_id,
         vec!["chown", "-R", "postgres:postgres", "/app"],
         None,
+        None,
     )
     .await?;
 
@@ -713,6 +730,7 @@ pub async fn start_postgres(docker: &Docker, container_id: &str) -> anyhow::Resu
             "-c",
             "bash -c \"mkdir db/ && /usr/lib/postgresql/15/bin/initdb -D /app/db && /usr/lib/postgresql/15/bin/pg_ctl -D /app/db -l logfile start\"",
         ],
+        None,
         None,
     ).await?;
 

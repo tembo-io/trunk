@@ -14,6 +14,7 @@ use crate::commands::containers::{
 };
 use crate::config::{ExtensionConfiguration, LoadableLibrary};
 use crate::trunk_toml::SystemDependencies;
+use crate::{pg_release_for_version, pg_version_to_str};
 use tokio::sync::mpsc;
 
 use tokio::task::JoinError;
@@ -58,8 +59,8 @@ pub enum PgrxBuildError {
 
 fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     let versions = [
-        "0.11.1", "0.11.0", "0.10.2", "0.10.1", "0.10.0", "0.9.8", "0.9.7", "0.9.1", "0.9.0",
-        "0.8.4", "0.8.3", "0.8.0", "0.7.4",
+        "0.11.3", "0.11.2", "0.11.1", "0.11.0", "0.10.2", "0.10.1", "0.10.0", "0.9.8", "0.9.7",
+        "0.9.1", "0.9.0", "0.8.4", "0.8.3", "0.8.0", "0.7.4",
     ];
 
     if versions.contains(&pgrx_range) {
@@ -167,6 +168,8 @@ pub async fn build_pgrx(
     build_args.insert("EXTENSION_NAME", name);
     build_args.insert("EXTENSION_VERSION", extension_version);
     build_args.insert("PGRX_VERSION", pgrx_version.as_str());
+    build_args.insert("PG_VERSION", pg_version_to_str(pg_version));
+    build_args.insert("PG_RELEASE", pg_release_for_version(pg_version));
 
     let image_name_prefix = "pgrx_builder_".to_string();
 
@@ -194,9 +197,10 @@ pub async fn build_pgrx(
             "cp",
             "--verbose",
             "-R",
-            format!("target/release/{name}-pg15/usr").as_str(),
+            format!("target/release/{name}-pg{pg_version}/usr").as_str(),
             "/",
         ],
+        None,
         None,
     )
     .await?;
@@ -210,6 +214,7 @@ pub async fn build_pgrx(
         &docker,
         &temp_container.id,
         vec!["mkdir", "/usr/licenses/"],
+        None,
         None,
     )
     .await?;

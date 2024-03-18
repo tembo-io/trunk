@@ -23,4 +23,4 @@ RUN wget https://download.osgeo.org/postgis/source/postgis-3.4.0.tar.gz && \
 	tar xvf postgis-3.4.0.tar.gz && \
 	cd postgis-3.4.0 && \
 	./configure && \
-	make -j$(nproc)
+	make
