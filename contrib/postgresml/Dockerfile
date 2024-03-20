@@ -37,7 +37,7 @@ RUN git clone https://github.com/postgresml/postgresml.git
 RUN add-apt-repository ppa:deadsnakes/ppa && \
 	apt update && apt install -y libpython3.12-dev python3-pip
  
-RUN pip3 install xgboost --user
+RUN pip3 install --upgrade pip && pip3 install xgboost
 
 ARG RELEASE=v2.8.1
 # Build the extension
