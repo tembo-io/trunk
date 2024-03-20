@@ -29,7 +29,7 @@ RUN cd postgres && \
     cd contrib && \
     git clone https://github.com/ossc-db/pg_store_plans.git
 
-ARG RELEASE=1.7
+ARG RELEASE=1.8
 
 # Build extension
 RUN cd postgres/contrib/pg_store_plans && \
