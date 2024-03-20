@@ -496,8 +496,8 @@ async fn install_file(
 
                 let deps = parsed_control_file.dependencies();
 
-                // For each dependency, check if it's not in depenedent_extensions_to_install and not in extensions_to_install.
-                // If not, add to depenedent_extensions_to_install.
+                // For each dependency, check if it's not in dependent_extensions_to_install and not in extensions_to_install.
+                // If not, add to dependent_extensions_to_install.
                 // We don't want to install dependencies that are already present in the tar.gz
                 for dep in deps {
                     if !dependent_extensions_to_install.contains(dep)
