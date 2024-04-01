@@ -15,8 +15,5 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    cd plv8-3.2.2 && make install
-    find /usr/share/postgresql/15/extension -type f -iname '*plv8*' -exec rm {} +
-    find /usr/share/postgresql/15/extension -type f -iname '*plls*' -exec rm {} +
-    find /usr/lib/postgresql/15/lib -type f -iname '*live*' -exec rm {} +
+    cd plv8 && make install
 """
