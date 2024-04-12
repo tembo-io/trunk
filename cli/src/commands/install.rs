@@ -14,6 +14,7 @@ use reqwest::Url;
 use sha2::{Digest, Sha256};
 use slicedisplay::SliceDisplay;
 use std::ffi::OsStr;
+use std::fmt::Display;
 use std::fs::{self, File};
 use std::io::{Read, Seek, Write};
 use std::ops::Not;
@@ -29,6 +30,17 @@ use tokio_task_manager::Task;
 pub enum Name<'a> {
     TrunkProject(&'a str),
     Extension(&'a str),
+}
+
+impl Display for Name<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            Name::TrunkProject(name) => name,
+            Name::Extension(name) => name,
+        };
+
+        f.write_str(name)
+    }
 }
 
 #[derive(Args)]
@@ -201,7 +213,7 @@ fn ensure_extension_uniqueness(
     projects: &[TrunkProjectView],
     extension_name: &str,
 ) -> anyhow::Result<()> {
-    let mut matching_projects = projects.into_iter().filter(|proj| {
+    let mut matching_projects = projects.iter().filter(|proj| {
         proj.extensions
             .iter()
             .any(|ext| ext.extension_name == extension_name)
@@ -262,7 +274,7 @@ async fn fetch_archive_from_v1(
     name: Name<'_>,
     version: &str,
     postgres_version: u8,
-) -> anyhow::Result<(Url, String)> {
+) -> anyhow::Result<(Url, String, Option<String>)> {
     let endpoint = match name {
         Name::TrunkProject(name) => format!("{registry}/api/v1/trunk-projects/{name}"),
         Name::Extension(name) => format!("{registry}/api/v1/trunk-projects?extension-name={name}"),
@@ -274,9 +286,9 @@ async fn fetch_archive_from_v1(
     if status.is_success() {
         let body: Vec<TrunkProjectView> = response.json().await?;
 
-        let (name, project) = match name {
-            Name::TrunkProject(name) => (name, find_trunk_project(body, name, version)?),
-            Name::Extension(name) => (name, find_extension(body, name, version)?),
+        let mut project = match name {
+            Name::TrunkProject(name) => find_trunk_project(body, name, version)?,
+            Name::Extension(name) => find_extension(body, name, version)?,
         };
 
         let download = project.downloads
@@ -285,8 +297,22 @@ async fn fetch_archive_from_v1(
             .find(|download| download.pg_version == postgres_version)
             .with_context(|| format!("Failed to find an archive for {name} v{version} built for PostgreSQL {postgres_version}"))?;
 
+        let extension_name = match name {
+            Name::TrunkProject(_) => {
+                if project.extensions.len() == 1 {
+                    project
+                        .extensions
+                        .pop()
+                        .map(|extension| extension.extension_name)
+                } else {
+                    None
+                }
+            }
+            Name::Extension(ext_name) => Some(ext_name.to_owned()),
+        };
+
         let url = Url::parse(&download.link).with_context(|| "Failed to parse URL")?;
-        Ok((url, download.sha256))
+        Ok((url, download.sha256, extension_name))
     } else {
         let body = response.text().await?;
 
@@ -322,6 +348,11 @@ async fn install<'name: 'async_recursion>(
     postgres_version: u8,
     skip_dependency_resolution: bool,
 ) -> Result<(), anyhow::Error> {
+    let extension_name = match name {
+        Name::TrunkProject(_) => None,
+        Name::Extension(name) => Some(name.to_owned()),
+    };
+
     // If file is specified
     if let Some(ref file) = file {
         return install_file(
@@ -331,16 +362,22 @@ async fn install<'name: 'async_recursion>(
             registry,
             postgres_version,
             skip_dependency_resolution,
+            extension_name,
         )
         .await;
     }
 
     // If a file is not specified, then we will query the registry
     // and download the latest version of the package
-    let (url, maybe_hash) = match fetch_archive_from_v1(registry, name, version, postgres_version)
-        .await
+    let (url, maybe_hash, maybe_extension_name) = match fetch_archive_from_v1(
+        registry,
+        name,
+        version,
+        postgres_version,
+    )
+    .await
     {
-        Ok((url, hash)) => (url, Some(hash)),
+        Ok((url, hash, extension_name)) => (url, Some(hash), extension_name),
         Err(err) if postgres_version == 15 => {
             let name = match name {
                 Name::TrunkProject(name) => name,
@@ -349,7 +386,11 @@ async fn install<'name: 'async_recursion>(
 
             eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
             // Fallback to fetch archive from the older endpoint
-            (fetch_archive_legacy(registry, name, version).await?, None)
+            (
+                fetch_archive_legacy(registry, name, version).await?,
+                None,
+                None,
+            )
         }
         Err(err) => {
             if let Some(msg) = err.downcast_ref::<String>() {
@@ -399,6 +440,9 @@ async fn install<'name: 'async_recursion>(
         registry,
         postgres_version,
         skip_dependency_resolution,
+        // Send the v1-supplied extension name, in case the manifest.json
+        // doesn't have extension_name set
+        maybe_extension_name,
     )
     .await?;
 
@@ -412,6 +456,7 @@ async fn install_file(
     registry: &str,
     postgres_version: u8,
     skip_dependency_resolution: bool,
+    extension_name: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let f = File::open(file)?;
 
@@ -625,6 +670,9 @@ async fn install_file(
                     }
                 }
             }
+        }
+        if manifest.extension_name.is_none() {
+            manifest.extension_name = extension_name;
         }
 
         print_post_installation_guide(&manifest);
