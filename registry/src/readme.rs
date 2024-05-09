@@ -9,7 +9,7 @@ use crate::{
     repository::Registry,
 };
 
-use self::markdown_parsing::{parse_markdown_images, MarkdownImage};
+use self::markdown_parsing::{parse_markdown_links, MarkdownLink};
 
 fn is_markdown(file_name: &str) -> bool {
     let maybe_extension = Path::new(file_name).extension();
@@ -45,10 +45,11 @@ mod markdown_parsing {
         bytes::complete::take_while, character::complete::char, sequence::delimited, IResult,
     };
 
-    /// A Markdown image declaration of the form `![alt-text](path-or-link)`.
+    /// A Markdown image declaration of the form `![alt-text](path-or-link)`, if the
+    /// link is an image, or `[Text](path-or-link)` if it's a regular link
     #[derive(Debug)]
     #[cfg_attr(test, derive(PartialEq))]
-    pub struct MarkdownImage<'a> {
+    pub struct MarkdownLink<'a> {
         pub alt_text: &'a str,
         pub path_or_link: &'a str,
     }
@@ -57,35 +58,35 @@ mod markdown_parsing {
         delimited(char(start), take_while(|ch| ch != end), char(end))(input)
     }
 
-    fn parse_markdown_image(input: &str) -> IResult<&str, MarkdownImage<'_>> {
-        let (remaining, _) = char('!')(input)?;
-        let (remaining, alt_text) = parse_delimited(remaining, '[', ']')?;
+    fn parse_markdown_link(input: &str) -> IResult<&str, MarkdownLink<'_>> {
+        let (remaining, alt_text) = parse_delimited(input, '[', ']')?;
         let (remaining, path_or_link) = parse_delimited(remaining, '(', ')')?;
 
         Ok((
             remaining,
-            MarkdownImage {
+            MarkdownLink {
                 alt_text,
                 path_or_link,
             },
         ))
     }
 
-    pub fn parse_markdown_images(input: &str) -> Vec<MarkdownImage<'_>> {
-        let mut images = Vec::new();
-        for (idx, _) in input.match_indices('!') {
+    pub fn parse_markdown_links(input: &str) -> Vec<MarkdownLink<'_>> {
+        let mut links = Vec::new();
+        for (idx, _) in input.match_indices('[') {
             let remaining = &input[idx..];
 
-            if let Ok((_, image)) = parse_markdown_image(remaining) {
-                // We're only interested in relative paths, so if we parsed a URL, skip it
-                if image.path_or_link.starts_with("http") {
+            if let Ok((_, link)) = parse_markdown_link(remaining) {
+                // We're only interested in relative paths, so if we parsed a URL, skip it.
+                // Sometimes a README links to another subsection, so if the link or path starts with #, we'll skip over that as well.
+                if link.path_or_link.starts_with("http") || link.path_or_link.starts_with('#') {
                     continue;
                 }
-                images.push(image);
+                links.push(link);
             }
         }
 
-        images
+        links
     }
 }
 
@@ -159,14 +160,14 @@ impl GithubApiClient {
     }
 
     async fn prepare_readme(&self, readme: String, project: GitHubProject<'_>) -> String {
-        let relative_images = parse_markdown_images(&readme);
+        let relative_links = parse_markdown_links(&readme);
 
-        if relative_images.is_empty() {
+        if relative_links.is_empty() {
             return readme;
         }
 
         match self
-            .replace_relative_images(&readme, relative_images, project)
+            .replace_relative_links(&readme, relative_links, project)
             .await
         {
             Ok(updated_readme) => updated_readme,
@@ -177,10 +178,10 @@ impl GithubApiClient {
         }
     }
 
-    async fn replace_relative_images<'a, 'b>(
+    async fn replace_relative_links<'a, 'b>(
         &self,
         readme: &'a str,
-        images: Vec<MarkdownImage<'a>>,
+        links: Vec<MarkdownLink<'a>>,
         project: GitHubProject<'b>,
     ) -> anyhow::Result<String> {
         let mut patterns = Vec::new();
@@ -191,8 +192,8 @@ impl GithubApiClient {
             download_url: String,
         }
 
-        for image in images {
-            let path = image.path_or_link;
+        for link in links {
+            let path = link.path_or_link;
             let url = project.build_content_url(path);
             let Ok(response) = self.get_json::<Response>(&url).await else {
                 continue;
@@ -288,11 +289,55 @@ pub async fn fetch_and_save_readme(
 
 #[cfg(test)]
 mod tests {
+    use super::markdown_parsing::{parse_markdown_links, MarkdownLink};
     use crate::readme::GitHubProject;
 
     #[test]
+    fn parses_markdown_links() {
+        let test_case = r#"
+        | File                                                              | Description                                                                   |
+        |-------------------------------------------------------------------|-------------------------------------------------------------------------------|
+        | [pg_partman.md](doc/pg_partman.md)                                | Main reference documentation for pg_partman.                                  |
+        | [pg_partman_howto.md](doc/pg_partman_howto.md)                    | A How-To guide for general usage of pg_partman. Provides examples for setting up new partition sets and migrating existing tables to partitioned tables.                                                    |
+        | [migrate_to_partman.md](doc/migrate_to_partman.md)                | How to migrate existing partition sets to being managed by pg_partman.        |
+        | [migrate_to_declarative.md](doc/migrate_to_declarative.md)        | How to migrate from trigger-based partitioning to declarative partitioning.   |
+        | [pg_partman_5.0.1_upgrade.md](doc/pg_partman_5.0.1_upgrade.md)    | If pg_partman is being upgraded to version 5.x from any prior version, special considerations may need to be made. Please carefully review this document before performing any upgrades to 5.x or higher.   |
+        | [fix_missing_procedures.md](doc/fix_missing_procedures.md)        | If pg_partman had been installed prior to PostgreSQL 11 and upgraded since then, it may be missing procedures. This document outlines how to restore those procedures and preserve the current configuration.
+        "#;
+
+        let links = [
+            MarkdownLink {
+                alt_text: "pg_partman.md",
+                path_or_link: "doc/pg_partman.md",
+            },
+            MarkdownLink {
+                alt_text: "pg_partman_howto.md",
+                path_or_link: "doc/pg_partman_howto.md",
+            },
+            MarkdownLink {
+                alt_text: "migrate_to_partman.md",
+                path_or_link: "doc/migrate_to_partman.md",
+            },
+            MarkdownLink {
+                alt_text: "migrate_to_declarative.md",
+                path_or_link: "doc/migrate_to_declarative.md",
+            },
+            MarkdownLink {
+                alt_text: "pg_partman_5.0.1_upgrade.md",
+                path_or_link: "doc/pg_partman_5.0.1_upgrade.md",
+            },
+            MarkdownLink {
+                alt_text: "fix_missing_procedures.md",
+                path_or_link: "doc/fix_missing_procedures.md",
+            },
+        ];
+
+        assert_eq!(parse_markdown_links(test_case), links);
+    }
+
+    #[test]
     fn parses_markdown_images() {
-        use super::markdown_parsing::{parse_markdown_images, MarkdownImage};
+        use super::markdown_parsing::{parse_markdown_links, MarkdownLink};
 
         let test_case = r#"
         | **<br/>The Citus database is 100% open source.<br/><img width=1000/><br/>Learn what's new in the [Citus 12.1 release blog](https://www.citusdata.com/blog/2023/09/22/adding-postgres-16-support-to-citus-12-1/) and the [Citus Updates page](https://www.citusdata.com/updates/).<br/><br/>**|
@@ -311,13 +356,13 @@ mod tests {
         [![Twitter](https://img.shields.io/twitter/follow/citusdata.svg?label=Follow%20@citusdata)](https://twitter.com/intent/follow?screen_name=citusdata)"#;
 
         assert_eq!(
-            parse_markdown_images(test_case),
+            parse_markdown_links(test_case),
             &[
-                MarkdownImage {
+                MarkdownLink {
                     alt_text: "Citus Banner",
                     path_or_link: "images/citus-readme-banner.png"
                 },
-                MarkdownImage {
+                MarkdownLink {
                     alt_text: "Tembo Banner",
                     path_or_link: "images/tembo-readme-banner.png"
                 }

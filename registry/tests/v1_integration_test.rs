@@ -3,7 +3,6 @@ use actix_web::{web, App};
 #[cfg(test)]
 mod tests {
     use super::*;
-    use actix_web::body::to_bytes;
     use actix_web::test;
     use actix_web::web::Bytes;
     use serde_json::Value;
@@ -12,7 +11,6 @@ mod tests {
     use trunk_registry::routes::root::ok;
     use trunk_registry::routes::token::new_token;
     use trunk_registry::token::check_token_input;
-    use trunk_registry::v1::repository::TrunkProjectView;
     use trunk_registry::v1::routes::{
         all_trunk_projects, insert_trunk_project, trunk_project_by_name_and_version,
         trunk_projects_by_name,
