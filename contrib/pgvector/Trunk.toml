@@ -1,6 +1,6 @@
 [extension]
 name = "pgvector"
-version = "0.6.0"
+version = "0.7.0"
 repository = "https://github.com/pgvector/pgvector"
 license = "PostgreSQL"
 description = "Open-source vector similarity search for Postgres"
@@ -12,12 +12,12 @@ categories = ["featured", "machine_learning"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "16"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd pgvector && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/16/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/16/lib
     """

@@ -87,7 +87,7 @@ fn main() -> ExitCode {
     }) {
         Ok(_) => ExitCode::SUCCESS,
         Err(e) => {
-            // Any errors returned will get propogated up and gracefuly logged to the user here
+            // Any errors returned will get propagated up and gracefully logged to the user here
             print!("{}", indent(1));
             error!("{}", e);
             ExitCode::from(1)

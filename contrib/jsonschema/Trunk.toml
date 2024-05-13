@@ -1,0 +1,18 @@
+[extension]
+name = "jsonschema"
+version = "0.1.0"
+repository = "https://github.com/tembo-io/pg-jsonschema-boon"
+license = "MIT"
+description = "The jsonschema extension provides JSON Schema validation functions supporting drafts 2020-12, 2019-09, 7, 6, and 4"
+homepage = "https://pgxn.org/dist/jsonschema"
+documentation = "https://pgxn.org/dist/jsonschema/doc/jsonschema.html"
+categories = ["data_transformations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "16"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cd jsonschema-0.1.0 && make install"

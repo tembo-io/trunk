@@ -1,12 +1,12 @@
 [extension]
 name = "pg_store_plans"
-version = "1.7.0"
+version = "1.8.0"
 repository = "https://github.com/ossc-db/pg_store_plans"
 license = "Copyright"
 description = "Track plan statistics of all SQL statements executed."
 documentation = "https://ossc-db.github.io/pg_store_plans/"
 categories = ["metrics"]
-preload_libraries = ["pg_store_plans"]
+preload_libraries = ["pg_store_plans", "pg_stat_statements"]
 
 [build]
 postgres_version = "15"

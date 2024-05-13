@@ -1,4 +1,4 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=16
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
