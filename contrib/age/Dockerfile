@@ -2,6 +2,7 @@
 ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
+ARG PG_VERSION=15
 
 # Extension build dependencies
 RUN apt-get update && apt-get install -y \
@@ -37,5 +38,6 @@ RUN cd postgres && \
     git clone https://github.com/apache/age.git
 
 RUN cd postgres/contrib/age && \
-    git checkout PG15/v1.4.0-rc0 && \
+    git checkout release/PG${PG_VERSION}/1.5.0 && \
     make
+
