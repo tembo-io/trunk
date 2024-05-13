@@ -1,11 +1,11 @@
-ARG PG_VERSION=16
+ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
 # Clone repository
 RUN git clone https://github.com/pgvector/pgvector.git
 
-ARG EXTENSION_VERSION
+ARG EXTENSION_VERSION=v0.7.0
 
 # Build extension
 RUN cd pgvector && \
