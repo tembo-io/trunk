@@ -12,7 +12,7 @@ categories = ["featured", "machine_learning"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "16"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
