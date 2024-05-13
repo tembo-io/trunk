@@ -1,6 +1,6 @@
 [extension]
 name = "age"
-version = "1.4.0"
+version = "1.5.0"
 repository = "https://github.com/apache/age"
 license = "Apache-2.0"
 description = "Leverage a graph database on top of the existing relational database."
