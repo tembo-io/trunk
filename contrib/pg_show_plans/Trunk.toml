@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Show query plans of all currently running SQL statements."
 documentation = "https://github.com/cybertec-postgresql/pg_show_plans"
 categories = ["query_optimizations"]
-loadable_libraries = ["pg_show_plans"]
+loadable_libraries = [{ library_name = "pg_show_plans", requires_restart = true }]
 
 [dependencies]
 apt = ["libc6"]
