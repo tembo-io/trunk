@@ -16,12 +16,19 @@ pub type PostgresVersion = u8;
 
 pub struct ExtractedArchive {
     control_files: Vec<ControlFile>,
-    manifest: Manifest,
+    postgres_version: PostgresVersion,
 }
 
+// TODO: make trunk-cli share its Manifest with the registry, perhaps
+//       with a crate like `trunk-shared`
 #[derive(Deserialize)]
-pub struct Manifest {
+struct Manifest {
+    #[serde(default = "default_pg_version")]
     pg_version: PostgresVersion,
+}
+
+const fn default_pg_version() -> u8 {
+    15
 }
 
 pub struct ControlFile {
@@ -37,7 +44,7 @@ pub fn extract_extension_view(
 ) -> anyhow::Result<(Vec<ExtensionView>, PostgresVersion)> {
     let ExtractedArchive {
         control_files,
-        manifest,
+        postgres_version,
     } = extract_archive(tar_gz)?;
 
     let mut extension_views: Vec<ExtensionView> = control_files
@@ -74,11 +81,11 @@ pub fn extract_extension_view(
         });
     }
 
-    Ok((extension_views, manifest.pg_version))
+    Ok((extension_views, postgres_version))
 }
 
 fn extract_archive(tar_gz: &[u8]) -> anyhow::Result<ExtractedArchive> {
-    let mut manifest_json = None;
+    let mut postgres_version = None;
     let mut control_files = vec![];
     let mut buf = Vec::with_capacity(tar_gz.len() * 8);
     GzDecoder::new(tar_gz).read_to_end(&mut buf)?;
@@ -121,20 +128,20 @@ fn extract_archive(tar_gz: &[u8]) -> anyhow::Result<ExtractedArchive> {
                 let manifest: Manifest = serde_json::from_str(&manifest)
                     .with_context(|| "Failed to deserialize manifest.json")?;
 
-                manifest_json = Some(manifest);
+                postgres_version = Some(manifest.pg_version);
             }
             Some(_) | None => continue,
         }
     }
 
     anyhow::ensure!(
-        manifest_json.is_some(),
+        postgres_version.is_some(),
         "Failed to find manifest.json in archive being uploaded"
     );
 
     Ok(ExtractedArchive {
         control_files,
-        manifest: manifest_json.unwrap(),
+        postgres_version: postgres_version.unwrap(),
     })
 }
 
