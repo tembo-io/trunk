@@ -1,6 +1,9 @@
 use actix_cors::Cors;
+use actix_web::rt::spawn;
 use actix_web::{web, App, HttpServer};
 use clerk_rs::{validators::actix::ClerkMiddleware, ClerkConfiguration};
+use trunk_registry::config::Env;
+use trunk_registry::db_sync::sync_trunk_db_and_s3;
 use trunk_registry::openapi::build_docs;
 use trunk_registry::readme::GithubApiClient;
 use trunk_registry::repository::Registry;
@@ -66,6 +69,16 @@ pub async fn server() -> std::io::Result<()> {
         .run(&conn)
         .await
         .expect("error running migrations");
+
+    match cfg.environment {
+        Env::Prod => {}
+        env => {
+            let conn_for_task = conn.clone();
+            spawn(async move {
+                sync_trunk_db_and_s3(conn_for_task, env).await;
+            });
+        }
+    }
 
     HttpServer::new(move || {
         let cors = Cors::permissive();

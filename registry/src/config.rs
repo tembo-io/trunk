@@ -28,7 +28,7 @@ impl Default for Config {
             auth_token: from_env_default("AUTH_TOKEN", "").parse().unwrap(),
             clerk_secret_key: env::var("CLERK_SECRET_KEY").expect("CLERK_SECRET_KEY not set"),
             github_token: env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set"),
-            environment: from_env_default("ENV", "dev").parse().unwrap()
+            environment: from_env_default("ENV", "dev").parse().unwrap(),
         }
     }
 }
@@ -38,11 +38,11 @@ fn from_env_default(key: &str, default: &str) -> String {
     dotenv::var(key).unwrap_or_else(|_| env::var(key).unwrap_or_else(|_| default.to_owned()))
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Env {
     Prod,
     Staging,
-    Dev
+    Dev,
 }
 
 impl FromStr for Env {
