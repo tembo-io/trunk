@@ -6,7 +6,7 @@ FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 RUN git clone https://github.com/percona/pg_stat_monitor.git
 
 # Set project version
-ARG RELEASE=2.0.1
+ARG RELEASE=2.0.4
 
 # Build extension
 RUN cd pg_stat_monitor && \
