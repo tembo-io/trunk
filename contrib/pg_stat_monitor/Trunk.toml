@@ -1,6 +1,6 @@
 [extension]
 name = "pg_stat_monitor"
-version = "2.0.0"
+version = "2.0.4"
 repository = "https://github.com/percona/pg_stat_monitor"
 license = "PostgreSQL"
 description = "Query Performance Monitoring Tool for PostgreSQL."
