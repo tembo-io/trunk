@@ -109,6 +109,10 @@ pub async fn sync_trunk_db_and_s3(conn: PgPool, env: Env) {
         // TODO: save when the last sync was done in the DB
         // and then sleep according?
         tokio_time::sleep(Duration::from_secs(60 * 60)).await;
+
+        sqlx::query("SELECT clone_prod_trunk()")
+            .execute(&conn)
+            .await;
     }
 }
 
