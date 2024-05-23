@@ -6,40 +6,47 @@ use std::{env, time::Duration};
 use crate::config::Env;
 
 async fn create_mapping(conn: &PgPool, fdw: &ForeignDataWrapper) -> anyhow::Result<()> {
-    sqlx::query("
+    let query = format!(
+        "
         DO $$
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_user_mappings WHERE srvname = 'prod_trunk' AND usename = 'postgres') THEN
-                CREATE USER MAPPING FOR postgres SERVER prod_trunk 
-                OPTIONS (user $1, password $2);
+                EXECUTE 'CREATE USER MAPPING FOR postgres SERVER prod_trunk 
+                OPTIONS (user ''{}'', password ''{}'')';
             END IF;
         END $$;
-    ")
-    .bind(&fdw.db_user)
-    .bind(&fdw.db_password)
-    .execute(conn)
-    .await?;
+        ",
+        fdw.db_user, fdw.db_password
+    );
+
+    sqlx::query(&query)
+        .execute(conn)
+        .await?;
 
     Ok(())
 }
 
 async fn create_trunk_fdw(conn: &PgPool, fdw: &ForeignDataWrapper) -> anyhow::Result<()> {
-    sqlx::query(
+    sqlx::query("CREATE EXTENSION IF NOT EXISTS postgres_fdw")
+        .execute(conn)
+        .await?;
+    
+    let query = format!(
         "
         DO $$
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_foreign_server WHERE srvname = 'prod_trunk') THEN
-                CREATE SERVER prod_trunk FOREIGN DATA WRAPPER postgres_fdw 
-                OPTIONS (host $1, port $2, dbname $3);
+                EXECUTE 'CREATE SERVER prod_trunk FOREIGN DATA WRAPPER postgres_fdw 
+                OPTIONS (host ''{}'', port ''{}'', dbname ''{}'')';
             END IF;
         END $$;
-    ",
-    )
-    .bind(&fdw.host)
-    .bind(fdw.port as i32)
-    .bind(&fdw.db_name)
-    .execute(conn)
-    .await?;
+        ",
+        fdw.host, fdw.port, fdw.db_name
+    );
+
+    sqlx::query(&query)
+        .execute(conn)
+        .await?;
 
     Ok(())
 }
@@ -106,15 +113,20 @@ pub async fn sync_trunk_db_and_s3(conn: PgPool, env: Env) {
     }
 
     loop {
+        if let Err(err) = sqlx::query("SELECT clone_prod_trunk()")
+            .execute(&conn)
+            .await {
+                tracing::error!("Failed to SELECT clone_prod_trunk: {err}");
+            }
+
+        tracing::info!("Cloned prod Trunk successfully!");
+
         // TODO: save when the last sync was done in the DB
         // and then sleep according?
-        tokio_time::sleep(Duration::from_secs(60 * 60)).await;
-
-        sqlx::query("SELECT clone_prod_trunk()")
-            .execute(&conn)
-            .await;
+        tokio_time::sleep(Duration::from_secs(60 * 60)).await;        
     }
 }
+
 
 pub struct ForeignDataWrapper {
     host: String,
