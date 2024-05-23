@@ -1,9 +1,68 @@
+use actix_web::rt::task::spawn_blocking;
 use actix_web::rt::time as tokio_time;
-use anyhow::Context;
+use anyhow::{bail, Context};
 use sqlx::PgPool;
-use std::{env, time::Duration};
+use std::{env, process::Command, time::Duration};
 
 use crate::config::Env;
+
+fn s3_bucket_prefix_for_env(env: Env) -> &'static str {
+    match env {
+        Env::Prod => "use1-prod-pgtrunkio",
+        Env::Staging => "use1-staging-pgtrunkio",
+        Env::Dev => "use1-dev-pgtrunkio",
+    }
+}
+
+fn s3_bucket_name_for_env(env: Env) -> &'static str {
+    match env {
+        Env::Prod => "s3://cdb-plat-use1-prod-pgtrunkio",
+        Env::Staging => "s3://cdb-plat-use1-staging-pgtrunkio",
+        Env::Dev => "s3://cdb-plat-use1-dev-pgtrunkio",
+    }
+}
+
+// TODO(vini): attempt to do this using aws_sdk_s3 instead?
+async fn copy_s3_files(env: Env) -> anyhow::Result<()> {
+    let source_bucket = s3_bucket_name_for_env(Env::Prod);
+    let dest_bucket = s3_bucket_prefix_for_env(env);
+
+    // Spawn blocking since actix::rt does not reexport tokio's Command
+    let handle = spawn_blocking(move || {
+        // Run the aws s3 sync command as a subprocess
+        Command::new("aws")
+            .arg("s3")
+            .arg("sync")
+            .arg(source_bucket)
+            .arg(dest_bucket)
+            .output()
+            .with_context(|| "Failed to execute aws s3 sync command")
+    });
+
+    let output = handle
+        .await
+        .with_context(|| "Failed to run blocking task: aws s3 sync")??;
+
+    let stdout =
+        String::from_utf8(output.stdout).with_context(|| "AWS CLI returned invalid UTF-8 in stdout")?;
+    let stderr =
+        String::from_utf8(output.stderr).with_context(|| "AWS CLI returned invalid UTF-8 in stderr")?;
+
+    // Check the command output
+    if output.status.success() {
+        tracing::info!("Successfully synced {} to {}", source_bucket, dest_bucket);
+        tracing::info!("Output: {stdout}");
+    } else {
+        tracing::error!(
+            "Error syncing {} to {}: {stderr}",
+            source_bucket,
+            dest_bucket
+        );
+        bail!("Failed to run aws s3 sync: {stderr}")
+    }
+
+    Ok(())
+}
 
 async fn create_mapping(conn: &PgPool, fdw: &ForeignDataWrapper) -> anyhow::Result<()> {
     let query = format!(
@@ -19,9 +78,7 @@ async fn create_mapping(conn: &PgPool, fdw: &ForeignDataWrapper) -> anyhow::Resu
         fdw.db_user, fdw.db_password
     );
 
-    sqlx::query(&query)
-        .execute(conn)
-        .await?;
+    sqlx::query(&query).execute(conn).await?;
 
     Ok(())
 }
@@ -30,7 +87,7 @@ async fn create_trunk_fdw(conn: &PgPool, fdw: &ForeignDataWrapper) -> anyhow::Re
     sqlx::query("CREATE EXTENSION IF NOT EXISTS postgres_fdw")
         .execute(conn)
         .await?;
-    
+
     let query = format!(
         "
         DO $$
@@ -44,19 +101,13 @@ async fn create_trunk_fdw(conn: &PgPool, fdw: &ForeignDataWrapper) -> anyhow::Re
         fdw.host, fdw.port, fdw.db_name
     );
 
-    sqlx::query(&query)
-        .execute(conn)
-        .await?;
+    sqlx::query(&query).execute(conn).await?;
 
     Ok(())
 }
 
 async fn create_clone_function(conn: &PgPool, env: Env) -> anyhow::Result<()> {
-    let s3_prefix = match env {
-        Env::Prod => unreachable!(),
-        Env::Staging => "use1-staging-pgtrunkio",
-        Env::Dev => "use1-dev-pgtrunkio",
-    };
+    let s3_prefix = s3_bucket_prefix_for_env(env);
 
     // Create the clone function with dynamic s3_prefix
     let query = format!(
@@ -97,6 +148,11 @@ pub async fn sync_trunk_db_and_s3(conn: PgPool, env: Env) {
         }
     };
 
+    if let Err(err) = copy_s3_files(env).await {
+        tracing::error!("Failed to sync S3 buckets: {err}");
+        return;
+    }
+
     if let Err(err) = create_trunk_fdw(&conn, &fdw).await {
         tracing::error!("Failed to create Foreign Data Wrapper: {err}");
         return;
@@ -115,18 +171,18 @@ pub async fn sync_trunk_db_and_s3(conn: PgPool, env: Env) {
     loop {
         if let Err(err) = sqlx::query("SELECT clone_prod_trunk()")
             .execute(&conn)
-            .await {
-                tracing::error!("Failed to SELECT clone_prod_trunk: {err}");
-            }
+            .await
+        {
+            tracing::error!("Failed to SELECT clone_prod_trunk: {err}");
+        }
 
         tracing::info!("Cloned prod Trunk successfully!");
 
         // TODO: save when the last sync was done in the DB
         // and then sleep according?
-        tokio_time::sleep(Duration::from_secs(60 * 60)).await;        
+        tokio_time::sleep(Duration::from_secs(60 * 60)).await;
     }
 }
-
 
 pub struct ForeignDataWrapper {
     host: String,
