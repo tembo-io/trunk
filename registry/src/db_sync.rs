@@ -43,10 +43,10 @@ async fn copy_s3_files(env: Env) -> anyhow::Result<()> {
         .await
         .with_context(|| "Failed to run blocking task: aws s3 sync")??;
 
-    let stdout =
-        String::from_utf8(output.stdout).with_context(|| "AWS CLI returned invalid UTF-8 in stdout")?;
-    let stderr =
-        String::from_utf8(output.stderr).with_context(|| "AWS CLI returned invalid UTF-8 in stderr")?;
+    let stdout = String::from_utf8(output.stdout)
+        .with_context(|| "AWS CLI returned invalid UTF-8 in stdout")?;
+    let stderr = String::from_utf8(output.stderr)
+        .with_context(|| "AWS CLI returned invalid UTF-8 in stderr")?;
 
     // Check the command output
     if output.status.success() {
