@@ -3,13 +3,13 @@ ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 # Clone repository
-RUN git clone https://github.com/percona/pg_stat_monitor.git
+RUN git clone https://github.com/supabase/index_advisor.git
 
 # Set project version
-ARG RELEASE=2.0.4
+ARG RELEASE=v0.2.0
 
 # Build extension
-RUN cd pg_stat_monitor && \
+RUN cd index_advisor && \
     git fetch origin ${RELEASE} && \
     git checkout ${RELEASE} && \
-    make USE_PGXS=1
+    make

@@ -1,0 +1,22 @@
+[extension]
+name = "index_advisor"
+version = "0.2.0"
+repository = "https://github.com/supabase/index_advisor"
+license = "PostgreSQL"
+description = "A PostgreSQL extension for recommending indexes to improve query performance."
+documentation = "https://github.com/supabase/index_advisor"
+categories = ["index_table_optimizations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd index_advisor && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    """
