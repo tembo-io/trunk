@@ -6,7 +6,7 @@ FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 RUN git clone https://gitlab.com/dalibo/postgresql_anonymizer.git
 
 # Set project version
-ARG RELEASE=1.1.0
+ARG RELEASE=1.3.1
 
 # Build extension
 RUN cd postgresql_anonymizer && \
