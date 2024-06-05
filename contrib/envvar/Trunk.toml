@@ -1,0 +1,18 @@
+[extension]
+name = "envvar"
+version = "1.0.0"
+repository = "https://github.com/theory/pg-envvar"
+license = "MIT"
+description = "The envvar extension provides a function that returns the value of an environment variable set on the Postgres server"
+homepage = "https://pgxn.org/dist/envvar"
+documentation = "https://pgxn.org/dist/envvar/doc/envvar.html"
+categories = ["data_transformations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "16"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cd envvar-1.0.0 && make install"
