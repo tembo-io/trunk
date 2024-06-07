@@ -40,9 +40,9 @@ fn from_env_default(key: &str, default: &str) -> String {
 
 #[derive(Debug, Clone, Copy)]
 pub enum Env {
-    Prod,
+    Production,
     Staging,
-    Dev,
+    Development,
 }
 
 impl FromStr for Env {
@@ -50,11 +50,11 @@ impl FromStr for Env {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.eq_ignore_ascii_case("prod") {
-            Ok(Env::Prod)
+            Ok(Env::Production)
         } else if s.eq_ignore_ascii_case("staging") {
             Ok(Env::Staging)
         } else if s.eq_ignore_ascii_case("dev") {
-            Ok(Env::Dev)
+            Ok(Env::Development)
         } else {
             Err("Invalid value: expected 'prod', 'staging' or 'dev'")
         }

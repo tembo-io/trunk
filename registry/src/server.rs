@@ -71,11 +71,11 @@ pub async fn server() -> std::io::Result<()> {
         .expect("error running migrations");
 
     match cfg.environment {
-        Env::Prod => {}
-        env => {
+        Env::Production => {}
+        _ => {
             let conn_for_task = conn.clone();
             spawn(async move {
-                sync_trunk_db_and_s3(conn_for_task, env).await;
+                sync_trunk_db_and_s3(conn_for_task).await;
             });
         }
     }

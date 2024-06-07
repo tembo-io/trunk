@@ -4,28 +4,10 @@ use anyhow::{bail, Context};
 use sqlx::PgPool;
 use std::{env, process::Command, time::Duration};
 
-use crate::config::Env;
-
-fn s3_bucket_prefix_for_env(env: Env) -> &'static str {
-    match env {
-        Env::Prod => "use1-prod-pgtrunkio",
-        Env::Staging => "use1-staging-pgtrunkio",
-        Env::Dev => "use1-dev-pgtrunkio",
-    }
-}
-
-fn s3_bucket_name_for_env(env: Env) -> &'static str {
-    match env {
-        Env::Prod => "s3://cdb-plat-use1-prod-pgtrunkio",
-        Env::Staging => "s3://cdb-plat-use1-staging-pgtrunkio",
-        Env::Dev => "s3://cdb-plat-use1-dev-pgtrunkio",
-    }
-}
-
 // TODO(vini): attempt to do this using aws_sdk_s3 instead?
-async fn copy_s3_files(env: Env) -> anyhow::Result<()> {
-    let source_bucket = s3_bucket_name_for_env(Env::Prod);
-    let dest_bucket = s3_bucket_prefix_for_env(env);
+async fn copy_s3_files(buckets: &S3Buckets) -> anyhow::Result<()> {
+    let source_bucket = buckets.source_bucket.clone();
+    let dest_bucket = buckets.destination_bucket.clone();
 
     // Spawn blocking since actix::rt does not reexport tokio's Command
     let handle = spawn_blocking(move || {
@@ -47,6 +29,9 @@ async fn copy_s3_files(env: Env) -> anyhow::Result<()> {
         .with_context(|| "AWS CLI returned invalid UTF-8 in stdout")?;
     let stderr = String::from_utf8(output.stderr)
         .with_context(|| "AWS CLI returned invalid UTF-8 in stderr")?;
+
+    let source_bucket = &buckets.source_bucket;
+    let dest_bucket = &buckets.destination_bucket;
 
     // Check the command output
     if output.status.success() {
@@ -106,8 +91,9 @@ async fn create_trunk_fdw(conn: &PgPool, fdw: &ForeignDataWrapper) -> anyhow::Re
     Ok(())
 }
 
-async fn create_clone_function(conn: &PgPool, env: Env) -> anyhow::Result<()> {
-    let s3_prefix = s3_bucket_prefix_for_env(env);
+async fn create_clone_function(conn: &PgPool, buckets: &S3Buckets) -> anyhow::Result<()> {
+    let source_s3_prefix = &buckets.source_bucket_prefix;
+    let dest_s3_prefix = &buckets.destination_bucket_prefix;
 
     // Create the clone function with dynamic s3_prefix
     let query = format!(
@@ -127,7 +113,7 @@ async fn create_clone_function(conn: &PgPool, env: Env) -> anyhow::Result<()> {
                 EXECUTE format('CREATE TABLE v1.%I AS SELECT * FROM foreign_v1.%I', table_rec.table_name, table_rec.table_name);
             END LOOP;
 
-            EXECUTE 'UPDATE v1.trunk_project_downloads SET download_url = REPLACE(download_url, ''use1-prod-pgtrunkio'', ''{s3_prefix}'') WHERE download_url LIKE ''%use1-prod-pgtrunkio%''';
+            EXECUTE 'UPDATE v1.trunk_project_downloads SET download_url = REPLACE(download_url, ''{source_s3_prefix}'', ''{dest_s3_prefix}'') WHERE download_url LIKE ''%use1-prod-pgtrunkio%''';
         END $$;
         "
     );
@@ -137,7 +123,15 @@ async fn create_clone_function(conn: &PgPool, env: Env) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn sync_trunk_db_and_s3(conn: PgPool, env: Env) {
+pub async fn sync_trunk_db_and_s3(conn: PgPool) {
+    let buckets = match S3Buckets::new() {
+        Ok(buckets) => buckets,
+        Err(err) => {
+            tracing::error!("db_sync: Missing S3 bucket env variable: {err}. Exiting.");
+            return;
+        }
+    };
+
     let fdw = match ForeignDataWrapper::new() {
         Ok(fdw) => fdw,
         Err(err) => {
@@ -148,7 +142,7 @@ pub async fn sync_trunk_db_and_s3(conn: PgPool, env: Env) {
         }
     };
 
-    if let Err(err) = copy_s3_files(env).await {
+    if let Err(err) = copy_s3_files(&buckets).await {
         tracing::error!("Failed to sync S3 buckets: {err}");
         return;
     }
@@ -163,7 +157,7 @@ pub async fn sync_trunk_db_and_s3(conn: PgPool, env: Env) {
         return;
     }
 
-    if let Err(err) = create_clone_function(&conn, env).await {
+    if let Err(err) = create_clone_function(&conn, &buckets).await {
         tracing::error!("Failed to create `clone_prod_trunk`: {err}");
         return;
     }
@@ -181,6 +175,24 @@ pub async fn sync_trunk_db_and_s3(conn: PgPool, env: Env) {
         // TODO: save when the last sync was done in the DB
         // and then sleep according?
         tokio_time::sleep(Duration::from_secs(60 * 60)).await;
+    }
+}
+
+pub struct S3Buckets {
+    source_bucket: String,
+    destination_bucket: String,
+    source_bucket_prefix: String,
+    destination_bucket_prefix: String,
+}
+
+impl S3Buckets {
+    pub fn new() -> anyhow::Result<Self> {
+        Ok(Self {
+            source_bucket: env::var("SOURCE_BUCKET")?,
+            destination_bucket: env::var("DEST_BUCKET")?,
+            source_bucket_prefix: env::var("SOURCE_BUCKET_PREFIX")?,
+            destination_bucket_prefix: env::var("DEST_BUCKET_PREFIX")?,
+        })
     }
 }
 
