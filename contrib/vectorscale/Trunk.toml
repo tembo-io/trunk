@@ -17,6 +17,6 @@ platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd pgvectorscale/pgvectorscale
-    mv target/release/vectorscale/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
-    mv target/release/vectorscale/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+    mv target/release/vectorscale-pg15/usr/share/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/vectorscale-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
 """
