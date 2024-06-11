@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
 	clang \
 	cmake \
 	libclang-dev \
+    libopenblas-dev \
 	pkg-config
 
 # Install Rust
