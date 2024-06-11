@@ -1,0 +1,23 @@
+[extension]
+name = "vectorscale"
+version = "0.2.0"
+repository = "https://github.com/timescale/pgvectorscale"
+license = "PostgreSQL"
+description = "A complement to pgvector for high performance, cost efficient vector search on large workloads."
+homepage = "https://github.com/timescale/pgvectorscaler"
+documentation = "https://github.com/timescale/pgvectorscale"
+categories = ["machine_learning"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "16"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgvector && make install
+    set -x
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/16/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/16/lib
+    """
