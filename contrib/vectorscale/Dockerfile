@@ -21,6 +21,7 @@ RUN /root/.cargo/bin/rustup default stable
 RUN git clone https://github.com/timescale/pgvectorscale.git
 
 ARG EXTENSION_VERSION=v0.2.0
+ARG PG_VERSION=16
 
 # Build extension
 RUN cd pgvectorscale/pgvectorscale && \
