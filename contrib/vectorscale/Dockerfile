@@ -26,5 +26,5 @@ ARG EXTENSION_VERSION=v0.2.0
 RUN cd pgvectorscale/pgvectorscale && \
 	git fetch origin ${EXTENSION_VERSION} && \
 	git checkout ${EXTENSION_VERSION} && \
-    cargo pgrx init --pg16 /usr/bin/pg_config && \
+    cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config && \
     RUSTFLAGS="-C target-feature=+avx2,+fma" cargo pgrx package
