@@ -22,7 +22,8 @@ RUN git clone https://github.com/timescale/pgvectorscale.git
 ARG EXTENSION_VERSION=v0.2.0
 
 # Build extension
-RUN cd pgvectorscale && \
-	git fetch origin v${EXTENSION_VERSION} && \
-	git checkout v${EXTENSION_VERSION} && \
-	make
+RUN cd pgvectorscale/pgvectorscale && \
+	git fetch origin ${EXTENSION_VERSION} && \
+	git checkout ${EXTENSION_VERSION} && \
+    cargo pgrx init --pg16 /usr/bin/pg_config && \
+    cargo pgrx package
