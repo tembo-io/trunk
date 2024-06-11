@@ -1,15 +1,11 @@
 use std::collections::HashMap;
-
 use std::path::Path;
-
 use std::fs;
 
+use anyhow::anyhow;
 use thiserror::Error;
-
 use bollard::Docker;
-
 use tokio::sync::mpsc;
-
 use tokio_task_manager::Task;
 
 use crate::commands::containers::{
@@ -120,8 +116,15 @@ pub async fn build_generic(
     }
 
     println!("Determining installation files...");
-    let _exec_output =
-        exec_in_container(&docker, &temp_container.id, install_command, None, None).await?;
+    let (_exec_output, maybe_status_code) =
+        exec_in_container_with_exit_code(&docker, &temp_container.id, install_command, None, None).await?;
+    match maybe_status_code {
+        Some(0) => {},
+        Some(err) => {
+            return Err(anyhow!("Install command failed with status code {err}").into()) 
+        }
+        None => todo!(),
+    }
 
     // Search for license files to include
     println!("Determining license files to include...");
