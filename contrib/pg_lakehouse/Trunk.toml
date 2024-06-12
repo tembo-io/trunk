@@ -1,0 +1,22 @@
+[extension]
+name = "pg_lakehouse"
+version = "0.7.5"
+repository = "https://github.com/paradedb/paradedb"
+license = "AGPL-3.0"
+description = "An analytical query engine for Postgres, similar to DuckDB"
+homepage = "https://github.com/paradedb/paradedb/tree/dev/pg_lakehouse"
+documentation = "https://github.com/paradedb/paradedb/blob/dev/pg_lakehouse/README.md"
+categories = ["analytics", "data_transformations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd paradedb/pg_lakehouse
+    mv target/release/pg_lakehouse-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/pg_lakehouse-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+"""
