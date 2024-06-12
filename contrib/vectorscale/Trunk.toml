@@ -12,11 +12,11 @@ categories = ["machine_learning"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "16"
+postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    cd postgresml/pgml-extension
-    mv target/release/vectorscale/usr/lib/postgresql/16/lib/* /usr/lib/postgresql/16/lib
-    mv target/release/vectorscale/usr/share/postgresql/16/extension/* /usr/share/postgresql/16/extension
+    cd pgvectorscale/pgvectorscale
+    mv target/release/vectorscale-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/vectorscale-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
 """
