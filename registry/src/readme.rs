@@ -50,6 +50,7 @@ mod markdown_parsing {
     #[derive(Debug)]
     #[cfg_attr(test, derive(PartialEq))]
     pub struct MarkdownLink<'a> {
+        #[allow(unused)]
         pub alt_text: &'a str,
         pub path_or_link: &'a str,
     }
