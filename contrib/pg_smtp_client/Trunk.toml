@@ -1,0 +1,15 @@
+[extension]
+name = "pg_smtp_client"
+version = "0.1.0"
+repository = "https://github.com/brianpursley/pg_smtp_client"
+license = "MIT"
+description = "PostgreSQL extension to send email using SMTP"
+homepage = "https://github.com/brianpursley/pg_smtp_client"
+documentation = "https://github.com/brianpursley/pg_smtp_client"
+categories = ["tooling_admin"]
+
+[build]
+postgres_version = "16"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cd pg_smtp_client && cargo pgrx install --release"
