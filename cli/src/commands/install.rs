@@ -1,6 +1,7 @@
 use super::SubCommand;
 use crate::control_file::ControlFile;
 use crate::manifest::{Manifest, PackagedFile};
+use crate::retry::get_retry;
 use crate::semver::compare_by_semver;
 use crate::v1::TrunkProjectView;
 use anyhow::{anyhow, bail, ensure, Context};
@@ -323,7 +324,7 @@ async fn fetch_archive_from_v1(
 async fn fetch_archive_legacy(registry: &str, name: &str, version: &str) -> anyhow::Result<Url> {
     let endpoint = format!("{}/extensions/{}/{}/download", registry, name, version);
 
-    let response = reqwest::get(endpoint).await?;
+    let response = get_retry(&endpoint).await?;
     let status = response.status();
 
     if status.is_success() {
@@ -423,7 +424,7 @@ async fn install<'name: 'async_recursion>(
     let temp_dir = tempfile::tempdir()?;
     let dest_path = temp_dir.path().join(file_name);
 
-    let response = reqwest::get(url).await?;
+    let response = get_retry(url).await?;
 
     let mut dest_file = File::create(&dest_path)?;
     // write the response body to the file
