@@ -443,11 +443,9 @@ pub async fn get_version_history(
     let name = path.into_inner();
     let mut versions: Vec<Value> = Vec::new();
 
-    // Create a database transaction
-    let mut tx = conn.begin().await?;
     // Get extension information
     let row = sqlx::query!("SELECT * FROM extensions WHERE name = $1", name)
-        .fetch_one(&mut *tx)
+        .fetch_one(conn.as_ref())
         .await?;
     let extension_id: i32 = row.id as i32;
     let description = row.description.to_owned();
@@ -455,14 +453,14 @@ pub async fn get_version_history(
     let documentation = row.documentation.to_owned();
     let repository = row.repository.to_owned();
     let owners = extension_owners(extension_id, conn.clone()).await?;
-    let categories = get_categories_for_extension(extension_id, conn).await?;
+    let categories = get_categories_for_extension(extension_id, conn.clone()).await?;
 
     // Get information for all versions of extension
     let rows = sqlx::query!(
         "SELECT * FROM versions WHERE extension_id = $1",
         extension_id
     )
-    .fetch_all(&mut *tx)
+    .fetch_all(conn.as_ref())
     .await?;
 
     // TODO(ianstanton) DRY

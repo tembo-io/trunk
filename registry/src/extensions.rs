@@ -41,14 +41,12 @@ pub async fn extension_owners(
     conn: Data<Pool<Postgres>>,
 ) -> Result<Vec<Value>, ExtensionRegistryError> {
     let mut extension_owners: Vec<Value> = Vec::new();
-    // Create a transaction on the database
-    let mut tx = conn.begin().await?;
 
     let owners = sqlx::query!(
         "SELECT * FROM extension_owners WHERE extension_id = $1;",
         extension_id
     )
-    .fetch_all(&mut *tx)
+    .fetch_all(conn.as_ref())
     .await?;
 
     for row in owners.into_iter() {
