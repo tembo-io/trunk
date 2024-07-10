@@ -3,6 +3,7 @@ use crate::commands::categories::VALID_CATEGORY_SLUGS;
 use crate::commands::publish::PublishError::InvalidExtensionName;
 use crate::config::{self, ExtensionConfiguration, LoadableLibrary};
 use crate::manifest::Manifest;
+use crate::retry::get_retry;
 use crate::trunk_toml::{cli_or_trunk, cli_or_trunk_opt, SystemDependencies};
 use anyhow::anyhow;
 use async_trait::async_trait;
@@ -213,14 +214,13 @@ impl SubCommand for PublishCommand {
         // Validate categories input if provided
         if publish_settings.categories.is_some() {
             let response =
-                reqwest::get(&format!("{}/categories/all", publish_settings.registry)).await?;
+                get_retry(&format!("{}/categories/all", publish_settings.registry)).await?;
             match response.status() {
                 StatusCode::OK => {
-                    let response_body = response.text().await?;
-                    let resp: Vec<Category> = serde_json::from_str(&response_body)?;
+                    let categories: Vec<Category> = response.json().await?;
                     // Collect list of valid category slugs
-                    for r in resp {
-                        slugs.push(r.slug);
+                    for category in categories {
+                        slugs.push(category.slug);
                     }
                 }
                 _ => {
