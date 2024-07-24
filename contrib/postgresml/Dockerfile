@@ -32,7 +32,7 @@ RUN /root/.cargo/bin/rustup default stable
 # Clone repository
 RUN git clone https://github.com/postgresml/postgresml.git
 
-ARG RELEASE=v2.7.1
+ARG RELEASE=v2.7.13
 ARG PG_VERSION=16
 
 # Build the extension
