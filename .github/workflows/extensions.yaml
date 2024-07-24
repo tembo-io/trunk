@@ -122,7 +122,7 @@ jobs:
         run: |
           su postgres -c '/usr/lib/postgresql/15/bin/postgres &'
           sleep 5
-          export EXTENSIONS=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements')";)
+          export EXTENSIONS=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements', 'pgml')";)
           for EXTENSION in $EXTENSIONS; do
             psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
           done
