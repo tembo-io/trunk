@@ -33,6 +33,7 @@ RUN /root/.cargo/bin/rustup default stable
 RUN git clone https://github.com/postgresml/postgresml.git
 
 ARG RELEASE=v2.7.1
+ARG PG_VERSION=16
 
 # Build the extension
 RUN cd postgresml && \
@@ -40,5 +41,5 @@ RUN cd postgresml && \
 	git fetch origin ${RELEASE} && \
 	git checkout ${RELEASE} && \
 	cd pgml-extension && \
-    cargo pgrx init --pg15 /usr/bin/pg_config && \
+    cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config && \
     cargo pgrx package
