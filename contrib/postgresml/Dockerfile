@@ -1,39 +1,37 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=16
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.0
 USER root
-# quay.io/coredb/pgrx-builder:pg15-pgrx0.9.7
-# Extension build dependencies
-RUN apt-get update && apt-get install -y \
-	build-essential \
-	libreadline-dev \
-	zlib1g-dev \
-	flex \
-	bison \
-	libxml2-dev \
-	libxslt-dev \
-	libssl-dev \
-	libxml2-utils \
-	xsltproc \
-	ccache \
-	python3-dev \
-	clang \
-	cmake \
-	libclang-dev \
-	libopenblas-dev \
-	libpython3-dev \
-	pkg-config
-
-# Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
-# Set default Rust version
-RUN /root/.cargo/bin/rustup default stable
-
-# Clone repository
-RUN git clone https://github.com/postgresml/postgresml.git
 
 ARG RELEASE=v2.7.13
 ARG PG_VERSION=16
+
+# Extension build dependencies
+RUN apt-get update && apt-get install -y \
+	build-essential \
+	clang \
+	libopenblas-dev \
+	libssl-dev \
+	bison \
+	flex \
+	pkg-config \
+	cmake \
+	libreadline-dev \
+	libz-dev \
+	tzdata \
+	sudo \
+	libpq-dev \
+	libclang-dev \
+	postgresql-${PG_VERSION} \
+	postgresql-server-dev-${PG_VERSION} \
+	python3 \
+	python3-pip \
+	libpython3-dev \
+	lld
+
+RUN rustup default 1.78.0-x86_64-unknown-linux-gnu
+
+# Clone repository
+RUN git clone https://github.com/postgresml/postgresml.git
 
 # Build the extension
 RUN cd postgresml && \
