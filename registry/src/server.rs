@@ -1,6 +1,7 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use clerk_rs::{validators::actix::ClerkMiddleware, ClerkConfiguration};
+use tracing_actix_web::TracingLogger;
 use trunk_registry::openapi::build_docs;
 use trunk_registry::readme::GithubApiClient;
 use trunk_registry::repository::Registry;
@@ -71,6 +72,7 @@ pub async fn server() -> std::io::Result<()> {
         let cors = Cors::permissive();
         App::new()
             .wrap(cors)
+            .wrap(TracingLogger::default())
             .app_data(web::Data::new(conn.clone()))
             .app_data(web::Data::new(registry.clone()))
             .app_data(web::Data::new(cfg.clone()))
