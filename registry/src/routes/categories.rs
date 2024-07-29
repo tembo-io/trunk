@@ -8,9 +8,8 @@ pub async fn get_all_categories(
     conn: web::Data<Pool<Postgres>>,
 ) -> Result<HttpResponse, ExtensionRegistryError> {
     // Create a database transaction
-    let mut tx = conn.begin().await?;
     let mut rows = sqlx::query!("SELECT * FROM categories")
-        .fetch_all(&mut *tx)
+        .fetch_all(conn.as_ref())
         .await?;
     let mut categories: Vec<Value> = Vec::with_capacity(rows.len());
 
