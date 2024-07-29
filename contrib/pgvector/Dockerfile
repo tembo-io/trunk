@@ -5,7 +5,7 @@ USER root
 # Clone repository
 RUN git clone https://github.com/pgvector/pgvector.git
 
-ARG EXTENSION_VERSION=v0.7.1
+ARG EXTENSION_VERSION=v0.7.3
 
 # Build extension
 RUN cd pgvector && \
