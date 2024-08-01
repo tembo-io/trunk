@@ -313,7 +313,10 @@ fn process_install_command(install_command: &str, pg_version: u8) -> Cow<'_, str
     if pg_version == 15 {
         Cow::Borrowed(install_command)
     } else {
-        let target = format!("postgresql/{pg_version}/");
-        Cow::Owned(install_command.replace("postgresql/15/", &target))
+        Cow::Owned(
+            install_command
+                .replace("postgresql/15/", &format!("postgresql/{pg_version}/"))
+                .replace("pg15", &format!("pg{pg_version}")),
+        )
     }
 }

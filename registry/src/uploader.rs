@@ -48,7 +48,7 @@ pub async fn upload(
         .key(path)
         .cache_control(CACHE_CONTROL_IMMUTABLE)
         .set_server_side_encryption(Some(Aes256))
-        .checksum_sha256(&BASE64_STANDARD.encode(sha256))
+        .checksum_sha256(BASE64_STANDARD.encode(sha256))
         .send()
         .await;
     debug!("OBJECT: {:?}", obj);
