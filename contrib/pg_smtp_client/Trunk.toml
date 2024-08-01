@@ -8,8 +8,15 @@ homepage = "https://github.com/brianpursley/pg_smtp_client"
 documentation = "https://github.com/brianpursley/pg_smtp_client"
 categories = ["tooling_admin"]
 
+[dependencies]
+apt = ["libc6"]
+
 [build]
-postgres_version = "16"
+postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "cd pg_smtp_client && cargo pgrx install --release"
+install_command = """
+    cd pg_smtp_client/
+    mv target/release/pg_smtp_client-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/pg_smtp_client-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+"""
