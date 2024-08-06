@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "Anonymization & Data Masking for PostgreSQL."
 documentation = "https://gitlab.com/dalibo/postgresql_anonymizer"
 categories = ["security"]
-preload_libraries = ["anon"]
+loadable_libraries = [{ library_name = "anon", requires_restart = true }]
 
 [dependencies]
 apt = ["libc6"]
