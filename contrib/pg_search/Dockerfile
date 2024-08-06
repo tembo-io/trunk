@@ -10,10 +10,10 @@ RUN apt-get update && apt-get install -y \
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN cargo install cargo-pgrx --version 0.11.0 --locked
 
 # Set default Rust version
 RUN /root/.cargo/bin/rustup default stable
+ARG PG_VERSION=15
 
 
 # Clone repository
@@ -27,5 +27,5 @@ RUN git clone https://github.com/paradedb/paradedb.git && \
 # Build the extension
 RUN cd paradedb && \
 	cd pg_search && \
-    cargo pgrx init --pg15 /usr/bin/pg_config && \
+    cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config && \
     cargo pgrx package
