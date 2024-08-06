@@ -7,6 +7,7 @@ description = "Leverage a graph database on top of the existing relational datab
 homepage = "https://age.apache.org/"
 documentation = "https://age.apache.org/age-manual/master/index.html"
 categories = ["data_transformations"]
+loadable_libraries = [{ library_name = "age", requires_restart = true }]
 
 [build]
 postgres_version = "15"
