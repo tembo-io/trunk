@@ -15,12 +15,12 @@ RUN apt-get update && apt-get install -y \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 # Set default Rust version
-RUN /root/.cargo/bin/rustup default stable
+RUN /root/.cargo/bin/rustup default 1.78.0-x86_64-unknown-linux-gnu
 
 # Clone repository
 RUN git clone https://github.com/paradedb/paradedb
 
-ARG LAKEHOUSE_VERSION=v0.7.5
+ARG LAKEHOUSE_VERSION=v0.9.0
 ARG PG_VERSION=15
 
 # Build extension
