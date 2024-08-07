@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 # Set default Rust version
-RUN /root/.cargo/bin/rustup default stable
+RUN /root/.cargo/bin/rustup default 1.75.0-x86_64-unknown-linux-gnu
 ARG PG_VERSION=15
 
 
