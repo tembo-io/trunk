@@ -2,6 +2,7 @@ use actix_cors::Cors;
 use actix_web::rt::spawn;
 use actix_web::{web, App, HttpServer};
 use clerk_rs::{validators::actix::ClerkMiddleware, ClerkConfiguration};
+use tracing_actix_web::TracingLogger;
 use trunk_registry::config::Env;
 use trunk_registry::db_sync::sync_trunk_db_and_s3;
 use trunk_registry::openapi::build_docs;
