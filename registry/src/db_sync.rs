@@ -39,7 +39,7 @@ async fn copy_s3_files(buckets: &S3Buckets) -> anyhow::Result<()> {
         tracing::info!("Output: {stdout}");
     } else {
         tracing::error!(
-            "Error syncing {} to {}: {stderr}",
+            "Error syncing {} to {}. stdout: {stdout}\nstderr: {stderr}",
             source_bucket,
             dest_bucket
         );
