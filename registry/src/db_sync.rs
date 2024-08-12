@@ -97,25 +97,34 @@ async fn create_clone_function(conn: &PgPool, buckets: &S3Buckets) -> anyhow::Re
 
     // Create the clone function with dynamic s3_prefix
     let query = format!(
-        "
+        r#"
         CREATE OR REPLACE FUNCTION clone_prod_trunk() RETURNS void LANGUAGE plpgsql AS $$
         DECLARE
             table_rec RECORD; 
         BEGIN
-            EXECUTE 'DROP SCHEMA IF EXISTS foreign_v1 CASCADE';
-            EXECUTE 'CREATE SCHEMA foreign_v1';
-            EXECUTE 'IMPORT FOREIGN SCHEMA \"v1\" FROM SERVER prod_trunk INTO foreign_v1';
-            EXECUTE 'DROP SCHEMA IF EXISTS v1 CASCADE';
-            EXECUTE 'CREATE SCHEMA v1';
+            DROP SCHEMA IF EXISTS foreign_v1 CASCADE;
+            CREATE SCHEMA foreign_v1;
+            EXECUTE 'IMPORT FOREIGN SCHEMA "v1" FROM SERVER prod_trunk INTO foreign_v1';
 
+            DROP SCHEMA IF EXISTS v1 CASCADE;
+            CREATE SCHEMA v1;
+
+            -- Clone tables from foreign_v1 into v1
             FOR table_rec IN SELECT table_name FROM information_schema.tables WHERE table_schema = 'foreign_v1' AND table_type = 'FOREIGN'
             LOOP
                 EXECUTE format('CREATE TABLE v1.%I AS SELECT * FROM foreign_v1.%I', table_rec.table_name, table_rec.table_name);
             END LOOP;
 
-            EXECUTE 'UPDATE v1.trunk_project_downloads SET download_url = REPLACE(download_url, ''{source_s3_prefix}'', ''{dest_s3_prefix}'') WHERE download_url LIKE ''%use1-prod-pgtrunkio%''';
+            -- Update s3 bucket download links
+            UPDATE v1.trunk_project_downloads 
+            SET download_url = REPLACE(download_url, '{source_s3_prefix}', '{dest_s3_prefix}')
+            WHERE download_url LIKE '%use1-prod-pgtrunkio%';
+
+            -- Clone tables from foreign public into public
+            EXECUTE 'IMPORT FOREIGN SCHEMA "public" FROM SERVER prod_trunk INTO public';
+
         END $$;
-        "
+        "#
     );
 
     sqlx::query(&query).execute(conn).await?;
