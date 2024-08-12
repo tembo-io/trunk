@@ -73,7 +73,15 @@ export default function ExtGrid({
       <div className={styles.gridContainer}>
         {filteredList.map((ext) => (
           <button
-            onClick={() => router.push(`/extensions/${ext.name}`)}
+            onClick={(event) => {
+              const path = `/extensions/${ext.name}`;
+              if (event.button === 1 || event.ctrlKey) {
+                // Middle click or Alt+click
+                window.open(`${window.location.origin}${path}`, '_blank');
+              } else {
+                router.push(path)
+              }
+            }}
             key={ext.name}
             className={styles.extCard}>
             <div className={styles.titleRow}>

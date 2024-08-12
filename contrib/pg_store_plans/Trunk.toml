@@ -6,7 +6,7 @@ license = "Copyright"
 description = "Track plan statistics of all SQL statements executed."
 documentation = "https://ossc-db.github.io/pg_store_plans/"
 categories = ["metrics"]
-preload_libraries = ["pg_store_plans", "pg_stat_statements"]
+loadable_libraries = [{ library_name = "pg_store_plans", requires_restart = true }]
 
 [build]
 postgres_version = "15"

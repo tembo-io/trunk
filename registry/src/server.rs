@@ -84,6 +84,7 @@ pub async fn server() -> std::io::Result<()> {
         let cors = Cors::permissive();
         App::new()
             .wrap(cors)
+            .wrap(TracingLogger::default())
             .app_data(web::Data::new(conn.clone()))
             .app_data(web::Data::new(registry.clone()))
             .app_data(web::Data::new(cfg.clone()))
