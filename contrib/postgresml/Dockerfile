@@ -1,8 +1,8 @@
 ARG PG_VERSION=16
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.0
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.3
 USER root
 
-ARG RELEASE=v2.7.13
+ARG RELEASE=v2.9.3
 ARG PG_VERSION=16
 
 # Extension build dependencies
