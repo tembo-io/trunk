@@ -12,15 +12,15 @@ RUN apt-get update && apt-get install -y \
 	pkg-config
 
 # Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
-# Set default Rust version
-RUN /root/.cargo/bin/rustup default stable
+# # Set default Rust version
+# RUN /root/.cargo/bin/rustup default stable
 
 # Clone repository
 RUN git clone https://github.com/timescale/pgvectorscale.git
 
-ARG EXTENSION_VERSION=v0.2.0
+ARG EXTENSION_VERSION=0.2.0
 ARG PG_VERSION=16
 
 # Build extension
