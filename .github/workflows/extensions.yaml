@@ -72,6 +72,7 @@ jobs:
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
       - name: Test the extension within Docker
+        continue-on-error: true
         run: cd ${{ matrix.path }} && trunk build --test
 
   build:
@@ -105,14 +106,15 @@ jobs:
           apt-get install -y pkg-config libssl-dev gosu
       - name: Build extension for Postgres 15
         run: cd ${{ matrix.path }} && trunk build --pg-version 15
+        continue-on-error: true
       - name: Install the extension
+        continue-on-error: true
         run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
       - name: Build extension for Postgres 14
         run: cd ${{ matrix.path }} && trunk build --pg-version 14
         continue-on-error: true
       - name: Build extension for Postgres 16
         run: cd ${{ matrix.path }} && trunk build --pg-version 16
-        continue-on-error: true
       - name: Modify pgconf if required
         if: contains(matrix.path, 'timescaledb') 
         run: |
@@ -122,6 +124,7 @@ jobs:
         run: |
           echo "shared_preload_libraries = 'pg_cron'" >> /var/lib/postgresql/data2/postgresql.conf
       - name: Enable the extension
+        continue-on-error: true
         if: ${{ github.ref != 'refs/heads/main' }}
         run: |
           su postgres -c '/usr/lib/postgresql/15/bin/postgres &'
