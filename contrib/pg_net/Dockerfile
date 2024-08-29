@@ -5,7 +5,7 @@ USER root
 # Install dependencies
 RUN apt-get update && apt-get install -y libcurl4-openssl-dev
 
-ARG RELEASE=v0.7.1
+ARG RELEASE=v0.10.0
 
 # Clone repository
 RUN git clone https://github.com/supabase/pg_net.git

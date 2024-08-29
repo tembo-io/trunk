@@ -1,6 +1,6 @@
 [extension]
 name = "pg_net"
-version = "0.7.1"
+version = "0.10.0"
 repository = "https://github.com/supabase/pg_net"
 license = "Apache-2.0"
 description = "A PostgreSQL extension providing an async networking interface accessible via SQL using a background worker and curl."
