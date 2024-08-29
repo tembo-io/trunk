@@ -17,7 +17,7 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    cd paradedb/
+    cd pg_analytics/
     mv target/release/pg_analytics-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
     mv target/release/pg_analytics-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
 """
