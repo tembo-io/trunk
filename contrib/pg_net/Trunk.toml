@@ -5,7 +5,7 @@ repository = "https://github.com/supabase/pg_net"
 license = "Apache-2.0"
 description = "A PostgreSQL extension providing an async networking interface accessible via SQL using a background worker and curl."
 categories = ["connectors"]
-preload_libraries = ["pg_net"]
+loadable_libraries = [{ library_name = "pg_net", requires_restart = true }]
 
 [dependencies]
 apt = ["libcurl4", "libc6"]
