@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y wget
 RUN wget https://curl.se/download/curl-7.83.0.tar.gz && \
     tar -xvf curl-7.83.0.tar.gz && \
     cd curl-7.83.0 && \
-    ./configure && \
+    ./configure --with-openssl && \
     make && \
     make install
 
