@@ -1,6 +1,6 @@
 [extension]
 name = "vectorscale"
-version = "0.2.0"
+version = "0.3.0"
 repository = "https://github.com/timescale/pgvectorscale"
 license = "PostgreSQL"
 description = "A complement to pgvector for high performance, cost efficient vector search on large workloads."

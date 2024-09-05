@@ -1,6 +1,6 @@
 [extension]
-name = "pg_hint_plan"
-version = "1.5.0"
+name = "pg_hint_plan16"
+version = "1.6.0"
 repository = "https://github.com/ossc-db/pg_hint_plan"
 license = "Copyright"
 description = "pg_hint_plan makes it possible to tweak PostgreSQL execution plans."

@@ -117,6 +117,10 @@ jobs:
         if: contains(matrix.path, 'timescaledb') 
         run: |
           echo "shared_preload_libraries = 'timescaledb'" >> /var/lib/postgresql/data2/postgresql.conf
+      - name: Modify for pg_croin if required
+        if: contains(matrix.path, 'pg_cron') 
+        run: |
+          echo "shared_preload_libraries = 'pg_cron'" >> /var/lib/postgresql/data2/postgresql.conf
       - name: Enable the extension
         if: ${{ github.ref != 'refs/heads/main' }}
         run: |

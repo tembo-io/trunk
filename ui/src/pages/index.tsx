@@ -40,7 +40,6 @@ export const getStaticProps: GetStaticProps<{
         extensions: sortedExtensions,
         categoriesForGrid,
       },
-      revalidate: 10,
     };
   } catch (error) {
     console.log('ERROR LOADING DATA: ', error);
