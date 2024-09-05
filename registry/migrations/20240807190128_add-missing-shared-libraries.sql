@@ -3,7 +3,7 @@ WITH trunk_project_cte AS (
     SELECT id
     FROM v1.trunk_project_versions
     WHERE trunk_project_name = 'pg_search'
-    AND version = '0.7.3'
+    AND version = '0.7.6'
 ),
 extension_version_cte AS (
     SELECT ev.id

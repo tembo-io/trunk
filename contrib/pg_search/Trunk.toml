@@ -1,6 +1,6 @@
 [extension]
 name = "pg_search"
-version = "0.7.3"
+version = "0.7.6"
 repository = "https://github.com/paradedb/paradedb/tree/dev/pg_search"
 license = "AGPL-3.0"
 description = "Full text search over heap tables using the BM25 algorithm."
