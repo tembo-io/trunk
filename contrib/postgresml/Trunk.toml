@@ -1,6 +1,6 @@
 [extension]
 name = "postgresml"
-version = "2.7.1"
+version = "2.9.3"
 repository = "https://github.com/postgresml/postgresml"
 license = "MIT"
 description = "PostgresML is a machine learning extension to PostgreSQL that enables you to perform training and inference on text and tabular data using SQL queries."
