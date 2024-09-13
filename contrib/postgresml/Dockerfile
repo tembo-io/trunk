@@ -28,7 +28,11 @@ RUN apt-get update && apt-get install -y \
 	libpython3-dev \
 	lld
 
-RUN rustup default 1.78.0-x86_64-unknown-linux-gnu
+	# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN $HOME/.cargo/bin/cargo install cargo-pgrx --version=0.11.3 --locked
+ARG PG_VERSION=16
+RUN $HOME/.cargo/bin/cargo pgrx init --pg$PG_VERSION $(which pg_config)
 
 # Clone repository
 RUN git clone https://github.com/postgresml/postgresml.git
