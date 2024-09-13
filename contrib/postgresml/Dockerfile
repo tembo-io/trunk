@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
 	libpython3-dev \
 	lld
 
-	# Install Rust
+# Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN $HOME/.cargo/bin/cargo install cargo-pgrx --version=0.11.3 --locked
 ARG PG_VERSION=16
@@ -43,5 +43,6 @@ RUN cd postgresml && \
 	git fetch origin ${RELEASE} && \
 	git checkout ${RELEASE} && \
 	cd pgml-extension && \
+	cargo update && \
     cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config && \
     cargo pgrx package
