@@ -1,5 +1,5 @@
 ARG PG_VERSION=15
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.1
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.4
 USER root
 
 RUN apt-get update && apt-get install -y \
