@@ -1,6 +1,6 @@
 [extension]
 name = "pg_analytics"
-version = "0.1.2"
+version = "0.1.4"
 repository = "https://github.com/paradedb/pg_analytics"
 license = "AGPL-3.0"
 description = "pg_analytics (formerly named pg_lakehouse) puts DuckDB inside Postgres"
