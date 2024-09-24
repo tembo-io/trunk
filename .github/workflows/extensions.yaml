@@ -113,14 +113,15 @@ jobs:
       - name: Build extension for Postgres 16
         run: cd ${{ matrix.path }} && trunk build --pg-version 16
         continue-on-error: true
-      - name: Modify pgconf if required
-        if: contains(matrix.path, 'timescaledb') 
+      - name: Handle shared_preload_libraries
+        shell: bash -e {0}
         run: |
-          echo "shared_preload_libraries = 'timescaledb'" >> /var/lib/postgresql/data2/postgresql.conf
-      - name: Modify for pg_croin if required
-        if: contains(matrix.path, 'pg_cron') 
-        run: |
-          echo "shared_preload_libraries = 'pg_cron'" >> /var/lib/postgresql/data2/postgresql.conf
+          for val in pg_cron timescaledb pg_search pg_analytics; do
+            if [[ "${{ matrix.path }}" == *"$val"* ]]; then
+              echo handling shared_preload_libraries for $val
+              echo "shared_preload_libraries = '$val'" >> /var/lib/postgresql/data2/postgresql.conf
+            fi
+          done
       - name: Enable the extension
         if: ${{ github.ref != 'refs/heads/main' }}
         run: |
@@ -128,6 +129,7 @@ jobs:
           sleep 5
           export EXTENSIONS=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements', 'pgml')";)
           for EXTENSION in $EXTENSIONS; do
+            echo "enabling extension: $EXTENSION"
             psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
           done
       - name: Publish the extension
