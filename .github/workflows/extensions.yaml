@@ -107,12 +107,12 @@ jobs:
         run: cd ${{ matrix.path }} && trunk build --pg-version 15
       - name: Install the extension
         run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
-      # - name: Build extension for Postgres 14
-      #   run: cd ${{ matrix.path }} && trunk build --pg-version 14
-      #   continue-on-error: true
-      # - name: Build extension for Postgres 16
-      #   run: cd ${{ matrix.path }} && trunk build --pg-version 16
-      #   continue-on-error: true
+      - name: Build extension for Postgres 14
+        run: cd ${{ matrix.path }} && trunk build --pg-version 14
+        continue-on-error: true
+      - name: Build extension for Postgres 16
+        run: cd ${{ matrix.path }} && trunk build --pg-version 16
+        continue-on-error: true
       - name: Handle shared_preload_libraries
         shell: bash -e {0}
         run: |
