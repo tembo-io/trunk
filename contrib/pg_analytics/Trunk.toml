@@ -1,0 +1,23 @@
+[extension]
+name = "pg_analytics"
+version = "0.1.4"
+repository = "https://github.com/paradedb/pg_analytics"
+license = "AGPL-3.0"
+description = "pg_analytics (formerly named pg_lakehouse) puts DuckDB inside Postgres"
+homepage = "https://github.com/paradedb/pg_analytics"
+documentation = "https://github.com/paradedb/pg_analytics/blob/dev/README.md"
+categories = ["analytics", "data_transformations"]
+loadable_libraries = [{ library_name = "pg_analytics", requires_restart = true }]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pg_analytics/
+    mv target/release/pg_analytics-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/pg_analytics-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+"""

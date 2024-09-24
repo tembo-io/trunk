@@ -1,0 +1,17 @@
+[extension]
+name = "emaj"
+version = "3.2.2"
+repository = "https://github.com/dalibo/emaj"
+license = "GPL-3.0"
+description = "Fine-grained write logging and time travel on subsets of the DB"
+documentation = "https://emaj.readthedocs.io/en/latest/"
+categories = ["auditing_logging", "metrics"]
+
+[dependencies]
+apt = ["libstdc++6", "libgcc-s1", "libc6"]
+
+[build]
+postgres_version = "16"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cd emaj-4.5.0 && make install"

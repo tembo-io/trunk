@@ -2,11 +2,11 @@ ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 # Clone repository
-RUN git clone https://github.com/ossc-db/pg_hint_plan.git
+RUN git clone https://github.com/tembo-io/pg_ivm.git
 
-ARG RELEASE=REL15_1_5_0
+ARG RELEASE=v1.9
 
-RUN cd pg_hint_plan && \
+RUN cd pg_ivm && \
     git fetch origin ${RELEASE} && \
     git checkout ${RELEASE} && \
     make
