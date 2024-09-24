@@ -3,6 +3,7 @@ use sqlx::{ConnectOptions, Pool, Postgres};
 
 pub mod categories;
 pub mod config;
+pub mod db_sync;
 pub mod download;
 pub mod errors;
 pub mod extensions;
