@@ -114,6 +114,7 @@ jobs:
         run: cd ${{ matrix.path }} && trunk build --pg-version 16
         continue-on-error: true
       - name: Handle shared_preload_libraries
+        shell: bash -e {0}
         run: |
           for val in pg_cron, timescaledb, pg_search, pg_analytics; do
             if [[ "${{ matrix.path }}" == *"$val"* ]]; then
