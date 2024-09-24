@@ -103,10 +103,10 @@ jobs:
           set -xe
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
-      # - name: Build extension for Postgres 15
-      #   run: cd ${{ matrix.path }} && trunk build --pg-version 15
-      # - name: Install the extension
-      #   run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
+      - name: Build extension for Postgres 15
+        run: cd ${{ matrix.path }} && trunk build --pg-version 15
+      - name: Install the extension
+        run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
       # - name: Build extension for Postgres 14
       #   run: cd ${{ matrix.path }} && trunk build --pg-version 14
       #   continue-on-error: true
