@@ -1,4 +1,4 @@
-FROM quay.io/tembo/rust:1.76-bookworm as builder
+FROM quay.io/tembo/rust:1.81-bookworm as builder
 COPY .sqlx  .sqlx
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src

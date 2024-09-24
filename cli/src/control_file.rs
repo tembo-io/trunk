@@ -55,8 +55,8 @@ impl ControlFile {
     }
 }
 
-fn strip_value(input: &str) -> &str {
-    let stripped = input.trim_start_matches(|ch| matches!(ch, ' ' | '='));
+pub fn strip_value(input: &str) -> &str {
+    let stripped = input.trim_start_matches([' ', '=']);
 
     let trimmed = stripped.trim_start();
     trimmed.trim_matches('\'')
