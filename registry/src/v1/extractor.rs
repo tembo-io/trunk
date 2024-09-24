@@ -164,7 +164,7 @@ fn parse_control_file(extension_name: String, control_file: String) -> ControlFi
     let mut default_version = None;
 
     fn strip_value(input: &str) -> &str {
-        let stripped = input.trim_start_matches(|ch| matches!(ch, ' ' | '='));
+        let stripped = input.trim_start_matches([' ', '=']);
 
         let trimmed = stripped.trim_start();
         trimmed.trim_matches('\'')
