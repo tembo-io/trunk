@@ -1,6 +1,6 @@
 [extension]
 name = "tembo_ivm"
-version = "1.9"
+version = "1.9.0"
 repository = "https://github.com/tembo-io/pg_ivm"
 license = "PostgreSQL"
 description = "IVM (Incremental View Maintenance) implementation with Partitioned Support"
