@@ -33,11 +33,10 @@ RUN /root/.cargo/bin/rustup default stable
 # Clone repository
 RUN git clone https://github.com/supabase/wrappers.git
 
-ARG RELEASE=v0.3.1
+ARG RELEASE=v0.4.2
 
 # Build the extension
 RUN cd wrappers/wrappers && \
-	rm Cargo.lock && \
 	git submodule update --init --recursive && \
 	git fetch origin ${RELEASE} && \
 	git checkout ${RELEASE} && \
