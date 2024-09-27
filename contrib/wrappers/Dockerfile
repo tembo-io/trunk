@@ -33,6 +33,7 @@ RUN /root/.cargo/bin/rustup default stable
 # Clone repository
 RUN git clone https://github.com/supabase/wrappers.git
 
+
 ARG RELEASE=v0.3.1
 
 # Build the extension
