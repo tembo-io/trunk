@@ -96,6 +96,7 @@ jobs:
       PGUSER: "postgres"
       PGPASSWORD: "postgres"
       POSTGRES_PASSWORD: "password"
+      TRUNK_AMPLIFY_WEBHOOK:  ${{ secrets.TRUNK_AMPLIFY_WEBHOOK }}
     steps:
       - uses: actions/checkout@v4
       - name: Install system dependencies
@@ -135,3 +136,10 @@ jobs:
       - name: Publish the extension
         if: ${{ github.ref == 'refs/heads/main' }}
         run: cd ${{ matrix.path }} && trunk publish
+      - name: Re-build Trunk UI
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          sleep 2
+          curl -X POST -d '{}' \
+            "${{ secrets.TRUNK_AMPLIFY_WEBHOOK }}" \
+            -H "Content-Type:application/json"
