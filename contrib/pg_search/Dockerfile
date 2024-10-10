@@ -26,4 +26,4 @@ RUN git clone https://github.com/paradedb/paradedb.git && \
 # Build the extension
 RUN cd paradedb/pg_search && \
     cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config && \
-    cargo pgrx package
+    cargo pgrx package --features icu
