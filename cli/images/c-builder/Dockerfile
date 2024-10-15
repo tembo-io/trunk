@@ -12,7 +12,7 @@ RUN apt-get update \
       build-essential clang llvm llvm-dev llvm-runtime cmake \
       ca-certificates zip curl wget git software-properties-common flex \
       libicu-dev libxml2 locales ssl-cert \
-      pkg-config libssl-dev libclang-dev \
+      pkg-config libssl-dev libclang-dev zlib1g-dev \
     && apt-get -y purge postgresql-client-common \
     && chmod +x apt.postgresql.org.sh \
     && ./apt.postgresql.org.sh -i -v ${PG_VERSION} \
