@@ -98,6 +98,7 @@ jobs:
             --tag quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }} \
             --pull ${PUSH_FLAG} cli/images/pgrx-builder
 
+            
   build_and_push_c_builders:
     name: Build and push C builder images
     runs-on:
