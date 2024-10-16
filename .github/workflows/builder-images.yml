@@ -255,8 +255,8 @@ jobs:
             # Create the manifest
             docker manifest create \
               quay.io/coredb/c-builder:pg${{ matrix.pg_version }} \
-              --amend quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-amd64 \
-              --amend quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-arm64
+              quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-amd64 \
+              quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-arm64
 
             # Annotate the manifest with architecture and OS information
             docker manifest annotate quay.io/coredb/c-builder:pg${{ matrix.pg_version }} \
