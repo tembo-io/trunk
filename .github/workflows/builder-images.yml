@@ -131,11 +131,11 @@ jobs:
           # if [ "${BRANCH_NAME}" == "main" ]; then
           #   PUSH_FLAG="--push"
           # fi
-          docker buildx build \
+          docker build \
             --build-arg PG_VERSION=${{ matrix.pg_version }} \
             --platform linux/${{ matrix.arch }} \
-            --tag quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-${{ matrix.arch }} \
-            --pull --push cli/images/c-builder
+            --tag quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-${{ matrix.arch }} cli/images/c-builder
+          docker push quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-${{ matrix.arch }}
 
   # create_and_push_manifests:
   #   name: Build and push PGRX manifests
