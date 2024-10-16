@@ -17,6 +17,8 @@ async fn copy_s3_files(buckets: &S3Buckets) -> anyhow::Result<()> {
             .arg("sync")
             .arg(source_bucket)
             .arg(dest_bucket)
+            .arg("--sse")
+            .arg("AES256")
             .output()
             .with_context(|| "Failed to execute aws s3 sync command")
     });
