@@ -177,11 +177,8 @@ jobs:
             --build-arg PGRX_VERSION=${{ matrix.pgrx_version }} \
             --platform linux/${{ matrix.arch }} \
             --tag quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-${{ matrix.arch }} cli/images/pgrx-builder
-          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-          
-          # TODO: remove below
-          docker push quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-${{ matrix.arch }}
 
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
           if [ "${BRANCH_NAME}" == "main" ]; then
             docker push quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-${{ matrix.arch }}
           fi
@@ -272,9 +269,6 @@ jobs:
             --os linux --arch arm64
 
           # Push the manifest
-          # TODO: remove below
-          docker manifest push quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}
-
           BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
           if [ "${BRANCH_NAME}" == "main" ]; then
             docker manifest push quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}
