@@ -93,7 +93,7 @@ jobs:
           docker buildx build \
             --build-arg PG_VERSION=${{ matrix.pg_version }} \
             --build-arg PGRX_VERSION=${{ matrix.pgrx_version }} \
-            --platform linux/amd64,linux/arm64 \
+            --platform linux/amd64 \
             --tag quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }} \
             --pull ${PUSH_FLAG} cli/images/pgrx-builder
 
@@ -135,6 +135,6 @@ jobs:
           fi
           docker buildx build \
             --build-arg PG_VERSION=${{ matrix.pg_version }} \
-            --platform linux/amd64,linux/arm64 \
+            --platform linux/amd64 \
             --tag quay.io/coredb/c-builder:pg${{ matrix.pg_version }} \
             --pull ${PUSH_FLAG} cli/images/c-builder
