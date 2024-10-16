@@ -18,10 +18,10 @@ on:
 jobs:
   build_and_push_pgrx_builders:
     name: Build and push PGRX builder images
-    runs-on:
-      - self-hosted
-      - dind
-      - xlarge-16x16
+    runs-on: amd64-4x16
+      # - self-hosted
+      # - dind
+      # - xlarge-16x16
     strategy:
       fail-fast: false
       matrix:
@@ -97,10 +97,10 @@ jobs:
 
   build_and_push_c_builders:
     name: Build and push C builder images
-    runs-on:
-      - self-hosted
-      - dind
-      - xlarge-16x16
+    runs-on: amd64-4x16
+      # - self-hosted
+      # - dind
+      # - xlarge-16x16
     strategy:
       fail-fast: false
       matrix:
