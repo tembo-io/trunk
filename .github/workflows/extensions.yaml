@@ -114,10 +114,14 @@ jobs:
         continue-on-error: ${{ matrix.pg_version != 15 }}
 
       - name: Install the extension
-        run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
         if: matrix.pg_version == 15
+        run: |
+          cd ${{ matrix.path }}
+          EXTENSION=$(basename ${{ matrix.path }})
+          trunk install -f .trunk/*.tar.gz $EXTENSION
 
       - name: Handle shared_preload_libraries
+        if: matrix.pg_version == 15
         shell: bash -e {0}
         run: |
           for val in pg_cron timescaledb pg_search pg_analytics; do
@@ -126,7 +130,6 @@ jobs:
               echo "shared_preload_libraries = '$val'" >> /var/lib/postgresql/data2/postgresql.conf
             fi
           done
-        if: matrix.pg_version == 15
 
       - name: Enable the extension
         if: ${{ github.ref != 'refs/heads/main' && matrix.pg_version == 15 }}
