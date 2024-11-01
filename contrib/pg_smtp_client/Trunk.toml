@@ -1,6 +1,6 @@
 [extension]
 name = "pg_smtp_client"
-version = "0.1.0"
+version = "0.2.0"
 repository = "https://github.com/brianpursley/pg_smtp_client"
 license = "MIT"
 description = "PostgreSQL extension to send email using SMTP"
