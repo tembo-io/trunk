@@ -1,0 +1,16 @@
+[extension]
+name = "pgmonitor"
+version = "2.0.0"
+repository = "https://github.com/CrunchyData/pgmonitor-extension.git"
+license = "Apache-2.0"
+description = "PostgreSQL extension that provides a means to collect metrics that can be used by an external collection source."
+documentation = "https://github.com/CrunchyData/pgmonitor-extension.git"
+categories = ["metrics"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = """
+    cd pgmonitor-extension && make install
+    """
