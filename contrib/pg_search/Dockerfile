@@ -23,6 +23,8 @@ RUN git clone https://github.com/paradedb/paradedb.git && \
     git fetch --depth 1 origin tag v${EXTENSION_VERSION} && \
     git checkout v${EXTENSION_VERSION}
 
+# Testing out new CI steps
+
 # Build the extension
 RUN cd paradedb/pg_search && \
     cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config && \
