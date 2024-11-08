@@ -65,7 +65,7 @@ jobs:
       - large-8x8
     strategy:
       matrix:
-        pg_version: ["14", "15", "16", "17"]
+        pg_version: ["14", "15", "16"]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -120,7 +120,6 @@ jobs:
           - "14"
           - "15"
           - "16"
-          - "17"
         pgrx_version:
           - "0.7.4"
           - "0.8.0"
@@ -233,7 +232,7 @@ jobs:
 
   create_and_push_pgrx_manifests:
     name: Build and push PGRX manifests
-    needs: 
+    needs:
       - build_and_push_pgrx_builders
     runs-on:
       - self-hosted
@@ -246,7 +245,6 @@ jobs:
           - "14"
           - "15"
           - "16"
-          - "17"
         pgrx_version:
           - "0.7.4"
           - "0.8.0"
