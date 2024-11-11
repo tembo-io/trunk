@@ -114,6 +114,9 @@ jobs:
       - name: Build extension for Postgres 16
         run: cd ${{ matrix.path }} && trunk build --pg-version 16
         continue-on-error: true
+      - name: Build extension for Postgres 17
+        run: cd ${{ matrix.path }} && trunk build --pg-version 17
+        continue-on-error: true
       - name: Handle shared_preload_libraries
         shell: bash -e {0}
         run: |

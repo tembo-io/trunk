@@ -132,6 +132,8 @@ impl PgConfig {
             15
         } else if version.starts_with("PostgreSQL 16") {
             16
+        } else if version.starts_with("PostgreSQL 17") {
+            17
         } else {
             bail!("Currently unsupported Postgres version: {version}")
         };

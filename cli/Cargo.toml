@@ -1,6 +1,6 @@
 [package]
 name = "pg-trunk"
-version = "0.12.31"
+version = "0.13.0"
 edition = "2021"
 authors = ["Ian Stanton", "Vinícius Miguel"]
 description = "A package manager for PostgreSQL extensions"
