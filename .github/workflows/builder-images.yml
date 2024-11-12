@@ -56,8 +56,8 @@ jobs:
             --build-arg PG_VERSION=${{ matrix.pg_version }} \
             --platform linux/${{ matrix.arch }} \
             --tag quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-${{ matrix.arch }} cli/images/c-builder
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
           if [ "${BRANCH_NAME}" == "main" ]; then
-            BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
             docker push quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-${{ matrix.arch }}
           fi
 
