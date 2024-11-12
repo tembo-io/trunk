@@ -1,5 +1,5 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 # Clone repository
 RUN git clone https://github.com/pg-redis-fdw/redis_fdw.git
 
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 # Set project version
 ARG RELEASE=REL_${PG_VERSION}_STABLE
 

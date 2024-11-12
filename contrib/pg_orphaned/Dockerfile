@@ -1,5 +1,5 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 

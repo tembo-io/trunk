@@ -1,9 +1,9 @@
-ARG PG_VERSION=16
+ARG PG_VERSION=17
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.3
 USER root
 
 ARG RELEASE=v2.9.3
-ARG PG_VERSION=16
+ARG PG_VERSION=17
 
 # Extension build dependencies
 RUN apt-get update && apt-get install -y \
@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y \
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN $HOME/.cargo/bin/cargo install cargo-pgrx --version=0.11.3 --locked
-ARG PG_VERSION=16
+ARG PG_VERSION=17
 RUN $HOME/.cargo/bin/cargo pgrx init --pg$PG_VERSION $(which pg_config)
 
 # Clone repository
