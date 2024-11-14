@@ -255,7 +255,7 @@ impl SubCommand for PublishCommand {
                 // If no file is specified, read file from working dir with format
                 // .trunk/<extension_name>-<version>.tar.gz.
                 // Error if file is not found
-                let possible_suffixes = ["", "-pg14", "-pg15", "-pg16"];
+                let possible_suffixes = ["", "-pg14", "-pg15", "-pg16", "-pg17"];
 
                 for suffix in possible_suffixes {
                     let file = format!(
