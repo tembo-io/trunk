@@ -71,6 +71,7 @@ jobs:
           set -xe
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
+          cargo install --version 0.14.0 pg-trunk
       - name: Test the extension within Docker
         run: cd ${{ matrix.path }} && trunk build --test
 
