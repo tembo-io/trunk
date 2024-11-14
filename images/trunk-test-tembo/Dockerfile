@@ -1,6 +1,17 @@
 ARG PG_VERSION=15
+ARG TAG=latest
 
-FROM quay.io/tembo/tembo-pg-cnpg:pg${PG_VERSION}-e112cf3 
+FROM rust:1.78-bookworm as builder
+
+ARG TRUNK_VER=0.14.0
+
+ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL sparse
+RUN cargo install --version $TRUNK_VER pg-trunk
+
+FROM quay.io/tembo/tembo-pg-cnpg:pg${PG_VERSION}-e112cf3
+
+# Install trunk
+COPY --from=builder /usr/local/cargo/bin/trunk /usr/bin/trunk
 
 USER root
 RUN apt-get update && apt-get install -y \
