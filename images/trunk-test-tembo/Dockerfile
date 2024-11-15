@@ -3,7 +3,7 @@ ARG TAG=latest
 
 FROM rust:1.78-bookworm as builder
 
-ARG TRUNK_VER=0.14.0
+ARG TRUNK_VER=0.15.0
 
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL sparse
 RUN cargo install --version $TRUNK_VER pg-trunk
