@@ -9,9 +9,9 @@
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/2643)](https://ossrank.com/p/2643)
 [![Slack](https://img.shields.io/badge/%40trunk-community?logo=slack&label=slack)](https://join.slack.com/t/trunk-community/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg)
 
-Trunk is an open source package manager and registry for PostgreSQL (Postgres) extensions:
+Trunk by Tembo is an open source package manager and registry for PostgreSQL (Postgres) extensions:
 
-- Visit [pgt.dev](https://pgt.dev) to discover and learn more about the building blocks of this rich ecosystem 
+- Visit [pgt.dev](https://pgt.dev) to discover and learn more about the building blocks of this rich ecosystem
 - Use the Trunk CLI ([pg-trunk](https://crates.io/crates/pg-trunk)) to build, publish and install Postgres extensions _of all kinds_.
 
 ![trunk-install-larger-font](https://github.com/tembo-io/trunk/assets/8935584/1c09e899-c77a-48c1-a978-a46f03774f1a)
