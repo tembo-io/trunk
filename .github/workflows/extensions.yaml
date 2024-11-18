@@ -57,7 +57,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:20507b4-pg15
+      image: quay.io/tembo/trunk-test-tembo:b472101-pg15
       options: --user root
     needs:
       - find_directories
@@ -81,7 +81,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:20507b4-pg15
+      image: quay.io/tembo/trunk-test-tembo:b472101-pg15
       options: --user root
     needs:
       - find_directories
