@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
 # Clone repository
 RUN git clone https://github.com/postgres/postgres.git
 
+
 ARG PG_RELEASE=REL_15_3
 
 RUN cd postgres && \
