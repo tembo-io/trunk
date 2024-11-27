@@ -1,4 +1,4 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.3
 USER root
 
@@ -21,7 +21,7 @@ RUN /root/.cargo/bin/rustup default 1.78.0-x86_64-unknown-linux-gnu
 RUN git clone https://github.com/paradedb/paradedb
 
 ARG LAKEHOUSE_VERSION=v0.9.0
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 
 # Build extension
 RUN cd paradedb/pg_lakehouse && \
