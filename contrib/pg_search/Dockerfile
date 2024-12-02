@@ -1,5 +1,5 @@
 ARG PG_VERSION=15
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.4
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.5
 USER root
 
 # Extension build dependencies
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 # Set default Rust version
-RUN /root/.cargo/bin/rustup default 1.80.0-x86_64-unknown-linux-gnu
+RUN /root/.cargo/bin/rustup default 1.82.0-x86_64-unknown-linux-gnu
 ARG PG_VERSION=15
 
 # argument passed in during build and defined in Trunk.toml
