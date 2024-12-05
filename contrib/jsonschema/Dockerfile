@@ -1,8 +1,8 @@
 ARG PG_VERSION=16
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.5
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.9
 USER root
 
-ARG RELEASE=0.1.3
+ARG RELEASE=0.1.4
 
 # Extension build dependencies
 RUN apt-get update && apt-get install -y build-essential \
