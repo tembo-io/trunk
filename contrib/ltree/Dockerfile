@@ -20,6 +20,7 @@ RUN git clone https://github.com/postgres/postgres.git
 
 ARG PG_RELEASE=REL_15_3
 
+
 RUN cd postgres && \
 	git fetch origin ${PG_RELEASE} && \
 	git checkout ${PG_RELEASE} && \
