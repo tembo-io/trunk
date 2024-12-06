@@ -10,6 +10,6 @@ ARG RELEASE=8f4883a
 
 # Build extension
 RUN cd count_distinct && \
-    git fetch origin ${RELEASE} && \
+    # git fetch origin ${RELEASE} && \
     git checkout ${RELEASE} && \
     make
