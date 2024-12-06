@@ -1,6 +1,6 @@
 [extension]
 name = "h3_pg"
-version = "4.1.3"
+version = "4.1.4"
 repository = "https://github.com/zachasme/h3-pg"
 license = "Apache-2.0"
 description = "PostgreSQL bindings for H3."
@@ -11,12 +11,12 @@ categories = ["connectors"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd h3-pg && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
     """
