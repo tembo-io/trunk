@@ -55,7 +55,7 @@ export default function Page({
   }
 
   const latestVersion: Extension = extension!;
-  const installText = `trunk install ${latestVersion.name}` ?? '';
+  const installText = `trunk install ${latestVersion.name}`;
 
   const handleCopy = async () => {
     try {
@@ -231,10 +231,9 @@ export async function getStaticPaths() {
 
     console.log('********** BUILT PATHS **********');
     return { paths, fallback: true };
-    // return { paths: [], fallback: true };
   } catch (error) {
     console.log('ERROR BUILDING PATHS', error);
-    return { paths: [] };
+    return { paths: [], fallback: true };
   }
 }
 
