@@ -17,8 +17,7 @@ import InfoIcon from '@/Components/InfoIcon';
 const Octocat = '/OctocatIcon.png';
 const LinkIcon = '/LinkIcon.png';
 const CopyIcon = '/copy.png';
-const REGISTRY_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://registry.pgtrunk.io';
+const REGISTRY_URL = 'https://registry.pgtrunk.io';
 
 export default function Page({
   extension,
