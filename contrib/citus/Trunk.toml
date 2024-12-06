@@ -1,6 +1,6 @@
 [extension]
 name = "citus"
-version = "12.0.1"
+version = "12.1.6"
 repository = "https://github.com/citusdata/citus"
 license = "AGPL-3.0"
 description = "Distributed PostgreSQL as an extension."
@@ -13,13 +13,13 @@ preload_libraries = ["citus"]
 apt = ["libpq5", "openssl", "libc6", "liblz4-1", "libzstd1", "libssl3", "libcurl4"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd citus && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
     """
 

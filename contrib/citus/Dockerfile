@@ -1,5 +1,5 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/citusdata/citus.git
 
 # Set project version
-ARG RELEASE=v12.0.0
+ARG RELEASE=v12.1.6
 
 # Build extension
 RUN cd citus && \
