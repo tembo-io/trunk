@@ -13,11 +13,11 @@ apt = ["libpython3.10", "libstdc++6", "libgomp1", "libopenblas0-pthread", "libc6
 pip = ["xgboost"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd postgresml/pgml-extension
-    mv target/release/pgml-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
-    mv target/release/pgml-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+    mv target/release/pgml-pg17/usr/lib/postgresql/17/lib/* /usr/lib/postgresql/17/lib
+    mv target/release/pgml-pg17/usr/share/postgresql/17/extension/* /usr/share/postgresql/17/extension
 """
