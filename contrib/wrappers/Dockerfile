@@ -1,4 +1,4 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.3
 USER root
 
@@ -33,12 +33,12 @@ RUN /root/.cargo/bin/rustup default stable
 # Clone repository
 RUN git clone https://github.com/supabase/wrappers.git
 
-ARG RELEASE=v0.4.2
+ARG RELEASE=v0.4.3
 
 # Build the extension
 RUN cd wrappers/wrappers && \
 	git submodule update --init --recursive && \
 	git fetch origin ${RELEASE} && \
 	git checkout ${RELEASE} && \
-	cargo pgrx init --pg15 /usr/bin/pg_config && \
+	cargo pgrx init --pg17 /usr/bin/pg_config && \
 	cargo pgrx package -F all_fdws

@@ -7,9 +7,9 @@ RUN apt-get update && apt-get install -y \
     libkrb5-dev
 
 # Clone repository
-RUN git clone https://github.com/MigOpsRepos/credcheck.git
+RUN git clone https://github.com/HexaCluster/credcheck.git
 
-ARG RELEASE=v2.0
+ARG RELEASE=v2.8
 
 RUN cd credcheck && \
     git fetch origin ${RELEASE} && \

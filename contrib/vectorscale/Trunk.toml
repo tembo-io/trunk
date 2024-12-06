@@ -1,6 +1,6 @@
 [extension]
 name = "vectorscale"
-version = "0.3.0"
+version = "0.5.1"
 repository = "https://github.com/timescale/pgvectorscale"
 license = "PostgreSQL"
 description = "A complement to pgvector for high performance, cost efficient vector search on large workloads."
@@ -12,11 +12,11 @@ categories = ["machine_learning"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd pgvectorscale/pgvectorscale
-    mv target/release/vectorscale-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
-    mv target/release/vectorscale-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+    mv target/release/vectorscale-pg17/usr/lib/postgresql/17/lib/* /usr/lib/postgresql/17/lib
+    mv target/release/vectorscale-pg17/usr/share/postgresql/17/extension/* /usr/share/postgresql/17/extension
 """

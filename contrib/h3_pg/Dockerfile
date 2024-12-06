@@ -1,5 +1,5 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/zachasme/h3-pg.git
 
 # Set project version
-ARG RELEASE=v4.1.3
+ARG RELEASE=v4.1.4
 
 # Build extension
 RUN cd h3-pg && \

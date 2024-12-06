@@ -1,6 +1,6 @@
 [extension]
 name = "duckdb_fdw"
-version = "0.0.1"
+version = "1.1.2"
 repository = "https://github.com/alitrack/duckdb_fdw"
 license = "MIT"
 description = "This PostgreSQL extension implements a Foreign Data Wrapper (FDW) for DuckDB."
@@ -12,7 +12,7 @@ categories = ['connectors']
 nix = ["duckdb"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
