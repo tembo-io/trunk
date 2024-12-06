@@ -1,6 +1,6 @@
 [extension]
 name = "wrappers"
-version = "0.4.2"
+version = "0.4.3"
 repository = "https://github.com/supabase/wrappers"
 license = "Apache-2.0"
 description = "Postgres Foreign Data Wrapper development framework in Rust."
@@ -12,11 +12,11 @@ categories = ["connectors"]
 apt = ["libc6", "libgcc-s1"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd wrappers/
-    mv target/release/wrappers-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
-    mv target/release/wrappers-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+    mv target/release/wrappers-pg17/usr/lib/postgresql/17/lib/* /usr/lib/postgresql/17/lib
+    mv target/release/wrappers-pg17/usr/share/postgresql/17/extension/* /usr/share/postgresql/17/extension
 """
