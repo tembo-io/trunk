@@ -1,6 +1,6 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-ARG RELEASE=2.4.1
+ARG RELEASE=2.4.2
 
 # Clone repository
 RUN git clone https://github.com/RhodiumToad/ip4r.git
