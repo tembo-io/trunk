@@ -1,4 +1,4 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
@@ -13,9 +13,9 @@ RUN apt-get update && \
     libjson-c-dev
 
 # Download and build PostGIS
-RUN wget https://download.osgeo.org/postgis/source/postgis-3.4.0.tar.gz && \
-    tar xvf postgis-3.4.0.tar.gz && \
-    cd postgis-3.4.0 && \
+RUN wget https://download.osgeo.org/postgis/source/postgis-3.5.0.tar.gz && \
+    tar xvf postgis-3.5.0.tar.gz && \
+    cd postgis-3.5.0 && \
     ./configure && \
     make && \
     make install
@@ -24,7 +24,7 @@ RUN wget https://download.osgeo.org/postgis/source/postgis-3.4.0.tar.gz && \
 RUN git clone https://github.com/MobilityDB/MobilityDB
 
 # Set project version
-ARG RELEASE=v1.1.0rc1
+ARG RELEASE=v1.2.0
 
 # Build extension
 RUN cd MobilityDB && \
