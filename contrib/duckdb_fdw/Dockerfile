@@ -8,7 +8,7 @@ ARG RELEASE=1.1.3
 RUN git clone https://github.com/alitrack/duckdb_fdw 
 RUN cd duckdb_fdw && \
 	wget -c https://github.com/duckdb/duckdb/releases/download/v${RELEASE}/libduckdb-linux-amd64.zip && \
- 	unzip -d . libduckdb-linux-amd64.zip && \
+	unzip -o -d . libduckdb-linux-amd64.zip && \
  	cp libduckdb.so $(pg_config --libdir)
 
 RUN cd duckdb_fdw && make USE_PGXS=1
