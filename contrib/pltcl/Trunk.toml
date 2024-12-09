@@ -11,14 +11,14 @@ categories = ["procedural_languages"]
 apt = ["libtcl8.6.so", "libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     make -C postgres/src/pl/tcl install
     set -x
-    mv /usr/local/pgsql/share/extension/pltcl.* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/share/extension/pltcl--* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/pltcl* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/pltcl.* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/share/extension/pltcl--* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/pltcl* /usr/lib/postgresql/17/lib
 """
 

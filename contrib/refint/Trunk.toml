@@ -12,12 +12,12 @@ categories = ["tooling_admin"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd postgres/contrib/spi && make install
     set -x
-    mv /usr/local/pgsql/share/extension/refint* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/refint* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/refint* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/refint* /usr/lib/postgresql/17/lib
     """

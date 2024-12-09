@@ -1,6 +1,6 @@
 [extension]
 name = "sepgsql"
-version = "15.3.0"
+version = "17.3.0"
 repository = "https://github.com/postgres/postgres/tree/master/contrib/sepgsql"
 license = "PostgreSQL"
 description = "sepgsql is a loadable module that supports label-based mandatory access control (MAC) based on SELinux security policy."
@@ -13,13 +13,13 @@ loadable_libraries = [{ library_name = "sepgsql", requires_restart = true }]
 apt = ["libselinux1", "libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd postgres/contrib/sepgsql && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
     """
 

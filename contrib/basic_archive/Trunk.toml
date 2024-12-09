@@ -1,6 +1,6 @@
 [extension]
 name = "basic_archive"
-version = "15.3.0"
+version = "17.2.0"
 repository = "https://github.com/postgres/postgres/tree/master/contrib/basic_archive"
 license = "PostgreSQL"
 description = "This module copies completed WAL segment files to the specified directory."
@@ -13,13 +13,13 @@ loadable_libraries = [{ library_name = "basic_archive", requires_restart = true 
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd postgres/contrib/basic_archive && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
     """
 

@@ -1,4 +1,4 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/postgres/postgres.git
 
 # Set project version
-ARG PG_RELEASE=REL_15_3
+ARG PG_RELEASE=REL_17_2
 
 # Build extension
 RUN cd postgres && \
