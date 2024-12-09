@@ -7,6 +7,6 @@ RUN git clone https://github.com/pgpartman/pg_partman.git
 ARG EXTENSION_VERSION
 
 RUN cd pg_partman && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
+    git fetch origin v${EXTENSION_VERSION} && \
+    git checkout v${EXTENSION_VERSION} && \
     make
