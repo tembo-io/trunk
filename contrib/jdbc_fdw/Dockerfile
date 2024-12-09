@@ -1,10 +1,7 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
-
-
-
 
 # Extension build dependencies
 RUN apt-get update && apt-get install -y \
@@ -22,7 +19,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN mkdir -p /usr/lib64 && ln -s /usr/lib/jvm/java-1.11.0-openjdk-amd64/lib/server/libjvm.so /usr/lib64/libjvm.so
 # Clone postgres repository
-ARG PG_RELEASE=REL_15_3
+ARG PG_RELEASE=REL_17_2
 RUN git clone  --depth 1 --branch ${PG_RELEASE} https://github.com/postgres/postgres.git
 RUN cd postgres && \
 	./configure
