@@ -1,5 +1,5 @@
 ARG PG_VERSION=17
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.3
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.6
 USER root
 
 # Extension build dependencies
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN cargo install cargo-pgrx --version 0.11.3 --locked
+RUN cargo install cargo-pgrx --version 0.12.6 --locked
 
 # Set default Rust version
 RUN /root/.cargo/bin/rustup default stable
