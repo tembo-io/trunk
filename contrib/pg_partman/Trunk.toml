@@ -1,6 +1,6 @@
 [extension]
 name = "pg_partman"
-version = "5.0.1"
+version = "5.2.1"
 repository = "https://github.com/pgpartman/pg_partman"
 license = "PostgreSQL"
 description = "Extension to manage partitioned tables by time or ID."
