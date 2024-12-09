@@ -40,5 +40,5 @@ RUN cd wrappers/wrappers && \
 	git submodule update --init --recursive && \
 	git fetch origin ${RELEASE} && \
 	git checkout ${RELEASE} && \
-	cargo pgrx init --pg17 /usr/bin/pg_config && \
+	cargo pgrx init && \
 	cargo pgrx package -F all_fdws
