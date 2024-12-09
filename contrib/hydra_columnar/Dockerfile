@@ -18,4 +18,3 @@ RUN cd hydra/columnar &&  \
     git checkout ${RELEASE} &&  \
     ./configure && \
     make
-
