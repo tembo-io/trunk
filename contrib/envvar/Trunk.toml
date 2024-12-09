@@ -12,7 +12,7 @@ categories = ["data_transformations"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "16"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "cd envvar-1.0.0 && make install"

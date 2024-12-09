@@ -1,5 +1,5 @@
 # Set the PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/postgres/postgres.git
 
 # Use argument to specify PostgreSQL release
-ARG PG_RELEASE=REL_15_3
+ARG PG_RELEASE=REL_17_2
 
 # Configure and build PostgreSQL
 RUN cd postgres && \
@@ -34,7 +34,7 @@ RUN cd postgres && \
     git checkout ${PG_RELEASE} && \
     ./configure && \
     cd contrib && \
-    wget https://github.com/pgsql-io/multicorn2/archive/refs/tags/v2.5.tar.gz && \
-    tar -xvf v2.5.tar.gz && \
-    cd multicorn2-2.5 && \
+    wget https://github.com/pgsql-io/multicorn2/archive/refs/tags/v3.0.tar.gz && \
+    tar -xvf v3.0.tar.gz && \
+    cd multicorn2-3.0 && \
     make
