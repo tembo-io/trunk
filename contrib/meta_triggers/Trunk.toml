@@ -1,6 +1,6 @@
 [extension]
 name = "meta_triggers"
-version = "0.3.0"
+version = "0.4.0"
 repository = "https://github.com/aquameta/meta_triggers"
 license = "BSD-2-Clause"
 description = "PostgreSQL Extension: Insert, update and delete triggers that make the meta extension writable."
@@ -8,12 +8,12 @@ documentation = "https://github.com/aquameta/meta_triggers"
 categories = ["tooling_admin"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd meta_triggers && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
     """
