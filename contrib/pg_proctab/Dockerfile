@@ -1,6 +1,5 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
 RUN apt-get update && apt-get install -y \
@@ -15,17 +14,11 @@ RUN apt-get update && apt-get install -y \
 	xsltproc \
 	ccache
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-ARG PG_RELEASE=REL_15_3
+ARG EXTENSION_VERSION
+ARG EXTENSION_NAME
 
 # Build extension
-RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
-	git checkout ${PG_RELEASE} && \
-	./configure && \
-	cd contrib && \
-	git clone https://gitlab.com/pg_proctab/pg_proctab.git && \
-	cd pg_proctab && \
-	make USE_PGXS=1
+RUN git clone https://gitlab.com/${EXTENSION_NAME}/${EXTENSION_NAME}.git \
+	&& cd ${EXTENSION_NAME} \
+	&& git checkout v${EXTENSION_VERSION} \
+	&& make USE_PGXS=1
