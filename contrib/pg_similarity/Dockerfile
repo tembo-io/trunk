@@ -1,8 +1,12 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/eulerto/pg_similarity.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+ARG REVISION=537413f
 
-RUN cd pg_similarity && \
-    make
+# Clone repository
+RUN git clone https://github.com/eulerto/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && git checkout ${REVISION} \
+    && make
