@@ -1,7 +1,7 @@
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.5
-USER root
 
+USER root
 RUN apt-get update && apt-get install -y \
 	build-essential \
 	libssl-dev \
@@ -11,24 +11,15 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev \
 	pkg-config
 
-# Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN $HOME/.cargo/bin/cargo install cargo-pgrx --version=0.12.5 --locked
 ARG PG_VERSION=17
-RUN $HOME/.cargo/bin/cargo pgrx init --pg$PG_VERSION $(which pg_config)
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-# # Set default Rust version
-RUN /root/.cargo/bin/rustup default stable
-
-# Clone repository
-RUN git clone https://github.com/timescale/pgvectorscale.git
-
-ARG EXTENSION_VERSION=0.5.1
-ARG PG_VERSION=17
-
-# Build extension
-RUN cd pgvectorscale/pgvectorscale && \
-	git fetch origin ${EXTENSION_VERSION} && \
-	git checkout ${EXTENSION_VERSION} && \
-    cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config && \
-    RUSTFLAGS="-C target-feature=+avx2,+fma" cargo pgrx package
+# Upgrade Rust and build the extension.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+	&& $HOME/.cargo/bin/cargo pgrx init --pg$PG_VERSION $(which pg_config) \
+	&& /root/.cargo/bin/rustup default stable \
+	&& git clone --depth 1 --branch ${EXTENSION_VERSION} https://github.com/timescale/${EXTENSION_NAME}.git \
+	&& cd ${EXTENSION_NAME}/${EXTENSION_NAME} \
+	cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config \
+	RUSTFLAGS="-C target-feature=+avx2,+fma" cargo pgrx package
