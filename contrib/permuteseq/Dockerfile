@@ -1,16 +1,13 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
-# Clone repository
-RUN git clone https://github.com/dverite/permuteseq.git
-
-ARG RELEASE=v1.2.2
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
 # Build extension
-RUN cd permuteseq && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
-
+RUN git clone https://github.com/dverite/${EXTENSION_NAME}.git \
+    && cd {EXTENSION_NAME} \
+    && git checkout v${EXTENSION_VERSION} \
+    && make
