@@ -1,6 +1,6 @@
 [extension]
 name = "pg_hashids"
-version = "1.3.0"
+version = "1.2.1"
 repository = "https://github.com/iCyberon/pg_hashids"
 license = "MIT"
 description = "Hashids is a small open-source library that generates short, unique, non-sequential ids from numbers."
@@ -10,7 +10,7 @@ categories = ["data_transformations"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "cd pg_hashids && make install"
