@@ -1,15 +1,12 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/begriffs/pg_rational.git
-
-# Set project version
-ARG RELEASE=v0.0.2
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
 # Build extension
-RUN cd pg_rational && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+RUN git clone https://github.com/begriffs/pg_rational.git \
+    && cd pg_rational \
+    && git checkout v${EXTENSION_VERSION} \
+    && make
