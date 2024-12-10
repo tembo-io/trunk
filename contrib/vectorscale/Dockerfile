@@ -21,5 +21,5 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
 	&& /root/.cargo/bin/rustup default stable \
 	&& git clone --depth 1 --branch ${EXTENSION_VERSION} https://github.com/timescale/${EXTENSION_NAME}.git \
 	&& cd ${EXTENSION_NAME}/${EXTENSION_NAME} \
-	cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config \
-	RUSTFLAGS="-C target-feature=+avx2,+fma" cargo pgrx package
+	&& cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config \
+	&& RUSTFLAGS="-C target-feature=+avx2,+fma" cargo pgrx package
