@@ -1,16 +1,12 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
-# Clone repository
-RUN git clone https://github.com/bigsmoke/pg_html5_email_address.git
-
-ARG RELEASE=v1.2.2
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
 # Build extension
-RUN cd pg_html5_email_address && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
-
+RUN git clone https://github.com/bigsmoke/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME}\
+    && git checkout v${EXTENSION_VERSION} \
+    && make
