@@ -11,7 +11,7 @@ categories = ["data_transformations"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "cd periods && make install"
