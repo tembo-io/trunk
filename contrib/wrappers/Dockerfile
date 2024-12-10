@@ -1,4 +1,4 @@
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.6
 USER root
 
@@ -23,22 +23,16 @@ RUN apt-get update && apt-get install -y \
 	libpython3-dev \
 	pkg-config
 
-# Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN cargo install cargo-pgrx --version 0.12.6 --locked
+ARG PG_VERSION
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-# Set default Rust version
-RUN /root/.cargo/bin/rustup default stable
-
-# Clone repository
-RUN git clone https://github.com/supabase/wrappers.git
-
-ARG RELEASE=v0.4.3
-
-# Build the extension
-RUN cd wrappers/wrappers && \
-	git submodule update --init --recursive && \
-	git fetch origin ${RELEASE} && \
-	git checkout ${RELEASE} && \
-	cargo pgrx init && \
+# Install Rust ad build the extension.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+	&& /root/.cargo/bin/rustup default stable \
+	&& git clone https://github.com/supabase/${EXTENSION_NAME}.git \
+	&& cd ${EXTENSION_NAME}/${EXTENSION_NAME} \
+	&& git submodule update --init --recursive \
+	&& git checkout V${EXTENSION_VERSION} \
+	&& cargo pgrx init --pg${PG_VERSION}=/usr/bin/pg_config \
 	cargo pgrx package -F all_fdws
