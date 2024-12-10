@@ -1,15 +1,9 @@
-# Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/CrunchyData/pgmonitor-extension.git
-
-# Set project version
+ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
 
-# Build extension
-RUN cd pgmonitor-extension && \
-    git fetch origin v${EXTENSION_VERSION} && \
-    git checkout v${EXTENSION_VERSION} && \
-    make
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/CrunchyData/${EXTENSION_NAME}-extension.git \
+    && cd ${EXTENSION_NAME} && \
+    && make
