@@ -1,12 +1,9 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/aws/pg_tle.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-ARG RELEASE=v1.0.4
-
-RUN cd pg_tle && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/aws/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} && \
+    && make

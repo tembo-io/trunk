@@ -1,6 +1,6 @@
 [extension]
 name = "pg_tle"
-version = "1.0.4"
+version = "1.2.0"
 repository = "https://github.com/aws/pg_tle"
 license = "Apache-2.0"
 description = "Framework for building trusted language extensions for PostgreSQL."
@@ -13,13 +13,7 @@ preload_libraries = ["pg_tle"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_tle && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
-
+install_command = "cd pg_tle && make install"
