@@ -1,6 +1,6 @@
 [extension]
 name = "pg_failover_slots"
-version = "1.0.1"
+version = "1.1.0"
 repository = "https://github.com/EnterpriseDB/pg_failover_slots"
 license = "PostgreSQL"
 description = "PG Failover Slots avoids the need for you to reseed your logical replication tables when a new standby gets promoted to primary."
@@ -13,13 +13,7 @@ preload_libraries = ["pg_failover_slots"]
 apt = ["libc6", "libpq5"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_failover_slots && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
-
+install_command = "cd pg_failover_slots && make install"
