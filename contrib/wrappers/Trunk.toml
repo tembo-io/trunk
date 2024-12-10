@@ -15,8 +15,4 @@ apt = ["libc6", "libgcc-s1"]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd wrappers/
-    mv target/release/wrappers-pg17/usr/lib/postgresql/17/lib/* /usr/lib/postgresql/17/lib
-    mv target/release/wrappers-pg17/usr/share/postgresql/17/extension/* /usr/share/postgresql/17/extension
-"""
+install_command = "cd wrappers/wrappers && cargo pgrx install --release"
