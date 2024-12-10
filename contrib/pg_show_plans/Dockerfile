@@ -3,6 +3,7 @@ ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y cmake
 
 ARG EXTENSION_NAME

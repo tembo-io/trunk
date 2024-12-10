@@ -1,16 +1,20 @@
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
-RUN apt-get update \
-	&& apt-get install -y \
-		libgeos-dev \
-		libproj-dev \
-		libprotobuf-c-dev \
-		protobuf-c-compiler \
-		libgdal-dev \
-	&& wget https://download.osgeo.org/postgis/source/postgis-3.5.0.tar.gz \
-	&& tar xvf postgis-3.5.0.tar.gz \
-	&& cd postgis-3.5.0 \
+# Extension build dependencies
+USER root
+RUN apt-get update apt-get install -y \
+	libgeos-dev \
+	libproj-dev \
+	libprotobuf-c-dev \
+	protobuf-c-compiler \
+	libgdal-dev
+
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+
+RUN wget https://download.osgeo.org/${EXTENSION_NAME}/source/${EXTENSION_NAME}-${EXTENSION_VERSION}.tar.gz \
+	&& tar xvf ${EXTENSION_NAME}-${EXTENSION_VERSION}.tar.gz \
+	&& cd ${EXTENSION_NAME}-${EXTENSION_VERSION} \
 	&& ./configure \
 	&& make
