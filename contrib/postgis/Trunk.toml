@@ -1,6 +1,6 @@
 [extension]
 name = "postgis"
-version = "3.4.0"
+version = "3.5.0"
 repository = "https://github.com/postgis/postgis"
 license = "GPL-2.0"
 description = "PostGIS geometry and geography spatial types and functions."
@@ -12,12 +12,12 @@ categories = ["featured", "data_transformations"]
 apt = ["libjson-c5", "libgcc-s1", "libpcre2-8-0", "libstdc++6", "libproj22", "libxml2", "libgdal30", "libgeos-c1v5", "libc6", "libprotobuf-c1"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    cd postgis-3.4.0/ && make install
+    cd postgis-3.5.0/ && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
     """

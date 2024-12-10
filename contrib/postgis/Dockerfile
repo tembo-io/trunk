@@ -1,4 +1,4 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
@@ -9,8 +9,8 @@ RUN apt-get update \
 		libprotobuf-c-dev \
 		protobuf-c-compiler \
 		libgdal-dev \
-	&& wget https://download.osgeo.org/postgis/source/postgis-3.4.0.tar.gz \
-	&& tar xvf postgis-3.4.0.tar.gz \
-	&& cd postgis-3.4.0 \
+	&& wget https://download.osgeo.org/postgis/source/postgis-3.5.0.tar.gz \
+	&& tar xvf postgis-3.5.0.tar.gz \
+	&& cd postgis-3.5.0 \
 	&& ./configure \
 	&& make
