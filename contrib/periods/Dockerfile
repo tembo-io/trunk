@@ -1,12 +1,10 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/xocolatl/periods.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-ARG RELEASE=v1.2.2
-
-RUN cd periods && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+RUN git clone https://github.com/xocolatl/${EXTENSION_NAME}.git \
+    && cd {EXTENSION_NAME} \
+    && git checkout v${EXTENSION_VERSION} \
+    && make
