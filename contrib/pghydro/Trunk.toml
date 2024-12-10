@@ -9,7 +9,7 @@ categories = ["data_transformations"]
 preload_libraries = ["pghydro, postgis"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
