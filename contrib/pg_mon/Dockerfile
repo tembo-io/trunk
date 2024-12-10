@@ -1,12 +1,11 @@
 ARG PG_VERSION=15
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/RafiaSabih/pg_mon.git
+ARG EXTENSION_NAME
+# ARG EXTENSION_VERSION
+ARG RELEASE=d34b316
 
-ARG RELEASE=master
-
-RUN cd pg_mon && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+RUN git clone https://github.com/RafiaSabih/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && git checkout ${RELEASE} \
+    && make
