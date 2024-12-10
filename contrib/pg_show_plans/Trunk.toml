@@ -1,6 +1,6 @@
 [extension]
 name = "pg_show_plans"
-version = "2.1.0"
+version = "2.1.2"
 repository = "https://github.com/cybertec-postgresql/pg_show_plans"
 license = "PostgreSQL"
 description = "Show query plans of all currently running SQL statements."
@@ -15,9 +15,4 @@ apt = ["libc6"]
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_show_plans && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "cd pg_show_plans && make install"
