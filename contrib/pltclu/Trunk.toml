@@ -1,6 +1,7 @@
 [extension]
 name = "pltclu"
 version = "1.0.0"
+license = "PostgreSQL"
 repository = "https://github.com/postgres/postgres/tree/master/src/pl/tcl"
 description = "The PL/Tclu procedural language for PostgreSQL."
 homepage = "https://www.postgresql.org"
