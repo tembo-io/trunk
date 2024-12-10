@@ -1,6 +1,6 @@
 [extension]
 name = "pg_squeeze"
-version = "1.5.0"
+version = "1.7.0"
 repository = "https://github.com/cybertec-postgresql/pg_squeeze"
 license = "Copyright"
 description = "A PostgreSQL extension for automatic bloat cleanup."
@@ -12,12 +12,7 @@ categories = ["index_table_optimizations"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_squeeze && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "cd pg_squeeze && make install"
