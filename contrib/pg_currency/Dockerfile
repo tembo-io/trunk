@@ -1,10 +1,12 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/adjust/pg-currency.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
 # Build extension
-RUN cd pg-currency && \
+RUN git clone https://github.com/adjust/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && git checkout v${EXTENSION_VERSION} \
     make
