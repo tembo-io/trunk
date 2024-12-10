@@ -1,12 +1,10 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/ossc-db/pg_hint_plan.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-ARG RELEASE=REL16_1_6_0
-
-RUN cd pg_hint_plan && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
+RUN git clone https://github.com/ossc-db/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && git checkout REL16_$(perl -E 'print shift =~ s/\./_/gr' "${EXTENSION_VERSION}") \
     make
