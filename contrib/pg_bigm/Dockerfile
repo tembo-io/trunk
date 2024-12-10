@@ -15,21 +15,11 @@ RUN apt-get update && apt-get install -y \
 	xsltproc \
 	ccache
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-
-ARG PG_RELEASE=REL_15_3
+ARG EXTENSION_NAME
 ARG RELEASE=v1.2-20200228
 
 # Build extension
-RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
-	git checkout ${PG_RELEASE} && \
-	./configure && \
-	cd contrib && \
-        git clone https://github.com/pgbigm/pg_bigm.git && \
-	cd pg_bigm && \
-        git fetch origin ${RELEASE} && \
-        git checkout ${RELEASE} && \
+RUN git clone https://github.com/pgbigm/${EXTENSION_NAME}.git \
+	&& cd ${EXTENSION_NAME} \
+    && git checkout ${RELEASE} \
 	make USE_PGXS=1
