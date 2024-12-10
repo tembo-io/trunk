@@ -1,0 +1,18 @@
+[extension]
+name = "pg_hint_plan16"
+version = "1.7.0"
+repository = "https://github.com/ossc-db/pg_hint_plan"
+license = "Copyright"
+description = "pg_hint_plan makes it possible to tweak PostgreSQL execution plans."
+homepage = "http://www.oss.ecl.ntt.co.jp/ossc/"
+documentation = "https://github.com/ossc-db/pg_hint_plan"
+categories = ["query_optimizations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cd pg_hint_plan && make install"
