@@ -1,4 +1,4 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
@@ -20,7 +20,8 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/postgres/postgres.git
 
 
-ARG PG_RELEASE=REL_15_3
+ARG PG_RELEASE=REL_17_2
+ARG EXTENSION_VERSION
 
 # Build extension
 RUN cd postgres && \
@@ -29,5 +30,6 @@ RUN cd postgres && \
 	./configure && \
 	cd contrib && \
 	git clone https://github.com/EnterpriseDB/mysql_fdw.git && \
+	git checkout REL-$(sed 's|\.|_|g' <<< ${EXTENSION_VERSION}) && \
 	cd mysql_fdw && \
 	make USE_PGXS=1
