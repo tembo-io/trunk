@@ -1,15 +1,12 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/cybertec-postgresql/ora_migrator.git
-
-# Set project version
-ARG RELEASE=RELEASE_1_0_0
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
 # Build extension
-RUN cd ora_migrator && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
+RUN git clone https://github.com/cybertec-postgresql/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} && \
+    git fetch checkout RELEASE_$(perl -E 'print shift =~ s/\./_/gr' "${EXTENSION_VERSION}") && \
     make

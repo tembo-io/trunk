@@ -16,8 +16,4 @@ apt = ["libc6"]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd paradedb/
-    mv target/release/pg_search-pg17/usr/lib/postgresql/17/lib/* /usr/lib/postgresql/17/lib
-    mv target/release/pg_search-pg17/usr/share/postgresql/17/extension/* /usr/share/postgresql/17/extension
-"""
+install_command = "cd paradedb/pg_search && cargo pgrx install --release"

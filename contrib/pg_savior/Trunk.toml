@@ -1,8 +1,8 @@
 [extension]
 name = "pg_savior"
-version = "1.0.0"
+version = "0.0.1"
 repository = "https://github.com/viggy28/pg_savior"
-license = ""
+license = "Apache-2.0"
 description = "pg_savior is a PostgreSQL extension designed to prevent accidental data loss due to non-parameterized DELETE queries without a WHERE clause."
 homepage = "https://github.com/viggy28/pg_savior"
 documentation = "https://github.com/viggy28/pg_savior"
@@ -12,13 +12,7 @@ categories = ["security"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_savior && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
-
+install_command = "cd pg_savior && make install"

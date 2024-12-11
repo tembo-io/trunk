@@ -1,12 +1,7 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/pghydro/pghydro.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-ARG RELEASE=v.6.6
-
-# Build extension
-RUN cd pghydro && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE}
+RUN git clone --depth 1 --branch v$(perl -E 'print shift =~ s/[.]0\$//gr' "${EXTENSION_VERSION}") https://github.com/${EXTENSION_NAME}/${EXTENSION_NAME}.git

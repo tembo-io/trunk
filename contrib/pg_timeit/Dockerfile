@@ -1,8 +1,10 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/joelonsql/pg-timeit.git
+# ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+ARG REVISION=d83ab65
 
-RUN cd pg-timeit && \
-    make
+RUN git clone --depth 1 --branch "${REVISION}" https://github.com/joelonsql/pg-timeit.git \
+    && cd pg-timeit && \
+    && make

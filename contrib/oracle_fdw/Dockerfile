@@ -1,4 +1,4 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION} as build
 USER root
 
@@ -31,18 +31,17 @@ RUN mkdir /opt/oracle && \
     ldconfig && \
     ln -sf /opt/oracle/instantclient_19_8/libclntsh.so.19.1 /opt/oracle/instantclient_19_8/libclntsh.so
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-ARG PG_RELEASE=REL_15_3
+ARG PG_RELEASE=REL_17_3
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
 # Build extension
-RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
+RUN git clone https://github.com/postgres/postgres.git && \
+	cd postgres && \
 	git checkout ${PG_RELEASE} && \
 	./configure --without-ldap && \
 	cd contrib && \
-	git clone https://github.com/laurenz/oracle_fdw.git && \
-	cd oracle_fdw && \
+	git clone https://github.com/laurenz/${EXTENSION_NAME}.git && \
+	cd ${EXTENSION_NAME} && \
+	&& git checkout ORACLE_FDW_-$(perl -E 'print shift =~ s/\./_/gr' "${EXTENSION_VERSION}") \
 	make ORACLE_HOME=/opt/oracle/instantclient_19_8 USE_PGXS=1
-

@@ -1,8 +1,8 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y \
 	build-essential \
 	libreadline-dev \
@@ -16,16 +16,9 @@ RUN apt-get update && apt-get install -y \
 	ccache \
 	libkrb5-dev
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-ARG PG_RELEASE=REL_15_3
-
-RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
-	git checkout ${PG_RELEASE} && \
-	./configure && \
-	cd contrib && \
-	git clone https://github.com/pgaudit/pgaudit.git && \
-	cd pgaudit && \
-	make USE_PGXS=1
+RUN git clone --depth 1 --branch $(perl -E 'print shift =~ s/[.]0\$//gr' "${EXTENSION_VERSION}") https://github.com/${EXTENSION_NAME}/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} && \
+    && ake USE_PGXS=1

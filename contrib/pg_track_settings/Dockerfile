@@ -1,15 +1,9 @@
-# Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/rjuju/pg_track_settings.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-# Set project version
-ARG RELEASE=2.1.2
-
-# Build extension
-RUN cd pg_track_settings && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+RUN git clone --depth 1 --branch "${EXTENSION_VERSION}" https://github.com/rjuju/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} && \
+    && make

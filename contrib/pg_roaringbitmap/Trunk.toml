@@ -1,6 +1,6 @@
 [extension]
 name = "pg_roaringbitmap"
-version = "0.5.0"
+version = "0.5.4"
 repository = "https://github.com/ChenHuajun/pg_roaringbitmap"
 license = "Apache-2.0"
 description = "Support for Roaring Bitmaps."
@@ -14,9 +14,4 @@ apt = ["libc6"]
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_roaringbitmap && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "cd pg_roaringbitmap && make install"

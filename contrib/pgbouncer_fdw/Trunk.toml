@@ -1,6 +1,6 @@
 [extension]
 name = "pgbouncer_fdw"
-version = "1.1.0"
+version = "1.2.0"
 repository = "https://github.com/CrunchyData/pgbouncer_fdw"
 license = "PostgreSQL"
 description = "PostgreSQL Foreign Data Wrapper to Connect to pgbouncer."
@@ -9,12 +9,7 @@ documentation = "https://access.crunchydata.com/documentation/pgbouncer_fdw/late
 categories = ["connectors"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pgbouncer_fdw && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "cd pgbouncer_fdw && make install"

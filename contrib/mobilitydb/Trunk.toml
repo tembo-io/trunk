@@ -1,6 +1,6 @@
 [extension]
 name = "mobilitydb"
-version = "1.1.0"
+version = "1.2.0"
 repository = "https://github.com/MobilityDB/MobilityDB"
 license = "PostgreSQL"
 description = "Geospatial trajectory data management."
@@ -13,7 +13,7 @@ loadable_libraries = [{ library_name = "postgis-3", requires_restart = true }]
  apt = ["libc6", "libgsl-dev"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """

@@ -1,12 +1,10 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/MigOpsRepos/pg_dbms_job.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-ARG RELEASE=v1.5
-
-RUN cd pg_dbms_job && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
+RUN git clone https://github.com/MigOpsRepos/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && git checkout v$(perl -E 'print shift =~ s/[.]0\$//gr' "${EXTENSION_VERSION}") \
     make

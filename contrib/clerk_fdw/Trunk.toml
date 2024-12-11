@@ -1,0 +1,18 @@
+[extension]
+name = "clerk_fdw"
+version = "0.3.3"
+repository = "https://github.com/tembo-io/clerk_fdw"
+license = "PostgreSQL"
+description = "Postgres Foreign Data Wrapper for Clerk.com Backend API"
+homepage = "https://pgxn.org/dist/clerk_fdw"
+documentation = "https://pgxn.org/dist/clerk_fdw/README.html"
+categories = ["connectors"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cd clerk_fdw-0.3.3 && make install"

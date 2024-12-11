@@ -1,6 +1,6 @@
 [extension]
 name = "mysql_fdw"
-version = "1.2.0"
+version = "2.9.2"
 repository = "https://github.com/EnterpriseDB/mysql_fdw"
 license = "Copyright"
 description = "This PostgreSQL extension implements a Foreign Data Wrapper (FDW) for MySQL."
@@ -12,12 +12,12 @@ categories = ["connectors"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd postgres/contrib/mysql_fdw && make USE_PGXS=1 install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
     """
