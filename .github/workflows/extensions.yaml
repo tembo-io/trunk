@@ -51,7 +51,7 @@ jobs:
           ignore_dirs: ".tembo cli"
 
   test:
-    name: Test extensions
+    name: Test ${{ matrix.name }}
     runs-on:
       - self-hosted
       - dind
@@ -75,7 +75,7 @@ jobs:
         run: cd ${{ matrix.path }} && trunk build --test
 
   build:
-    name: Build extensions
+    name: Build ${{ matrix.ext.name }} on ${{ matrix.pg }}
     runs-on:
       - self-hosted
       - dind
@@ -87,7 +87,9 @@ jobs:
       - find_directories
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.find_directories.outputs.directories) }}
+      matrix:
+        ext: ${{ fromJson(needs.find_directories.outputs.directories).include }}
+        pg: [17, 16, 15, 14]
     env:
       TRUNK_API_TOKEN: ${{ secrets.TRUNK_AUTH_TOKEN }}
       PGHOST: "localhost"
@@ -104,30 +106,24 @@ jobs:
           set -xe
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
-      - name: Build extension for Postgres 15
-        run: cd ${{ matrix.path }} && trunk build --pg-version 15
+      - name: Build extension
+        run: cd ${{ matrix.ext.path }} && trunk build --pg-version ${{ matrix.pg }}
+        continue-on-error: true
       - name: Install the extension
-        run: cd ${{ matrix.path }} && EXTENSION=$(basename ${{ matrix.path }}) && trunk install -f .trunk/*.tar.gz $EXTENSION
-      - name: Build extension for Postgres 14
-        run: cd ${{ matrix.path }} && trunk build --pg-version 14
-        continue-on-error: true
-      - name: Build extension for Postgres 16
-        run: cd ${{ matrix.path }} && trunk build --pg-version 16
-        continue-on-error: true
-      - name: Build extension for Postgres 17
-        run: cd ${{ matrix.path }} && trunk build --pg-version 17
-        continue-on-error: true
+        if: matrix.pg == 15
+        run: cd ${{ matrix.ext.path }} && EXTENSION=${{ matrix.ext.name }} && trunk install -f .trunk/*.tar.gz $EXTENSION
       - name: Handle shared_preload_libraries
+        if: matrix.pg == 15
         shell: bash -e {0}
         run: |
           for val in pg_cron timescaledb pg_search pg_analytics citus; do
-            if [[ "${{ matrix.path }}" == *"$val"* ]]; then
+            if [[ "${{ matrix.ext.path }}" == *"$val"* ]]; then
               echo handling shared_preload_libraries for $val
               echo "shared_preload_libraries = '$val'" >> /var/lib/postgresql/data2/postgresql.conf
             fi
           done
       - name: Enable the extension
-        if: ${{ github.ref != 'refs/heads/main' }}
+        if: matrix.pg == 15 && github.ref != 'refs/heads/main'
         run: |
           su postgres -c '/usr/lib/postgresql/15/bin/postgres &'
           sleep 5
@@ -137,10 +133,10 @@ jobs:
             psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
           done
       - name: Publish the extension
-        if: ${{ github.ref == 'refs/heads/main' }}
-        run: cd ${{ matrix.path }} && trunk publish
+        if: github.ref == 'refs/heads/main'
+        run: cd ${{ matrix.ext.path }} && trunk publish
       - name: Re-build Trunk UI
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: github.ref == 'refs/heads/main'
         run: |
           sleep 2
           curl -X POST -d '{}' \
