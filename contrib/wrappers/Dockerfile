@@ -27,7 +27,7 @@ ARG PG_VERSION
 ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
 
-# Install Rust ad build the extension.
+# Install Rust and build the extension.
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
 	&& /root/.cargo/bin/rustup default stable \
 	&& git clone --depth 1 --branch v${EXTENSION_VERSION} https://github.com/supabase/${EXTENSION_NAME}.git \

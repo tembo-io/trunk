@@ -14,7 +14,7 @@ on:
 
 jobs:
   find_directories:
-    name: Find changed extensions
+    name: 🔍 Find changed extensions
     runs-on: ubuntu-20.04
     outputs:
       directories: ${{ steps.find_directories.outputs.build_matrix }}
@@ -51,7 +51,7 @@ jobs:
           ignore_dirs: ".tembo cli"
 
   test:
-    name: Test ${{ matrix.name }}
+    name: 🧪 ${{ matrix.ext.name }} on 🐘 ${{ matrix.pg }}
     runs-on:
       - self-hosted
       - dind
@@ -63,7 +63,9 @@ jobs:
       - find_directories
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.find_directories.outputs.directories) }}
+      matrix:
+        ext: ${{ fromJson(needs.find_directories.outputs.directories).include }}
+        pg: [15]
     steps:
       - uses: actions/checkout@v4
       - name: Install system dependencies
@@ -72,10 +74,10 @@ jobs:
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
       - name: Test the extension within Docker
-        run: cd ${{ matrix.path }} && trunk build --test
+        run: cd ${{ matrix.ext.path }} && trunk build --test
 
   build:
-    name: Build ${{ matrix.ext.name }} on ${{ matrix.pg }}
+    name: 📦 ${{ matrix.ext.name }} on 🐘 ${{ matrix.pg }}
     runs-on:
       - self-hosted
       - dind
@@ -107,6 +109,7 @@ jobs:
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
       - name: Build extension
+        id: build
         run: cd ${{ matrix.ext.path }} && trunk build --pg-version ${{ matrix.pg }}
         continue-on-error: true
       - name: Install the extension
@@ -133,7 +136,7 @@ jobs:
             psql postgres://postgres:postgres@localhost:5432 -c "create extension if not exists \"$EXTENSION\" cascade;"
           done
       - name: Publish the extension
-        if: github.ref == 'refs/heads/main'
+        if: steps.build.outcome == 'success' && github.ref == 'refs/heads/main'
         run: cd ${{ matrix.ext.path }} && trunk publish
       - name: Re-build Trunk UI
         if: github.ref == 'refs/heads/main'

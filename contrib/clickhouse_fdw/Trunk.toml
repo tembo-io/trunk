@@ -14,9 +14,4 @@ apt = ["libstdc++6", "libc6", "libgcc-s1"," libuuid1", "libcurl4"]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd clickhouse_fdw/build && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
-    """
+install_command = "cd clickhouse_fdw/build && make install"

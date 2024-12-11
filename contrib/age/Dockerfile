@@ -23,21 +23,10 @@ RUN apt-get update && apt-get install -y \
     python3-pip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-# Use argument to specify PostgreSQL release
-ARG PG_RELEASE=REL_17_2
-
-# Configure and build PostgreSQL
-RUN cd postgres && \
-    git fetch origin ${PG_RELEASE} && \
-    git checkout ${PG_RELEASE} && \
-    ./configure && \
-    cd contrib && \
-    git clone https://github.com/apache/age.git
-
-RUN cd postgres/contrib/age && \
-    git checkout release/PG${PG_VERSION}/1.5.0 && \
-    make
-
+# Build the extension.
+RUN git clone --depth 1 --branch PG${PG_VERSION}/v${EXTENSION_VERSION}-rc0 https://github.com/apache/${EXTENSION_NAME}.git \
+	&& cd ${EXTENSION_NAME} \
+	&& make

@@ -1,7 +1,7 @@
 ARG PG_VERSION=17
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.4
-USER root
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.7
 
+USER root
 RUN apt-get update && apt-get install -y \
 	build-essential \
 	libssl-dev \
@@ -11,20 +11,14 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev \
 	pkg-config
 
-# Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
-# Clone repository
-RUN git clone https://github.com/paradedb/pg_analytics
-
-# argument passed in during build and defined in Trunk.toml
+ARG PG_VERSION
+ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
 
-ARG PG_VERSION=17
-
-# Build extension
-RUN cd pg_analytics && \
-	git fetch origin v${EXTENSION_VERSION} && \
-	git checkout v${EXTENSION_VERSION} && \
-    cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config && \
-    cargo pgrx package
+# Install Rust and build the extension.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+	&& /root/.cargo/bin/rustup default stable \
+	&& git clone --depth 1 --branch v${EXTENSION_VERSION} https://github.com/paradedb/${EXTENSION_NAME}.git \
+	&& cd ${EXTENSION_NAME} \
+	&& cargo pgrx init --pg${PG_VERSION}=/usr/bin/pg_config \
+	&& cargo pgrx package
