@@ -12,7 +12,7 @@ loadable_libraries = [{ library_name = "pg_cron", requires_restart = true }]
 apt = ["libpq5", "libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "cd pg_cron && make install"

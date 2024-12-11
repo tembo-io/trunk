@@ -13,11 +13,11 @@ loadable_libraries = [{ library_name = "pg_search", requires_restart = true }]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd paradedb/
-    mv target/release/pg_search-pg15/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
-    mv target/release/pg_search-pg15/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+    mv target/release/pg_search-pg17/usr/lib/postgresql/17/lib/* /usr/lib/postgresql/17/lib
+    mv target/release/pg_search-pg17/usr/share/postgresql/17/extension/* /usr/share/postgresql/17/extension
 """

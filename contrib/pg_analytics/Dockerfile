@@ -1,4 +1,4 @@
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.4
 USER root
 
@@ -20,7 +20,7 @@ RUN git clone https://github.com/paradedb/pg_analytics
 # argument passed in during build and defined in Trunk.toml
 ARG EXTENSION_VERSION
 
-ARG PG_VERSION=15
+ARG PG_VERSION=17
 
 # Build extension
 RUN cd pg_analytics && \

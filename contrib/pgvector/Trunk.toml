@@ -12,12 +12,12 @@ categories = ["featured", "machine_learning"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "16"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd pgvector && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/16/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/16/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
     """
