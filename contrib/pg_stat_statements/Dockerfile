@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
 # Clone repository
 RUN git clone https://github.com/postgres/postgres.git
 
-ARG PG_RELEASE=REL_15_3
+ARG PG_RELEASE=REL_17_2
 
 RUN cd postgres && \
 	git fetch origin ${PG_RELEASE} && \
