@@ -310,13 +310,9 @@ impl SubCommand for BuildCommand {
 }
 
 fn process_install_command(install_command: &str, pg_version: u8) -> Cow<'_, str> {
-    if pg_version == 15 {
-        Cow::Borrowed(install_command)
-    } else {
-        Cow::Owned(
-            install_command
-                .replace("postgresql/15/", &format!("postgresql/{pg_version}/"))
-                .replace("pg15", &format!("pg{pg_version}")),
-        )
-    }
+    // Replace all instances of strings like `postgresql/15` and `pg15`.
+    let re = regex::Regex::new(r"(postgresql/|pg)\d+").unwrap();
+    re.replace_all(install_command, |caps: &regex::Captures| -> String {
+        format!("{}{pg_version}", &caps[1])
+    })
 }
