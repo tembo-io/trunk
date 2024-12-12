@@ -1,6 +1,7 @@
 [extension]
 name = "pltclu"
 version = "1.0.0"
+license = "PostgreSQL"
 repository = "https://github.com/postgres/postgres/tree/master/src/pl/tcl"
 description = "The PL/Tclu procedural language for PostgreSQL."
 homepage = "https://www.postgresql.org"
@@ -11,13 +12,10 @@ categories = ["procedural_languages"]
 apt = ["libtcl8.6.so", "libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     make -C postgres/src/pl/tcl install
-    set -x
-    mv /usr/local/pgsql/share/extension/pltclu* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/pltcl* /usr/lib/postgresql/15/lib
+    rm "$(pg_config --sharedir)"/extension/pltcl{--*,.*}
 """
-

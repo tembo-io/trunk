@@ -12,13 +12,10 @@ categories = ["procedural_languages"]
 apt = ["libc6", "libperl5.34"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     make -C postgres/src/pl/plperl install
-    set -x
-    mv /usr/local/pgsql/share/extension/plperlu* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/plperl* /usr/lib/postgresql/15/lib
+    rm "$(pg_config --sharedir)"/extension/plperl{--*,.*}
 """
-

@@ -12,14 +12,10 @@ categories = ["data_transformations"]
 apt = ["libc6", "libperl5.34"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    cd postgres/contrib/jsonb_plperl && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/jsonb_plperl.* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/share/extension/jsonb_plperl--* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
-
+    make -C postgres/contrib/jsonb_plperl install
+    rm "$(pg_config --sharedir)"/extension/jsonb_plperlu{--*,.*}
+"""

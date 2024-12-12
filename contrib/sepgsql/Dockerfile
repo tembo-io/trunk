@@ -1,8 +1,8 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y \
 	build-essential \
 	libreadline-dev \
@@ -14,16 +14,11 @@ RUN apt-get update && apt-get install -y \
 	libxml2-utils \
 	xsltproc \
 	ccache \
-	libselinux1-dev
+	libselinux1-dev \
+	libkrb5-dev
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-ARG PG_RELEASE=REL_15_3
-
-RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
-	git checkout ${PG_RELEASE} && \
-	./configure && \
-	cd contrib/sepgsql && \
-	make
+# Clone repository and build extension.
+ARG EXTENSION_NAME
+ARG PG_RELEASE
+RUN git clone --depth 1 --branch "${PG_RELEASE}" https://github.com/postgres/postgres.git \
+	&& make -C postgres/contrib/${EXTENSION_NAME} USE_PGXS=1
