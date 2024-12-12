@@ -230,6 +230,8 @@ pub async fn find_installed_extension_files(
             .any(|pattern| pattern.matches(&file_added));
 
         if file_added.ends_with(".so")
+            || file_added.ends_with(".dll")
+            || file_added.ends_with(".dylib")
             || file_added.ends_with(".bc")
             || file_added.ends_with(".sql")
             || file_added.ends_with(".control")
@@ -631,10 +633,9 @@ pub async fn package_installed_extension_files(
 /// with the build or `install_command` used.
 fn validate_extension_files(extension_files: &ExtensionFiles) -> anyhow::Result<()> {
     let has_control_file = extension_files.control_file.is_some();
-    let has_shared_object = extension_files
-        .pkglibdir
-        .iter()
-        .any(|filename| filename.ends_with(".so") || filename.ends_with(".dll"));
+    let has_shared_object = extension_files.pkglibdir.iter().any(|filename| {
+        filename.ends_with(".so") || filename.ends_with(".dll") || filename.ends_with(".dylib")
+    });
     let has_sql = extension_files
         .pkglibdir
         .iter()
@@ -823,7 +824,7 @@ mod tests {
         })
         .unwrap();
 
-        // Invalid: No control file and no SQL file
+        // Invalid: Control file and no SQL file
         validate_extension_files(&ExtensionFiles {
             sharedir: vec![],
             pkglibdir: vec!["nonesuch.so".into()],
@@ -832,6 +833,14 @@ mod tests {
                 module_pathname: Some("'$libdir/nonesuch'".into()),
                 requires: None,
             }),
+        })
+        .unwrap_err();
+
+        // Invalid: SQL files and no control file
+        validate_extension_files(&ExtensionFiles {
+            sharedir: vec!["nonesuch--1.4.4--1.4.5.sql".into(), "nonesuch.sql".into()],
+            pkglibdir: vec![],
+            control_file: None,
         })
         .unwrap_err();
 
