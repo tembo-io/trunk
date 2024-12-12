@@ -19,7 +19,7 @@ dockerfile = "Dockerfile"
 install_command = """
     cd citus && make install
     set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/17/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/17/lib
+    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
+    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
     """
 

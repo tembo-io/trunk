@@ -14,8 +14,8 @@ platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd pg_graphql
-    mv target/release/pg_graphql-pg17/usr/lib/postgresql/17/lib/* /usr/lib/postgresql/17/lib
-    mv target/release/pg_graphql-pg17/usr/share/postgresql/17/extension/* /usr/share/postgresql/17/extension
+    mv target/release/pg_graphql-pg17/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
+    mv target/release/pg_graphql-pg17/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
 """
 
 [dependencies]
