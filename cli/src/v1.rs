@@ -18,6 +18,7 @@ pub struct Extension {
 pub struct Download {
     pub link: String,
     pub pg_version: u8,
+    #[expect(unused)]
     pub platform: String,
     pub sha256: String,
 }

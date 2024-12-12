@@ -1,4 +1,4 @@
-use anyhow::{bail, Context};
+use anyhow::{bail, ensure, Context};
 use bollard::container::{
     CreateContainerOptions, DownloadFromContainerOptions, StartContainerOptions,
 };
@@ -7,6 +7,7 @@ use bollard::service::ExecInspectResponse;
 use bollard::Docker;
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::ops::Not;
 
 use bollard::container::Config;
 use bollard::image::BuildImageOptions;
@@ -164,9 +165,10 @@ pub async fn run_temporary_container(
 }
 
 pub struct ExtensionFiles {
-    /// Files stored in `pg_config --sharedir`
+    /// Files stored in `pg_config --sharedir`. Should store architecture-independent files, such as SQL files.
     sharedir: Vec<String>,
-    /// Files stored in `pg_config --pkglibdir`
+    /// Files stored in `pg_config --pkglibdir`. Should store architecture-dependent files, such as
+    /// shared objects.
     pkglibdir: Vec<String>,
     /// The parsed contents of the extension's control file, if it exists
     control_file: Option<ControlFile>,
@@ -454,6 +456,7 @@ pub async fn package_installed_extension_files(
 
     let extension_files =
         find_installed_extension_files(&docker, container_id, &inclusion_patterns).await?;
+    validate_extension_files(&extension_files)?;
     let license_files = find_license_files(&docker, container_id).await?;
 
     let sharedir_list = extension_files.sharedir;
@@ -622,6 +625,40 @@ pub async fn package_installed_extension_files(
     Ok(())
 }
 
+/// Validates the presence of essential files in a PostgreSQL extension.
+///
+/// Returns an error if none of these files are found, indicating a potential issue
+/// with the build or `install_command` used.
+fn validate_extension_files(extension_files: &ExtensionFiles) -> anyhow::Result<()> {
+    let has_control_file = extension_files.control_file.is_some();
+    let has_shared_object = extension_files
+        .pkglibdir
+        .iter()
+        .any(|filename| filename.ends_with(".so") || filename.ends_with(".dll"));
+    let has_sql = extension_files
+        .pkglibdir
+        .iter()
+        .chain(extension_files.sharedir.iter())
+        .any(|filename| filename.ends_with(".sql"));
+
+    // Base check: should at least have one of the three
+    ensure!(
+        has_control_file || has_shared_object || has_sql,
+        "Did not find a control file, a shared object or a SQL file. There is likely a problem with `install_command`."
+    );
+
+    if has_control_file {
+        ensure!(
+            has_sql,
+            "Extension has a control file but no SQL files, which is invalid."
+        )
+    } else {
+        ensure!(has_shared_object && has_sql.not(), "Extension has no control file, therefore it should contain a shared object and no SQL files.");
+    }
+
+    Ok(())
+}
+
 /// Assumes `file_to_package.starts_with(sharedir)`.
 fn prepare_sharedir_file<'p>(
     sharedir: &str,
@@ -741,4 +778,69 @@ pub async fn start_postgres(docker: &Docker, container_id: &str) -> anyhow::Resu
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::control_file::ControlFile;
+
+    use super::{validate_extension_files, ExtensionFiles};
+
+    #[test]
+    fn validates_extension_files() {
+        // Valid: Contains files of the three kinds
+        validate_extension_files(&ExtensionFiles {
+            sharedir: vec![
+                "pg_stat_statements--1.0--1.1.sql".into(),
+                "pg_stat_statements--1.1--1.2.sql".into(),
+            ],
+            pkglibdir: vec!["pg_stat_statements.so".into()],
+            control_file: Some(ControlFile {
+                directory: None,
+                module_pathname: Some("'$libdir/pg_stat_statements'".into()),
+                requires: None,
+            }),
+        })
+        .unwrap();
+
+        // Valid: Extension with a control file and SQL files, but no shared objects
+        validate_extension_files(&ExtensionFiles {
+            sharedir: vec!["pgmq--1.4.4--1.4.5.sql".into(), "pgmq--1.4.5.sql".into()],
+            pkglibdir: vec![],
+            control_file: Some(ControlFile {
+                directory: None,
+                module_pathname: Some("'$libdir/pgmq'".into()),
+                requires: None,
+            }),
+        })
+        .unwrap();
+
+        // Valid: Extension with a shared object but no control file
+        validate_extension_files(&ExtensionFiles {
+            sharedir: vec![],
+            pkglibdir: vec!["auth_delay.so".into()],
+            control_file: None,
+        })
+        .unwrap();
+
+        // Invalid: No control file and no SQL file
+        validate_extension_files(&ExtensionFiles {
+            sharedir: vec![],
+            pkglibdir: vec!["nonesuch.so".into()],
+            control_file: Some(ControlFile {
+                directory: None,
+                module_pathname: Some("'$libdir/nonesuch'".into()),
+                requires: None,
+            }),
+        })
+        .unwrap_err();
+
+        // Invalid: None of the three file kinds
+        validate_extension_files(&ExtensionFiles {
+            sharedir: vec![],
+            pkglibdir: vec![],
+            control_file: None,
+        })
+        .unwrap_err();
+    }
 }
