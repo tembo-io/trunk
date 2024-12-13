@@ -1,6 +1,6 @@
 [extension]
 name = "pg_stat_statements"
-version = "1.10.0"
+version = "1.11.0"
 repository = "https://github.com/postgres/postgres/tree/master/contrib/pg_stat_statements"
 license = "PostgreSQL"
 description = "The pg_stat_statements module provides a means for tracking planning and execution statistics of all SQL statements executed by a server."
@@ -12,12 +12,7 @@ categories = ["featured", "metrics"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd postgres/contrib/pg_stat_statements && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C postgres/contrib/pg_stat_statements install USE_PGXS=1"

@@ -16,8 +16,6 @@ postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
-    cd postgres/contrib/hstore_plperl && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/hstore_plperlu* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+    make -C postgres/contrib/hstore_plperl install
+    rm "$(pg_config --sharedir)"/extension/hstore_plperl{--*,.*}
+"""
