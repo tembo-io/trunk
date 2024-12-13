@@ -17,6 +17,5 @@ platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = """
     cd pgvectorscale/pgvectorscale
-    mv target/release/vectorscale-pg17/usr/lib/postgresql/15/lib/* /usr/lib/postgresql/15/lib
-    mv target/release/vectorscale-pg17/usr/share/postgresql/15/extension/* /usr/share/postgresql/15/extension
+    RUSTFLAGS="-C target-feature=+avx2,+fma" cargo pgrx install --release
 """

@@ -6,4 +6,5 @@ ARG RELEASE=4.5.0
 RUN curl -O https://api.pgxn.org/dist/e-maj/${RELEASE}/e-maj-${RELEASE}.zip \
 	&& unzip e-maj-${RELEASE}.zip \
 	&& cd e-maj-${RELEASE} \
+	&& perl -i -pe 's/#directory/directory/' emaj.control \
 	&& make

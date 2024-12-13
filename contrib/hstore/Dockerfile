@@ -19,4 +19,5 @@ RUN apt-get update && apt-get install -y \
 ARG EXTENSION_NAME
 ARG PG_RELEASE
 RUN git clone --depth 1 --branch "${PG_RELEASE}" https://github.com/postgres/postgres.git \
+	&& (cd postgres && ./configure --datarootdir "$(pg_config --sharedir)" --libdir "$(pg_config --pkglibdir)") \
 	&& make -C postgres/contrib/${EXTENSION_NAME} USE_PGXS=1
