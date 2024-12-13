@@ -1,9 +1,9 @@
 # Set up variables for build.
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y \
 	build-essential \
 	libreadline-dev \
@@ -17,14 +17,8 @@ RUN apt-get update && apt-get install -y \
 	ccache \
 	python3-dev
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-ARG PG_RELEASE=REL_15_3
-
-RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
-	git checkout ${PG_RELEASE} && \
-	./configure --with-python && \
-	cd contrib/hstore_plpython && \
-	make
+# Clone repository and build extension.
+# ARG EXTENSION_NAME
+ARG PG_RELEASE
+RUN git clone --depth 1 --branch "${PG_RELEASE}" https://github.com/postgres/postgres.git \
+	&& make -C postgres/contrib/hstore_plpython USE_PGXS=1

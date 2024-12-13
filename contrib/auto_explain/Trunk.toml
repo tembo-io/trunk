@@ -1,6 +1,6 @@
 [extension]
 name = "auto_explain"
-version = "15.3.0"
+version = "17.2.0"
 repository = "https://github.com/postgres/postgres/tree/master/contrib/auto_explain"
 license = "PostgreSQL"
 description = "The auto_explain module provides a means for logging execution plans of slow statements automatically, without having to run EXPLAIN by hand."
@@ -13,13 +13,7 @@ loadable_libraries = [{ library_name = "auto_explain", requires_restart = true }
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd postgres/contrib/auto_explain && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
-
+install_command = "make -C postgres/contrib/auto_explain install USE_PGXS=1"

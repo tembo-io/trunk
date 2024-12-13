@@ -273,7 +273,7 @@ impl SubCommand for BuildCommand {
 
         let mut install_command_split: Vec<&str> = vec![];
         if let Some(install_command) = processed_install_command.as_deref() {
-            install_command_split.push("/bin/sh");
+            install_command_split.push("/usr/bin/bash");
             install_command_split.push("-c");
             install_command_split.push(install_command);
         } else {

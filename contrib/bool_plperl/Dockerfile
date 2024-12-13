@@ -1,8 +1,8 @@
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y \
 	build-essential \
 	libreadline-dev \
@@ -17,14 +17,9 @@ RUN apt-get update && apt-get install -y \
 	libperl-dev \
 	perl
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-ARG PG_RELEASE=REL_17_2
-
-RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
-	git checkout ${PG_RELEASE} && \
-	./configure --with-perl && \
-	cd contrib/bool_plperl && \
-	make
+# Clone repository and build extension.
+ARG EXTENSION_NAME
+ARG PG_RELEASE
+RUN git clone --depth 1 --branch "${PG_RELEASE}" https://github.com/postgres/postgres.git \
+	&& (cd postgres && ./configure --with-perl --datarootdir "$(pg_config --sharedir)" --libdir "$(pg_config --pkglibdir)") \
+	&& make -C postgres/contrib/${EXTENSION_NAME} USE_PGXS=1
