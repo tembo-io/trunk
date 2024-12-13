@@ -1,5 +1,5 @@
-FROM rust:1.70.0-slim-bookworm as builder
-ARG TRUNK_VER=0.8.3
+FROM rust:1.83.0-slim-bookworm as builder
+ARG TRUNK_VER=0.15.6
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL sparse
 RUN apt update && apt install -y pkg-config libssl-dev
 RUN cargo install --version $TRUNK_VER pg-trunk
@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y \
 STOPSIGNAL SIGINT
 
 ENV PGDATA /var/lib/postgresql/data
-ENV PG_VERSION 15.3
+ENV PG_VERSION 15.10
 ENV PG_MAJOR 15
 ENV PATH $PATH:/usr/lib/postgresql/$PG_MAJOR/bin
 
@@ -92,27 +92,26 @@ RUN apt-get update && apt-get install -y \
 RUN ln -s /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /usr/lib/x86_64-linux-gnu/libjvm.so
 
 # Build Postgres from source
-RUN curl https://ftp.postgresql.org/pub/source/v15.3/postgresql-15.3.tar.bz2 -o postgresql-15.3.tar.bz2
-RUN tar xf postgresql-${PG_VERSION}.tar.bz2
-WORKDIR postgresql-${PG_VERSION}
-RUN ./configure --prefix=/usr/lib/postgresql/${PG_MAJOR} --datarootdir=/usr/share
-RUN make
-RUN make install
-RUN cd .. && rm postgresql-${PG_VERSION}.tar.bz2
+RUN curl https://ftp.postgresql.org/pub/source/v15.3/postgresql-${PG_VERSION}.tar.bz2 -o postgresql-${PG_VERSION}.tar.bz2 \
+    && tar xf postgresql-${PG_VERSION}.tar.bz2 \
+    && cd postgresql-${PG_VERSION} \
+    && ./configure --prefix=/usr/lib/postgresql/${PG_MAJOR} --datarootdir=/usr/share \
+    && make \
+    && make install \
+    && cd .. && rm postgresql-${PG_VERSION}.tar.bz2 \
+    # Remove pre-installed pg_config
+    && rm /usr/bin/pg_config
 
 COPY ./postgresql.conf /usr/share/postgresql/${PG_MAJOR}/postgresql.conf.sample
 
-# Remove pre-installed pg_config
-RUN rm /usr/bin/pg_config
-
 # cache extensions and shared libraries
-RUN mkdir /tmp/pg_sharedir && \
-        mkdir /tmp/pg_pkglibdir && \
-        cp -r $(pg_config --sharedir)/* /tmp/pg_sharedir && \
-        cp -r $(pg_config --pkglibdir)/* /tmp/pg_pkglibdir
-RUN mkdir -p /var/run/postgresql && chmod 775 /var/run/postgresql
-RUN mkdir -p /usr/share/postgresql/${PG_MAJOR}/extension && chmod 775 /usr/share/postgresql/${PG_MAJOR}/extension
-RUN chown -R postgres:postgres /usr/lib/postgresql/${PG_MAJOR} /usr/share/postgresql/extension
+RUN mkdir /tmp/pg_sharedir \
+    && mkdir /tmp/pg_pkglibdir \
+    && cp -r $(pg_config --sharedir)/* /tmp/pg_sharedir \
+    &&  cp -r $(pg_config --pkglibdir)/* /tmp/pg_pkglibdir \
+    && mkdir -p /var/run/postgresql && chmod 775 /var/run/postgresql \
+    && mkdir -p /usr/share/postgresql/${PG_MAJOR}/extension && chmod 775 /usr/share/postgresql/${PG_MAJOR}/extension \
+    && chown -R postgres:postgres /usr/lib/postgresql/${PG_MAJOR} /usr/share/postgresql/extension
 COPY docker-entrypoint.sh /usr/local/bin/
 COPY trunk-install.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]

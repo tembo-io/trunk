@@ -3,7 +3,7 @@ ARG TAG=latest
 
 FROM rust:1.82-bookworm as builder
 
-ARG TRUNK_VER=0.15.0
+ARG TRUNK_VER=0.15.6
 
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL sparse
 RUN cargo install --version $TRUNK_VER pg-trunk
@@ -85,7 +85,6 @@ RUN wget https://github.com/duckdb/duckdb/releases/download/v0.8.1/libduckdb-lin
     unzip libduckdb-linux-amd64.zip && \
     cp libduckdb.so /usr/lib/x86_64-linux-gnu/ && \
     rm -rf libduckdb-linux-amd64.zip libduckdb.so
-
 
 RUN chown -R postgres:postgres $PGDATA && \
     chmod -R 0700 $PGDATA
