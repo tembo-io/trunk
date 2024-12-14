@@ -1,8 +1,8 @@
-ARG PG_VERSION=15
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.9.7
-USER root
+ARG PG_VERSION
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.11.0
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y \
 	build-essential \
 	libreadline-dev \
@@ -26,31 +26,21 @@ RUN apt-get update && apt-get install -y \
 	crossbuild-essential-amd64 \
 	gcc-aarch64-linux-gnu
 
-# Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+ARG PG_VERSION
 
-# Set default Rust version
-RUN rustup default stable
-
-RUN rustup component add llvm-tools-preview rustc-dev && \
-	rustup target install x86_64-unknown-linux-gnu
-
-# Clone repository
-RUN git clone https://github.com/tcdi/plrust.git
-
-ARG RELEASE=v1.2.3
-
-# Build the extension
-RUN cd plrust && \
-	git fetch origin ${RELEASE} && \
-	git checkout ${RELEASE} && \
-	cd plrustc && \
-	./build.sh && \
-	cd .. && \
- 	mv /app/plrust/build/bin/plrustc /app/plrust/.cargo/bin && \
-	cd /app/plrust/plrust && \
-	PG_VER=15 && \
-	STD_TARGETS="x86_64-postgres-linux-gnu " && \
-	./build && \
- 	cargo pgrx init --pg15 /usr/bin/pg_config && \
-  	cargo pgrx package --features trusted -c /usr/bin/pg_config
+# Install Rust and clone & build the extension.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+	# Set default Rust version
+	&& rustup default stable \
+	&& rustup component add llvm-tools-preview rustc-dev \
+	&& rustup target install x86_64-unknown-linux-gnu \
+	&& git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/tcdi/${EXTENSION_NAME}.git \
+	&& cd ${EXTENSION_NAME} \
+	&& (cd ${EXTENSION_NAME}c && ./build.sh) \
+	&& mv build/bin .cargo \
+	&& cd plrust \
+	&& env PG_VER=${PG_VERSION} STD_TARGETS="x86_64-postgres-linux-gnu " ./build \
+	&& cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config \
+	&& cargo pgrx package --features trusted -c /usr/bin/pg_config

@@ -1,17 +1,12 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
-RUN apt-get update && apt-get install -y \
-    libkrb5-dev
+USER root
+RUN apt-get update && apt-get install -y libkrb5-dev
 
-# Clone repository
-RUN git clone https://github.com/EnterpriseDB/pg_failover_slots.git
-
-ARG RELEASE=v1.0.1
-
-RUN cd pg_failover_slots && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/EnterpriseDB/${EXTENSION_NAME}.git \
+	&& make -C ${EXTENSION_NAME}

@@ -1,10 +1,13 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/rjuju/pg_anonymize.git
+ARG EXTENSION_NAME
+# ARG EXTENSION_VERSION
+ARG REVISION=692b354
 
-# Build extension
-RUN cd pg_anonymize && \
-    make
+# Clone repository and build the extension.
+RUN git clone https://github.com/rjuju/${EXTENSION_NAME}.git ${RELEASE} \
+	&& cd ${EXTENSION_NAME} \
+    && git checkout ${REVISION} \
+	&& make

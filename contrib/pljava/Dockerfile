@@ -1,5 +1,5 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 USER root
 
@@ -10,14 +10,9 @@ RUN apt-get update && apt-get install -y \
     libkrb5-dev \
     libecpg-dev
 
-# Clone repository
-RUN git clone https://github.com/tada/pljava.git
-
-# Set project version
-ARG RELEASE=V1_6_5
-
-# Build extension
-RUN cd pljava && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    mvn clean install
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "V$(perl -E 'print shift =~ s/\./_/gr' "${EXTENSION_VERSION}")" https://github.com/tada/${EXTENSION_NAME}.git \
+	&& cd ${EXTENSION_NAME} \
+    && mvn clean install

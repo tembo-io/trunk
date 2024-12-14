@@ -119,7 +119,7 @@ jobs:
         if: matrix.pg == 15
         shell: bash -e {0}
         run: |
-          for val in pg_cron timescaledb pg_search pg_analytics citus; do
+          for val in pg_cron timescaledb pg_search pg_analytics citus plrust; do
             if [[ "${{ matrix.ext.path }}" == *"$val"* ]]; then
               echo handling shared_preload_libraries for $val
               echo "shared_preload_libraries = '$val'" >> /var/lib/postgresql/data2/postgresql.conf
