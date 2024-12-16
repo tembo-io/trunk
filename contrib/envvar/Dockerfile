@@ -1,9 +1,11 @@
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-ARG RELEASE=1.0.0
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
 # Extension build dependencies
-RUN curl -O https://api.pgxn.org/dist/envvar/${RELEASE}/envvar-${RELEASE}.zip \
-    && unzip envvar-${RELEASE}.zip \
-    && cd envvar-${RELEASE} && make
+RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} && make
+WORKDIR /app/${EXTENSION_NAME}-${EXTENSION_VERSION}

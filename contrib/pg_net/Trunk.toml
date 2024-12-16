@@ -1,6 +1,6 @@
 [extension]
 name = "pg_net"
-version = "0.7.1"
+version = "0.7.3" # v0.8.0 and later require libcurl 7.83, but our image has 7.81. https://github.com/supabase/pg_net/issues/143
 repository = "https://github.com/supabase/pg_net"
 license = "Apache-2.0"
 description = "A PostgreSQL extension providing an async networking interface accessible via SQL using a background worker and curl."
@@ -11,8 +11,7 @@ preload_libraries = ["pg_net"]
 apt = ["libcurl4", "libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "cd pg_net && make install"
-
+install_command = "make -C pg_net install"

@@ -15,4 +15,4 @@ apt = ["libc6"]
 postgres_version = "16"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "cd jsonschema-0.1.4 && make install"
+install_command = "make install"

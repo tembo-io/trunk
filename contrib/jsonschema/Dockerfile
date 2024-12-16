@@ -1,8 +1,9 @@
-ARG PG_VERSION=16
+ARG PG_VERSION
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.9
-USER root
 
-ARG RELEASE=0.1.4
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+USER root
 
 # Extension build dependencies
 RUN apt-get update && apt-get install -y build-essential \
@@ -11,7 +12,8 @@ RUN apt-get update && apt-get install -y build-essential \
     # Set default Rust version
     && /root/.cargo/bin/rustup default stable \
     # Download the source
-    && curl -O https://api.pgxn.org/dist/jsonschema/${RELEASE}/jsonschema-${RELEASE}.zip \
-    && unzip jsonschema-${RELEASE}.zip \
+    && curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
     # Build the extension
-    && cd jsonschema-${RELEASE} && make pgrx-init && make
+    && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} && make pgrx-init && make
+WORKDIR /app/${EXTENSION_NAME}-${EXTENSION_VERSION}

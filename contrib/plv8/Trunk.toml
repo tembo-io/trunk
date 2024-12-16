@@ -1,6 +1,6 @@
 [extension]
 name = "plv8"
-version = "3.2.2"
+version = "3.2.3"
 repository = "https://github.com/plv8/plv8"
 license = "Copyright"
 description = "A procedural language in JavaScript powered by V8"
@@ -14,4 +14,4 @@ apt = ["libstdc++6", "libgcc-s1", "libc6"]
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "cd plv8-3.2.3 && make install"
+install_command = "make install"
