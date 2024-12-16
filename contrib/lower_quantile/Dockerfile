@@ -1,8 +1,10 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/tvondra/lower_quantile.git
-
-RUN cd lower_quantile && \
-    make
+ARG EXTENSION_NAME
+# ARG EXTENSION_VERSION
+ARG RELEASE=12c48a7
+RUN git clone https://github.com/tvondra/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && git checkout ${RELEASE} \
+    && make

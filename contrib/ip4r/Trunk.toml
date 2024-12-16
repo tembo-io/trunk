@@ -1,6 +1,6 @@
 [extension]
 name = "ip4r"
-version = "2.4.0"
+version = "2.4.2"
 repository = "https://github.com/RhodiumToad/ip4r"
 license = "PostgreSQL"
 description = "IPv4/v6 and IPv4/v6 range index type for PostgreSQL."
@@ -10,7 +10,7 @@ categories = ["data_transformations"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "cd ip4r && make install"
+install_command = "make -C ip4r install"

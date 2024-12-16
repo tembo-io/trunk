@@ -1,12 +1,9 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/HypoPG/hypopg.git
-
-ARG RELEASE=1.4.0
-
-RUN cd hypopg && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "${EXTENSION_VERSION}" https://github.com/HypoPG/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && make

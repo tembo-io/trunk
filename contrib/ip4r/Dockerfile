@@ -1,11 +1,9 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-ARG RELEASE=2.4.1
 
-# Clone repository
-RUN git clone https://github.com/RhodiumToad/ip4r.git
-
-RUN cd ip4r && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "${EXTENSION_VERSION}" https://github.com/RhodiumToad/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && make

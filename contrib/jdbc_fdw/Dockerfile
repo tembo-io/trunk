@@ -1,12 +1,9 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
-
-
-
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y \
 		build-essential \
 		libreadline-dev \
@@ -20,24 +17,13 @@ RUN apt-get update && apt-get install -y \
 		ccache \
         openjdk-11-jdk
 
-RUN mkdir -p /usr/lib64 && ln -s /usr/lib/jvm/java-1.11.0-openjdk-amd64/lib/server/libjvm.so /usr/lib64/libjvm.so
-# Clone postgres repository
-ARG PG_RELEASE=REL_15_3
-RUN git clone  --depth 1 --branch ${PG_RELEASE} https://github.com/postgres/postgres.git
-RUN cd postgres && \
-	./configure
-
-#Clone jdbc repository
-ARG JDBC_RELEASE=v0.3.1
-RUN cd postgres/contrib && \
-    git clone --depth 1 --branch ${JDBC_RELEASE} https://github.com/pgspider/jdbc_fdw.git
-
-
-RUN cd postgres/contrib/jdbc_fdw && \
-    make clean && \
-    make
-
-    
-
-
-
+# Clone and build the extension.
+ARG EXTENSION_NAME
+# ARG EXTENSION_VERSION
+ARG RELEASE=v0.4.0
+RUN git clone --depth 1 --branch "${RELEASE}" https://github.com/pgspider/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+	&& mkdir -p /usr/lib64 \
+	&& ln -s $(find /usr/lib/jvm/ -name 'libjvm.so') /usr/lib64/ \
+	&& make clean USE_PGXS=1 \
+    && make USE_PGXS=1
