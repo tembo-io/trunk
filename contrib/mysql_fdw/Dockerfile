@@ -16,18 +16,10 @@ RUN apt-get update && apt-get install -y \
 	ccache \
 	default-libmysqlclient-dev
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-
-ARG PG_RELEASE=REL_15_3
-
-# Build extension
-RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
-	git checkout ${PG_RELEASE} && \
-	./configure && \
-	cd contrib && \
-	git clone https://github.com/EnterpriseDB/mysql_fdw.git && \
-	cd mysql_fdw && \
-	make USE_PGXS=1
+# Clone and build the extension.
+ARG EXTENSION_NAME
+# ARG EXTENSION_VERSION
+ARG RELEASE=REL-2_9_2
+RUN git clone --depth 1 --branch "${RELEASE}" https://github.com/EnterpriseDB/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+	&& make USE_PGXS=1
