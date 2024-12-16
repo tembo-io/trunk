@@ -8,7 +8,7 @@ documentation = "https://github.com/aquameta/meta_triggers"
 categories = ["tooling_admin"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "make -C meta_triggers install"
