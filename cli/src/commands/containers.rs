@@ -368,6 +368,7 @@ pub async fn build_image(
         t: &image_name.clone(),
         rm: true,
         pull: true,
+        nocache: true,
         buildargs: build_args,
         ..Default::default()
     };
