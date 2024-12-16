@@ -12,7 +12,7 @@ categories = ["connectors"]
 apt = ["librdkafka1", "libc6"]
 
 [build]
-postgres_version = "17"
+postgres_version = "16"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "make -C kafka_fdw install"
