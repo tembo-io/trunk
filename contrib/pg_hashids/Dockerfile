@@ -1,11 +1,7 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-ARG RELEASE=v1.2.1
 
-# Clone repository
-RUN git clone https://github.com/iCyberon/pg_hashids.git
-
-RUN cd pg_hashids && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/iCyberon/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}

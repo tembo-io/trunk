@@ -1,16 +1,11 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION=
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
-# Clone repository
-RUN git clone https://github.com/bigsmoke/pg_extra_time.git
-
-ARG RELEASE=v1.1.0
-
-# Build extension
-RUN cd pg_extra_time && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
-
+# Download and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} && make
+WORKDIR /app/${EXTENSION_NAME}-${EXTENSION_VERSION}

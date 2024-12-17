@@ -1,6 +1,6 @@
 [extension]
 name = "pg_dirtyread"
-version = "2.6.0"
+version = "2.7.0"
 repository = "https://github.com/df7cb/pg_dirtyread"
 license = "PostgreSQL"
 description = "Read dead but unvacuumed tuples from a PostgreSQL relation."
@@ -12,12 +12,7 @@ categories = ["search"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_dirtyread && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C pg_dirtyread install"
