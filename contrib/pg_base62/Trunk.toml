@@ -1,0 +1,13 @@
+[extension]
+name = "pg_base62"
+version = "0.0.1"
+repository = "https://github.com/adjust/pg-base62"
+license = "MIT"
+description = "A Base62 extension for PostgreSQL."
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make install"

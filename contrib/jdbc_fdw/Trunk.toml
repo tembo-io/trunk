@@ -11,7 +11,7 @@ categories = ["connectors"]
 apt = ["libpq5", "libc6", "openjdk-18-jre-headless"]
 
 [build]
-postgres_version = "15"
+postgres_version = "16"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "make -C jdbc_fdw install USE_PGXS=1"

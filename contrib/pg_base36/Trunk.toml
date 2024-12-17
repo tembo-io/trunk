@@ -1,0 +1,13 @@
+[extension]
+name = "pg_base36"
+version = "1.1.1"
+repository = "https://github.com/adjust/pg-base36"
+license = "MIT"
+description = "A Base36 extension for PostgreSQL."
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make install"
