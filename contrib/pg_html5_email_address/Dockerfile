@@ -1,16 +1,12 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
-# Clone repository
-RUN git clone https://github.com/bigsmoke/pg_html5_email_address.git
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
 
-ARG RELEASE=v1.2.2
-
-# Build extension
-RUN cd pg_html5_email_address && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
-
+# Extension build dependencies
+RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} && make
+WORKDIR /app/${EXTENSION_NAME}-${EXTENSION_VERSION}

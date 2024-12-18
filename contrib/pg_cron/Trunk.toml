@@ -15,4 +15,4 @@ apt = ["libpq5", "libc6"]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "cd pg_cron && make install"
+install_command = "make -C pg_cron install"

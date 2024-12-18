@@ -1,0 +1,18 @@
+[extension]
+name = "pg_jsonschema"
+version = "0.3.3"
+repository = "https://github.com/supabase/pg_jsonschema"
+license = "Apache-2.0"
+description = "PostgreSQL extension providing JSON Schema validation."
+homepage = "https://github.com/supabase/pg_jsonschema"
+documentation = "https://github.com/supabase/pg_jsonschema/blob/master/README.md"
+categories = ["data_transformations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cd pg_jsonschema && cargo pgrx install --release"
