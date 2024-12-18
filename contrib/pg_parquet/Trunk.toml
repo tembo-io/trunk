@@ -1,0 +1,19 @@
+[extension]
+name = "pg_parquet"
+version = "0.2.0"
+repository = "https://github.com/CrunchyData/pg_parquet"
+license = "PostgreSQL"
+description = "Copy to/from Parquet in S3 from within PostgreSQL"
+homepage = "https://github.com/CrunchyData/pg_parquet"
+documentation = "https://github.com/CrunchyData/pg_parquet"
+categories = ["connectors"]
+loadable_libraries = [{ library_name = "pg_parquet", requires_restart = true }]
+
+[dependencies]
+apt = ["libc6", "libgcc-s1"]
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cd pg_parquet/ && cargo pgrx install --release -c /usr/bin/pg_config"
