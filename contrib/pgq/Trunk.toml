@@ -1,6 +1,6 @@
 [extension]
 name = "pgq"
-version = "3.5.0"
+version = "3.5.1"
 repository = "https://github.com/pgq/pgq"
 license = "ISC"
 description = "Generic Queue for PostgreSQL."
@@ -11,12 +11,7 @@ categories = ["orchestration"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pgq && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C pgq install"

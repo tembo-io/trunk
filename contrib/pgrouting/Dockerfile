@@ -1,21 +1,19 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Install the dependencies
+USER root
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     libboost-all-dev \
-    perl \
-    postgresql-server-dev-13 \
     python3-sphinx
 
-# Clone pgRouting repository
-RUN git clone https://github.com/pgRouting/pgrouting.git
-
-RUN cd pgrouting \
-    && mkdir build \
-    && cd build \
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/${EXTENSION_NAME}/${EXTENSION_NAME}.git \
+    && mkdir -p ${EXTENSION_NAME}/build  \
+    && cd ${EXTENSION_NAME}/build  \
     && cmake .. \
     && make
