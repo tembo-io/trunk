@@ -1,21 +1,14 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
-RUN apt-get update && apt-get install -y \
-    libhiredis-dev
+USER root
+RUN apt-get update && apt-get install -y libhiredis-dev
 
-# Clone repository
-RUN git clone https://github.com/pg-redis-fdw/redis_fdw.git
-
-ARG PG_VERSION=15
-# Set project version
-ARG RELEASE=REL_${PG_VERSION}_STABLE
-
-# Build extension
-RUN cd redis_fdw && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+ARG PG_VERSION
+RUN git clone --depth 1 --branch "REL_${PG_VERSION}_STABLE" https://github.com/pg-redis-fdw/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}

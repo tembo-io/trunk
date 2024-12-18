@@ -1,4 +1,4 @@
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.7
 
 USER root
