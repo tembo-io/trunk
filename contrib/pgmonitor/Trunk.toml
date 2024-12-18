@@ -8,9 +8,7 @@ documentation = "https://github.com/CrunchyData/pgmonitor-extension.git"
 categories = ["metrics"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pgmonitor-extension && make install
-    """
+install_command = "make -C pgmonitor-extension install"

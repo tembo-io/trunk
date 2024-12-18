@@ -1,6 +1,6 @@
 [extension]
 name = "pglogical"
-version = "2.4.3"
+version = "2.4.5"
 repository = "https://github.com/2ndQuadrant/pglogical"
 license = "PostgreSQL"
 description = "PostgreSQL Logical Replication."
@@ -15,10 +15,4 @@ apt = ["libpq5", "libc6"]
 postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pglogical && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
-
+install_command = "make -C pglogical install"

@@ -1,0 +1,14 @@
+[extension]
+name = "pgemailaddr"
+version = "1.0.0"
+repository = "https://github.com/petere/pgemailaddr"
+license = "PostgreSQL"
+description = "Email address type for PostgreSQL."
+documentation = "https://github.com/petere/pgemailaddr"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make -C pgemailaddr install"

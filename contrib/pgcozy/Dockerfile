@@ -1,10 +1,12 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/vventirozos/pgcozy.git
-
-# Build extension
-RUN cd pgcozy && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+# ARG EXTENSION_VERSION
+ARG RELEASE=1f36036
+RUN git clone https://github.com/vventirozos/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && git checkout ${RELEASE} \
+    && make
