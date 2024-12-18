@@ -1,0 +1,18 @@
+[extension]
+name = "pgaudit"
+version = "1.6.2"
+repository = "https://github.com/pgaudit/pgaudit"
+license = "PostgreSQL"
+description = "The PostgreSQL Audit Extension (pgAudit) provides detailed session and/or object audit logging via the standard PostgreSQL logging facility."
+homepage = "https://www.pgaudit.org/"
+documentation = "https://github.com/pgaudit/pgaudit/blob/master/README.md"
+categories = ["auditing_logging"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "14"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make -C pgaudit USE_PGXS=1 install"

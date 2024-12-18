@@ -67,10 +67,14 @@ jobs:
         ext: ${{ fromJson(needs.find_directories.outputs.directories).include }}
         pg: [15]
         exclude:
-          # pg_hint_plabn has separate extensions for each major version
+          # pg_hint_plan has separate extensions for each major version
           - { ext: { name: pg_hint_plan14 } }
           - { ext: { name: pg_hint_plan16 } }
           - { ext: { name: pg_hint_plan17 } }
+          # pgaudit has separate configs for each major version
+          - { ext: { name: pgaudit14 } }
+          - { ext: { name: pgaudit16 } }
+          - { ext: { name: pgaudit17 } }
     steps:
       - uses: actions/checkout@v4
       - name: Install system dependencies
@@ -98,11 +102,12 @@ jobs:
         ext: ${{ fromJson(needs.find_directories.outputs.directories).include }}
         pg: [17, 16, 15, 14]
         exclude:
+          - { pg: 14, ext: { name: pg_walinspect  } } # Added in Postgres 17
           - { pg: 17, ext: { name: adminpack      } } # Removed from Postgres 17
           - { pg: 17, ext: { name: old_snapshot   } } # Removed from Postgres 17
           - { pg: 17, ext: { name: pg_lakehouse   } } # Renamed pg_analytics
           - { pg: 17, ext: { name: pg_sparse      } } # Removed after v0.7.0
-          # pg_hint_plabn has separate extensions for each major version
+          # pg_hint_plan has separate extensions for each major version
           - { pg: 17, ext: { name: pg_hint_plan14 } }
           - { pg: 17, ext: { name: pg_hint_plan15 } }
           - { pg: 17, ext: { name: pg_hint_plan16 } }
@@ -115,6 +120,19 @@ jobs:
           - { pg: 14, ext: { name: pg_hint_plan15 } }
           - { pg: 14, ext: { name: pg_hint_plan16 } }
           - { pg: 14, ext: { name: pg_hint_plan17 } }
+          # pgaudit has separate configs for each major version
+          - { pg: 17, ext: { name: pgaudit14 } }
+          - { pg: 17, ext: { name: pgaudit15 } }
+          - { pg: 17, ext: { name: pgaudit16 } }
+          - { pg: 16, ext: { name: pgaudit14 } }
+          - { pg: 16, ext: { name: pgaudit15 } }
+          - { pg: 16, ext: { name: pgaudit17 } }
+          - { pg: 15, ext: { name: pgaudit14 } }
+          - { pg: 15, ext: { name: pgaudit16 } }
+          - { pg: 15, ext: { name: pgaudit17 } }
+          - { pg: 14, ext: { name: pgaudit15 } }
+          - { pg: 14, ext: { name: pgaudit16 } }
+          - { pg: 14, ext: { name: pgaudit17 } }
     env:
       TRUNK_API_TOKEN: ${{ secrets.TRUNK_AUTH_TOKEN }}
       PGHOST: "localhost"
@@ -142,7 +160,7 @@ jobs:
         if: matrix.pg == 15
         shell: bash -e {0}
         run: |
-          for val in pg_cron timescaledb pg_search pg_analytics citus plrust pg_net pg_stat_kcache pg_squeeze; do
+          for val in pg_cron timescaledb pg_search pg_analytics citus plrust pg_net pg_stat_kcache pg_squeeze pg_tle pgaudit; do
             if [[ "${{ matrix.ext.path }}" == *"$val"* ]]; then
               echo handling shared_preload_libraries for $val
               echo "shared_preload_libraries = '$val'" >> /var/lib/postgresql/data2/postgresql.conf
