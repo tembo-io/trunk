@@ -1,24 +1,14 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.7
+
+ARG PG_VERSION
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+
 USER root
-
-ARG RELEASE=v0.2.0
-
-# Extension build dependencies
-RUN apt-get update && apt-get install -y \
-	build-essential
-
-# Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN cargo install cargo-pgrx --version 0.12.7 --locked
-
-# Set default Rust version
-RUN /root/.cargo/bin/rustup default stable
-
-# Clone repository
-RUN git clone --depth 1 --branch ${RELEASE} https://github.com/brianpursley/pg_smtp_client
-
-# Build the extension
-RUN cd pg_smtp_client && \
-    cargo pgrx init --pg15 /usr/bin/pg_config && \
-    cargo pgrx package
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && /root/.cargo/bin/rustup default stable \
+    && git clone --depth 1 --branch v${EXTENSION_VERSION} https://github.com/brianpursley/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && cargo pgrx init --pg${PG_VERSION}=/usr/bin/pg_config \
+    && cargo pgrx package

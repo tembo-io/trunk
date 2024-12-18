@@ -1,6 +1,6 @@
 [extension]
 name = "pg_semver"
-version = "0.32.1"
+version = "0.40.0"
 repository = "https://github.com/theory/pg-semver"
 license = "PostgreSQL"
 description = "A semantic version data type for PostgreSQL."
@@ -11,12 +11,7 @@ categories = ["data_transformations"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg-semver && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make install"

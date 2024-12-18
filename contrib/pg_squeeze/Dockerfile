@@ -1,15 +1,9 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/cybertec-postgresql/pg_squeeze.git
-
-# Set project version
-ARG RELEASE=1.5.2
-
-# Build extension
-RUN cd pg_squeeze && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "REL$(perl -E 'print shift =~ s/\./_/gr' "${EXTENSION_VERSION}")" https://github.com/cybertec-postgresql/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}

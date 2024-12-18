@@ -1,6 +1,6 @@
 [extension]
 name = "pg_stat_kcache"
-version = "2.2.1"
+version = "2.3.0"
 repository = "https://github.com/powa-team/pg_stat_kcache"
 license = "PostgreSQL"
 description = "Gathers statistics about real reads and writes done by the filesystem layer."
@@ -13,13 +13,7 @@ preload_libraries = ["pg_stat_kcache"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_stat_kcache && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
-
+install_command = "make -C pg_stat_kcache install"

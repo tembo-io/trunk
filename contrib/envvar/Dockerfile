@@ -1,10 +1,9 @@
 ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
+# Extension build dependencies
 ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
-
-# Extension build dependencies
 RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
     && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
     && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} && make

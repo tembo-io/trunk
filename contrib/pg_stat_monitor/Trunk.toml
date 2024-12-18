@@ -13,12 +13,7 @@ loadable_libraries = [{ library_name = "pg_stat_monitor", requires_restart = tru
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_stat_monitor && make USE_PGXS=1 install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make install USE_PGXS=1"
