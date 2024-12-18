@@ -1,15 +1,9 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/powa-team/pg_qualstats.git
-
-# Set project version
-ARG RELEASE=2.0.4
-
-# Build extension
-RUN cd pg_qualstats && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "${EXTENSION_VERSION}" https://github.com/powa-team/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}

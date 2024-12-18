@@ -1,6 +1,6 @@
 [extension]
 name = "pg_qualstats"
-version = "2.0.4"
+version = "2.1.1"
 repository = "https://github.com/powa-team/pg_qualstats"
 license = "Copyright"
 description = "pg_qualstats is a PostgreSQL extension keeping statistics on predicates found in WHERE statements and JOIN clauses."
@@ -13,12 +13,7 @@ preload_libraries = ["pg_qualstats"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_qualstats && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C pg_qualstats install"

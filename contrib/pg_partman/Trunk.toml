@@ -1,6 +1,6 @@
 [extension]
 name = "pg_partman"
-version = "5.2.1"
+version = "5.2.2"
 repository = "https://github.com/pgpartman/pg_partman"
 license = "PostgreSQL"
 description = "Extension to manage partitioned tables by time or ID."
@@ -15,9 +15,4 @@ apt = ["libc6"]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pg_partman && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make install"

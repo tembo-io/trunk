@@ -1,12 +1,10 @@
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/pgpartman/pg_partman.git
-
+# Download and build the extension.
+ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
-
-RUN cd pg_partman && \
-    git fetch origin v${EXTENSION_VERSION} && \
-    git checkout v${EXTENSION_VERSION} && \
-    make
+RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} && make
+WORKDIR /app/${EXTENSION_NAME}-${EXTENSION_VERSION}

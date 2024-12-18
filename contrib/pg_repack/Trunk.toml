@@ -1,6 +1,6 @@
 [extension]
 name = "pg_repack"
-version = "1.4.8"
+version = "1.5.2"
 repository = "https://github.com/reorg/pg_repack"
 license = "BSD-3-Clause"
 description = "pg_repack is a PostgreSQL extension which lets you remove bloat from tables and indexes, and optionally restore the physical order of clustered indexes."
@@ -11,12 +11,7 @@ categories = ["index_table_optimizations"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-   cd postgres/contrib/pg_repack && make USE_PGXS=1 install
-   set -x
-   mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-   mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-   """
+install_command = "make install"
