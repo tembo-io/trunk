@@ -1,6 +1,6 @@
 [extension]
 name = "wal2json"
-version = "2.5.0"
+version = "2.6.0"
 repository = "https://github.com/eulerto/wal2json"
 license = "BSD-3-Clause"
 description = "wal2json is an output plugin for logical decoding."
@@ -10,7 +10,7 @@ categories = ["change_data_capture"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "cd wal2json && make install"
+install_command = "make -C wal2json install"
