@@ -1,6 +1,6 @@
 [extension]
 name = "pgtt"
-version = "2.10.0"
+version = "4.0.0"
 repository = "https://github.com/darold/pgtt"
 license = "ISC"
 description = "Extension to add Global Temporary Tables feature to PostgreSQL."
@@ -11,12 +11,7 @@ categories = ["index_table_optimizations"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pgtt && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C pgtt install"

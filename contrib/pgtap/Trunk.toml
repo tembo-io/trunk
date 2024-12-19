@@ -9,12 +9,7 @@ documentation = "https://pgtap.org/documentation.html"
 categories = ["tooling_admin"]
 
 [build]
-postgres_version = "16"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd pgtap && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/16/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/16/lib
-    """
+install_command = "make install"
