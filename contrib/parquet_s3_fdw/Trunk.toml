@@ -11,12 +11,7 @@ categories = ["connectors"]
 #apt = ["postgresql-server-dev-15", "libprotobuf-c-dev", "libs3-dev", "cmake", "make", "gcc", "protobuf-c-compiler", "libparquet-dev"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd parquet_s3_fdw && make USE_PGXS=1 install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C parquet_s3_fdw USE_PGXS=1 install"
