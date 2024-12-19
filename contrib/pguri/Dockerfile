@@ -1,20 +1,14 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
-RUN apt-get update && apt-get install -y \
-    liburiparser-dev
+USER root
+RUN apt-get update && apt-get install -y liburiparser-dev
 
-# Clone repository
-RUN git clone https://github.com/petere/pguri.git
-
-# Set project version
+# Clone and build the extension.
+ARG EXTENSION_NAME
+# ARG EXTENSION_VERSION
 ARG RELEASE=1.20151224
-
-# Build extension
-RUN cd pguri && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+RUN git clone --depth 1 --branch "${RELEASE}" https://github.com/petere/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}

@@ -1,14 +1,8 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
-# Clone repository
-RUN git clone https://github.com/pgvector/pgvector.git
-
-ARG EXTENSION_VERSION=v0.8.0
-
-# Build extension
-RUN cd pgvector && \
-	git fetch origin v${EXTENSION_VERSION} && \
-	git checkout v${EXTENSION_VERSION} && \
-	make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/${EXTENSION_NAME}/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}

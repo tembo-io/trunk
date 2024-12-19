@@ -1,6 +1,6 @@
 [extension]
 name = "plr"
-version = "8.4.5"
+version = "8.4.7"
 repository = "https://github.com/postgres-plr/plr"
 license = "GPL-2.0"
 description = "R Procedural Language for PostgreSQL"
@@ -11,12 +11,7 @@ categories = ["procedural_languages"]
 apt = ["libc6", "r-base-core"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd plr && make USE_PGXS=1 install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C plr USE_PGXS=1 install"

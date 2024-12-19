@@ -1,15 +1,11 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/petere/plsh.git
-
-# Set project version
+# Clone and build the extension.
+ARG EXTENSION_NAME
+# ARG EXTENSION_VERSION
 ARG RELEASE=1.20220917
-
-# Build extension
-RUN cd plsh && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+RUN git clone --depth 1 --branch "${RELEASE}" https://github.com/petere/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && make

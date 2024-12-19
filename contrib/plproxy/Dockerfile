@@ -1,20 +1,13 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
-RUN apt-get update && apt-get install -y \
-    bison
+USER root
+RUN apt-get update && apt-get install -y bison
 
-# Clone repository
-RUN git clone https://github.com/plproxy/plproxy.git
-
-# Set project version
-ARG RELEASE=v2.10.0
-
-# Build extension
-RUN cd plproxy && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/${EXTENSION_NAME}/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}
