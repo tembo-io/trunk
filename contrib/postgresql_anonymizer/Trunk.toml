@@ -1,6 +1,6 @@
 [extension]
 name = "postgresql_anonymizer"
-version = "1.3.1"
+version = "1.3.2"
 repository = "https://gitlab.com/dalibo/postgresql_anonymizer"
 license = "PostgreSQL"
 description = "Anonymization & Data Masking for PostgreSQL."
@@ -12,12 +12,7 @@ loadable_libraries = [{ library_name = "anon", requires_restart = true }]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd postgresql_anonymizer && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C postgresql_anonymizer install"

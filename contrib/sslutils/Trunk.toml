@@ -1,6 +1,6 @@
 [extension]
 name = "sslutils"
-version = "1.3.0"
+version = "1.4.0"
 repository = "https://github.com/EnterpriseDB/sslutils"
 license = "PostgreSQL"
 description = "A Postgres extension for managing SSL certificates through SQL."
@@ -12,12 +12,7 @@ categories = ["security"]
 apt = ["libssl3", "openssl", "libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd sslutils && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C sslutils install"

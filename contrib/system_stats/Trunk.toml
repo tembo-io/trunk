@@ -1,6 +1,6 @@
 [extension]
 name = "system_stats"
-version = "1.0.0"
+version = "3.2.0"
 repository = "https://github.com/EnterpriseDB/system_stats"
 license = "Copyright"
 description = "Expose system metrics such as CPU, memory and disk information."
@@ -11,12 +11,7 @@ categories = ["metrics"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd system_stats && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C system_stats install"

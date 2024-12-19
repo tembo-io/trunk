@@ -1,15 +1,9 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/supabase/supautils.git
-
-# Set project version
-ARG RELEASE=v1.7.3
-
-# Build extension
-RUN cd supautils && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/supabase/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}

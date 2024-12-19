@@ -1,9 +1,9 @@
 # Set the PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y \
     build-essential \
     libreadline-dev \
@@ -22,21 +22,9 @@ RUN apt-get update && apt-get install -y \
     python3-pip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-# Use argument to specify PostgreSQL release
-ARG PG_RELEASE=REL_15_3
-ARG RELEASE=REL_4_2_1
-
-# Configure and build PostgreSQL
-RUN cd postgres && \
-    git fetch origin ${PG_RELEASE} && \
-    git checkout ${PG_RELEASE} && \
-    ./configure && \
-    cd contrib && \
-    git clone https://github.com/powa-team/powa-archivist.git && \
-    cd powa-archivist && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+ARG PG_VERSION
+RUN git clone --depth 1 --branch "REL_$(perl -E 'print shift =~ s/[.]/_/gr' "${EXTENSION_VERSION}")" https://github.com/${EXTENSION_NAME}-team/${EXTENSION_NAME}-archivist.git ${EXTENSION_NAME} \
+    && make -C ${EXTENSION_NAME}

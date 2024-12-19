@@ -1,12 +1,8 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/citusdata/postgresql-hll.git
-
-ARG RELEASE=v2.17
-
-RUN cd postgresql-hll && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "v$(perl -E 'print shift =~ s/[.]0$//gr' "${EXTENSION_VERSION}")" https://github.com/citusdata/postgresql-hll.git ${EXTENSION_NAME} \
+    && make -C ${EXTENSION_NAME}

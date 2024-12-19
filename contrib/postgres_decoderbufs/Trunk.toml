@@ -11,12 +11,13 @@ categories = ["change_data_capture"]
 apt = ["libc6", "libprotobuf-c1"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
+# For some reason this extension has a control file even though it has no SQL
+# files, So we have to remove it to prevent trunk from complaining about
+# finding no SQL files.
 install_command = """
-    cd postgres-decoderbufs && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+    make -C postgres_decoderbufs install
+    rm "$(pg_config --sharedir)/extension/decoderbufs.control"
+"""

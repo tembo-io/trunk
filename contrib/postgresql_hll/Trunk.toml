@@ -1,6 +1,6 @@
 [extension]
 name = "postgresql_hll"
-version = "2.16.0"
+version = "2.18.0"
 repository = "https://github.com/citusdata/postgresql-hll"
 license = "Apache-2.0"
 description = "HyperLogLog data structures as a native data type."
@@ -12,12 +12,7 @@ categories = ["analytics"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd postgresql-hll && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C postgresql_hll install"

@@ -1,6 +1,6 @@
 [extension]
 name = "postgresql_topn"
-version = "2.4.0"
+version = "2.7.0"
 repository = "https://github.com/citusdata/postgresql-topn"
 license = "AGPL-3.0"
 description = "TopN is an open source PostgreSQL extension that returns the top values in a database according to some criteria."
@@ -12,12 +12,7 @@ categories = ["data_transformations"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd postgresql-topn && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C postgresql_topn install"

@@ -1,15 +1,9 @@
 # Set PostgreSQL version
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/pgaudit/set_user.git
-
-# Set project version
-ARG RELEASE=REL4_0_1
-
-# Build extension
-RUN cd set_user && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "REL$(perl -E 'print shift =~ s/\./_/gr' "${EXTENSION_VERSION}")" https://github.com/pgaudit/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}
