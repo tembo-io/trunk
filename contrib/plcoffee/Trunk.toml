@@ -11,12 +11,7 @@ categories = ["procedural_languages"]
 apt = ["libstdc++6", "libgcc-s1", "libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd plv8 && make install
-    find /usr/share/postgresql/15/extension -type f -iname '*plv8*' -exec rm {} +
-    find /usr/share/postgresql/15/extension -type f -iname '*plls*' -exec rm {} +
-    find /usr/lib/postgresql/15/lib -type f -iname '*live*' -exec rm {} +
-"""
+install_command = "cd plv8 && make install"

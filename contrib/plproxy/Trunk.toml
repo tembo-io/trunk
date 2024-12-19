@@ -1,6 +1,6 @@
 [extension]
 name = "plproxy"
-version = "2.10.0"
+version = "2.11.0"
 repository = "https://github.com/plproxy/plproxy"
 license = "Copyright"
 description = "PL/Proxy development."
@@ -12,12 +12,7 @@ categories = ["procedural_languages"]
 apt = ["libpq5", "libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd plproxy && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C plproxy install"
