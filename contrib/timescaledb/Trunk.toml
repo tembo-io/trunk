@@ -1,6 +1,6 @@
 [extension]
 name = "timescaledb"
-version = "2.13.1"
+version = "2.17.2"
 repository = "https://github.com/timescale/timescaledb"
 license = "Apache-2.0"
 description = "An open-source time-series SQL database optimized for fast ingest and complex queries. Packaged as a PostgreSQL extension."
@@ -13,13 +13,7 @@ loadable_libraries = [{ library_name = "timescaledb", requires_restart = true }]
 apt = ["libssl3", "openssl", "libpq5", "libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd timescaledb/build && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
-
+install_command = "make -C timescaledb/build install"
