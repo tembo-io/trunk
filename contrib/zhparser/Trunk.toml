@@ -1,0 +1,17 @@
+[extension]
+name = "zhparser"
+version = "2.2.0"
+repository = "https://github.com/amutu/zhparser"
+license = "PostgreSQL"
+description = "PostgreSQL extension for full-text search of Chinese language."
+documentation = "https://github.com/amutu/zhparser"
+categories = ["search"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make -C zhparser install"
