@@ -1,6 +1,6 @@
 [extension]
 name = "temporal_tables"
-version = "1.2.1"
+version = "1.2.2"
 repository = "https://github.com/arkhipov/temporal_tables"
 license = "BSD-2-Clause"
 description = "Temporal Tables PostgreSQL Extension."
@@ -11,12 +11,7 @@ categories = ["auditing_logging"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    cd temporal_tables && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C temporal_tables install"
