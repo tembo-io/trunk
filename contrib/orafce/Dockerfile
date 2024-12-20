@@ -1,8 +1,10 @@
 ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone and build the extension.
+# Download and build the extension.
 ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
-RUN git clone --depth 1 --branch "VERSION_$(perl -E 'print shift =~ s/\./_/gr' "${EXTENSION_VERSION}")" https://github.com/${EXTENSION_NAME}/${EXTENSION_NAME}.git \
-    && make -C ${EXTENSION_NAME}
+RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} && make
+WORKDIR /app/${EXTENSION_NAME}-${EXTENSION_VERSION}

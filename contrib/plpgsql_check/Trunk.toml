@@ -1,6 +1,6 @@
 [extension]
 name = "plpgsql_check"
-version = "2.7.12"
+version = "2.7.13"
 repository = "https://github.com/okbob/plpgsql_check"
 license = "Copyright"
 description = "Linter tool for the PostgreSQL language plpgsql."
@@ -14,4 +14,4 @@ apt = ["libc6"]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "make -C plpgsql_check install"
+install_command = "make install"
