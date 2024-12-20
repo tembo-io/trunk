@@ -6,7 +6,7 @@ license = "PostgreSQL"
 description = "PostgreSQL Logical Replication."
 documentation = "https://github.com/2ndQuadrant/pglogical"
 categories = ["change_data_capture"]
-preload_libraries = ["pglogical"]
+loadable_libraries = [{ library_name = "pglogical", requires_restart = true }]
 
 [dependencies]
 apt = ["libpq5", "libc6"]
