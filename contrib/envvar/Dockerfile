@@ -1,7 +1,7 @@
 ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Extension build dependencies
+# Download and build extension
 ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
 RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
