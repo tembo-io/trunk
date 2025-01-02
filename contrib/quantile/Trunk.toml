@@ -1,6 +1,6 @@
 [extension]
 name = "quantile"
-version = "1.1.7"
+version = "1.1.8"
 repository = "https://github.com/tvondra/quantile"
 license = "BSD-2-Clause"
 description = "This extension provides three simple aggregate functions to compute quantiles."

@@ -1,14 +1,14 @@
 [extension]
 name = "smlar"
 version = "1.0.0"
-repository = "https://github.com/jirutka/smlar/"
+repository = "http://sigaev.ru/git/gitweb.cgi?p=smlar.git;a=commit;h=6259352edd179544c6f0e7c81bb68dcb81317f8c"
 license = "PostgreSQL"
 description = "PostgreSQL extension for an effective similarity search"
-documentation = "https://github.com/jirutka/smlar/"
+documentation = "http://sigaev.ru/git/gitweb.cgi?p=smlar.git;a=blob;f=README;h=8fa81c51d749cc714e52257a15edf547f0b26edf;hb=HEAD"
 categories = ["search"]
 
 [build]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "make -C smlar USE_PGXS=1 install"
+install_command = "make USE_PGXS=1 install"

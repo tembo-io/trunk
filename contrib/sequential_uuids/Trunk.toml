@@ -1,6 +1,6 @@
 [extension]
 name = "sequential_uuids"
-version = "1.0.2"
+version = "1.0.3"
 repository = "https://github.com/tvondra/sequential-uuids"
 license = "MIT"
 description = "Generator of sequential UUIDs."

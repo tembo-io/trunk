@@ -18,8 +18,9 @@ RUN apt-get update && apt-get install -y \
 
 ARG EXTENSION_NAME
 # ARG EXTENSION_VERSION
-ARG RELEASE=f2522d5
-RUN git clone https://github.com/jirutka/${EXTENSION_NAME}.git \
-    && cd ${EXTENSION_NAME} \
-    && git checkout ${RELEASE} \
+ARG RELEASE=6259352
+RUN curl -o "${EXTENSION_NAME}-${RELEASE}.tgz" "http://sigaev.ru/git/gitweb.cgi?p=${EXTENSION_NAME}.git;a=snapshot;h=${RELEASE};sf=tgz" \
+	&& tar zxf "${EXTENSION_NAME}-${RELEASE}.tgz" \
+    && cd "${EXTENSION_NAME}-${RELEASE}" \
     && make USE_PGXS=1
+WORKDIR /app/${EXTENSION_NAME}-${RELEASE}

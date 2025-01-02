@@ -1,6 +1,6 @@
 [extension]
 name = "lower_quantile"
-version = "1.0.0"
+version = "1.0.3"
 repository = "https://github.com/tvondra/lower_quantile"
 license = "BSD-2-Clause"
 description = "Provides lower_quantile aggregate function."
@@ -11,7 +11,7 @@ categories = ["analytics"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "make -C lower_quantile install"
+install_command = "make install"
