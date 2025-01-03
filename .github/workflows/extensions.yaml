@@ -149,7 +149,6 @@ jobs:
           set -xe
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
-          apt-get remove -y libgroonga0
       - name: Build extension
         id: build
         run: cd ${{ matrix.ext.path }} && trunk build --pg-version ${{ matrix.pg }}

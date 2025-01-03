@@ -38,7 +38,6 @@ RUN apt-get update && apt-get install -y \
     liblz4-1 \
     libpcre2-8-0 \
     libuuid1 \
-    libgroonga0 \
     libopenblas0-pthread \
     libcurl4 \
     libjson-c5 \
@@ -93,7 +92,7 @@ RUN wget https://packages.groonga.org/source/groonga/groonga-14.1.2.tar.gz \
     && ./configure \
     && make -j$(grep '^processor' /proc/cpuinfo | wc -l) \
     && make install \
-    && rm -rf groonga-14.1.2*
+    && cd .. && rm -rf groonga-14.1.2*
 
 RUN chown -R postgres:postgres $PGDATA && \
     chmod -R 0700 $PGDATA
