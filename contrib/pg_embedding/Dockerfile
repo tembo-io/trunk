@@ -1,8 +1,8 @@
-ARG PG_VERSION=15
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y \
 	build-essential \
 	libreadline-dev \
@@ -15,18 +15,8 @@ RUN apt-get update && apt-get install -y \
 	xsltproc \
 	ccache
 
-# Clone repository
-RUN git clone https://github.com/postgres/postgres.git
-
-ARG PG_RELEASE=REL_15_3
-
-# Build extension
-RUN cd postgres && \
-	git fetch origin ${PG_RELEASE} && \
-	git checkout ${PG_RELEASE} && \
-	./configure && \
-	cd contrib && \
-	git clone https://github.com/neondatabase/pg_embedding.git && \
-	cd pg_embedding && \
-    git checkout 710f44d && \
-	make USE_PGXS=1
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "${EXTENSION_VERSION}" https://github.com/neondatabase/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME} USE_PGXS=1

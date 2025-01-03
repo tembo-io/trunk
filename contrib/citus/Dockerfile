@@ -1,9 +1,9 @@
 # Set PostgreSQL version
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
-USER root
 
 # Extension build dependencies
+USER root
 RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     liblz4-dev \
@@ -12,15 +12,11 @@ RUN apt-get update && apt-get install -y \
     libselinux1-dev \
     libxslt1-dev
 
-# Clone repository
-RUN git clone https://github.com/citusdata/citus.git
-
-# Set project version
-ARG RELEASE=v12.1.6
-
-# Build extension
-RUN cd citus && \
-    git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    ./configure && \
-    make
+    # Download and build extension
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} \
+    && ./configure && make
+WORKDIR /app/${EXTENSION_NAME}-${EXTENSION_VERSION}

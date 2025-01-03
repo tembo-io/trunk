@@ -57,7 +57,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:f3b2a28-pg15
+      image: quay.io/tembo/trunk-test-tembo:bdb0905-pg15
       options: --user root
     needs:
       - find_directories
@@ -92,7 +92,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:f3b2a28-pg15
+      image: quay.io/tembo/trunk-test-tembo:bdb0905-pg15
       options: --user root
     needs:
       - find_directories
@@ -149,6 +149,7 @@ jobs:
           set -xe
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu
+          apt-get remove -y libgroonga0
       - name: Build extension
         id: build
         run: cd ${{ matrix.ext.path }} && trunk build --pg-version ${{ matrix.pg }}

@@ -1,15 +1,12 @@
 # Set PostgreSQL version
-ARG PG_VERSION=17
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone repository
-RUN git clone https://github.com/tvondra/count_distinct.git 
-
-# Set project version
+# Clone and build the extension.
+ARG EXTENSION_NAME
+# ARG EXTENSION_VERSION
 ARG RELEASE=8f4883a
-
-# Build extension
-RUN cd count_distinct && \
-    # git fetch origin ${RELEASE} && \
-    git checkout ${RELEASE} && \
-    make
+RUN git clone https://github.com/tvondra/${EXTENSION_NAME}.git \
+    && cd ${EXTENSION_NAME} \
+    && git checkout ${RELEASE} \
+    && make
