@@ -68,7 +68,6 @@ RUN apt-get update && apt-get install -y \
     liblz4-1 \
     libpcre2-8-0 \
     libuuid1 \
-    libgroonga0 \
     libopenblas0-pthread \
     libcurl4 \
     libjson-c5 \

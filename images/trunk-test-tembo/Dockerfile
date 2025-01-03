@@ -86,6 +86,15 @@ RUN wget https://github.com/duckdb/duckdb/releases/download/v0.8.1/libduckdb-lin
     cp libduckdb.so /usr/lib/x86_64-linux-gnu/ && \
     rm -rf libduckdb-linux-amd64.zip libduckdb.so
 
+# Install groonga libs
+RUN wget https://packages.groonga.org/source/groonga/groonga-14.1.2.tar.gz \
+    && tar xvzf groonga-14.1.2.tar.gz \
+    && cd groonga-14.1.2 \
+    && ./configure \
+    && make -j$(grep '^processor' /proc/cpuinfo | wc -l) \
+    && make install \
+    && rm -rf groonga-14.1.2*
+
 RUN chown -R postgres:postgres $PGDATA && \
     chmod -R 0700 $PGDATA
 ENV PGDATA /var/lib/postgresql/data2
