@@ -8,10 +8,11 @@ documentation = "https://tada.github.io/pljava/"
 categories = ["procedural_languages"]
 
 [dependencies]
-apt = ["libc6"]
+apt = ["libc6", "openjdk-11-jdk"]
 
 [build]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 install_command = "java -jar pljava/pljava-packaging/target/pljava-pg17.jar"
+include = ["*.jar"]

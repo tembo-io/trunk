@@ -1,6 +1,6 @@
 [extension]
 name = "postgresql_unit"
-version = "7.0.0"
+version = "7.10.0"
 repository = "https://github.com/df7cb/postgresql-unit"
 license = "Copyright"
 description = "SI Units for PostgreSQL."
@@ -11,13 +11,9 @@ categories = ["analytics"]
 apt = ["libc6"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
+install_command = "make -C postgresql-unit install"
+# Tell trunk to include unit_prefixes.data and unit_units.data.
 include = ["*.data"]
-install_command = """
-    cd postgresql-unit && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """

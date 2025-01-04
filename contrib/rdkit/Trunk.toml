@@ -1,6 +1,6 @@
 [extension]
 name = "rdkit"
-version = "4.3.0"
+version = "4.6.1"
 repository = "https://github.com/rdkit/rdkit/tree/master/Code/PgSQL/rdkit"
 license = "BSD-3-Clause"
 description = "Cheminformatics functionality for PostgreSQL."
@@ -12,10 +12,7 @@ categories = ["data_transformations"]
 apt = ["libfreetype6", "libboost-serialization1.74.0", "libc6", "libstdc++6", "libgcc-s1"]
 
 [build]
-postgres_version = "15"
+postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = """
-    sh rdkit-Release_2023_03_2/build/Code/PgSQL/rdkit/pgsql_install.sh
-    """
-
+install_command = "make -C build install"

@@ -1,9 +1,8 @@
-FROM quay.io/coredb/c-builder:pg15
+ARG PG_VERSION
+FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-ARG VERSION=1.5.2
-
-RUN git clone https://github.com/citusdata/pg_cron.git
-RUN cd pg_cron && \
-  git fetch origin v${VERSION} && \
-  git checkout v${VERSION} && \
-  make
+# Clone and build the extension.
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/citusdata/${EXTENSION_NAME}.git \
+    && make -C ${EXTENSION_NAME}
