@@ -1,6 +1,6 @@
 [extension]
 name = "powa"
-version = "5.0.0"
+version = "5.0.1"
 repository = "https://github.com/powa-team/powa-archivist"
 license = "PostgreSQL"
 description = "PostgreSQL Workload Analyser-core."
