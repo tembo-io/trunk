@@ -15,4 +15,4 @@ ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
 RUN git clone --depth 1 --branch "V$(perl -E 'print shift =~ s/\./_/gr' "${EXTENSION_VERSION}")" https://github.com/tada/${EXTENSION_NAME}.git \
 	&& cd ${EXTENSION_NAME} \
-    && mvn clean install
+    && mvn clean install -Dpljava.libjvmdefault=/usr/lib/x86_64-linux-gnu/libjvm.so
