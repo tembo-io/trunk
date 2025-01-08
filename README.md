@@ -32,35 +32,46 @@ complexities of extension development and management with the following commands
 Compile extensions of all kinds.
 
 ```shell
-❯ trunk build
-Building from path .
-Detected that we are building a pgrx extension
-Detected pgrx version range 0.7.4
-Using pgrx version 0.7.4
-Building pgrx extension at path .
+❯ trunk build --pg-version 17
+info: Building from path .
+info: Using Dockerfile at ./Dockerfile
+info: Using install command /usr/bin/bash -c make -C pg_cron install
+Building with name pg_cron
+Building with version 1.6.4
+Building for PostgreSQL 17
 .
 .
 .
-Creating package at: ./.trunk/pgmq-0.5.0.tar.gz
+Creating package at: ./.trunk/pg_cron-1.6.4-pg17.tar.gz
+Fetching extension_name from control file: extension/pg_cron.control
+Using extension_name: pg_cron
 Create Trunk bundle:
-	pgmq.so
-	extension/pgmq--0.5.0.sql
-	extension/pgmq.control
+	pg_cron.so
+	licenses/LICENSE
+	extension/pg_cron--1.0--1.1.sql
+	extension/pg_cron--1.0.sql
+	extension/pg_cron--1.1--1.2.sql
+	extension/pg_cron--1.2--1.3.sql
+	extension/pg_cron--1.3--1.4.sql
+	extension/pg_cron--1.4--1.4-1.sql
+	extension/pg_cron--1.4-1--1.5.sql
+	extension/pg_cron--1.5--1.6.sql
+	extension/pg_cron.control
 	manifest.json
-Packaged to ./.trunk/pgmq-0.5.0.tar.gz
+Packaged to ./.trunk/pg_cron-1.6.4-pg17.tar.gz
 ```
 
 ### `trunk publish`
 Publish extensions to the registry, making them available to the Postgres community for discovery and installation.
 
 ```shell
-❯ trunk publish pgmq \
---version 0.5.0 \
---description "Message Queue for postgres" \
---documentation "https://github.com/tembo-io/pgmq" \
---repository "https://github.com/tembo-io/pgmq" \
---license "Apache-2.0" \
---homepage "https://www.tembo.io"
+❯ trunk publish pg_cron \
+--version 1.6.4 \
+--description "Job scheduler for PostgreSQL" \
+--documentation "https://github.com/citusdata/pg_cron" \
+--repository "https://github.com/citusdata/pg_cron" \
+--license "PostgreSQL" \
+--homepage "https://www.citusdata.com/"
 ```
 
 ### `trunk install`
@@ -69,16 +80,39 @@ Downloads Postgres extensions from the Trunk registry and installs into your env
 Supports nested dependencies, e.g. installing `extension_a` will automatically install `extension_b` if required.
 
 ```shell
-❯ trunk install pgmq
-Using pg_config: /usr/bin/pg_config
-Using pkglibdir: "/usr/lib/postgresql/15/lib"
-Using sharedir: "/usr/share/postgresql/15"
-Downloading from: https://cdb-plat-use1-prod-pgtrunkio.s3.amazonaws.com/extensions/pgmq/pgmq-0.5.0.tar.gz
-Dependencies: ["pg_partman"]
-Installing pgmq 0.5.0
-[+] pgmq.so => /usr/lib/postgresql/15/lib
-[+] extension/pgmq--0.5.0.sql => /usr/share/postgresql/15
-[+] extension/pgmq.control => /usr/share/postgresql/15
+❯ trunk install pg_cron
+Using pkglibdir: "/var/lib/postgresql/data/tembo/17/lib"
+Using sharedir: "/var/lib/postgresql/data/tembo"
+Using Postgres version: 17
+info: Downloading from: https://cdb-plat-use1-prod-pgtrunkio.s3.amazonaws.com/extensions/pg_cron/pg_cron-pg17-1.6.4.tar.gz
+info: Dependent extensions to be installed: []
+info: Installing pg_cron 1.6.4
+[+] pg_cron.so => /var/lib/postgresql/data/tembo/17/lib
+info: Skipping license file licenses/LICENSE
+[+] extension/pg_cron--1.0--1.1.sql => /var/lib/postgresql/data/tembo
+[+] extension/pg_cron--1.0.sql => /var/lib/postgresql/data/tembo
+[+] extension/pg_cron--1.1--1.2.sql => /var/lib/postgresql/data/tembo
+[+] extension/pg_cron--1.2--1.3.sql => /var/lib/postgresql/data/tembo
+[+] extension/pg_cron--1.3--1.4.sql => /var/lib/postgresql/data/tembo
+[+] extension/pg_cron--1.4--1.4-1.sql => /var/lib/postgresql/data/tembo
+[+] extension/pg_cron--1.4-1--1.5.sql => /var/lib/postgresql/data/tembo
+[+] extension/pg_cron--1.5--1.6.sql => /var/lib/postgresql/data/tembo
+[+] extension/pg_cron.control => /var/lib/postgresql/data/tembo
+
+***************************
+* POST INSTALLATION STEPS *
+***************************
+
+Install the following system-level dependencies:
+	On systems using apt:
+		libpq5
+		libc6
+
+Add the following to your postgresql.conf:
+	shared_preload_libraries = 'pg_cron'
+
+Enable the extension with:
+	CREATE EXTENSION IF NOT EXISTS pg_cron CASCADE;
 ```
 
 ## Trunk Registry - https://pgt.dev
@@ -101,7 +135,6 @@ If you're interested in contributing, please open a pull request, issue, or reac
 - [Slack](https://join.slack.com/t/trunk-crew/shared_invite/zt-1yiafma92-hFHq2xAN0ukjg_2AsOVvfg)
 - [Twitter](https://twitter.com/tembo_io)
 - Email us at [hello@tembo.io](mailto:hello@tembo.io)
-
 
 Thanks goes to these incredible people:
 
