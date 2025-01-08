@@ -668,12 +668,18 @@ fn prepare_sharedir_file<'p>(
     file_to_package: &'p Path,
 ) -> anyhow::Result<Cow<'p, Path>> {
     debug_assert!(file_to_package.starts_with(sharedir));
+    let file_to_package = file_to_package.strip_prefix(sharedir)?;
+
+    if let Some(ext) = file_to_package.extension() {
+        if ext.as_encoded_bytes() == "control".as_bytes() {
+            // Control file is just where it needs to be.
+            return Ok(file_to_package.into());
+        }
+    }
 
     // If the control file was not supplied, or it was and didn't have the `directory` field filled in,
     // assume the file should go to `$(sharedir)/extension`.
     let maybe_directory = control_file.and_then(|file| file.directory.as_ref());
-
-    let file_to_package = file_to_package.strip_prefix(sharedir)?;
 
     match maybe_directory {
         Some(directory) => {

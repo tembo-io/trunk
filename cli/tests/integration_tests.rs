@@ -89,7 +89,7 @@ fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std:
     let pkglibdir = pg_config_path("pkglibdir")?;
 
     // Make sure files were installed.
-    assert!(sharedir.join("pljava/pljava.control").exists());
+    assert!(sharedir.join("extension/pljava.control").exists());
     assert!(sharedir.join("pljava/pljava-1.6.8.jar").exists());
     assert!(sharedir.join("pljava/pljava-api-1.6.8.jar").exists());
     assert!(sharedir.join("pljava/pljava--1.6.8.sql").exists());
