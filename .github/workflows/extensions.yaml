@@ -64,15 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # ext: ${{ fromJson(needs.find_directories.outputs.directories).include }}
-        ext:
-          - { name: pgfincore,             path: "./contrib/pgfincore" }
-          - { name: pgtelemetry,           path: "./contrib/pgtelemetry" }
-          - { name: pljava,                path: "./contrib/pljava" }
-          - { name: postgresql_anonymizer, path: "./contrib/postgresql_anonymizer" }
-          - { name: emaj,                  path: "./contrib/emaj" }
-          - { name: pg_semver,             path: "./contrib/pg_semver" }
-          - { name: rdkit,                 path: "./contrib/rdkit" }
+        ext: ${{ fromJson(needs.find_directories.outputs.directories).include }}
         pg: [15]
         exclude:
           # pg_hint_plan has separate extensions for each major version
@@ -107,15 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # ext: ${{ fromJson(needs.find_directories.outputs.directories).include }}
-        ext:
-          - { name: pgfincore,             path: "./contrib/pgfincore" }
-          - { name: pgtelemetry,           path: "./contrib/pgtelemetry" }
-          - { name: pljava,                path: "./contrib/pljava" }
-          - { name: postgresql_anonymizer, path: "./contrib/postgresql_anonymizer" }
-          - { name: emaj,                  path: "./contrib/emaj" }
-          - { name: pg_semver,             path: "./contrib/pg_semver" }
-          - { name: rdkit,                 path: "./contrib/rdkit" }
+        ext: ${{ fromJson(needs.find_directories.outputs.directories).include }}
         pg: [17, 16, 15, 14]
         exclude:
           - { pg: 14, ext: { name: pg_walinspect  } } # Added in Postgres 17
