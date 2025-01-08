@@ -56,10 +56,11 @@ impl ControlFile {
 }
 
 pub fn strip_value(input: &str) -> &str {
-    let stripped = input.trim_start_matches([' ', '=']);
-
-    let trimmed = stripped.trim_start();
-    trimmed.trim_matches('\'')
+    input
+        .trim_start()
+        .trim_start_matches('=')
+        .trim_start()
+        .trim_matches('\'')
 }
 
 #[cfg(test)]
@@ -79,6 +80,22 @@ mod tests {
         let control_file = ControlFile::parse(contents);
 
         assert_eq!(control_file.directory.unwrap(), "pljava");
+    }
+
+    #[test]
+    fn parses_variously_spaced_fields() {
+        // Note the \t on the `directory` line.
+        let contents = r#"
+        default_version='4.5.0'
+        requires= 'help'
+        module_pathname='$libdir/emaj'
+        directory 	    = 'emaj'
+        "#;
+
+        let control_file = ControlFile::parse(contents);
+        assert_eq!(control_file.directory.unwrap(), "emaj");
+        assert_eq!(control_file.module_pathname.unwrap(), "$libdir/emaj");
+        assert_eq!(control_file.requires.unwrap(), vec!["help"]);
     }
 
     #[test]

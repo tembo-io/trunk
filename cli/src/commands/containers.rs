@@ -678,17 +678,19 @@ fn prepare_sharedir_file<'p>(
     }
 
     // If the control file was not supplied, or it was and didn't have the `directory` field filled in,
-    // assume the file should go to `$(sharedir)/extension`.
+    // assume the file should go to `$(sharedir)/extension)`.
     let maybe_directory = control_file.and_then(|file| file.directory.as_ref());
 
     match maybe_directory {
         Some(directory) => {
-            // Return the file already starts with the directory.
-            if let Some(prefix) = file_to_package.components().next() {
-                if prefix.as_os_str().as_encoded_bytes() == directory.as_bytes() {
-                    // The file already starts with the directory name.
-                    return Ok(file_to_package.into());
-                }
+            // Remove trailing directory separator.
+            let directory = directory.trim_end_matches(['/', '\\']);
+
+            // Return file if already starts with the directory (which may
+            // include subdirectories).
+            if file_to_package.starts_with(format!("{directory}{}", std::path::MAIN_SEPARATOR)) {
+                // The file already starts with the directory name.
+                return Ok(file_to_package.into());
             }
 
             // If the file starts with `extension/`, remove it so that we can add the correct directory path supplied
