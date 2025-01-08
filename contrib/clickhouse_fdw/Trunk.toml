@@ -14,4 +14,4 @@ apt = ["libstdc++6", "libc6", "libgcc-s1"," libuuid1", "libcurl4"]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "cd clickhouse_fdw/build && make install"
+install_command = "make -C clickhouse_fdw/build install"

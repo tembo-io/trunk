@@ -16,9 +16,4 @@ postgres_version = "15"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
 #include = ["/app/postgis-3.so"]
-install_command = """
-    cd postgis-3.4.0/ && make install
-    set -x
-    mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension
-    mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
-    """
+install_command = "make -C postgis-3.4.0 install"

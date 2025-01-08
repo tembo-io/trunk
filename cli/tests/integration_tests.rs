@@ -53,7 +53,7 @@ fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std:
     // Set up a temporary directory that will be deleted when the test finishes.
     let tmp_dir = TempDir::with_prefix("test_pljava_")?;
     let output_dir = tmp_dir.path();
-    let tarball = &output_dir.join("pljava-1.6.5-pg15.tar.gz");
+    let tarball = &output_dir.join("pljava-1.6.8-pg15.tar.gz");
 
     // Construct a path relative to the current file's directory
     let mut extension_path = std::path::PathBuf::from(file!());
@@ -90,10 +90,10 @@ fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std:
 
     // Make sure files were installed.
     assert!(sharedir.join("pljava/pljava.control").exists());
-    assert!(sharedir.join("pljava/pljava-1.6.5.jar").exists());
-    assert!(sharedir.join("pljava/pljava-api-1.6.5.jar").exists());
-    assert!(sharedir.join("pljava/pljava--1.6.5.sql").exists());
-    assert!(pkglibdir.join("libpljava-so-1.6.5.so").exists());
+    assert!(sharedir.join("pljava/pljava-1.6.8.jar").exists());
+    assert!(sharedir.join("pljava/pljava-api-1.6.8.jar").exists());
+    assert!(sharedir.join("pljava/pljava--1.6.8.sql").exists());
+    assert!(pkglibdir.join("libpljava-so-1.6.8.so").exists());
     Ok(())
 }
 
@@ -289,22 +289,6 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     let manifest_file = &output_dir.join("manifest.json");
 
     // Example of a C extension requires another build-time requirement
-    let repo_url = "https://github.com/pramsey/pgsql-http.git";
-    // clone and checkout ref v1.5.0
-    let repo_dir = &output_dir.join("pgsql-http");
-    let repo = Repository::clone(repo_url, repo_dir).unwrap();
-    let refname = "v1.5.0";
-    let (object, reference) = repo.revparse_ext(refname).expect("Object not found");
-    repo.checkout_tree(&object, None)
-        .expect("Failed to checkout");
-    match reference {
-        // gref is an actual reference like branches or tags
-        Some(gref) => repo.set_head(gref.name().unwrap()),
-        // this is a commit, not a reference
-        None => repo.set_head_detached(object.id()),
-    }
-    .expect("Failed to set HEAD");
-
     let mut dockerfile_path = std::path::PathBuf::from(file!());
     dockerfile_path.pop(); // Remove the file name from the path
     dockerfile_path.push("test_builders");
@@ -313,11 +297,13 @@ fn build_extension_custom_dockerfile() -> Result<(), Box<dyn std::error::Error>>
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("build");
     cmd.arg("--path");
-    cmd.arg(repo_dir);
+    cmd.arg(output_dir);
     cmd.arg("--output-path");
     cmd.arg(output_dir);
     cmd.arg("--dockerfile");
     cmd.arg(dockerfile_path.clone());
+    cmd.arg("--install-command");
+    cmd.arg("make -C pgsql-http install");
     cmd.arg("--version");
     cmd.arg("1.5.0");
     cmd.arg("--name");
@@ -381,22 +367,6 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     let manifest_file = &output_dir.join("manifest.json");
 
     // Example of a C extension requires another build-time requirement
-    // clone and checkout postgres REL_15_3
-    let repo_url = "https://github.com/postgres/postgres.git";
-    let repo_dir = &output_dir.join("postgres_pg_stat_statements");
-    let repo = Repository::clone(repo_url, repo_dir).unwrap();
-    let refname = "REL_15_3";
-    let (object, reference) = repo.revparse_ext(refname).expect("Object not found");
-    repo.checkout_tree(&object, None)
-        .expect("Failed to checkout");
-    match reference {
-        // gref is an actual reference like branches or tags
-        Some(gref) => repo.set_head(gref.name().unwrap()),
-        // this is a commit, not a reference
-        None => repo.set_head_detached(object.id()),
-    }
-    .expect("Failed to set HEAD");
-
     let mut dockerfile_path = std::path::PathBuf::from(file!());
     dockerfile_path.pop(); // Remove the file name from the path
     dockerfile_path.push("test_builders");
@@ -405,13 +375,13 @@ fn build_pg_stat_statements() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("build");
     cmd.arg("--path");
-    cmd.arg(repo_dir);
+    cmd.arg(output_dir);
     cmd.arg("--output-path");
     cmd.arg(output_dir);
     cmd.arg("--dockerfile");
     cmd.arg(dockerfile_path.clone());
     cmd.arg("--install-command");
-    cmd.arg("cd contrib/pg_stat_statements && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib");
+    cmd.arg("make -C postgres/contrib/pg_stat_statements USE_PGXS=1 install");
     cmd.arg("--version");
     cmd.arg("1.10");
     cmd.arg("--name");
@@ -449,7 +419,7 @@ fn build_pg_cron_trunk_toml() -> Result<(), Box<dyn std::error::Error>> {
     // Set up a temporary directory that will be deleted when the test finishes.
     let tmp_dir = TempDir::with_prefix("test_pg_cron_trunk_toml_")?;
     let output_dir = tmp_dir.path();
-    let tarball = &output_dir.join("pg_cron-1.5.2-pg15.tar.gz");
+    let tarball = &output_dir.join("pg_cron-1.6.4-pg15.tar.gz");
     let manifest_file = &output_dir.join("manifest.json");
 
     // Construct a path relative to the current file's directory
@@ -672,21 +642,6 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     let manifest_file = &output_dir.join("manifest.json");
 
     // Example of a C extension requires another build-time requirement
-    let repo_url = "https://github.com/postgres/postgres.git";
-    let repo_dir = &output_dir.join("postgres");
-    let repo = Repository::clone(repo_url, repo_dir).unwrap();
-    let refname = "REL_15_3";
-    let (object, reference) = repo.revparse_ext(refname).expect("Object not found");
-    repo.checkout_tree(&object, None)
-        .expect("Failed to checkout");
-    match reference {
-        // gref is an actual reference like branches or tags
-        Some(gref) => repo.set_head(gref.name().unwrap()),
-        // this is a commit, not a reference
-        None => repo.set_head_detached(object.id()),
-    }
-    .expect("Failed to set HEAD");
-
     let mut dockerfile_path = std::path::PathBuf::from(file!());
     dockerfile_path.pop(); // Remove the file name from the path
     dockerfile_path.push("test_builders");
@@ -695,13 +650,13 @@ fn build_auto_explain() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("build");
     cmd.arg("--path");
-    cmd.arg(repo_dir);
+    cmd.arg(output_dir);
     cmd.arg("--output-path");
     cmd.arg(output_dir);
     cmd.arg("--dockerfile");
     cmd.arg(dockerfile_path.clone());
     cmd.arg("--install-command");
-    cmd.arg("cd contrib/auto_explain && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib");
+    cmd.arg("make -C postgres/contrib/auto_explain install USE_PGXS=1");
     cmd.arg("--version");
     cmd.arg("15.3.0");
     cmd.arg("--name");
@@ -756,7 +711,7 @@ fn build_pg_unit() -> Result<(), Box<dyn std::error::Error>> {
     // Set up a temporary directory that will be deleted when the test finishes.
     let tmp_dir = TempDir::with_prefix("test_pg_unit_")?;
     let output_dir = tmp_dir.path();
-    let tarball = &output_dir.join("postgresql_unit-7.0.0-pg15.tar.gz");
+    let tarball = &output_dir.join("postgresql_unit-7.10.0-pg15.tar.gz");
 
     // Construct a path relative to the current file's directory
     let mut extension_path = std::path::PathBuf::from(file!());

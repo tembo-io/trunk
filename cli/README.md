@@ -106,21 +106,31 @@ Trunk can help us build and package these types of extensions as well.
 
 Create a custom Dockerfile named `Dockerfile.pg_stat_statements` at the root of the [postgres/contrib](https://github.com/postgres/postgres/tree/master/contrib)
 repository:
+
 ```dockerfile
-ARG PG_VERSION=15
+# Set up variables for build.
+ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
+
+# Extension build dependencies
 USER root
+RUN apt-get update && apt-get install -y \
+	build-essential \
+	libreadline-dev \
+	zlib1g-dev \
+	flex bison \
+	libxml2-dev \
+	libxslt-dev \
+	libssl-dev \
+	libxml2-utils \
+	xsltproc \
+	ccache
 
-# Postgres build dependencies. Additional system dependencies for the extension can be added here.
-# https://wiki.postgresql.org/wiki/Compile_and_Install_from_source_code
-RUN apt-get update && apt-get install -y  build-essential libreadline-dev zlib1g-dev flex bison libxml2-dev libxslt-dev libssl-dev libxml2-utils xsltproc ccache
-
-# Copy working directory into container
-COPY --chown=postgres:postgres . .
-# Necessary step for building extensions in postgres/contrib
-RUN ./configure
-# Run make in the pg_stat_statements directory
-RUN cd contrib/pg_stat_statements && make
+# Clone repository and build extension.
+ARG EXTENSION_NAME
+ARG PG_RELEASE
+RUN git clone --depth 1 --branch "${PG_RELEASE}" https://github.com/postgres/postgres.git \
+	&& make -C postgres/contrib/${EXTENSION_NAME} USE_PGXS=1
 ```
 
 Run `trunk build` with `--dockerfile` and `--install-command` flags:
@@ -130,16 +140,11 @@ Run `trunk build` with `--dockerfile` and `--install-command` flags:
 --name pg_stat_statements \
 --version 1.10.0 \
 --dockerfile Dockerfile.pg_stat_statements \
---install-command \
-"cd contrib/pg_stat_statements \
-&& make install \
-&& set -x \
-&& mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension \
-&& mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib"
+--install-command make -C contrib/pg_stat_statements USE_PGXS=1 install
 Building from path .
 Detected a Makefile, guessing that we are building an extension with 'make', 'make install...'
 Using Dockerfile at Dockerfile.pg_stat_statements
-Using install command /bin/sh -c cd contrib/pg_stat_statements && make install && set -x && mv /usr/local/pgsql/share/extension/* /usr/share/postgresql/15/extension && mv /usr/local/pgsql/lib/* /usr/lib/postgresql/15/lib
+Using install command /bin/sh -c make -C contrib/pg_stat_statements USE_PGXS=1 install
 Building with name pg_stat_statements
 Building with version 1.10.0
 .

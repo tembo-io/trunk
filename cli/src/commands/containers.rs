@@ -676,14 +676,22 @@ fn prepare_sharedir_file<'p>(
     let file_to_package = file_to_package.strip_prefix(sharedir)?;
 
     match maybe_directory {
-        Some(diretory) => {
+        Some(directory) => {
+            // Return the file already starts with the directory.
+            if let Some(prefix) = file_to_package.components().next() {
+                if prefix.as_os_str().as_encoded_bytes() == directory.as_bytes() {
+                    // The file already starts with the directory name.
+                    return Ok(file_to_package.into());
+                }
+            }
+
             // If the file starts with `extension/`, remove it so that we can add the correct directory path supplied
             // in the `directory` field.
             let file_to_package = file_to_package
                 .strip_prefix("extension")
                 .unwrap_or(file_to_package);
 
-            Ok(Path::new(diretory).join(file_to_package).into())
+            Ok(Path::new(directory).join(file_to_package).into())
         }
         None => Ok(file_to_package.into()),
     }

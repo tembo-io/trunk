@@ -22,7 +22,5 @@ ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
 RUN trunk install postgis \
     && git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/${EXTENSION_NAME}/${EXTENSION_NAME}.git \
-    && mkdir -p ${EXTENSION_NAME}/build \
-    && cd ${EXTENSION_NAME}/build \
-    && cmake .. \
-    && make
+    && cmake -S ${EXTENSION_NAME} -B ${EXTENSION_NAME}/build \
+    && make -C ${EXTENSION_NAME}/build -j8

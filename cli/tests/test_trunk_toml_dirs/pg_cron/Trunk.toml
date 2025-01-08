@@ -2,7 +2,7 @@
 name = "pg_cron"
 extension_name = "extension_name_from_toml"
 extension_dependencies = ["btree_gin"]
-version = "1.5.2"
+version = "1.6.4"
 repository = "https://github.com/tembo-io/trunk"
 license = "PostgreSQL"
 categories = []
@@ -18,7 +18,7 @@ configurations = [
 
 [build]
 dockerfile = "Dockerfile"
-install_command = "cd pg_cron && make install"
+install_command = "make -C pg_cron install"
 platform = "linux/amd64"
 
 [dependencies]

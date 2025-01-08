@@ -1,10 +1,12 @@
-FROM quay.io/coredb/c-builder:pg15
-
-COPY --chown=postgres:postgres . .
-
-USER root
+ARG PG_VERSION
+FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 # this is the extra library we need to build pgsql-http
+USER root
 RUN apt-get update && apt-get install -y libcurl4-openssl-dev
 
-RUN make
+# Clone and build the extension.
+# ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/pramsey/pgsql-http.git \
+    && make -C pgsql-http
