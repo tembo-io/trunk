@@ -14,4 +14,4 @@ apt = ["libc6"]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "make -C count_distinct install"
+install_command = "make install"

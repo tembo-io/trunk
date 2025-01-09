@@ -2,11 +2,10 @@
 ARG PG_VERSION
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Clone and build the extension.
+# Download and build extension
 ARG EXTENSION_NAME
-# ARG EXTENSION_VERSION
-ARG RELEASE=8f4883a
-RUN git clone https://github.com/tvondra/${EXTENSION_NAME}.git \
-    && cd ${EXTENSION_NAME} \
-    && git checkout ${RELEASE} \
-    && make
+ARG EXTENSION_VERSION
+RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} && make
+WORKDIR /app/${EXTENSION_NAME}-${EXTENSION_VERSION}
