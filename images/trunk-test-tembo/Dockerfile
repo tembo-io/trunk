@@ -8,7 +8,7 @@ ARG TRUNK_VER=0.15.10
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL sparse
 RUN cargo install --version $TRUNK_VER pg-trunk
 
-FROM quay.io/tembo/tembo-pg-cnpg:pg${PG_VERSION}-e112cf3
+FROM quay.io/tembo/standard-cnpg:${PG_VERSION}-c92547b
 
 # Install trunk
 COPY --from=builder /usr/local/cargo/bin/trunk /usr/bin/trunk
@@ -59,15 +59,8 @@ RUN apt-get update && apt-get install -y \
     libaio1 \
     libbson-dev \
     libgsl-dev \
+    && apt-get purge -y --auto-remove libgroonga0 \
     && rm -rf /var/lib/apt/lists/*
-RUN ln -s /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /usr/lib/x86_64-linux-gnu/libjvm.so
-RUN wget https://download.oracle.com/otn_software/linux/instantclient/1920000/instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip && \
-    unzip instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip && \
-    cp instantclient_19_20/libclntsh.so.19.1 /usr/lib/x86_64-linux-gnu/ && \
-    cp instantclient_19_20/libnnz19.so /usr/lib/x86_64-linux-gnu/ && \
-    cp instantclient_19_20/libclntshcore.so.19.1 /usr/lib/x86_64-linux-gnu/ && \
-    rm -rf instantclient_19_20 && \
-    rm instantclient-basiclite-linux.x64-19.20.0.0.0dbru.zip
 
 # Install zhparser dependency
 RUN  wget http://www.xunsearch.com/scws/down/scws-1.2.3.tar.bz2 && \
