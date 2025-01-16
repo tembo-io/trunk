@@ -1,6 +1,6 @@
 ARG PG_VERSION
 # Set up image to copy trunk from.
-FROM quay.io/tembo/trunk-test-tembo:8a3bd64-pg15 AS trunk
+FROM quay.io/tembo/trunk-test-tembo:5deab41-pg15 AS trunk
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 USER root
@@ -20,7 +20,7 @@ COPY --from=trunk /usr/bin/trunk /usr/bin/trunk
 # Clone and build the extension.
 ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
-RUN trunk install postgis \
+RUN trunk install postgis --version 3.5.0 \
     && git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/${EXTENSION_NAME}/${EXTENSION_NAME}.git \
     && cmake -S ${EXTENSION_NAME} -B ${EXTENSION_NAME}/build \
     && make -C ${EXTENSION_NAME}/build -j8
