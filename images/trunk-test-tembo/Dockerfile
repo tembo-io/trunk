@@ -8,7 +8,7 @@ ARG TRUNK_VER=0.15.10
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL sparse
 RUN cargo install --version $TRUNK_VER pg-trunk
 
-FROM quay.io/tembo/standard-cnpg:${PG_VERSION}-c92547b
+FROM quay.io/tembo/standard-cnpg:${PG_VERSION}-f9c2075
 
 # Install trunk
 COPY --from=builder /usr/local/cargo/bin/trunk /usr/bin/trunk
@@ -71,12 +71,6 @@ RUN  wget http://www.xunsearch.com/scws/down/scws-1.2.3.tar.bz2 && \
      cd .. && \
      rm -rf scws-1.2.3.tar.bz2 scws-1.2.3 && \
      ln -s /usr/local/lib/libscws.so /usr/lib/x86_64-linux-gnu/libscws.so
-
-# Install duckdb libs
-RUN wget https://github.com/duckdb/duckdb/releases/download/v0.8.1/libduckdb-linux-amd64.zip && \
-    unzip libduckdb-linux-amd64.zip && \
-    cp libduckdb.so /usr/lib/x86_64-linux-gnu/ && \
-    rm -rf libduckdb-linux-amd64.zip libduckdb.so
 
 # Install groonga libs
 RUN wget https://packages.groonga.org/source/groonga/groonga-14.1.2.tar.gz \
