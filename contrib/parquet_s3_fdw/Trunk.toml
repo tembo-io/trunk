@@ -1,6 +1,6 @@
 [extension]
 name = "parquet_s3_fdw"
-version = "1.1.0"
+version = "1.1.1"
 repository = "https://github.com/pgspider/parquet_s3_fdw"
 license = "Copyright"
 description = "Foreign data wrapper for Parquet files stored on S3."
