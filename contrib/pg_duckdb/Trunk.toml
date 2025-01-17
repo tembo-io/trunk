@@ -1,0 +1,15 @@
+[extension]
+name = "pg_duckdb"
+version = "0.2.0"
+repository = "https://github.com/duckdb/pg_duckdb"
+license = "MIT"
+description = "DuckDB-powered Postgres for high performance apps & analytics."
+homepage = "https://duckdb.org"
+documentation = "https://github.com/duckdb/pg_duckdb/tree/main/docs"
+categories = ['analytics']
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make -C pg_duckdb install"
