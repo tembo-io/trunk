@@ -1,19 +1,17 @@
 ARG PG_VERSION=17
+# Set up image to copy libduckdb from.
+FROM quay.io/tembo/standard-cnpg:${PG_VERSION}-f9c2075 AS std
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
-# Download and install the DuckDB DSO.
-ARG EXTENSION_VERSION
-ENV DUCKDB_VERSION=${EXTENSION_VERSION}
+# Copy the DuckDB DSO.
 USER root
-# Funky naming expectations: https://github.com/alitrack/duckdb_fdw/issues/64
-RUN curl -LO https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-linux-amd64.zip \
-    && unzip -d . libduckdb-linux-amd64.zip \
-    && install -m 755 libduckdb.so "/usr/local/lib/libduckdb.${DUCKDB_VERSION}.so" \
-    && (cd /usr/local/lib && ln -s "libduckdb.${DUCKDB_VERSION}.so" "libduckdb.so")
+COPY --from=std "/usr/local/lib/libduckdb.*.so" /usr/local/lib
+RUN cd /usr/local/lib && ln -s "libduckdb.*.so" "libduckdb.so"
 
 # Clone and build the extension.
 ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
+ENV DUCKDB_VERSION=1.1.3
 RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/alitrack/${EXTENSION_NAME}.git \
     && perl -i -pe 's/^install:/#/' "${EXTENSION_NAME}/Makefile" \
     && make -C ${EXTENSION_NAME} USE_PGXS=1

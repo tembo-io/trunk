@@ -1,6 +1,6 @@
 ARG PG_VERSION
 # Set up image to copy trunk from.
-FROM quay.io/tembo/trunk-test-tembo:73092d1-pg15 AS trunk
+FROM quay.io/tembo/trunk-test-tembo:4436f19-pg15 AS trunk
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 USER root

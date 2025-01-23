@@ -57,7 +57,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:73092d1-pg15
+      image: quay.io/tembo/trunk-test-tembo:4436f19-pg15
       options: --user root
     needs:
       - find_directories
@@ -92,7 +92,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:73092d1-pg15
+      image: quay.io/tembo/trunk-test-tembo:4436f19-pg15
       options: --user root
     needs:
       - find_directories
@@ -167,7 +167,7 @@ jobs:
             fi
           done
       - name: Enable the extension
-        if: matrix.pg == 15 && github.ref != 'refs/heads/main'
+        if: matrix.pg == 15 && github.ref != 'refs/heads/main' && matrix.ext.name != 'duckdb_fdw' # https://github.com/duckdb/pg_duckdb/issues/554
         run: |
           su postgres -c '/usr/lib/postgresql/15/bin/postgres &'
           sleep 5

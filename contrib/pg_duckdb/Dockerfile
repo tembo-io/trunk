@@ -24,6 +24,4 @@ RUN apt-get update && \
 ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
 RUN git clone --depth 1 --branch "v${EXTENSION_VERSION}" https://github.com/duckdb/${EXTENSION_NAME}.git \
-    && cd ${EXTENSION_NAME} \
-    && git submodule update --depth 1 --init --recursive \
-    && make
+    && make -C ${EXTENSION_NAME}

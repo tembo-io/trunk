@@ -1,12 +1,13 @@
 [extension]
 name = "pg_duckdb"
-version = "0.2.0"
+version = "0.2.0" # Update tembo-images/standard-cnpg/Dockerfile, too.
 repository = "https://github.com/duckdb/pg_duckdb"
 license = "MIT"
 description = "DuckDB-powered Postgres for high performance apps & analytics."
 homepage = "https://duckdb.org"
 documentation = "https://github.com/duckdb/pg_duckdb/tree/main/docs"
 categories = ['analytics']
+loadable_libraries = [{ library_name = "pg_duckdb", requires_restart = true }]
 
 [build]
 postgres_version = "17"
