@@ -1,6 +1,6 @@
 ARG PG_VERSION
 # Set up image to copy trunk from.
-FROM quay.io/tembo/trunk-test-tembo:4436f19-pg15 AS trunk
+FROM quay.io/tembo/trunk:latest AS trunk
 FROM quay.io/coredb/c-builder:pg${PG_VERSION}
 
 USER root
@@ -15,7 +15,7 @@ RUN apt-get update && \
     libjson-c-dev
 
 # Install trunk
-COPY --from=trunk /usr/bin/trunk /usr/bin/trunk
+COPY --from=trunk /trunk /usr/bin/trunk
 
 # Clone and build the extension.
 ARG EXTENSION_NAME
