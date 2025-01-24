@@ -1,6 +1,6 @@
 [extension]
 name = "tdigest"
-version = "1.4.2"
+version = "1.4.3"
 repository = "https://github.com/tvondra/tdigest"
 license = "PostgreSQL"
 description = "PostgreSQL extension for estimating percentiles using t-digest."
