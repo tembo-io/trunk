@@ -13,13 +13,16 @@ use self::markdown_parsing::{parse_markdown_links, MarkdownLink};
 
 fn is_markdown(file_name: &str) -> bool {
     let maybe_extension = Path::new(file_name).extension();
+    const MD_EXT: &[&str] = &["md", "mmd", "mdwn", "mdown", "txt", "text"];
 
-    maybe_extension.map(|ext| ext == "md").unwrap_or(
-        // If the extension is missing, the README might not be Markdown
-        // but is likely simple enough that rendering it as Markdown would look better
-        // than rendering it as HTML, e.g. Postgres' readme
-        true,
-    )
+    maybe_extension
+        .map(|ext| MD_EXT.iter().any(|md| ext == *md))
+        .unwrap_or(
+            // If the extension is missing, the README might not be Markdown
+            // but is likely simple enough that rendering it as Markdown would look better
+            // than rendering it as HTML, e.g. Postgres' readme
+            true,
+        )
 }
 
 mod b64 {
@@ -179,11 +182,11 @@ impl GithubApiClient {
         }
     }
 
-    async fn replace_relative_links<'a, 'b>(
+    async fn replace_relative_links<'a>(
         &self,
         readme: &'a str,
         links: Vec<MarkdownLink<'a>>,
-        project: GitHubProject<'b>,
+        project: GitHubProject<'a>,
     ) -> anyhow::Result<String> {
         let mut patterns = Vec::new();
         let mut replace_with = Vec::new();
@@ -221,7 +224,9 @@ struct GitHubProject<'a> {
 impl<'a> GitHubProject<'a> {
     pub fn parse_url(url: &'a str) -> Result<Self> {
         let parse = |url: &'a str| {
-            let remaining = url.strip_prefix("https://github.com/")?;
+            let remaining = url
+                .strip_prefix("https://github.com/")
+                .or_else(|| url.strip_prefix("http://github.com/"))?;
 
             let mut parts = remaining.split('/');
             let owner = parts.next()?;
@@ -373,25 +378,37 @@ mod tests {
 
     #[test]
     fn parses_github_urls() {
-        let pgmq = "https://github.com/tembo-io/pgmq";
-        let auth_delay = "https://github.com/postgres/postgres/tree/master/contrib/auth_delay";
-
-        assert_eq!(
-            GitHubProject::parse_url(pgmq).unwrap(),
-            GitHubProject {
-                owner: "tembo-io",
-                name: "pgmq",
-                subdir: None
-            }
-        );
-        assert_eq!(
-            GitHubProject::parse_url(auth_delay).unwrap(),
-            GitHubProject {
-                owner: "postgres",
-                name: "postgres",
-                subdir: Some("auth_delay")
-            }
-        );
+        for (name, url, exp) in [
+            (
+                "pgmq",
+                "https://github.com/tembo-io/pgmq",
+                GitHubProject {
+                    owner: "tembo-io",
+                    name: "pgmq",
+                    subdir: None,
+                },
+            ),
+            (
+                "auth_delay",
+                "https://github.com/postgres/postgres/tree/master/contrib/auth_delay",
+                GitHubProject {
+                    owner: "postgres",
+                    name: "postgres",
+                    subdir: Some("auth_delay"),
+                },
+            ),
+            (
+                "http_only",
+                "http://github.com/theory/pg-pair",
+                GitHubProject {
+                    owner: "theory",
+                    name: "pg-pair",
+                    subdir: None,
+                },
+            ),
+        ] {
+            assert_eq!(exp, GitHubProject::parse_url(url).unwrap(), "{name}");
+        }
     }
 
     #[test]
@@ -409,5 +426,17 @@ mod tests {
                 .build_readme_url(),
             "https://api.github.com/repos/postgres/postgres/readme"
         );
+    }
+
+    #[test]
+    fn is_markdown() {
+        for bn in ["README", "readme", "hi", "go on", "😀😆"] {
+            for ext in ["md", "mmd", "mdown", "mdwn", "txt", "text"] {
+                assert!(crate::readme::is_markdown(&format!("{bn}.{ext}")));
+            }
+            for ext in ["ascii", "doc", "xml", "json", "rs", "go"] {
+                assert!(!crate::readme::is_markdown(&format!("{bn}.{ext}")));
+            }
+        }
     }
 }
