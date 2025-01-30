@@ -1,0 +1,16 @@
+[extension]
+name = "colnames"
+version = "1.7.0"
+repository = "http://github.com/theory/colnames"
+license = "PostgreSQL"
+description = "Lists the column names in a PostgreSQL RECORD value."
+categories = ["tooling_admin"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make install"

@@ -1,0 +1,16 @@
+[extension]
+name = "hostname"
+version = "1.0.3"
+repository = "http://github.com/theory/pg-hostname"
+license = "PostgreSQL"
+description = "Provides a function that returns the host name of the database server."
+categories = ["tooling_admin"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make install"

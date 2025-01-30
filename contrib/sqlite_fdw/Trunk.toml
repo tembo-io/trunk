@@ -1,0 +1,16 @@
+[extension]
+name = "sqlite_fdw"
+version = "2.5.0"
+repository = "https://github.com/pgspider/sqlite_fdw"
+license = "PostgreSQL"
+description = "SQLite Foreign Data Wrapper for PostgreSQL."
+categories = ["connectors"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make install USE_PGXS=1"
