@@ -1,0 +1,16 @@
+[extension]
+name = "pgxicor"
+version = "0.1.0"
+repository = "https://github.com/Florents-Tselai/pgxicor"
+license = "GPL-2.0"
+description = "XI (ξ) Correlation Coefficient in Postgres."
+categories = ["analytics"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make install"
