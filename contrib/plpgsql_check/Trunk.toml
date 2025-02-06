@@ -1,6 +1,6 @@
 [extension]
 name = "plpgsql_check"
-version = "2.7.14"
+version = "2.7.15"
 repository = "https://github.com/okbob/plpgsql_check"
 license = "Copyright"
 description = "Linter tool for the PostgreSQL language plpgsql."
