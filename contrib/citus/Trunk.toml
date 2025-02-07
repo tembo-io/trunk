@@ -1,6 +1,6 @@
 [extension]
 name = "citus"
-version = "12.1.6"
+version = "13.0.1"
 repository = "https://github.com/citusdata/citus"
 license = "AGPL-3.0"
 description = "Distributed PostgreSQL as an extension."
