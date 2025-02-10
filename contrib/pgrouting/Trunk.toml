@@ -1,6 +1,6 @@
 [extension]
 name = "pgrouting"
-version = "3.7.2"
+version = "3.7.3"
 repository = "https://github.com/pgRouting/pgrouting"
 license = "GPL-2.0"
 description = "pgRouting extends the PostGIS / PostgreSQL geospatial database to provide geospatial routing functionality."
