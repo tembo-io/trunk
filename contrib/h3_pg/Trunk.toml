@@ -1,6 +1,6 @@
 [extension]
 name = "h3_pg"
-version = "4.2.1"
+version = "4.2.2"
 repository = "https://github.com/zachasme/h3-pg"
 license = "Apache-2.0"
 description = "PostgreSQL bindings for H3."

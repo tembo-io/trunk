@@ -1,6 +1,6 @@
 [extension]
 name = "pg_analytics"
-version = "0.3.2"
+version = "0.3.3"
 repository = "https://github.com/paradedb/pg_analytics"
 license = "PostgreSQL"
 description = "pg_analytics (formerly named pg_lakehouse) puts DuckDB inside Postgres"
@@ -16,4 +16,4 @@ apt = ["libc6"]
 postgres_version = "17"
 platform = "linux/amd64"
 dockerfile = "Dockerfile"
-install_command = "cd pg_analytics && cargo pgrx install --release"
+install_command = "cargo pgrx install --release"
