@@ -1,6 +1,6 @@
 [extension]
 name = "pg_duckdb"
-version = "0.2.0" # Update tembo-images/standard-cnpg/Dockerfile, too.
+version = "0.3.1" # Update tembo-images/standard-cnpg/Dockerfile, too.
 repository = "https://github.com/duckdb/pg_duckdb"
 license = "MIT"
 description = "DuckDB-powered Postgres for high performance apps & analytics."
