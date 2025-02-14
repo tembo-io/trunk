@@ -4,6 +4,7 @@ use serde::Deserialize;
 pub struct TrunkProjectView {
     pub name: String,
     pub version: String,
+    #[expect(unused)]
     pub postgres_versions: Option<Vec<u8>>,
     pub downloads: Option<Vec<Download>>,
     pub extensions: Vec<Extension>,
