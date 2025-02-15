@@ -33,6 +33,7 @@ struct TrunkProjectInfo {
 
 #[derive(Debug, Deserialize)]
 pub struct Extension {
+    #[expect(unused)]
     pub extension_name: String,
 }
 

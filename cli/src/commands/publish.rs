@@ -60,8 +60,6 @@ pub enum PublishError {
 
 #[derive(Deserialize, Debug)]
 pub struct Category {
-    pub name: String,
-    pub description: String,
     pub slug: String,
 }
 

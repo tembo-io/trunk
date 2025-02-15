@@ -4,10 +4,12 @@ use crate::manifest::{Manifest, PackagedFile};
 use crate::retry::get_retry;
 use crate::semver::compare_by_semver;
 use crate::v1::TrunkProjectView;
+use anyhow::Result;
 use anyhow::{anyhow, bail, ensure, Context};
 use async_recursion::async_recursion;
 use async_trait::async_trait;
 use clap::Args;
+
 use flate2::read::GzDecoder;
 use log::{error, info, warn};
 use reqwest;
@@ -16,11 +18,11 @@ use sha2::{Digest, Sha256};
 use slicedisplay::SliceDisplay;
 use std::ffi::OsStr;
 use std::fmt::Display;
-use std::fs::{self, File};
-use std::io::{Read, Seek, Write};
+use std::fs;
+use std::io::{Cursor, Read};
 use std::ops::Not;
 use std::path::{Path, PathBuf};
-use tar::{Archive, EntryType};
+use tar::EntryType;
 use tokio_task_manager::Task;
 
 #[derive(Clone, Copy)]
@@ -68,10 +70,12 @@ pub struct InstallCommand {
 }
 
 impl InstallCommand {
-    pub fn pgconfig(&self) -> anyhow::Result<PgConfig> {
-        let installed_pg_config = which::which("pg_config")?;
-
-        let pg_config_path = self.pg_config.clone().unwrap_or(installed_pg_config);
+    pub fn pgconfig(&self) -> Result<PgConfig> {
+        let pg_config_path = self
+            .pg_config
+            .clone()
+            .map(Ok)
+            .unwrap_or_else(|| which::which("pg_config"))?;
 
         Ok(PgConfig { pg_config_path })
     }
@@ -97,7 +101,7 @@ pub struct PgConfig {
 }
 
 impl PgConfig {
-    fn exec(&self, arg: &str) -> anyhow::Result<String> {
+    fn exec(&self, arg: &str) -> Result<String> {
         use std::process::Command;
 
         let mut bytes = Command::new(&self.pg_config_path)
@@ -113,17 +117,17 @@ impl PgConfig {
         String::from_utf8(bytes).with_context(|| "pgconfig returned invalid UTF-8")
     }
 
-    pub fn pkglibdir(&self) -> anyhow::Result<PathBuf> {
+    pub fn pkglibdir(&self) -> Result<PathBuf> {
         fs::canonicalize(self.exec("--pkglibdir")?)
             .with_context(|| "Failed to canonicalize pkglibdir")
     }
 
-    pub fn sharedir(&self) -> anyhow::Result<PathBuf> {
+    pub fn sharedir(&self) -> Result<PathBuf> {
         self.exec("--sharedir").map(PathBuf::from)
     }
 
     /// The major version of the currently set PostgreSQL server
-    pub fn postgres_version(&self) -> anyhow::Result<u8> {
+    pub fn postgres_version(&self) -> Result<u8> {
         let version = self.exec("--version")?;
 
         let version = if version.starts_with("PostgreSQL 14") {
@@ -144,7 +148,7 @@ impl PgConfig {
 
 #[async_trait]
 impl SubCommand for InstallCommand {
-    async fn execute(&self, _task: Task) -> Result<(), anyhow::Error> {
+    async fn execute(&self, _task: Task) -> Result<()> {
         let pg_config = self.pgconfig()?;
 
         let package_lib_dir = pg_config.pkglibdir()?;
@@ -189,7 +193,7 @@ fn find_trunk_project(
     projects: Vec<TrunkProjectView>,
     name: &str,
     version: &str,
-) -> anyhow::Result<TrunkProjectView> {
+) -> Result<TrunkProjectView> {
     let project = if version == "latest" {
         let mut projects: Vec<_> = projects
             .into_iter()
@@ -212,10 +216,7 @@ fn find_trunk_project(
     Ok(project)
 }
 
-fn ensure_extension_uniqueness(
-    projects: &[TrunkProjectView],
-    extension_name: &str,
-) -> anyhow::Result<()> {
+fn ensure_extension_uniqueness(projects: &[TrunkProjectView], extension_name: &str) -> Result<()> {
     let mut matching_projects = projects.iter().filter(|proj| {
         proj.extensions
             .iter()
@@ -244,7 +245,7 @@ fn find_extension(
     projects: Vec<TrunkProjectView>,
     name: &str,
     version: &str,
-) -> anyhow::Result<TrunkProjectView> {
+) -> Result<TrunkProjectView> {
     ensure_extension_uniqueness(&projects, name)?;
 
     let project = if version == "latest" {
@@ -277,7 +278,7 @@ async fn fetch_archive_from_v1(
     name: Name<'_>,
     version: &str,
     postgres_version: u8,
-) -> anyhow::Result<(Url, String, Option<String>)> {
+) -> Result<(Url, String, Option<String>)> {
     let endpoint = match name {
         Name::TrunkProject(name) => format!("{registry}/api/v1/trunk-projects/{name}"),
         Name::Extension(name) => format!("{registry}/api/v1/trunk-projects?extension-name={name}"),
@@ -323,7 +324,7 @@ async fn fetch_archive_from_v1(
     }
 }
 
-async fn fetch_archive_legacy(registry: &str, name: &str, version: &str) -> anyhow::Result<Url> {
+async fn fetch_archive_legacy(registry: &str, name: &str, version: &str) -> Result<Url> {
     let endpoint = format!("{}/extensions/{}/{}/download", registry, name, version);
 
     let response = get_retry(&endpoint).await?;
@@ -340,6 +341,63 @@ async fn fetch_archive_legacy(registry: &str, name: &str, version: &str) -> anyh
     }
 }
 
+async fn fetch_archive_from_registry<'a>(
+    name: Name<'a>,
+    version: &str,
+    registry: &str,
+    postgres_version: u8,
+) -> Result<(Vec<u8>, Option<String>, Option<String>)> {
+    // Try to fetch archive details from the v1 API.
+    let (url, maybe_hash, maybe_api_extension_name) = match fetch_archive_from_v1(
+        registry,
+        name,
+        version,
+        postgres_version,
+    )
+    .await
+    {
+        Ok((url, hash, ext_name)) => (url, Some(hash), ext_name),
+        Err(err) if postgres_version == 15 => {
+            // For Postgres 15, fallback to the legacy endpoint.
+            let name_str = match name {
+                Name::TrunkProject(n) => n,
+                Name::Extension(n) => n,
+            };
+            eprintln!("Failed to fetch archive from v1 API: {err}");
+            (
+                fetch_archive_legacy(registry, name_str, version).await?,
+                None,
+                None,
+            )
+        }
+        Err(err) => {
+            if let Some(msg) = err.downcast_ref::<String>() {
+                if msg.starts_with("Extension with name") {
+                    warn!("Manual intervention required: {msg}");
+                    // In this scenario the original code would return early.
+                    // You might decide to either stop installation or signal this specially.
+                    bail!("Manual intervention required: {msg}");
+                }
+            }
+            eprintln!("Failed to fetch archive from v1 API: {err}");
+            bail!("Cannot install extension for Postgres version {postgres_version} through the legacy endpoint");
+        }
+    };
+
+    info!("Downloading from: {url}");
+    // Extract the file name from the URL.
+    let segments = url
+        .path_segments()
+        .ok_or(anyhow!("Cannot extract path segments from URL"))?;
+    let file_name = segments.last().map(|s| s.to_string());
+
+    let response = get_retry(url).await?;
+    let data = response.bytes().await?.to_vec();
+    assert_sha256_matches(&data, maybe_hash)?;
+
+    Ok((data, file_name, maybe_api_extension_name))
+}
+
 #[async_recursion]
 async fn install<'name: 'async_recursion>(
     name: Name<'name>,
@@ -350,94 +408,41 @@ async fn install<'name: 'async_recursion>(
     sharedir: PathBuf,
     postgres_version: u8,
     skip_dependency_resolution: bool,
-) -> Result<(), anyhow::Error> {
+) -> Result<()> {
     let extension_name = match name {
         Name::TrunkProject(_) => None,
         Name::Extension(name) => Some(name.to_owned()),
     };
 
-    // If file is specified
-    if let Some(ref file) = file {
-        return install_file(
-            file,
-            package_lib_dir,
-            sharedir,
-            registry,
-            postgres_version,
-            skip_dependency_resolution,
-            extension_name,
-        )
-        .await;
-    }
+    // Load the raw archive bytes and (optionally) a file name.
+    // For the network (non --file) code path, delegate to the helper.
+    let (raw_data, file_name, maybe_extension_name) = if let Some(ref file) = file {
+        let data = fs::read(file)?;
+        let file_name = file.file_name().and_then(|s| s.to_str()).map(String::from);
+        (data, file_name, None)
+    } else {
+        fetch_archive_from_registry(name, version, registry, postgres_version).await?
+    };
+    let extension_name = extension_name.or(maybe_extension_name);
 
-    // If a file is not specified, then we will query the registry
-    // and download the latest version of the package
-    let (url, maybe_hash, maybe_extension_name) = match fetch_archive_from_v1(
-        registry,
-        name,
-        version,
-        postgres_version,
-    )
-    .await
+    // Decompress the archive if needed.
+    let archive_data = match file_name
+        .as_deref()
+        .and_then(|name| Path::new(name).extension().and_then(OsStr::to_str))
     {
-        Ok((url, hash, extension_name)) => (url, Some(hash), extension_name),
-        Err(err) if postgres_version == 15 => {
-            let name = match name {
-                Name::TrunkProject(name) => name,
-                Name::Extension(name) => name,
-            };
-
-            eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
-            // Fallback to fetch archive from the older endpoint
-            (
-                fetch_archive_legacy(registry, name, version).await?,
-                None,
-                None,
-            )
+        Some("gz") => {
+            // Decompress gzipped data into a tar archive.
+            let mut decoder = GzDecoder::new(Cursor::new(raw_data));
+            let mut decompressed = Vec::new();
+            std::io::copy(&mut decoder, &mut decompressed)?;
+            decompressed
         }
-        Err(err) => {
-            if let Some(msg) = err.downcast_ref::<String>() {
-                // Found an error of the form "Extension with name {} is provided by both {} and {}".
-                // Warn the user and continue without erroring.
-                if msg.starts_with("Extension with name") {
-                    warn!("Manual intervention required: {msg}");
-                    return Ok(());
-                }
-            }
-
-            eprintln!("Failed to fetch Trunk archive from v1 API: {err}");
-            bail!("Cannot install extension for Postgres version {postgres_version} through the legacy endpoint");
-        }
+        Some("tar") => raw_data,
+        _ => return Err(InstallError::UnknownFileType.into()),
     };
 
-    info!("Downloading from: {url}");
-
-    // Get the path segments as an iterator
-    let segments = url
-        .path_segments()
-        .ok_or(anyhow!("Cannot extract path segments"))?;
-
-    // Get the last segment, which should be the file name
-    let file_name = segments
-        .last()
-        .ok_or(anyhow!("Cannot extract file name from URL"))?;
-
-    // Write the bytes of the archive to a temporary directory
-    let temp_dir = tempfile::tempdir()?;
-    let dest_path = temp_dir.path().join(file_name);
-
-    let response = get_retry(url).await?;
-
-    let mut dest_file = File::create(&dest_path)?;
-    // write the response body to the file
-
-    let bytes = response.bytes().await?;
-    assert_sha256_matches(&bytes, maybe_hash)?;
-
-    dest_file.write_all(&bytes)?;
-
-    install_file(
-        &dest_path,
+    install_trunk_archive(
+        &archive_data,
         package_lib_dir,
         sharedir,
         registry,
@@ -445,50 +450,30 @@ async fn install<'name: 'async_recursion>(
         skip_dependency_resolution,
         // Send the v1-supplied extension name, in case the manifest.json
         // doesn't have extension_name set
-        maybe_extension_name,
+        extension_name,
     )
     .await?;
 
     Ok(())
 }
 
-async fn install_file(
-    file: &PathBuf,
+async fn install_trunk_archive(
+    // Bytes for the project's .tar archive
+    archive_data: &[u8],
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
     registry: &str,
     postgres_version: u8,
     skip_dependency_resolution: bool,
     extension_name: Option<String>,
-) -> Result<(), anyhow::Error> {
-    let f = File::open(file)?;
-
-    let mut input = match file
-        .extension()
-        .into_iter()
-        .filter_map(|s| s.to_str())
-        .next()
-    {
-        Some("gz") => {
-            // unzip the archive into a temporary file
-            let decoder = GzDecoder::new(f);
-            let mut tempfile = tempfile::tempfile()?;
-            use read_write_pipe::*;
-            tempfile.write_reader(decoder)?;
-            tempfile.rewind()?;
-            tempfile
-        }
-        Some("tar") => f,
-        _ => return Err(InstallError::UnknownFileType)?,
-    };
-
+) -> Result<()> {
     // Handle symlinks
     let sharedir = std::fs::canonicalize(&sharedir)?;
     let package_lib_dir = std::fs::canonicalize(&package_lib_dir)?;
 
     // First pass: get to the manifest
     // Because we're going over entries with `Seek` enabled, we're not reading everything.
-    let mut archive = Archive::new(&input);
+    let mut archive = tar::Archive::new(Cursor::new(archive_data));
 
     // Extensions the extension being installed depends on
     let mut control_file = None;
@@ -606,82 +591,78 @@ async fn install_file(
     let extension_dir = get_extension_location(&sharedir, control_file.as_ref());
 
     // Second pass: extraction
-    input.rewind()?;
+    let mut archive = tar::Archive::new(Cursor::new(archive_data));
+    let mut manifest = manifest.ok_or(InstallError::ManifestNotFound)?;
 
-    let mut archive = Archive::new(&input);
+    let manifest_files = manifest.files.take().unwrap_or_default();
+    info!(
+        "Installing {} {}",
+        manifest.name, manifest.extension_version
+    );
+    let host_arch = std::env::consts::ARCH;
 
-    if let Some(mut manifest) = manifest {
-        let manifest_files = manifest.files.take().unwrap_or_default();
-        info!(
-            "Installing {} {}",
-            manifest.name, manifest.extension_version
+    if manifest.manifest_version > 1 && host_arch != manifest.architecture {
+        bail!(
+            "This package is not compatible with your architecture: {}, it is compatible with {}",
+            host_arch,
+            manifest.architecture
         );
-        let host_arch = std::env::consts::ARCH;
+    }
 
-        if manifest.manifest_version > 1 && host_arch != manifest.architecture {
-            bail!(
-                "This package is not compatible with your architecture: {}, it is compatible with {}",
-                host_arch,
-                manifest.architecture
-            );
-        }
-
-        let entries = archive.entries_with_seek()?;
-        for entry in entries {
-            let mut entry = entry?;
-            let name = entry.path()?;
-            if let Some(file) = manifest_files.get(name.as_ref()) {
-                match file {
-                    PackagedFile::ControlFile { .. } => {
-                        if manifest.manifest_version > 1 {
-                            println!("[+] {} => {}", name.display(), sharedir.display());
-                            entry.unpack_in(&sharedir)?;
-                        } else {
-                            // In manifest v1, the control file is in the root of the archive
-                            // and in following versions, it will be prefixed by its path under
-                            // pg_config --sharedir
-                            println!("[+] {} => {}", name.display(), extension_dir.display());
-                            entry.unpack_in(&extension_dir)?;
-                        }
-                    }
-                    PackagedFile::SqlFile { .. } => {
-                        if manifest.manifest_version > 1 {
-                            println!("[+] {} => {}", name.display(), sharedir.display());
-                            entry.unpack_in(&sharedir)?;
-                        } else {
-                            // In manifest v1, sql files are in the root of the archive
-                            // and in following versions, they will be prefixed by path under
-                            // pg_config --sharedir
-                            println!("[+] {} => {}", name.display(), extension_dir.display());
-                            entry.unpack_in(&extension_dir)?;
-                        }
-                    }
-                    PackagedFile::SharedObject { .. } => {
-                        println!("[+] {} => {}", name.display(), package_lib_dir.display());
-                        entry.unpack_in(&package_lib_dir)?;
-                    }
-                    PackagedFile::Bitcode { .. } => {
-                        println!("[+] {} => {}", name.display(), package_lib_dir.display());
-                        entry.unpack_in(&package_lib_dir)?;
-                    }
-                    PackagedFile::Extra { .. } => {
+    let entries = archive.entries_with_seek()?;
+    for entry in entries {
+        let mut entry = entry?;
+        let name = entry.path()?;
+        if let Some(file) = manifest_files.get(name.as_ref()) {
+            match file {
+                PackagedFile::ControlFile { .. } => {
+                    if manifest.manifest_version > 1 {
                         println!("[+] {} => {}", name.display(), sharedir.display());
                         entry.unpack_in(&sharedir)?;
+                    } else {
+                        // In manifest v1, the control file is in the root of the archive
+                        // and in following versions, it will be prefixed by its path under
+                        // pg_config --sharedir
+                        println!("[+] {} => {}", name.display(), extension_dir.display());
+                        entry.unpack_in(&extension_dir)?;
                     }
-                    PackagedFile::LicenseFile { .. } => {
-                        info!("Skipping license file {}", name.display());
+                }
+                PackagedFile::SqlFile { .. } => {
+                    if manifest.manifest_version > 1 {
+                        println!("[+] {} => {}", name.display(), sharedir.display());
+                        entry.unpack_in(&sharedir)?;
+                    } else {
+                        // In manifest v1, sql files are in the root of the archive
+                        // and in following versions, they will be prefixed by path under
+                        // pg_config --sharedir
+                        println!("[+] {} => {}", name.display(), extension_dir.display());
+                        entry.unpack_in(&extension_dir)?;
                     }
+                }
+                PackagedFile::SharedObject { .. } => {
+                    println!("[+] {} => {}", name.display(), package_lib_dir.display());
+                    entry.unpack_in(&package_lib_dir)?;
+                }
+                PackagedFile::Bitcode { .. } => {
+                    println!("[+] {} => {}", name.display(), package_lib_dir.display());
+                    entry.unpack_in(&package_lib_dir)?;
+                }
+                PackagedFile::Extra { .. } => {
+                    println!("[+] {} => {}", name.display(), sharedir.display());
+                    entry.unpack_in(&sharedir)?;
+                }
+                PackagedFile::LicenseFile { .. } => {
+                    info!("Skipping license file {}", name.display());
                 }
             }
         }
-        if manifest.extension_name.is_none() {
-            manifest.extension_name = extension_name;
-        }
-
-        print_post_installation_guide(&manifest);
-    } else {
-        return Err(InstallError::ManifestNotFound)?;
     }
+    if manifest.extension_name.is_none() {
+        manifest.extension_name = extension_name;
+    }
+
+    post_installation(&manifest);
+
     Ok(())
 }
 
@@ -702,7 +683,7 @@ fn get_extension_location(sharedir: &Path, control_file: Option<&ControlFile>) -
     sharedir.join(directory)
 }
 
-fn print_post_installation_guide(manifest: &Manifest) {
+fn post_installation(manifest: &Manifest) {
     let extension_name = manifest.extension_name.as_ref().unwrap_or(&manifest.name);
 
     println!("\n***************************");
@@ -743,7 +724,7 @@ fn print_post_installation_guide(manifest: &Manifest) {
     println!("\tCREATE EXTENSION IF NOT EXISTS {extension_name} CASCADE;");
 }
 
-fn assert_sha256_matches(contents: &[u8], maybe_hash: Option<String>) -> Result<(), anyhow::Error> {
+fn assert_sha256_matches(contents: &[u8], maybe_hash: Option<String>) -> Result<()> {
     if let Some(expected_hash) = maybe_hash {
         let mut hasher = Sha256::new();
         hasher.update(contents);

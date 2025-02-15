@@ -6,6 +6,7 @@ use std::ops::Not;
 #[derive(Debug)]
 pub struct ControlFile {
     pub directory: Option<String>,
+    #[allow(unused)]
     pub module_pathname: Option<String>,
     pub requires: Option<Vec<String>>,
 }
