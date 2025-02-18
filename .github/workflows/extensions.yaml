@@ -57,7 +57,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:4436f19-pg15
+      image: quay.io/tembo/trunk-test-tembo:4436f19-pg${{ matrix.pg }}
       options: --user root
     needs:
       - find_directories
@@ -92,7 +92,7 @@ jobs:
       - dind
       - xlarge-16x16
     container:
-      image: quay.io/tembo/trunk-test-tembo:4436f19-pg15
+      image: quay.io/tembo/trunk-test-tembo:4436f19-pg${{ matrix.pg }}
       options: --user root
     needs:
       - find_directories
@@ -149,6 +149,19 @@ jobs:
           set -xe
           apt-get update
           apt-get install -y pkg-config libssl-dev gosu openjdk-11-jdk
+      - name: Install libduckdb
+        if: matrix.ext.name == 'duckdb_fdw'
+        # duckdb_fdw is incompatible with the pg_duckdb-build libduckdb.so included in
+        # the standard image. So replace it.
+        env:
+          DUCKDB_VERSION: 1.2.0
+        run: |
+          set -xe
+          rm -rf "$(pg_config --pkglibdir)/libduckdb*" /usr/local/lib/libduckdb*
+          curl -LO https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-linux-amd64.zip
+          unzip libduckdb-linux-amd64.zip libduckdb.so
+          mv libduckdb.so /usr/local/lib/libduckdb.so.${DUCKDB_VERSION}
+          ldconfig
       - name: Build extension
         id: build
         run: cd ${{ matrix.ext.path }} && trunk build --pg-version ${{ matrix.pg }}
@@ -167,9 +180,9 @@ jobs:
             fi
           done
       - name: Enable the extension
-        if: matrix.pg == 15 && github.ref != 'refs/heads/main' && matrix.ext.name != 'duckdb_fdw' # https://github.com/duckdb/pg_duckdb/issues/554
+        if: matrix.pg == 15 && github.ref != 'refs/heads/main'
         run: |
-          su postgres -c '/usr/lib/postgresql/15/bin/postgres &'
+          su postgres -c '/usr/lib/postgresql/${{ matrix.pg }}/bin/postgres &'
           sleep 5
           export EXTENSIONS=$(psql postgres://postgres:postgres@localhost:5432 -tA -c "select name from pg_available_extensions where name NOT IN ('plpgsql', 'plperlu', 'plperl', 'pltcl', 'plpython3u', 'pltclu', 'pg_stat_statements', 'pgml')";)
           for EXTENSION in $EXTENSIONS; do

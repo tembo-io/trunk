@@ -8,6 +8,9 @@ homepage = "https://alitrack.com/"
 documentation = "https://github.com/alitrack/duckdb_fdw"
 categories = ['connectors']
 
+[dependencies]
+lib = ["libduckdb"]
+
 [build]
 postgres_version = "17"
 platform = "linux/amd64"
