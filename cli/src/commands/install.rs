@@ -67,6 +67,9 @@ pub struct InstallCommand {
     /// Skip dependency resolution.
     #[clap(long, short, action)]
     skip_dependencies: bool,
+    /// Installs required system dependencies for the extension
+    #[clap(long = "deps", action)]
+    install_system_dependencies: bool,
 }
 
 impl InstallCommand {
@@ -176,12 +179,15 @@ impl SubCommand for InstallCommand {
         install(
             Name::TrunkProject(&self.name),
             &self.version,
-            &self.file,
+            self.file.as_deref(),
             &self.registry,
-            package_lib_dir,
-            sharedir,
-            postgres_version,
-            self.skip_dependencies,
+            InstallConfig {
+                package_lib_dir,
+                sharedir,
+                postgres_version,
+                skip_dependency_resolution: self.skip_dependencies,
+                install_system_dependencies: self.install_system_dependencies,
+            },
         )
         .await?;
 
@@ -398,16 +404,22 @@ async fn fetch_archive_from_registry<'a>(
     Ok((data, file_name, maybe_api_extension_name))
 }
 
-#[async_recursion]
-async fn install<'name: 'async_recursion>(
-    name: Name<'name>,
-    version: &str,
-    file: &Option<PathBuf>,
-    registry: &str,
+#[derive(Clone)]
+struct InstallConfig {
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
     postgres_version: u8,
     skip_dependency_resolution: bool,
+    install_system_dependencies: bool,
+}
+
+#[async_recursion]
+async fn install<'name: 'async_recursion>(
+    name: Name<'name>,
+    version: &str,
+    file: Option<&Path>,
+    registry: &str,
+    config: InstallConfig,
 ) -> Result<()> {
     let extension_name = match name {
         Name::TrunkProject(_) => None,
@@ -421,7 +433,7 @@ async fn install<'name: 'async_recursion>(
         let file_name = file.file_name().and_then(|s| s.to_str()).map(String::from);
         (data, file_name, None)
     } else {
-        fetch_archive_from_registry(name, version, registry, postgres_version).await?
+        fetch_archive_from_registry(name, version, registry, config.postgres_version).await?
     };
     let extension_name = extension_name.or(maybe_extension_name);
 
@@ -443,14 +455,11 @@ async fn install<'name: 'async_recursion>(
 
     install_trunk_archive(
         &archive_data,
-        package_lib_dir,
-        sharedir,
         registry,
-        postgres_version,
-        skip_dependency_resolution,
         // Send the v1-supplied extension name, in case the manifest.json
         // doesn't have extension_name set
         extension_name,
+        config,
     )
     .await?;
 
@@ -460,16 +469,13 @@ async fn install<'name: 'async_recursion>(
 async fn install_trunk_archive(
     // Bytes for the project's .tar archive
     archive_data: &[u8],
-    package_lib_dir: PathBuf,
-    sharedir: PathBuf,
     registry: &str,
-    postgres_version: u8,
-    skip_dependency_resolution: bool,
     extension_name: Option<String>,
+    config: InstallConfig,
 ) -> Result<()> {
     // Handle symlinks
-    let sharedir = std::fs::canonicalize(&sharedir)?;
-    let package_lib_dir = std::fs::canonicalize(&package_lib_dir)?;
+    let sharedir = std::fs::canonicalize(&config.sharedir)?;
+    let package_lib_dir = std::fs::canonicalize(&config.package_lib_dir)?;
 
     // First pass: get to the manifest
     // Because we're going over entries with `Seek` enabled, we're not reading everything.
@@ -558,7 +564,7 @@ async fn install_trunk_archive(
         }
     }
 
-    if skip_dependency_resolution {
+    if config.skip_dependency_resolution {
         warn!(
             "Skipping dependency resolution! {} dependencies are unmet.",
             dependent_extensions_to_install.len()
@@ -575,12 +581,9 @@ async fn install_trunk_archive(
                 install(
                     Name::Extension(&dependency),
                     "latest",
-                    &None,
+                    None,
                     registry,
-                    package_lib_dir.clone(),
-                    sharedir.clone(),
-                    postgres_version,
-                    skip_dependency_resolution,
+                    config.clone(),
                 )
                 .await?;
             }
