@@ -1,0 +1,16 @@
+[extension]
+name = "pgcollection"
+version = "0.9.0"
+repository = "https://github.com/aws/pgcollection"
+license = "Apache-2.0"
+description = "pgcollection is a memory optimized data type for PostgreSQL used as a high performance data structure inside PL/pgSQL functions to create associative arrays."
+categories = ["data_transformations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make install"
