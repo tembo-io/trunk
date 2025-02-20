@@ -22,8 +22,11 @@ use std::fs;
 use std::io::{Cursor, Read};
 use std::ops::Not;
 use std::path::{Path, PathBuf};
+use system_dependencies::OperatingSystem;
 use tar::EntryType;
 use tokio_task_manager::Task;
+
+mod system_dependencies;
 
 #[derive(Clone, Copy)]
 /// A Trunk project name versus an extension name.
@@ -662,6 +665,36 @@ async fn install_trunk_archive(
     }
     if manifest.extension_name.is_none() {
         manifest.extension_name = extension_name;
+    }
+
+    if config.install_system_dependencies {
+        if let Some(system_deps) = &manifest.dependencies {
+            let operating_system = OperatingSystem::detect()?;
+            for package_manager in operating_system.package_managers() {
+                if let Some(packages_to_install) = system_deps.get(package_manager.as_str()) {
+                    for package in packages_to_install {
+                        let installation_command = package_manager.install(&package);
+
+                        // Execute the command using a shell
+                        let status = std::process::Command::new("sh")
+                            .arg("-c")
+                            .arg(&installation_command)
+                            .status()
+                            .with_context(|| {
+                                format!("Failed to execute command: {}", installation_command)
+                            })?;
+
+                        if !status.success() {
+                            anyhow::bail!(
+                                "Installation of package '{}' via {} failed",
+                                package,
+                                package_manager.as_str()
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post_installation(&manifest);
