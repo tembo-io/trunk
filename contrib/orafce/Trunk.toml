@@ -1,6 +1,6 @@
 [extension]
 name = "orafce"
-version = "4.14.1"
+version = "4.14.2"
 repository = "https://github.com/orafce/orafce"
 license = "0BSD"
 description = "Functions and operators that emulate a subset of functions and packages from the Oracle RDBMS."
