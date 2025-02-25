@@ -17,7 +17,7 @@ on:
 
 jobs:
   build_and_push_c_builders:
-    name: Build and push C builder images
+    name: 🧱 ${{ matrix.arch }} C on 🐘 ${{ matrix.pg_version }}
     runs-on:
       - self-hosted
       - dind
@@ -52,7 +52,7 @@ jobs:
       - name: Build and push
         run: |
           set -xe
-          docker build \
+          docker buildx build \
             --build-arg PG_VERSION=${{ matrix.pg_version }} \
             --platform linux/${{ matrix.arch }} \
             --tag quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-${{ matrix.arch }} cli/images/c-builder
@@ -63,7 +63,7 @@ jobs:
 
   create_and_push_c_manifests:
     needs: build_and_push_c_builders
-    name: Build and push c-builder manifests
+    name: 🗂️ C on 🐘 ${{ matrix.pg_version }}
     runs-on:
       - self-hosted
       - dind
@@ -115,7 +115,7 @@ jobs:
   build_and_push_pgrx_builders:
     needs:
       - create_and_push_c_manifests
-    name: Build and push PGRX builder images
+    name: 🦀 ${{ matrix.arch }} pgrx ${{ matrix.pgrx_version }} on 🐘 ${{ matrix.pg_version }}
     runs-on:
       - self-hosted
       - dind
@@ -147,6 +147,7 @@ jobs:
           - "0.12.7"
           - "0.12.8"
           - "0.12.9"
+          - "0.13.0"
         exclude:
           - pg_version: "17"
             pgrx_version: "0.11.0"
@@ -200,7 +201,7 @@ jobs:
 
 
   create_and_push_pgrx_manifests:
-    name: Build and push PGRX manifests
+    name: 🗂️ pgrx ${{ matrix.pgrx_version }} on 🐘 ${{ matrix.pg_version }}
     needs:
       - build_and_push_pgrx_builders
     runs-on:
@@ -231,6 +232,7 @@ jobs:
           - "0.12.7"
           - "0.12.8"
           - "0.12.9"
+          - "0.13.0"
         exclude:
           - pg_version: "17"
             pgrx_version: "0.11.0"
