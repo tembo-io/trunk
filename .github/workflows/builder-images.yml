@@ -1,6 +1,5 @@
 name: Trunk builder images
 
-
 on:
   push:
     branches:
@@ -25,44 +24,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch:
-          - "arm64"
-          - "amd64"
-        pg_version:
-          - "14"
-          - "15"
-          - "16"
-          - "17"
+        arch: ["arm64", "amd64"]
+        pg_version: ["14", "15", "16", "17"]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Login to Quay.io
-        uses: docker/login-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v6
         with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USER }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-      - name: Build and push
-        run: |
-          set -xe
-          docker buildx build \
-            --build-arg PG_VERSION=${{ matrix.pg_version }} \
-            --platform linux/${{ matrix.arch }} \
-            --tag quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-${{ matrix.arch }} cli/images/c-builder
-          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-          if [ "${BRANCH_NAME}" == "main" ]; then
-            docker push quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-${{ matrix.arch }}
-          fi
+          context: cli/images/c-builder
+          push: false
+          build-args: PG_VERSION=${{ matrix.pg_version }}
+          platforms: linux/${{ matrix.arch }}
+          tags: quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-${{ matrix.arch }}
+          outputs: type=docker,dest=${{ runner.temp }}/image.tar
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ runner.temp }}/image.tar
+          name: c-builder-pg${{ matrix.pg_version }}-${{ matrix.arch }}
+          overwrite: true
+          if-no-files-found: error
 
   create_and_push_c_manifests:
     needs: build_and_push_c_builders
+    if: github.ref_name == 'main'
     name: 🗂️ C on 🐘 ${{ matrix.pg_version }}
     runs-on:
       - self-hosted
@@ -74,11 +62,6 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Quay.io
@@ -87,8 +70,19 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_PASSWORD }}
-
-      - name: Create and push manifest
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: c-builder-pg${{ matrix.pg_version }}-*
+          path: ${{ runner.temp }}
+      - name: Load and push artifacts
+        run: |
+          set -xe
+          docker load --input ${{ runner.temp }}/c-builder-pg${{ matrix.pg_version }}-amd64/image.tar
+          docker load --input ${{ runner.temp }}/c-builder-pg${{ matrix.pg_version }}-arm64/image.tar
+          docker push quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-arm64
+          docker push quay.io/coredb/c-builder:pg${{ matrix.pg_version }}-amd64
+      - name: Create manifest
         run: |
           set -xe
           # Create the manifest
@@ -107,14 +101,10 @@ jobs:
             --os linux --arch arm64
 
           # Push the manifest
-          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-          if [ "${BRANCH_NAME}" == "main" ]; then
-            docker manifest push quay.io/coredb/c-builder:pg${{ matrix.pg_version }}
-          fi
+          docker manifest push quay.io/coredb/c-builder:pg${{ matrix.pg_version }}
 
   build_and_push_pgrx_builders:
-    needs:
-      - create_and_push_c_manifests
+    needs: build_and_push_c_builders
     name: 🦀 ${{ matrix.arch }} pgrx ${{ matrix.pgrx_version }} on 🐘 ${{ matrix.pg_version }}
     runs-on:
       - self-hosted
@@ -123,14 +113,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch:
-          - "amd64"
-          - "arm64"
-        pg_version:
-          - "14"
-          - "15"
-          - "16"
-          - "17"
+        arch: ["arm64", "amd64"]
+        pg_version: ["14", "15", "16", "17"]
         pgrx_version:
           - "0.11.0"
           - "0.11.1"
@@ -149,61 +133,51 @@ jobs:
           - "0.12.9"
           - "0.13.0"
         exclude:
-          - pg_version: "17"
-            pgrx_version: "0.11.0"
-          - pg_version: "17"
-            pgrx_version: "0.11.1"
-          - pg_version: "17"
-            pgrx_version: "0.11.2"
-          - pg_version: "17"
-            pgrx_version: "0.11.3"
-          - pg_version: "17"
-            pgrx_version: "0.11.4"
-          - pg_version: "17"
-            pgrx_version: "0.12.0"
-          - pg_version: "17"
-            pgrx_version: "0.12.1"
-          - pg_version: "17"
-            pgrx_version: "0.12.2"
-          - pg_version: "17"
-            pgrx_version: "0.12.3"
-          - pg_version: "17"
-            pgrx_version: "0.12.4"
+          - { pg_version: "17", pgrx_version: "0.11.0" }
+          - { pg_version: "17", pgrx_version: "0.11.1" }
+          - { pg_version: "17", pgrx_version: "0.11.2" }
+          - { pg_version: "17", pgrx_version: "0.11.3" }
+          - { pg_version: "17", pgrx_version: "0.11.4" }
+          - { pg_version: "17", pgrx_version: "0.12.0" }
+          - { pg_version: "17", pgrx_version: "0.12.1" }
+          - { pg_version: "17", pgrx_version: "0.12.2" }
+          - { pg_version: "17", pgrx_version: "0.12.3" }
+          - { pg_version: "17", pgrx_version: "0.12.4" }
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Login to Quay.io
-        uses: docker/login-action@v3
+      - name: Download c-builder
+        uses: actions/download-artifact@v4
         with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USER }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-      - name: Build and push
-        run: |
-          set -xe
-          docker build \
-            --build-arg PG_VERSION=${{ matrix.pg_version }} \
-            --build-arg PGRX_VERSION=${{ matrix.pgrx_version }} \
-            --platform linux/${{ matrix.arch }} \
-            --tag quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-${{ matrix.arch }} cli/images/pgrx-builder
-
-          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-          if [ "${BRANCH_NAME}" == "main" ]; then
-            docker push quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-${{ matrix.arch }}
-          fi
-
+          pattern: c-builder-pg${{ matrix.pg_version }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}
+      - name: Load c-builder
+        run: docker load --input ${{ runner.temp }}/c-builder-pg${{ matrix.pg_version }}-${{ matrix.arch }}/image.tar
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: cli/images/pgrx-builder
+          push: false
+          build-args: |
+            PG_VERSION=${{ matrix.pg_version }}
+            PGRX_VERSION=${{ matrix.pgrx_version }}
+          platforms: linux/${{ matrix.arch }}
+          tags: quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-${{ matrix.arch }}
+          outputs: type=docker,dest=${{ runner.temp }}/image.tar
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ runner.temp }}/image.tar
+          name: pgrx-builder-pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-${{ matrix.arch }}
+          overwrite: true
+          if-no-files-found: error
 
   create_and_push_pgrx_manifests:
     name: 🗂️ pgrx ${{ matrix.pgrx_version }} on 🐘 ${{ matrix.pg_version }}
-    needs:
-      - build_and_push_pgrx_builders
+    if: github.ref_name == 'main'
+    needs: build_and_push_pgrx_builders
     runs-on:
       - self-hosted
       - dind
@@ -211,11 +185,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pg_version:
-          - "14"
-          - "15"
-          - "16"
-          - "17"
+        pg_version: ["14", "15", "16", "17"]
         pgrx_version:
           - "0.11.0"
           - "0.11.1"
@@ -234,34 +204,19 @@ jobs:
           - "0.12.9"
           - "0.13.0"
         exclude:
-          - pg_version: "17"
-            pgrx_version: "0.11.0"
-          - pg_version: "17"
-            pgrx_version: "0.11.1"
-          - pg_version: "17"
-            pgrx_version: "0.11.2"
-          - pg_version: "17"
-            pgrx_version: "0.11.3"
-          - pg_version: "17"
-            pgrx_version: "0.11.4"
-          - pg_version: "17"
-            pgrx_version: "0.12.0"
-          - pg_version: "17"
-            pgrx_version: "0.12.1"
-          - pg_version: "17"
-            pgrx_version: "0.12.2"
-          - pg_version: "17"
-            pgrx_version: "0.12.3"
-          - pg_version: "17"
-            pgrx_version: "0.12.4"
+          - { pg_version: "17", pgrx_version: "0.11.0" }
+          - { pg_version: "17", pgrx_version: "0.11.1" }
+          - { pg_version: "17", pgrx_version: "0.11.2" }
+          - { pg_version: "17", pgrx_version: "0.11.3" }
+          - { pg_version: "17", pgrx_version: "0.11.4" }
+          - { pg_version: "17", pgrx_version: "0.12.0" }
+          - { pg_version: "17", pgrx_version: "0.12.1" }
+          - { pg_version: "17", pgrx_version: "0.12.2" }
+          - { pg_version: "17", pgrx_version: "0.12.3" }
+          - { pg_version: "17", pgrx_version: "0.12.4" }
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Quay.io
@@ -270,6 +225,18 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_PASSWORD }}
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pgrx-builder-pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-*
+          path: ${{ runner.temp }}
+      - name: Load and push artifacts
+        run: |
+          set -xe
+          docker load --input ${{ runner.temp }}/pgrx-builder-pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-amd64/image.tar
+          docker load --input ${{ runner.temp }}/pgrx-builder-pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-arm64/image.tar
+          docker push quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-amd64
+          docker push quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}-arm64
       - name: Create and push manifest
         run: |
           set -xe
@@ -289,7 +256,4 @@ jobs:
             --os linux --arch arm64
 
           # Push the manifest
-          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-          if [ "${BRANCH_NAME}" == "main" ]; then
-            docker manifest push quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}
-          fi
+          docker manifest push quay.io/coredb/pgrx-builder:pg${{ matrix.pg_version }}-pgrx${{ matrix.pgrx_version }}
