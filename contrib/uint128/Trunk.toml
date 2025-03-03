@@ -1,0 +1,17 @@
+[extension]
+name = "uint128"
+version = "1.0.1"
+repository = "https://github.com/pg-uint/pg-uint128"
+license = "PostgreSQL"
+description = "Unsigned integer data types for PostgreSQL."
+documentation = "https://pgxn.org/dist/uint128/"
+categories = ["data_transformations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "make install"
