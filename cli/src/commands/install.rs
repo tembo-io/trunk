@@ -77,11 +77,11 @@ pub struct InstallCommand {
 
 impl InstallCommand {
     pub fn pgconfig(&self) -> Result<PgConfig> {
-        let pg_config_path = self
-            .pg_config
-            .clone()
+        let pg_config_path = dbg!(self.pg_config.clone())
             .map(Ok)
-            .unwrap_or_else(|| which::which("pg_config"))?;
+            .unwrap_or_else(|| dbg!(which::which("pg_config")))?;
+
+        dbg!(&pg_config_path);
 
         Ok(PgConfig { pg_config_path })
     }
@@ -108,9 +108,7 @@ pub struct PgConfig {
 
 impl PgConfig {
     fn exec(&self, arg: &str) -> Result<String> {
-        use std::process::Command;
-
-        let mut bytes = Command::new(&self.pg_config_path)
+        let mut bytes = std::process::Command::new(&self.pg_config_path)
             .arg(arg)
             .output()
             .with_context(|| format!("Failed to run pgconfig {arg}"))?
@@ -477,8 +475,8 @@ async fn install_trunk_archive(
     config: InstallConfig,
 ) -> Result<()> {
     // Handle symlinks
-    let sharedir = std::fs::canonicalize(&config.sharedir)?;
-    let package_lib_dir = std::fs::canonicalize(&config.package_lib_dir)?;
+    let sharedir = dbg!(std::fs::canonicalize(&config.sharedir))?;
+    let package_lib_dir = dbg!(std::fs::canonicalize(&config.package_lib_dir))?;
 
     // First pass: get to the manifest
     // Because we're going over entries with `Seek` enabled, we're not reading everything.
@@ -784,14 +782,21 @@ fn assert_sha256_matches(contents: &[u8], maybe_hash: Option<String>) -> Result<
 #[tokio::test]
 async fn install_with_system_dependencies() -> Result<()> {
     let file = None;
+
+    let pg_config = PgConfig {
+        pg_config_path: which::which("pg_config")?,
+    };
+    let package_lib_dir = pg_config.pkglibdir()?;
+    let sharedir = pg_config.sharedir()?;
+
     install(
         Name::Extension("citus"),
         "13.0.1",
         file,
         "https://registry.pgtrunk.io",
         InstallConfig {
-            package_lib_dir: Path::new("/opt/homebrew/opt/postgresql@16/lib/postgresql").to_owned(),
-            sharedir: Path::new("/opt/homebrew/opt/postgresql@16/share/postgresql@16").to_owned(),
+            package_lib_dir,
+            sharedir,
             postgres_version: 17,
             skip_dependency_resolution: false,
             install_system_dependencies: true,
@@ -799,7 +804,6 @@ async fn install_with_system_dependencies() -> Result<()> {
     )
     .await?;
 
-    dbg!(mockcmd::get_executed_commands());
     let system_deps = [
         "libpq5", "openssl", "libc6", "liblz4-1", "libzstd1", "libssl3", "libcurl4",
     ];
