@@ -51,8 +51,9 @@ pub struct Manifest {
     ///    'apt': ['libgroonga-dev'],
     /// }
     /// ```
-    pub extension_dependencies: Option<Vec<String>>,
     pub dependencies: Option<HashMap<String, Vec<String>>>,
+    /// A list of extensions the extension being installed depends on
+    pub extension_dependencies: Option<Vec<String>>,
     #[serde(rename = "version")]
     pub extension_version: String,
     pub manifest_version: i32,
