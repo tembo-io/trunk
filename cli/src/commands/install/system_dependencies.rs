@@ -25,7 +25,10 @@ impl OperatingSystem {
 
     /// Detect the current operating system, if it's supported
     pub fn detect() -> Result<OperatingSystem> {
-        let os = if cfg!(target_os = "linux") {
+        let os = if cfg!(test) {
+            // Always use Debian for testing
+            Some(OperatingSystem::Debian)
+        } else if cfg!(target_os = "linux") {
             Self::detect_linux_distribution()
         } else if cfg!(windows) {
             Some(OperatingSystem::Windows)
@@ -59,6 +62,7 @@ impl OperatingSystem {
     }
 }
 
+#[derive(Debug)]
 pub enum PackageManager {
     Apt,
     Dnf,

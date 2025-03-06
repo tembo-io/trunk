@@ -605,7 +605,11 @@ async fn install_trunk_archive(
         "Installing {} {}",
         manifest.name, manifest.extension_version
     );
-    let host_arch = std::env::consts::ARCH;
+    let host_arch = if cfg!(test) {
+        "x86_64"
+    } else {
+        std::env::consts::ARCH
+    };
 
     if manifest.manifest_version > 1 && host_arch != manifest.architecture {
         bail!(
@@ -675,8 +679,7 @@ async fn install_trunk_archive(
                     for package in packages_to_install {
                         let installation_command = package_manager.install(&package);
 
-                        // Execute the command using a shell
-                        let status = std::process::Command::new("sh")
+                        let status = mockcmd::Command::new("sh")
                             .arg("-c")
                             .arg(&installation_command)
                             .status()
@@ -773,6 +776,39 @@ fn assert_sha256_matches(contents: &[u8], maybe_hash: Option<String>) -> Result<
             hash_gotten,
             expected_hash
         );
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn install_with_system_dependencies() -> Result<()> {
+    let file = None;
+    install(
+        Name::Extension("citus"),
+        "13.0.1",
+        file,
+        "https://registry.pgtrunk.io",
+        InstallConfig {
+            package_lib_dir: Path::new("/opt/homebrew/opt/postgresql@16/lib/postgresql").to_owned(),
+            sharedir: Path::new("/opt/homebrew/opt/postgresql@16/share/postgresql@16").to_owned(),
+            postgres_version: 17,
+            skip_dependency_resolution: false,
+            install_system_dependencies: true,
+        },
+    )
+    .await?;
+
+    dbg!(mockcmd::get_executed_commands());
+    let system_deps = [
+        "libpq5", "openssl", "libc6", "liblz4-1", "libzstd1", "libssl3", "libcurl4",
+    ];
+    for dep in system_deps {
+        assert!(mockcmd::was_command_executed(&[
+            "sh",
+            "-c",
+            &format!("sudo apt-get install -y {}", dep)
+        ]));
     }
 
     Ok(())
