@@ -77,11 +77,11 @@ pub struct InstallCommand {
 
 impl InstallCommand {
     pub fn pgconfig(&self) -> Result<PgConfig> {
-        let pg_config_path = self
-            .pg_config
-            .clone()
+        let pg_config_path = dbg!(self.pg_config.clone())
             .map(Ok)
-            .unwrap_or_else(|| which::which("pg_config"))?;
+            .unwrap_or_else(|| dbg!(which::which("pg_config")))?;
+
+        dbg!(&pg_config_path);
 
         Ok(PgConfig { pg_config_path })
     }
@@ -108,9 +108,7 @@ pub struct PgConfig {
 
 impl PgConfig {
     fn exec(&self, arg: &str) -> Result<String> {
-        use std::process::Command;
-
-        let mut bytes = Command::new(&self.pg_config_path)
+        let mut bytes = std::process::Command::new(&self.pg_config_path)
             .arg(arg)
             .output()
             .with_context(|| format!("Failed to run pgconfig {arg}"))?
@@ -477,8 +475,8 @@ async fn install_trunk_archive(
     config: InstallConfig,
 ) -> Result<()> {
     // Handle symlinks
-    let sharedir = std::fs::canonicalize(&config.sharedir)?;
-    let package_lib_dir = std::fs::canonicalize(&config.package_lib_dir)?;
+    let sharedir = dbg!(std::fs::canonicalize(&config.sharedir))?;
+    let package_lib_dir = dbg!(std::fs::canonicalize(&config.package_lib_dir))?;
 
     // First pass: get to the manifest
     // Because we're going over entries with `Seek` enabled, we're not reading everything.
@@ -799,7 +797,6 @@ async fn install_with_system_dependencies() -> Result<()> {
     )
     .await?;
 
-    dbg!(mockcmd::get_executed_commands());
     let system_deps = [
         "libpq5", "openssl", "libc6", "liblz4-1", "libzstd1", "libssl3", "libcurl4",
     ];
