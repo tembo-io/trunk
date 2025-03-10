@@ -22,8 +22,11 @@ use std::fs;
 use std::io::{Cursor, Read};
 use std::ops::Not;
 use std::path::{Path, PathBuf};
+use system_dependencies::OperatingSystem;
 use tar::EntryType;
 use tokio_task_manager::Task;
+
+mod system_dependencies;
 
 #[derive(Clone, Copy)]
 /// A Trunk project name versus an extension name.
@@ -67,6 +70,9 @@ pub struct InstallCommand {
     /// Skip dependency resolution.
     #[clap(long, short, action)]
     skip_dependencies: bool,
+    /// Installs required system dependencies for the extension
+    #[clap(long = "deps", action)]
+    install_system_dependencies: bool,
 }
 
 impl InstallCommand {
@@ -102,9 +108,7 @@ pub struct PgConfig {
 
 impl PgConfig {
     fn exec(&self, arg: &str) -> Result<String> {
-        use std::process::Command;
-
-        let mut bytes = Command::new(&self.pg_config_path)
+        let mut bytes = std::process::Command::new(&self.pg_config_path)
             .arg(arg)
             .output()
             .with_context(|| format!("Failed to run pgconfig {arg}"))?
@@ -176,12 +180,15 @@ impl SubCommand for InstallCommand {
         install(
             Name::TrunkProject(&self.name),
             &self.version,
-            &self.file,
+            self.file.as_deref(),
             &self.registry,
-            package_lib_dir,
-            sharedir,
-            postgres_version,
-            self.skip_dependencies,
+            InstallConfig {
+                package_lib_dir,
+                sharedir,
+                postgres_version,
+                skip_dependency_resolution: self.skip_dependencies,
+                install_system_dependencies: self.install_system_dependencies,
+            },
         )
         .await?;
 
@@ -398,16 +405,22 @@ async fn fetch_archive_from_registry<'a>(
     Ok((data, file_name, maybe_api_extension_name))
 }
 
-#[async_recursion]
-async fn install<'name: 'async_recursion>(
-    name: Name<'name>,
-    version: &str,
-    file: &Option<PathBuf>,
-    registry: &str,
+#[derive(Clone)]
+struct InstallConfig {
     package_lib_dir: PathBuf,
     sharedir: PathBuf,
     postgres_version: u8,
     skip_dependency_resolution: bool,
+    install_system_dependencies: bool,
+}
+
+#[async_recursion]
+async fn install<'name: 'async_recursion>(
+    name: Name<'name>,
+    version: &str,
+    file: Option<&Path>,
+    registry: &str,
+    config: InstallConfig,
 ) -> Result<()> {
     let extension_name = match name {
         Name::TrunkProject(_) => None,
@@ -421,7 +434,7 @@ async fn install<'name: 'async_recursion>(
         let file_name = file.file_name().and_then(|s| s.to_str()).map(String::from);
         (data, file_name, None)
     } else {
-        fetch_archive_from_registry(name, version, registry, postgres_version).await?
+        fetch_archive_from_registry(name, version, registry, config.postgres_version).await?
     };
     let extension_name = extension_name.or(maybe_extension_name);
 
@@ -443,14 +456,11 @@ async fn install<'name: 'async_recursion>(
 
     install_trunk_archive(
         &archive_data,
-        package_lib_dir,
-        sharedir,
         registry,
-        postgres_version,
-        skip_dependency_resolution,
         // Send the v1-supplied extension name, in case the manifest.json
         // doesn't have extension_name set
         extension_name,
+        config,
     )
     .await?;
 
@@ -460,16 +470,13 @@ async fn install<'name: 'async_recursion>(
 async fn install_trunk_archive(
     // Bytes for the project's .tar archive
     archive_data: &[u8],
-    package_lib_dir: PathBuf,
-    sharedir: PathBuf,
     registry: &str,
-    postgres_version: u8,
-    skip_dependency_resolution: bool,
     extension_name: Option<String>,
+    config: InstallConfig,
 ) -> Result<()> {
     // Handle symlinks
-    let sharedir = std::fs::canonicalize(&sharedir)?;
-    let package_lib_dir = std::fs::canonicalize(&package_lib_dir)?;
+    let sharedir = std::fs::canonicalize(&config.sharedir)?;
+    let package_lib_dir = std::fs::canonicalize(&config.package_lib_dir)?;
 
     // First pass: get to the manifest
     // Because we're going over entries with `Seek` enabled, we're not reading everything.
@@ -558,7 +565,7 @@ async fn install_trunk_archive(
         }
     }
 
-    if skip_dependency_resolution {
+    if config.skip_dependency_resolution {
         warn!(
             "Skipping dependency resolution! {} dependencies are unmet.",
             dependent_extensions_to_install.len()
@@ -575,12 +582,9 @@ async fn install_trunk_archive(
                 install(
                     Name::Extension(&dependency),
                     "latest",
-                    &None,
+                    None,
                     registry,
-                    package_lib_dir.clone(),
-                    sharedir.clone(),
-                    postgres_version,
-                    skip_dependency_resolution,
+                    config.clone(),
                 )
                 .await?;
             }
@@ -599,7 +603,11 @@ async fn install_trunk_archive(
         "Installing {} {}",
         manifest.name, manifest.extension_version
     );
-    let host_arch = std::env::consts::ARCH;
+    let host_arch = if cfg!(test) {
+        "x86_64"
+    } else {
+        std::env::consts::ARCH
+    };
 
     if manifest.manifest_version > 1 && host_arch != manifest.architecture {
         bail!(
@@ -659,6 +667,35 @@ async fn install_trunk_archive(
     }
     if manifest.extension_name.is_none() {
         manifest.extension_name = extension_name;
+    }
+
+    if config.install_system_dependencies {
+        if let Some(system_deps) = &manifest.dependencies {
+            let operating_system = OperatingSystem::detect()?;
+            for package_manager in operating_system.package_managers() {
+                if let Some(packages_to_install) = system_deps.get(package_manager.as_str()) {
+                    for package in packages_to_install {
+                        let installation_command = package_manager.install(&package);
+
+                        let status = mockcmd::Command::new("sh")
+                            .arg("-c")
+                            .arg(&installation_command)
+                            .status()
+                            .with_context(|| {
+                                format!("Failed to execute command: {}", installation_command)
+                            })?;
+
+                        if !status.success() {
+                            anyhow::bail!(
+                                "Installation of package '{}' via {} failed",
+                                package,
+                                package_manager.as_str()
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post_installation(&manifest);
@@ -737,6 +774,45 @@ fn assert_sha256_matches(contents: &[u8], maybe_hash: Option<String>) -> Result<
             hash_gotten,
             expected_hash
         );
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn install_with_system_dependencies() -> Result<()> {
+    let file = None;
+
+    let pg_config = PgConfig {
+        pg_config_path: which::which("pg_config")?,
+    };
+    let package_lib_dir = pg_config.pkglibdir()?;
+    let sharedir = pg_config.sharedir()?;
+
+    install(
+        Name::Extension("citus"),
+        "13.0.1",
+        file,
+        "https://registry.pgtrunk.io",
+        InstallConfig {
+            package_lib_dir,
+            sharedir,
+            postgres_version: 17,
+            skip_dependency_resolution: false,
+            install_system_dependencies: true,
+        },
+    )
+    .await?;
+
+    let system_deps = [
+        "libpq5", "openssl", "libc6", "liblz4-1", "libzstd1", "libssl3", "libcurl4",
+    ];
+    for dep in system_deps {
+        assert!(mockcmd::was_command_executed(&[
+            "sh",
+            "-c",
+            &format!("sudo apt-get install -y {}", dep)
+        ]));
     }
 
     Ok(())
