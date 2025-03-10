@@ -1,5 +1,5 @@
 ARG PG_VERSION
-FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.12.9
+FROM quay.io/coredb/pgrx-builder:pg${PG_VERSION}-pgrx0.13.0
 
 ARG EXTENSION_NAME
 ARG EXTENSION_VERSION

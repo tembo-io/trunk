@@ -1,0 +1,11 @@
+# Set PostgreSQL version
+ARG PG_VERSION
+FROM quay.io/coredb/c-builder:pg${PG_VERSION}
+
+# Download and build extension
+ARG EXTENSION_NAME
+ARG EXTENSION_VERSION
+RUN curl -O https://api.pgxn.org/dist/${EXTENSION_NAME}/${EXTENSION_VERSION}/${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && unzip ${EXTENSION_NAME}-${EXTENSION_VERSION}.zip \
+    && cd ${EXTENSION_NAME}-${EXTENSION_VERSION} && make
+WORKDIR /app/${EXTENSION_NAME}-${EXTENSION_VERSION}

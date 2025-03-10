@@ -1,6 +1,6 @@
 [extension]
 name = "pgaudit"
-version = "1.7.0"
+version = "1.7.1"
 repository = "https://github.com/pgaudit/pgaudit"
 license = "PostgreSQL"
 description = "The PostgreSQL Audit Extension (pgAudit) provides detailed session and/or object audit logging via the standard PostgreSQL logging facility."
