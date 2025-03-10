@@ -77,11 +77,11 @@ pub struct InstallCommand {
 
 impl InstallCommand {
     pub fn pgconfig(&self) -> Result<PgConfig> {
-        let pg_config_path = dbg!(self.pg_config.clone())
+        let pg_config_path = self
+            .pg_config
+            .clone()
             .map(Ok)
-            .unwrap_or_else(|| dbg!(which::which("pg_config")))?;
-
-        dbg!(&pg_config_path);
+            .unwrap_or_else(|| which::which("pg_config"))?;
 
         Ok(PgConfig { pg_config_path })
     }
@@ -475,8 +475,8 @@ async fn install_trunk_archive(
     config: InstallConfig,
 ) -> Result<()> {
     // Handle symlinks
-    let sharedir = dbg!(std::fs::canonicalize(&config.sharedir))?;
-    let package_lib_dir = dbg!(std::fs::canonicalize(&config.package_lib_dir))?;
+    let sharedir = std::fs::canonicalize(&config.sharedir)?;
+    let package_lib_dir = std::fs::canonicalize(&config.package_lib_dir)?;
 
     // First pass: get to the manifest
     // Because we're going over entries with `Seek` enabled, we're not reading everything.

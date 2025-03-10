@@ -70,10 +70,6 @@ jobs:
           USER=$(whoami)
           sudo chown -R $USER $(pg_config --sharedir)
           sudo chown -R $USER $(pg_config --pkglibdir)
-          which pg_config
-          ls -lah $(pg_config --sharedir)
-          ls -lah $(pg_config --pkglibdir)
-          true && echo "done!"
           cargo test -- --nocapture
 
   cargo_publish:
