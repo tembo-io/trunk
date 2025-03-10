@@ -609,7 +609,7 @@ pub async fn package_installed_extension_files(
 
         let manifest = serde_json::to_string_pretty(&manifest).unwrap_or_default();
         let mut header = Header::new_gnu();
-        header.set_size(manifest.as_bytes().len() as u64);
+        header.set_size(manifest.len() as u64);
         header.set_cksum();
         header.set_mode(0o644);
         new_archive.append_data(&mut header, "manifest.json", Cursor::new(manifest))?;

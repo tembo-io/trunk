@@ -64,7 +64,7 @@ pub struct InstallCommand {
         default_value = "https://registry.pgtrunk.io"
     )]
     registry: String,
-    /// The PostgreSQL version for which this extension should be installed. Experimental for versions other than Postgres 15.
+    /// The PostgreSQL version for which this extension should be installed.
     #[clap(long, action)]
     pg_version: Option<u8>,
     /// Skip dependency resolution.
@@ -73,6 +73,12 @@ pub struct InstallCommand {
     /// Installs required system dependencies for the extension
     #[clap(long = "deps", action)]
     install_system_dependencies: bool,
+    /// Installation location for architecture-independent support files.
+    #[clap(long = "sharedir", action)]
+    sharedir: Option<PathBuf>,
+    /// Installation location for dynamically loadable modules.
+    #[clap(long = "pkglibdir", action)]
+    pkglibdir: Option<PathBuf>,
 }
 
 impl InstallCommand {
@@ -155,9 +161,14 @@ impl SubCommand for InstallCommand {
     async fn execute(&self, _task: Task) -> Result<()> {
         let pg_config = self.pgconfig()?;
 
-        let package_lib_dir = pg_config.pkglibdir()?;
-
-        let sharedir = pg_config.sharedir()?;
+        let package_lib_dir = match &self.pkglibdir {
+            Some(p) => p.clone(),
+            None => pg_config.pkglibdir()?,
+        };
+        let sharedir = match &self.sharedir {
+            Some(p) => p.clone(),
+            None => pg_config.sharedir()?,
+        };
 
         if !package_lib_dir.exists() && !package_lib_dir.is_dir() {
             println!(
@@ -348,8 +359,8 @@ async fn fetch_archive_legacy(registry: &str, name: &str, version: &str) -> Resu
     }
 }
 
-async fn fetch_archive_from_registry<'a>(
-    name: Name<'a>,
+async fn fetch_archive_from_registry(
+    name: Name<'_>,
     version: &str,
     registry: &str,
     postgres_version: u8,
@@ -675,7 +686,7 @@ async fn install_trunk_archive(
             for package_manager in operating_system.package_managers() {
                 if let Some(packages_to_install) = system_deps.get(package_manager.as_str()) {
                     for package in packages_to_install {
-                        let installation_command = package_manager.install(&package);
+                        let installation_command = package_manager.install(package);
 
                         let status = mockcmd::Command::new("sh")
                             .arg("-c")
