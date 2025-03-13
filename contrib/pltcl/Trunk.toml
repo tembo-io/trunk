@@ -9,7 +9,7 @@ documentation = "https://www.postgresql.org/docs/current/pltcl.html"
 categories = ["procedural_languages"]
 
 [dependencies]
-apt = ["libtcl8.6.so", "libc6"]
+apt = ["libtcl8", "libc6"]
 
 [build]
 postgres_version = "17"
