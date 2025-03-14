@@ -51,14 +51,14 @@ fn install_manifest_v1_extension() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std::error::Error>> {
     // Set up a temporary directory that will be deleted when the test finishes.
-    let tmp_dir = TempDir::with_prefix("test_pljava_")?;
+    let tmp_dir = TempDir::with_prefix("test_dir_field")?;
     let output_dir = tmp_dir.path();
-    let tarball = &output_dir.join("pljava-1.6.8-pg15.tar.gz");
+    let tarball = &output_dir.join("pair-0.1.7-pg15.tar.gz");
 
     // Construct a path relative to the current file's directory
     let mut extension_path = std::path::PathBuf::from(file!());
     extension_path.pop(); // Remove the file name from the path
-    extension_path.push("test_pljava");
+    extension_path.push("test_dir_field");
 
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("build");
@@ -68,32 +68,22 @@ fn build_and_install_extension_with_directory_field() -> Result<(), Box<dyn std:
     cmd.arg(output_dir);
     cmd.assert().code(0);
 
-    if !cfg!(target_arch = "x86_64") {
-        eprintln!(
-            "TODO: Trunk currently only supports the x86_64 architecture; skipping installation tests"
-        );
-        return Ok(());
-    }
-
     let mut cmd = Command::cargo_bin(CARGO_BIN)?;
     cmd.arg("install");
     cmd.arg("--pg-version");
     cmd.arg("15");
     cmd.arg("--file");
     cmd.arg(tarball);
-    cmd.arg("pljava");
+    cmd.arg("pair");
     cmd.assert().code(0);
 
-    // Get output of 'pg_config --sharedir' and '--pkgdir'
+    // Get output of 'pg_config --sharedir'
     let sharedir = pg_config_path("sharedir")?;
-    let pkglibdir = pg_config_path("pkglibdir")?;
 
     // Make sure files were installed.
-    assert!(sharedir.join("extension/pljava.control").exists());
-    assert!(sharedir.join("pljava/pljava-1.6.8.jar").exists());
-    assert!(sharedir.join("pljava/pljava-api-1.6.8.jar").exists());
-    assert!(sharedir.join("pljava/pljava--1.6.8.sql").exists());
-    assert!(pkglibdir.join("libpljava-so-1.6.8.so").exists());
+    assert!(sharedir.join("extension/pair.control").exists());
+    assert!(sharedir.join("pair/pair--unpackaged--0.1.2.sql").exists());
+    assert!(sharedir.join("pair/pair--0.1.2.sql").exists());
     Ok(())
 }
 

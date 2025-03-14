@@ -1,0 +1,14 @@
+[extension]
+name = "pair"
+version = "0.1.7"
+repository = "https://github.com/theory/kv-pair/"
+license = "PostgreSQL"
+description = "A key/value pair data type"
+documentation = "https://pgxn.org/dist/pair/doc/pair.html"
+categories = ["data_transformations"]
+
+[build]
+postgres_version = "17"
+dockerfile = "Dockerfile"
+platform = "linux/amd64"
+install_command = "make install"

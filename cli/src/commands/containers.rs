@@ -373,9 +373,8 @@ pub async fn build_image(
         ..Default::default()
     };
 
-    if platform.is_some() {
-        let platform_value = platform.as_ref().unwrap();
-        options.platform = platform_value.as_str();
+    if let Some(p) = &platform {
+        options.platform = p.as_str();
     }
 
     let mut image_build_stream = docker.build_image(
