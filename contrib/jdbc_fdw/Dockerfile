@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
 # Clone and build the extension.
 ARG EXTENSION_NAME
 # ARG EXTENSION_VERSION
-ARG RELEASE=v0.4.0
+ARG RELEASE=v0.5.0
 RUN git clone --depth 1 --branch "${RELEASE}" https://github.com/pgspider/${EXTENSION_NAME}.git \
     && cd ${EXTENSION_NAME} \
 	&& mkdir -p /usr/lib64 \
