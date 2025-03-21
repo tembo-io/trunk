@@ -14,7 +14,9 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev
 
 # Clone and build the extension.
+# Setting LDFLAGS_EX works around https://github.com/2ndQuadrant/pglogical/issues/492.
+ARG PG_VERSION
 ARG EXTENSION_NAME
 ARG EXTENSION_VERSION
 RUN git clone --depth 1 --branch "REL$(perl -E 'print shift =~ s/\./_/gr' "${EXTENSION_VERSION}")" https://github.com/2ndQuadrant/${EXTENSION_NAME}.git \
-    && make -C ${EXTENSION_NAME}
+    && make -C ${EXTENSION_NAME} LDFLAGS_EX="-L/usr/lib/postgresql/${PG_VERSION}/lib"
