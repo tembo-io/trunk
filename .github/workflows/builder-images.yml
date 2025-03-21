@@ -142,6 +142,7 @@ jobs:
           - "0.12.8"
           - "0.12.9"
           - "0.13.0"
+          - "0.13.1"
         exclude:
           - { pg_version: "17", pgrx_version: "0.11.0" }
           - { pg_version: "17", pgrx_version: "0.11.1" }
@@ -218,6 +219,7 @@ jobs:
           - "0.12.8"
           - "0.12.9"
           - "0.13.0"
+          - "0.13.1"
         exclude:
           - { pg_version: "17", pgrx_version: "0.11.0" }
           - { pg_version: "17", pgrx_version: "0.11.1" }

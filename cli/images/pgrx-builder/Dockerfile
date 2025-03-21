@@ -10,5 +10,11 @@ ENV PATH="/var/lib/postgresql/.cargo/bin:${PATH}"
 
 # Install tcdi/pgrx
 ARG PGRX_VERSION=0.8.2
-RUN cargo --version && cargo install cargo-pgrx --version "${PGRX_VERSION}"
-RUN cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config
+RUN set -ex; \
+    if [ "$PGRX_VERSION" = "0.13.1" ] || [ "$PGRX_VERSION" = "0.13.0" ]; then \
+        # https://github.com/pgcentralfoundation/pgrx/issues/2009
+        cargo --version && cargo install cargo-pgrx --version "${PGRX_VERSION}" --locked; \
+    else \
+        cargo --version && cargo install cargo-pgrx --version "${PGRX_VERSION}"; \
+    fi; \
+    cargo pgrx init --pg${PG_VERSION} /usr/bin/pg_config
