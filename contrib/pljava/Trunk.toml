@@ -1,6 +1,6 @@
 [extension]
 name = "pljava"
-version = "1.6.8"
+version = "1.6.9"
 repository = "https://github.com/tada/pljava"
 license = "BSD-3-Clause"
 description = "Java Procedural Language for PostgreSQL"

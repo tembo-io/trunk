@@ -1,6 +1,6 @@
 [extension]
 name = "emaj"
-version = "4.5.0"
+version = "4.6.0"
 repository = "https://github.com/dalibo/emaj"
 license = "GPL-3.0"
 description = "Fine-grained write logging and time travel on subsets of the DB"
