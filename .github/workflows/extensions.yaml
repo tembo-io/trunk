@@ -15,7 +15,7 @@ on:
 jobs:
   find_directories:
     name: 🔍 Find changed extensions
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       directories: ${{ steps.find_directories.outputs.build_matrix }}
     steps:
