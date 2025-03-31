@@ -55,7 +55,7 @@ jobs:
     runs-on:
       - "runs-on=${{ github.run_id }}-${{ matrix.ext.name}}-${{ matrix.pg }}-test"
       - "runner=large-amd64"
-      - "cpu=16"
+      - "cpu=8"
       - "ram=16"
     container:
       image: quay.io/tembo/trunk-test-tembo:4436f19-pg${{ matrix.pg }}
@@ -91,7 +91,7 @@ jobs:
     runs-on:
       - "runs-on=${{ github.run_id }}-${{ matrix.ext.name}}-${{ matrix.pg }}-build"
       - "runner=large-amd64"
-      - "cpu=16"
+      - "cpu=8"
       - "ram=16"
     container:
       image: quay.io/tembo/trunk-test-tembo:4436f19-pg${{ matrix.pg }}

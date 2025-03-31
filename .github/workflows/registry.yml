@@ -126,7 +126,7 @@ jobs:
     runs-on:
       - "runs-on=${{ github.run_id }}-build-and-push"
       - "runner=large-amd64"
-      - "cpu=16"
+      - "cpu=8"
       - "ram=16"
     outputs:
       short_sha: ${{ steps.versions.outputs.SHORT_SHA }}
