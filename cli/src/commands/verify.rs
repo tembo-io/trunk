@@ -54,7 +54,7 @@ async fn extract_sql_and_expected_files(
     github_project: GitHubProject<'_>,
 ) -> Result<ExtractedTestCases> {
     fn check_parent(expected_parent: &str, path: &Path) -> bool {
-        let Some(parent_obtained) = path.parent().and_then(|parent| parent.components().last())
+        let Some(parent_obtained) = path.parent().and_then(|parent| parent.components().next_back())
         else {
             return false;
         };
@@ -241,7 +241,7 @@ impl<'a> GitHubProject<'a> {
             let name = parts.next()?;
             let subdir = if let Some("tree") = parts.next() {
                 // TODO: join instead of last?
-                parts.last()
+                parts.next_back()
             } else {
                 None
             };

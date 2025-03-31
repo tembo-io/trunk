@@ -404,10 +404,10 @@ async fn fetch_archive_from_registry(
 
     info!("Downloading from: {url}");
     // Extract the file name from the URL.
-    let segments = url
+    let mut segments = url
         .path_segments()
         .ok_or(anyhow!("Cannot extract path segments from URL"))?;
-    let file_name = segments.last().map(|s| s.to_string());
+    let file_name = segments.next_back().map(|s| s.to_string());
 
     let response = get_retry(url).await?;
     let data = response.bytes().await?.to_vec();
