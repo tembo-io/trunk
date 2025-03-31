@@ -3,20 +3,21 @@ name: Trunk install test workflow
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '0 12 * * *'
+    - cron: "0 12 * * *"
   pull_request:
     branches:
       - main
     paths:
-      - '.github/workflows/trunk-install-test.yml'
+      - ".github/workflows/trunk-install-test.yml"
 
 jobs:
   test:
     name: Run tests
     runs-on:
-      - self-hosted
-      - dind
-      - large-8x8
+      - "runs-on=${{ github.run_id }}-run-tests"
+      - "runner=large-amd64"
+      - "cpu=8"
+      - "ram=16"
     container:
       image: quay.io/tembo/trunk-test-tembo:1d073a4-pg15
       options: --user root

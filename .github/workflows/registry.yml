@@ -10,24 +10,25 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/registry.yml'
-      - 'registry/**'
+      - ".github/workflows/registry.yml"
+      - "registry/**"
 
   # Always run on main or release branches
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/registry.yml'
-      - 'registry/**'
+      - ".github/workflows/registry.yml"
+      - "registry/**"
 
 jobs:
   lint:
     name: Run linters
     runs-on:
-      - self-hosted
-      - dind
-      - large-8x8
+      - "runs-on=${{ github.run_id }}-lint"
+      - "runner=large-amd64"
+      - "cpu=8"
+      - "ram=16"
     env:
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
     services:
@@ -76,9 +77,10 @@ jobs:
   test:
     name: Run tests
     runs-on:
-      - self-hosted
-      - dind
-      - large-8x8
+      - "runs-on=${{ github.run_id }}-test"
+      - "runner=large-amd64"
+      - "cpu=8"
+      - "ram=16"
     env:
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
       CLERK_SECRET_KEY: ""
@@ -122,9 +124,10 @@ jobs:
   build-push-image:
     name: Build and push image
     runs-on:
-      - self-hosted
-      - dind
-      - xlarge-16x16
+      - "runs-on=${{ github.run_id }}-build-and-push"
+      - "runner=large-amd64"
+      - "cpu=8"
+      - "ram=16"
     outputs:
       short_sha: ${{ steps.versions.outputs.SHORT_SHA }}
     steps:
@@ -160,7 +163,7 @@ jobs:
   argocd-update:
     name: ArgoCD update automation
     if: ${{ github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       # fail-fast means to cancel all jobs if one fails
       fail-fast: false
