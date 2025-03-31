@@ -26,19 +26,18 @@ on:
 jobs:
   lint:
     name: Run linters
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install minimal nightly with clippy and rustfmt
-        uses: actions-rs/toolchain@v1
+      - name: Install Rust with clippy and rustfmt
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: nightly
           components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: "trunk-cli-lint"
-          workspaces: |
+          cache: true
+          cache-key: "trunk-cli-lint"
+          cache-on-failure: true
+          cache-workspaces: |
             cli
       - name: Cargo format
         run: cargo +nightly fmt --check
@@ -48,23 +47,26 @@ jobs:
   test:
     name: Run tests
     runs-on:
-      - self-hosted
-      - dind
-      - large-8x8
+      - "runs-on=${{ github.run_id }}-trunk-cli-test"
+      - "runner=large-amd64"
+      - "cpu=8"
+      - "ram=16"
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: "trunk-cli-functional-test"
-          workspaces: |
-            cli
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libssl-dev postgresql build-essential
+      - name: Install Rust with clippy and rustfmt
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
+          cache: true
+          cache-key: "trunk-cli-functional-test"
+          cache-on-failure: true
+          cache-workspaces: |
+            cli
       - name: Run functional tests
         run: |
           USER=$(whoami)
@@ -79,7 +81,7 @@ jobs:
     # does not exist, ignoring if the version is already
     # published.
     name: Cargo publish or validate
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4

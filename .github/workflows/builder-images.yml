@@ -18,9 +18,10 @@ jobs:
   build_and_push_c_builders:
     name: 🧱 ${{ matrix.arch }} C on 🐘 ${{ matrix.pg_version }}
     runs-on:
-      - self-hosted
-      - dind
-      - ${{ matrix.arch == 'amd64' && 'large-8x8' || 'large-8x8-arm64' }}
+      - "runs-on=${{ github.run_id }}-${{ matrix.arch }}-pg${{ matrix.pg_version }}"
+      - "runner=large-${{ matrix.arch }}"
+      - "cpu=8"
+      - "ram=16"
     strategy:
       fail-fast: false
       matrix:
@@ -58,9 +59,10 @@ jobs:
     if: github.ref_name == 'main'
     name: 🗂️ C on 🐘 ${{ matrix.pg_version }}
     runs-on:
-      - self-hosted
-      - dind
-      - large-8x8
+      - "runs-on=${{ github.run_id }}-pg${{ matrix.pg_version }}"
+      - "runner=large-amd64"
+      - "cpu=8"
+      - "ram=16"
     strategy:
       matrix:
         pg_version: ["14", "15", "16", "17"]
@@ -117,9 +119,10 @@ jobs:
     needs: build_and_push_c_builders
     name: 🦀 ${{ matrix.arch }} pgrx ${{ matrix.pgrx_version }} on 🐘 ${{ matrix.pg_version }}
     runs-on:
-      - self-hosted
-      - dind
-      - ${{ matrix.arch == 'amd64' && 'large-8x8' || 'large-8x8-arm64' }}
+      - "runs-on=${{ github.run_id }}-${{ matrix.arch }}-pgrx${{ matrix.pgrx_version}}-pg${{ matrix.pg_version }}"
+      - "runner=large-${{ matrix.arch }}"
+      - "cpu=8"
+      - "ram=16"
     strategy:
       fail-fast: false
       matrix:
@@ -195,9 +198,10 @@ jobs:
     if: github.ref_name == 'main'
     needs: build_and_push_pgrx_builders
     runs-on:
-      - self-hosted
-      - dind
-      - large-8x8
+      - "runs-on=${{ github.run_id }}-pgrx${{ matrix.pgrx_version}}-pg${{ matrix.pg_version }}"
+      - "runner=large-amd64"
+      - "cpu=8"
+      - "ram=16"
     strategy:
       fail-fast: false
       matrix:

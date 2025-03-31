@@ -7,25 +7,25 @@ defaults:
 on:
   push:
     branches:
-      - 'main'
+      - "main"
     paths:
       - "images/trunk-test-tembo/**"
       - ".github/workflows/test-images.yml"
   pull_request:
     branches:
-      - 'main'
+      - "main"
     paths:
       - "images/trunk-test-tembo/**"
       - ".github/workflows/test-images.yml"
-
 
 jobs:
   build_trunk_test_image:
     name: Build image used for trunk tests
     runs-on:
-      - self-hosted
-      - dind
-      - large-8x8
+      - "runs-on=${{ github.run_id }}-${{ matrix.pg_version}}-build-trunk"
+      - "runner=large-amd64"
+      - "cpu=8"
+      - "ram=16"
     strategy:
       matrix:
         pg_version: ["14", "15", "16", "17"]
