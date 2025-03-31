@@ -54,7 +54,9 @@ async fn extract_sql_and_expected_files(
     github_project: GitHubProject<'_>,
 ) -> Result<ExtractedTestCases> {
     fn check_parent(expected_parent: &str, path: &Path) -> bool {
-        let Some(parent_obtained) = path.parent().and_then(|parent| parent.components().next_back())
+        let Some(parent_obtained) = path
+            .parent()
+            .and_then(|parent| parent.components().next_back())
         else {
             return false;
         };
