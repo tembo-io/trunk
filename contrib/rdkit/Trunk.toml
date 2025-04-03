@@ -1,6 +1,6 @@
 [extension]
 name = "rdkit"
-version = "4.6.1"
+version = "4.7.0"
 repository = "https://github.com/rdkit/rdkit/tree/master/Code/PgSQL/rdkit"
 license = "BSD-3-Clause"
 description = "Cheminformatics functionality for PostgreSQL."

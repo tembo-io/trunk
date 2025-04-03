@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
 # Build and Install RDKit
 ARG EXTENSION_NAME
 # ARG EXTENSION_VERSION
-ARG RELEASE=Release_2024_09_4
+ARG RELEASE=Release_2025_03_1
 RUN curl -LO https://github.com/${EXTENSION_NAME}/${EXTENSION_NAME}/archive/${RELEASE}.tar.gz \
     && tar xvf ${RELEASE}.tar.gz \
     && cd ${EXTENSION_NAME}-${RELEASE} \
