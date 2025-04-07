@@ -1,6 +1,6 @@
 [package]
 name = "pg-trunk"
-version = "0.16.4"
+version = "0.16.5"
 edition = "2021"
 authors = ["Ian Stanton", "Vinícius Miguel", "David E. Wheeler"]
 description = "A package manager for PostgreSQL extensions"
@@ -67,3 +67,11 @@ git2 = "0.17.0"
 predicates = "2.1.5"
 tempfile = "3"
 mockcmd = { version = "0.0.1", features = ["test"] }
+
+# https://github.com/johnthagen/min-sized-rust
+[profile.release]
+strip = true
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"

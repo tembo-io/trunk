@@ -1,0 +1,67 @@
+name: 🚀 Release Trunk
+on:
+  push:
+    paths:
+      - ".github/workflows/cli-release.yml"
+      - "cli/**"
+      - "!cli/README.md"
+      - "!cli/.gitignore"
+permissions:
+  contents: write
+defaults:
+  run:
+    shell: bash
+    working-directory: ./cli/
+jobs:
+  release:
+    name: 🦀 ${{ matrix.toolchain }} on linux/${{ matrix.arch }}
+    runs-on:
+      # https://runs-on.com/runners/linux/
+      - runs-on=${{ github.run_id }}-${{ matrix.toolchain }}-${{ matrix.arch }}
+      - runner=large-${{ matrix.arch }}
+      - cpu=8
+      - ram=16
+    continue-on-error: ${{ matrix.toolchain == 'nightly' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+        toolchain: [stable, beta, nightly]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          cache-key: ${{ matrix.arch }}
+          components: rustfmt, clippy, llvm-tools
+      - name: Build Binary
+        run: cargo build --release
+      - name: Get the Version
+        if: env.VERSION == ''
+        run: echo "VERSION=$(grep "^version" Cargo.toml | sed -r 's/version[^"]+"([^"]+).*/\1/')" >> $GITHUB_ENV
+      - name: Determine Archive Name
+        run: |
+          echo "ARCHIVE=trunk-v$VERSION-linux-${{ matrix.arch }}" >> $GITHUB_ENV
+      - name: Package Archive
+        run: |
+          set -ex
+          printf "Packaging %s\n" "$ARCHIVE"
+          mkdir "$ARCHIVE"
+          cp target/release/trunk "$ARCHIVE"/
+          cp {README.md,../LICENSE} "$ARCHIVE"/
+          tar czvf "$ARCHIVE.tar.gz" "$ARCHIVE"
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: "${{ env.ARCHIVE }}.*"
+          name: "${{ env.ARCHIVE }}"
+          overwrite: true
+        if: matrix.toolchain == 'stable' && github.ref_name == 'main'
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: "Release ${{ env.VERSION }}"
+          files: "trunk-*"
+        if: matrix.toolchain == 'stable' && github.ref_name == 'main'
