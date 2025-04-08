@@ -54,14 +54,15 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: "${{ env.ARCHIVE }}.*"
-          name: "${{ env.ARCHIVE }}"
+          path: cli/${{ env.ARCHIVE }}.*
+          name: ${{ env.ARCHIVE }}
           overwrite: true
         if: matrix.toolchain == 'stable' && github.ref_name == 'main'
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          name: "Release ${{ env.VERSION }}"
-          files: "trunk-*"
+          name: Trunk ${{ env.VERSION }}
+          body: Trunk ${{ env.VERSION }} builds for amd64 and arm64 Linux.
+          files: cli/${{ env.ARCHIVE }}.*
         if: matrix.toolchain == 'stable' && github.ref_name == 'main'
