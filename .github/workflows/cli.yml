@@ -115,3 +115,12 @@ jobs:
           dry-run: ${{ steps.cargo_flags.outputs.dry_run }}
           fail-if-version-published: ${{ steps.cargo_flags.outputs.fail_if_version_published }}
           cargo-registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      # Alas this does not work. https://github.com/orgs/community/discussions/27028
+      # - name: Tag Release
+      #   # if: ${{ !steps.cargo_flags.outputs.dry_run }}
+      #   run: |
+      #     git config --global user.name "coredb-service-user"
+      #     git config --global user.email "admin+github@coredb.io"
+      #     TAG="cli-v$(grep "^version" Cargo.toml | sed -r 's/version[^"]+"([^"]+).*/\1/')"
+      #     git tag -a "$TAG" -m "Tag $TAG"
+      #     git push origin "$TAG"
