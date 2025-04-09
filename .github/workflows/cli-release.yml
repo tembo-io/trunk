@@ -2,11 +2,19 @@ name: 🚀 Release Trunk
 on:
   push:
     paths:
-      - ".github/workflows/cli-release.yml"
+      - ".github/workflows/cli*.yml"
       - "cli/**"
       - "!cli/README.md"
       - "!cli/.gitignore"
     tags: ["**"]
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/cli*.yml"
+      - "cli/**"
+      - "!cli/README.md"
+      - "!cli/.gitignore"
 permissions:
   contents: write
 defaults:
@@ -35,7 +43,6 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
-          cache-key: ${{ matrix.arch }}
           components: rustfmt, clippy, llvm-tools
       - name: Build Binary
         run: cargo build --release
