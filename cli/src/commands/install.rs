@@ -19,7 +19,7 @@ use slicedisplay::SliceDisplay;
 use std::ffi::OsStr;
 use std::fmt::Display;
 use std::fs;
-use std::io::{Cursor, Read};
+use std::io::{BufRead, Cursor, Read, Write};
 use std::ops::Not;
 use std::path::{Path, PathBuf};
 use system_dependencies::OperatingSystem;
@@ -79,6 +79,9 @@ pub struct InstallCommand {
     /// Installation location for dynamically loadable modules.
     #[clap(long = "pkglibdir", action)]
     pkglibdir: Option<PathBuf>,
+    /// Strip `$libdir/` from module_pathname before installing control file.
+    #[clap(long = "strip-libdir", action)]
+    strip_libdir: bool,
 }
 
 impl InstallCommand {
@@ -199,6 +202,7 @@ impl SubCommand for InstallCommand {
                 postgres_version,
                 skip_dependency_resolution: self.skip_dependencies,
                 install_system_dependencies: self.install_system_dependencies,
+                strip_libdir: self.strip_libdir,
             },
         )
         .await?;
@@ -423,6 +427,7 @@ struct InstallConfig {
     postgres_version: u8,
     skip_dependency_resolution: bool,
     install_system_dependencies: bool,
+    strip_libdir: bool,
 }
 
 #[async_recursion]
@@ -637,6 +642,20 @@ async fn install_trunk_archive(
                 PackagedFile::ControlFile { .. } => {
                     if manifest.manifest_version > 1 {
                         println!("[+] {} => {}", name.display(), sharedir.display());
+                        if config.strip_libdir {
+                            // Copy line by line and remove the $libdir prefix
+                            // from module_pathname.
+                            let mut dst = fs::File::create(sharedir.join(name))?;
+                            let buf = std::io::BufReader::new(entry);
+                            for line in buf.lines().map_while(Result::ok) {
+                                if line.starts_with("module_pathname") {
+                                    writeln!(&mut dst, "{}", line.replace("$libdir/", ""))?;
+                                } else {
+                                    writeln!(&mut dst, "{line}")?;
+                                }
+                            }
+                            continue;
+                        }
                         entry.unpack_in(&sharedir)?;
                     } else {
                         // In manifest v1, the control file is in the root of the archive
@@ -807,10 +826,11 @@ async fn install_with_system_dependencies() -> Result<()> {
         "https://registry.pgtrunk.io",
         InstallConfig {
             package_lib_dir,
-            sharedir,
+            sharedir: sharedir.clone(),
             postgres_version: 17,
             skip_dependency_resolution: false,
             install_system_dependencies: true,
+            strip_libdir: true,
         },
     )
     .await?;
@@ -824,6 +844,15 @@ async fn install_with_system_dependencies() -> Result<()> {
             "-c",
             &format!("sudo apt-get install -y {}", dep)
         ]));
+    }
+
+    // Validate that strip_libdir properly stripped the $libdir prefix.
+    let ctrl = fs::File::open(sharedir.join("extension").join("citus.control"))?;
+    let buf = std::io::BufReader::new(ctrl);
+    for line in buf.lines().map_while(Result::ok) {
+        if line.starts_with("module_pathname") {
+            assert!(!line.contains("$libdir/"));
+        }
     }
 
     Ok(())
