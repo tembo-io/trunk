@@ -25,12 +25,8 @@ defaults:
 jobs:
   release:
     name: 🦀 ${{ matrix.toolchain }} on linux/${{ matrix.arch }}
-    runs-on:
-      # https://runs-on.com/runners/linux/
-      - runs-on=${{ github.run_id }}-${{ matrix.toolchain }}-${{ matrix.arch }}
-      - runner=large-${{ matrix.arch }}
-      - cpu=8
-      - ram=16
+    # Build on older generation for better libc compatibility.
+    runs-on: ubuntu-22.04${{ matrix.arch == 'arm64' && '-arm' || '' }}
     continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     strategy:
       fail-fast: false
