@@ -4,7 +4,7 @@ use std::io::Read;
 
 use crate::trunk_toml::TrunkToml;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ExtensionConfiguration {
     #[serde(alias = "name")]
     configuration_name: String,
@@ -28,7 +28,7 @@ pub fn parse_trunk_toml<R: Read>(mut reader: R) -> Result<TrunkToml, anyhow::Err
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct LoadableLibrary {
     pub library_name: String,
     pub requires_restart: bool,

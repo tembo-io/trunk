@@ -9,6 +9,7 @@ use clap::Args;
 use log::{info, warn};
 use slicedisplay::SliceDisplay;
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::fs;
 use std::fs::File;
 use std::io;
@@ -50,6 +51,7 @@ pub struct BuildCommand {
     build_args: Vec<String>,
 }
 
+#[derive(Debug, Default, PartialEq)]
 pub struct BuildSettings {
     pub path: String,
     pub output_path: String,
@@ -89,8 +91,10 @@ impl BuildSettings {
         }
     }
 
-    // get_docker_build_args returns the values to use for `-build-arg`
-    // options to `docker build.`
+    // get_docker_build_args returns the values to use for `--build-arg`
+    // options to `docker build.` Pass name and version to override values
+    // read from `Trunk.toml` and the command-line. Pass empty strings to
+    // require values from rom `Trunk.toml` and the command-line.
     pub(crate) fn get_docker_build_args<'a>(
         &'a self,
         name: &'a str,
@@ -349,5 +353,76 @@ impl SubCommand for BuildCommand {
 
         build_generic(&build_settings, &install_command, path, task).await?;
         return Ok(());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn from_root(path: &str) -> PathBuf {
+        [env!("CARGO_MANIFEST_DIR"), path].iter().collect()
+    }
+
+    #[test]
+    fn settings_get_dockerfile() {
+        // Test successes.
+        for (name, val, path) in [
+            ("pgxs", "pgxs", None),
+            ("pgrx", "pgrx", None),
+            (
+                "dir_field",
+                "pgxs",
+                Some("tests/test_dir_field/Dockerfile".to_string()),
+            ),
+            (
+                "http",
+                "pgrx",
+                Some("tests/test_builders/Dockerfile.http".to_string()),
+            ),
+        ] {
+            let bs = BuildSettings {
+                dockerfile_path: path.clone(),
+                ..Default::default()
+            };
+
+            let dockerfile = bs.get_dockerfile(val).unwrap();
+            let p = path.unwrap_or_else(|| match val {
+                "pgxs" => "src/commands/builders/Dockerfile.generic".to_string(),
+                "pgrx" => "src/commands/builders/Dockerfile.pgrx".to_string(),
+                _ => panic!("Unknown val {val}"),
+            });
+
+            let file = from_root(&p);
+            let contents = fs::read_to_string(file).unwrap();
+            assert_eq!(contents, dockerfile, "{name}");
+        }
+
+        // Test failures.
+        for (name, val, path, err) in [
+            (
+                "unknown default",
+                "nonesuch",
+                None,
+                "Unknown dockerfile type: nonesuch".to_string(),
+            ),
+            (
+                "file not found",
+                "nonesuch",
+                Some("Dockerfile.none".to_string()),
+                "No such file or directory (os error 2)".to_string(),
+            ),
+        ] {
+            let bs = BuildSettings {
+                dockerfile_path: path.clone(),
+                ..Default::default()
+            };
+
+            match bs.get_dockerfile(val) {
+                Ok(_) => panic!("{name} unexpectedly succeeded"),
+                Err(e) => assert_eq!(err, e.to_string(), "{name}"),
+            }
+        }
     }
 }
