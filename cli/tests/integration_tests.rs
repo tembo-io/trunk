@@ -251,7 +251,6 @@ fn build_c_extension() -> Result<(), Box<dyn std::error::Error>> {
         .output()
         .expect("failed to run tar command");
     let stdout = String::from_utf8(output.stdout).unwrap();
-    println!("STDOUT: `{stdout}`");
     assert!(stdout.contains("licenses/LICENSE"));
     assert!(stdout.contains("licenses/NOTICE"));
 

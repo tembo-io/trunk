@@ -166,7 +166,11 @@ impl BuildSettings {
 
     // Returns the Git release tag for self.pg_version.
     pub(crate) fn pg_release_tag(&self) -> &'static str {
-        match self.pg_version {
+        Self::tag_for(self.pg_version)
+    }
+
+    fn tag_for(v: u8) -> &'static str {
+        match v {
             14 => "REL_14_17",
             15 => "REL_15_12",
             16 => "REL_16_8",
@@ -358,6 +362,8 @@ impl SubCommand for BuildCommand {
 
 #[cfg(test)]
 mod tests {
+    use colorful::core::StrMarker;
+
     use super::*;
     use std::path::PathBuf;
 
@@ -424,5 +430,105 @@ mod tests {
                 Err(e) => assert_eq!(err, e.to_string(), "{name}"),
             }
         }
+    }
+
+    #[test]
+    fn settings_get_docker_build_args() {
+        for (name, bs, extension, version, exp) in [
+            (
+                "typical",
+                BuildSettings {
+                    name: Some("semver".to_string()),
+                    version: Some("1.2.3".to_str()),
+                    pg_version: 17,
+                    ..Default::default()
+                },
+                "",
+                "",
+                HashMap::from([
+                    ("EXTENSION_NAME", "semver"),
+                    ("EXTENSION_VERSION", "1.2.3"),
+                    ("PG_VERSION", "17"),
+                    ("PG_RELEASE", BuildSettings::tag_for(17)),
+                ]),
+            ),
+            (
+                "pass name",
+                BuildSettings {
+                    name: None,
+                    version: Some("1.2.3".to_str()),
+                    pg_version: 17,
+                    ..Default::default()
+                },
+                "pgTAP",
+                "",
+                HashMap::from([
+                    ("EXTENSION_NAME", "pgTAP"),
+                    ("EXTENSION_VERSION", "1.2.3"),
+                    ("PG_VERSION", "17"),
+                    ("PG_RELEASE", BuildSettings::tag_for(17)),
+                ]),
+            ),
+            (
+                "pass version",
+                BuildSettings {
+                    name: Some("semver".to_string()),
+                    version: None,
+                    pg_version: 16,
+                    ..Default::default()
+                },
+                "",
+                "4.3.6",
+                HashMap::from([
+                    ("EXTENSION_NAME", "semver"),
+                    ("EXTENSION_VERSION", "4.3.6"),
+                    ("PG_VERSION", "16"),
+                    ("PG_RELEASE", BuildSettings::tag_for(16)),
+                ]),
+            ),
+            (
+                "build_args",
+                BuildSettings {
+                    name: Some("semver".to_string()),
+                    version: Some("1.2.3".to_str()),
+                    pg_version: 17,
+                    build_args: vec![
+                        "WHATEVER=1".to_string(),
+                        "green=yup".to_string(),
+                        "xyz=true".to_string(),
+                    ],
+                    ..Default::default()
+                },
+                "",
+                "",
+                HashMap::from([
+                    ("EXTENSION_NAME", "semver"),
+                    ("EXTENSION_VERSION", "1.2.3"),
+                    ("PG_VERSION", "17"),
+                    ("PG_RELEASE", BuildSettings::tag_for(17)),
+                    ("WHATEVER", "1"),
+                    ("green", "yup"),
+                    ("xyz", "true"),
+                ]),
+            ),
+        ] {
+            let args = bs.get_docker_build_args(extension, version);
+            assert_eq!(exp, args.unwrap(), "{name}");
+        }
+
+        // Test invalid build args.
+        let bs = BuildSettings {
+            pg_version: 17,
+            build_args: vec!["WHATEVER=1".to_string(), "not_a_setting".to_string()],
+            ..Default::default()
+        };
+        match bs.get_docker_build_args("hi", "1.2.3") {
+            Ok(_) => panic!("invalid build args unexpectedly succeeded"),
+            Err(e) => assert_eq!(
+                "Invalid build arg: not_a_setting".to_string(),
+                e.to_string(),
+                "invalid build args"
+            ),
+        };
     }
 }
