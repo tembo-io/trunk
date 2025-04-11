@@ -8,9 +8,10 @@ use async_trait::async_trait;
 use clap::Args;
 use log::{info, warn};
 use slicedisplay::SliceDisplay;
-use std::borrow::Cow;
+use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
+use std::io;
 use std::path::Path;
 use tokio_task_manager::Task;
 use toml::Table;
@@ -38,12 +39,15 @@ pub struct BuildCommand {
     dockerfile_path: Option<String>,
     #[arg(short = 'i', long = "install-command")]
     install_command: Option<String>,
-    /// Run this extension's integration tests after building, if any are found
+    /// Run this extension's integration tests after building
     #[clap(long, short, action)]
     test: bool,
-    /// The PostgreSQL version to build this extension against. Experimental for versions other than Postgres 15.
+    /// The PostgreSQL version to build this extension against
     #[clap(default_value = "15", long, action)]
     pg_version: u8,
+    /// Set a Dockerfile build argument
+    #[arg(short = 'a', long = "build-arg")]
+    build_args: Vec<String>,
 }
 
 pub struct BuildSettings {
@@ -62,6 +66,92 @@ pub struct BuildSettings {
     pub should_test: bool,
     pub loadable_libraries: Option<Vec<LoadableLibrary>>,
     pub pg_version: u8,
+    pub build_args: Vec<String>,
+}
+
+impl BuildSettings {
+    // Load and return the contents of the  Dockerfile specified by
+    // `self.dockerfile_path`. If its value is `None`, load and return the
+    // contents of the `default` dockerfile.
+    pub(crate) fn get_dockerfile(&self, default: &str) -> Result<String, io::Error> {
+        if let Some(dockerfile_path) = &self.dockerfile_path {
+            info!("Using Dockerfile at {}", &dockerfile_path);
+            fs::read_to_string(dockerfile_path.as_str())
+        } else {
+            match default {
+                "pgxs" => Ok(include_str!("./builders/Dockerfile.generic").to_string()),
+                "pgrx" => Ok(include_str!("./builders/Dockerfile.pgrx").to_string()),
+                _ => Err(io::Error::new(
+                    io::ErrorKind::NotFound,
+                    anyhow!("Unknown dockerfile type: {default}"),
+                )),
+            }
+        }
+    }
+
+    // get_docker_build_args returns the values to use for `-build-arg`
+    // options to `docker build.`
+    pub(crate) fn get_docker_build_args(&self) -> Result<HashMap<&str, &str>, anyhow::Error> {
+        let mut build_args = HashMap::new();
+        build_args.insert("EXTENSION_NAME", self.name.as_ref().unwrap().as_str());
+        build_args.insert("EXTENSION_VERSION", self.version.as_ref().unwrap().as_str());
+        build_args.insert("PG_VERSION", self.pg_version_string());
+        build_args.insert("PG_RELEASE", self.pg_release_tag());
+        for arg in &self.build_args {
+            match arg.split_once("=") {
+                Some((k, v)) => build_args.insert(k, v),
+                None => return Err(anyhow!("Invalid build arg: {arg}")),
+            };
+        }
+        Ok(build_args)
+    }
+
+    pub(crate) fn get_install_command(&self, default: &[&'static str]) -> Vec<String> {
+        match &self.install_command {
+            None => {
+                warn!(
+                    "Install command is not specified, guessing the command is '{}'",
+                    default.join(" ")
+                );
+                default.iter().map(|x| x.to_string()).collect()
+            }
+            Some(cmd) => {
+                // Replace all instances of strings like `postgresql/15` and `pg15`.
+                let re = regex::Regex::new(r"(postgresql/|pg)\d+").unwrap();
+                let cmd = re.replace_all(cmd, |caps: &regex::Captures| -> String {
+                    format!("{}{}", &caps[1], self.pg_version)
+                });
+
+                vec![
+                    "/usr/bin/bash".to_string(),
+                    "-c".to_string(),
+                    cmd.to_string(),
+                ]
+            }
+        }
+    }
+
+    // Returns the string representation self.pg_version.
+    pub(crate) fn pg_version_string(&self) -> &'static str {
+        match self.pg_version {
+            14 => "14",
+            15 => "15",
+            16 => "16",
+            17 => "17",
+            _ => panic!("Unsupported Postgres version!"),
+        }
+    }
+
+    // Returns the Git release tag for self.pg_version.
+    pub(crate) fn pg_release_tag(&self) -> &'static str {
+        match self.pg_version {
+            14 => "REL_14_17",
+            15 => "REL_15_12",
+            16 => "REL_16_8",
+            17 => "REL_17_4",
+            _ => panic!("Unsupported Postgres version!"),
+        }
+    }
 }
 
 impl BuildCommand {
@@ -176,16 +266,8 @@ impl BuildCommand {
             configurations,
             loadable_libraries,
             pg_version: self.pg_version,
+            build_args: self.build_args.clone(),
         })
-    }
-}
-
-fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
-    if let Some(dockerfile_path) = path {
-        info!("Using Dockerfile at {}", &dockerfile_path);
-        fs::read_to_string(dockerfile_path.as_str())
-    } else {
-        Ok(include_str!("./builders/Dockerfile.generic").to_string())
     }
 }
 
@@ -203,56 +285,35 @@ impl SubCommand for BuildCommand {
             if dependencies.contains_key("pgrx") {
                 info!("Detected that we are building a pgrx extension");
                 // if user provides name, check that it matches Cargo.toml name
-                if build_settings.name.is_some() {
+                if let Some(name) = &build_settings.name {
                     let package = cargo_toml.get("package");
                     let cargo_name = package.unwrap().get("name");
-                    if build_settings.name
-                        != Some(cargo_name.unwrap().as_str().unwrap().to_string())
-                    {
+                    if name != cargo_name.unwrap().as_str().unwrap() {
                         return Err(anyhow!(
                             "User-provided name must match name in Cargo.toml\n \
-                             User-provided name: {}\n \
+                             User-provided name: {name}\n \
                              Cargo.toml name: {}\n\
                             ",
-                            build_settings.name.unwrap(),
                             cargo_name.unwrap().as_str().unwrap().to_string()
                         ));
                     }
                 }
                 // if user provides version, check that it matches Cargo.toml version
-                if build_settings.version.is_some() {
+                if let Some(version) = &build_settings.version {
                     let package = cargo_toml.get("package");
                     let cargo_version = package.unwrap().get("version");
-                    if build_settings.version
-                        != Some(cargo_version.unwrap().as_str().unwrap().to_string())
-                    {
+                    if version != cargo_version.unwrap().as_str().unwrap() {
                         return Err(anyhow!(
                             "User-provided version must match version in Cargo.toml\n \
-                             User-provided version: {}\n \
+                             User-provided version: {version}\n \
                              Cargo.toml version: {}\n\
                             ",
-                            build_settings.version.unwrap(),
                             cargo_version.unwrap().as_str().unwrap().to_string()
                         ));
                     }
                 }
 
-                build_pgrx(
-                    build_settings.dockerfile_path.clone(),
-                    build_settings.platform.clone(),
-                    path,
-                    &build_settings.output_path,
-                    build_settings.extension_name,
-                    build_settings.extension_dependencies,
-                    cargo_toml,
-                    build_settings.system_dependencies,
-                    build_settings.glob_patterns_to_include,
-                    build_settings.configurations,
-                    build_settings.loadable_libraries,
-                    build_settings.pg_version,
-                    task,
-                )
-                .await?;
+                build_pgrx(&build_settings, path, cargo_toml, task).await?;
                 return Ok(());
             }
         }
@@ -260,59 +321,15 @@ impl SubCommand for BuildCommand {
         // Check if version or name are missing
         if build_settings.version.is_none() || build_settings.name.is_none() {
             return Err(anyhow!(
-                "--version and --name are required unless building a PGRX extension"
+                "--version and --name are required unless building a PGXS extension"
             ));
         }
 
-        let dockerfile: String = get_dockerfile(build_settings.dockerfile_path.clone()).unwrap();
+        let install_command =
+            build_settings.get_install_command(&["make", "install", "USE_PGXS=1"]);
+        info!("Using install command {}", install_command.join(" "));
 
-        let processed_install_command = build_settings
-            .install_command
-            .as_ref()
-            .map(|command| process_install_command(command, build_settings.pg_version));
-
-        let mut install_command_split: Vec<&str> = vec![];
-        if let Some(install_command) = processed_install_command.as_deref() {
-            install_command_split.push("/usr/bin/bash");
-            install_command_split.push("-c");
-            install_command_split.push(install_command);
-        } else {
-            warn!("Install command is not specified, guessing the command is 'make install'");
-            install_command_split = vec!["make", "install"];
-        }
-        info!(
-            "Using install command {}",
-            install_command_split.clone().join(" ")
-        );
-
-        let dockerfile = dockerfile.as_str();
-        build_generic(
-            dockerfile,
-            build_settings.platform.clone(),
-            install_command_split,
-            path,
-            &build_settings.output_path,
-            build_settings.name.clone().unwrap().as_str(),
-            build_settings.extension_name,
-            build_settings.extension_dependencies,
-            build_settings.system_dependencies,
-            build_settings.version.clone().unwrap().as_str(),
-            build_settings.glob_patterns_to_include,
-            task,
-            build_settings.should_test,
-            build_settings.configurations,
-            build_settings.loadable_libraries,
-            build_settings.pg_version,
-        )
-        .await?;
+        build_generic(&build_settings, &install_command, path, task).await?;
         return Ok(());
     }
-}
-
-fn process_install_command(install_command: &str, pg_version: u8) -> Cow<'_, str> {
-    // Replace all instances of strings like `postgresql/15` and `pg15`.
-    let re = regex::Regex::new(r"(postgresql/|pg)\d+").unwrap();
-    re.replace_all(install_command, |caps: &regex::Captures| -> String {
-        format!("{}{pg_version}", &caps[1])
-    })
 }

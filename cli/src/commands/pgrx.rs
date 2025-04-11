@@ -1,9 +1,7 @@
 use semver::{Version, VersionReq};
-use std::collections::HashMap;
-
+use std::fs;
 use std::path::{Path, StripPrefixError};
 use std::string::FromUtf8Error;
-use std::{fs, include_str};
 
 use thiserror::Error;
 
@@ -12,14 +10,11 @@ use bollard::Docker;
 use crate::commands::containers::{
     build_image, exec_in_container, package_installed_extension_files, run_temporary_container,
 };
-use crate::config::{ExtensionConfiguration, LoadableLibrary};
-use crate::trunk_toml::SystemDependencies;
-use crate::{pg_release_for_version, pg_version_to_str};
 use tokio::sync::mpsc;
 
-use tokio::task::JoinError;
-
+use super::build::BuildSettings;
 use crate::commands::license::{copy_licenses, find_licenses};
+use tokio::task::JoinError;
 use tokio_task_manager::Task;
 use toml::Value;
 
@@ -93,29 +88,11 @@ fn semver_from_range(pgrx_range: &str) -> Result<String, PgrxBuildError> {
     Ok(pgrx_version)
 }
 
-fn get_dockerfile(path: Option<String>) -> Result<String, std::io::Error> {
-    if let Some(dockerfile_path) = path {
-        println!("Using Dockerfile at {}", &dockerfile_path);
-        Ok(fs::read_to_string(dockerfile_path.as_str())?)
-    } else {
-        Ok(include_str!("./builders/Dockerfile.pgrx").to_string())
-    }
-}
-#[allow(clippy::too_many_arguments)]
 pub async fn build_pgrx(
-    dockerfile_path: Option<String>,
-    platform: Option<String>,
+    build_settings: &BuildSettings,
     path: &Path,
-    output_path: &str,
-    extension_name: Option<String>,
-    extension_dependencies: Option<Vec<String>>,
     cargo_toml: toml::Table,
-    system_dependencies: Option<SystemDependencies>,
-    inclusion_patterns: Vec<glob::Pattern>,
-    configurations: Option<Vec<ExtensionConfiguration>>,
-    loadable_libraries: Option<Vec<LoadableLibrary>>,
-    pg_version: u8,
-    _task: Task,
+    task: Task,
 ) -> Result<(), PgrxBuildError> {
     let cargo_package_info = cargo_toml
         .get("package")
@@ -164,21 +141,14 @@ pub async fn build_pgrx(
 
     println!("Building pgrx extension at path {}", &path.display());
 
-    let dockerfile = get_dockerfile(dockerfile_path).unwrap();
-
-    let mut build_args = HashMap::new();
-    build_args.insert("EXTENSION_NAME", name);
-    build_args.insert("EXTENSION_VERSION", extension_version);
-    build_args.insert("PGRX_VERSION", pgrx_version.as_str());
-    build_args.insert("PG_VERSION", pg_version_to_str(pg_version));
-    build_args.insert("PG_RELEASE", pg_release_for_version(pg_version));
-
+    let build_args = build_settings.get_docker_build_args()?;
     let image_name_prefix = "pgrx_builder_".to_string();
 
     let docker = Docker::connect_with_local_defaults()?;
+    let dockerfile = build_settings.get_dockerfile("pgrx").unwrap();
 
     let image_name = build_image(
-        platform.clone(),
+        &build_settings.platform,
         docker.clone(),
         &image_name_prefix,
         &dockerfile,
@@ -187,9 +157,13 @@ pub async fn build_pgrx(
     )
     .await?;
 
-    let temp_container =
-        run_temporary_container(docker.clone(), platform.clone(), image_name.as_str(), _task)
-            .await?;
+    let temp_container = run_temporary_container(
+        docker.clone(),
+        build_settings.platform.clone(),
+        image_name.as_str(),
+        task,
+    )
+    .await?;
 
     println!("Determining installation files...");
     let _exec_output = exec_in_container(
@@ -199,7 +173,7 @@ pub async fn build_pgrx(
             "cp",
             "--verbose",
             "-R",
-            format!("target/release/{name}-pg{pg_version}/usr").as_str(),
+            format!("target/release/{name}-pg{}/usr", build_settings.pg_version).as_str(),
             "/",
         ],
         None,
@@ -235,21 +209,21 @@ pub async fn build_pgrx(
     .await?;
 
     // output_path is the locally output path
-    fs::create_dir_all(output_path)?;
+    fs::create_dir_all(&build_settings.output_path)?;
 
     package_installed_extension_files(
         docker.clone(),
         &temp_container.id,
-        output_path,
-        system_dependencies,
+        &build_settings.output_path,
+        build_settings.system_dependencies.clone(),
         name,
-        extension_name,
+        build_settings.extension_name.clone(),
         extension_version,
-        extension_dependencies,
-        inclusion_patterns,
-        configurations,
-        loadable_libraries,
-        pg_version,
+        build_settings.extension_dependencies.clone(),
+        &build_settings.glob_patterns_to_include,
+        build_settings.configurations.clone(),
+        build_settings.loadable_libraries.clone(),
+        build_settings.pg_version,
     )
     .await?;
 

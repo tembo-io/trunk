@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use std::path::Path;
 
 use std::fs;
@@ -18,9 +16,8 @@ use crate::commands::containers::{
     start_postgres,
 };
 use crate::commands::license::{copy_licenses, find_licenses};
-use crate::config::{ExtensionConfiguration, LoadableLibrary};
-use crate::trunk_toml::SystemDependencies;
-use crate::{pg_release_for_version, pg_version_to_str};
+
+use super::build::BuildSettings;
 
 #[derive(Error, Debug)]
 #[allow(clippy::enum_variant_names)]
@@ -66,62 +63,57 @@ pub enum GenericBuildError {
 // docker diff 05a11b4b1bd5
 //
 // Any file that has changed, copy out of the container and into the trunk package
-#[allow(clippy::too_many_arguments)]
 pub async fn build_generic(
-    dockerfile: &str,
-    platform: Option<String>,
-    install_command: Vec<&str>,
+    build_settings: &BuildSettings,
+    install_command: &[String],
     path: &Path,
-    output_path: &str,
-    name: &str,
-    extension_name: Option<String>,
-    extension_dependencies: Option<Vec<String>>,
-    system_dependencies: Option<SystemDependencies>,
-    extension_version: &str,
-    inclusion_patterns: Vec<glob::Pattern>,
     _task: Task,
-    should_test: bool,
-    configurations: Option<Vec<ExtensionConfiguration>>,
-    loadable_libraries: Option<Vec<LoadableLibrary>>,
-    pg_version: u8,
 ) -> Result<(), GenericBuildError> {
+    let name = build_settings.name.clone().unwrap();
+    let extension_version = build_settings.version.clone().unwrap();
     println!("Building with name {}", &name);
     println!("Building with version {}", &extension_version);
-    println!("Building for PostgreSQL {pg_version}");
+    println!("Building for PostgreSQL {}", build_settings.pg_version);
 
-    let mut build_args = HashMap::new();
-    build_args.insert("EXTENSION_NAME", name);
-    build_args.insert("EXTENSION_VERSION", extension_version);
-    build_args.insert("PG_VERSION", pg_version_to_str(pg_version));
-    build_args.insert("PG_RELEASE", pg_release_for_version(pg_version));
-
+    let build_args = build_settings.get_docker_build_args()?;
     let image_name_prefix = "make_builder_".to_string();
 
     let docker = Docker::connect_with_local_defaults()?;
+    let dockerfile = build_settings.get_dockerfile("pgxs").unwrap();
 
     let image_name = build_image(
-        platform.clone(),
+        &build_settings.platform,
         docker.clone(),
         &image_name_prefix,
-        dockerfile,
+        &dockerfile,
         path,
         build_args,
     )
     .await?;
 
-    let temp_container =
-        run_temporary_container(docker.clone(), platform.clone(), image_name.as_str(), _task)
-            .await?;
+    let temp_container = run_temporary_container(
+        docker.clone(),
+        build_settings.platform.clone(),
+        image_name.as_str(),
+        _task,
+    )
+    .await?;
 
-    if should_test {
-        let extension_name = extension_name.as_deref().unwrap_or(name);
+    if build_settings.should_test {
+        let extension_name = &build_settings.extension_name.as_deref().unwrap_or(&name);
         // Check if there are extensions to run
         run_tests(&docker, &temp_container.id, extension_name).await?;
     }
 
     println!("Determining installation files...");
-    let _exec_output =
-        exec_in_container(&docker, &temp_container.id, install_command, None, None).await?;
+    let _exec_output = exec_in_container(
+        &docker,
+        &temp_container.id,
+        install_command.iter().map(|x| x.as_str()).collect(),
+        None,
+        None,
+    )
+    .await?;
 
     // Search for license files to include
     println!("Determining license files to include...");
@@ -151,21 +143,21 @@ pub async fn build_generic(
     .await?;
 
     // output_path is the locally output path
-    fs::create_dir_all(output_path)?;
+    fs::create_dir_all(&build_settings.output_path)?;
 
     package_installed_extension_files(
         docker.clone(),
         &temp_container.id,
-        output_path,
-        system_dependencies,
-        name,
-        extension_name,
-        extension_version,
-        extension_dependencies,
-        inclusion_patterns,
-        configurations,
-        loadable_libraries,
-        pg_version,
+        &build_settings.output_path,
+        build_settings.system_dependencies.clone(),
+        &name,
+        build_settings.extension_name.clone(),
+        &extension_version,
+        build_settings.extension_dependencies.clone(),
+        &build_settings.glob_patterns_to_include,
+        build_settings.configurations.clone(),
+        build_settings.loadable_libraries.clone(),
+        build_settings.pg_version,
     )
     .await?;
 

@@ -320,7 +320,7 @@ pub async fn find_license_files(
 // The caller provides an image name prefix, and this function returns
 // the complete image name.
 pub async fn build_image(
-    platform: Option<String>,
+    platform: &Option<String>,
     docker: Docker,
     image_name_prefix: &str,
     dockerfile_path: &str,
@@ -424,7 +424,7 @@ pub async fn package_installed_extension_files(
     mut extension_name: Option<String>,
     extension_version: &str,
     extension_dependencies: Option<Vec<String>>,
-    inclusion_patterns: Vec<glob::Pattern>,
+    inclusion_patterns: &[glob::Pattern],
     configurations: Option<Vec<ExtensionConfiguration>>,
     loadable_libraries: Option<Vec<LoadableLibrary>>,
     pg_version: u8,
@@ -457,7 +457,7 @@ pub async fn package_installed_extension_files(
     let pkglibdir = pkglibdir.trim();
 
     let extension_files =
-        find_installed_extension_files(&docker, container_id, &inclusion_patterns).await?;
+        find_installed_extension_files(&docker, container_id, inclusion_patterns).await?;
     validate_extension_files(&extension_files)?;
     let license_files = find_license_files(&docker, container_id).await?;
 

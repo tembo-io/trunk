@@ -95,23 +95,3 @@ fn main() -> ExitCode {
         }
     }
 }
-
-pub fn pg_version_to_str(pg_version: u8) -> &'static str {
-    match pg_version {
-        14 => "14",
-        15 => "15",
-        16 => "16",
-        17 => "17",
-        _ => panic!("Unsupported Postgres version!"),
-    }
-}
-
-pub fn pg_release_for_version(pg_version: u8) -> &'static str {
-    match pg_version {
-        14 => "REL_14_15",
-        15 => "REL_15_10",
-        16 => "REL_16_6",
-        17 => "REL_17_2",
-        _ => panic!("Unsupported Postgres version!"),
-    }
-}

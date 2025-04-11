@@ -16,6 +16,7 @@ on:
       - "!cli/.gitignore"
   push:
     branches:
+      - "**"
       - main
     paths:
       - ".github/workflows/cli*.yml"
