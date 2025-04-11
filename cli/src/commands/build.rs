@@ -91,10 +91,28 @@ impl BuildSettings {
 
     // get_docker_build_args returns the values to use for `-build-arg`
     // options to `docker build.`
-    pub(crate) fn get_docker_build_args(&self) -> Result<HashMap<&str, &str>, anyhow::Error> {
+    pub(crate) fn get_docker_build_args<'a>(
+        &'a self,
+        name: &'a str,
+        version: &'a str,
+    ) -> Result<HashMap<&'a str, &'a str>, anyhow::Error> {
         let mut build_args = HashMap::new();
-        build_args.insert("EXTENSION_NAME", self.name.as_ref().unwrap().as_str());
-        build_args.insert("EXTENSION_VERSION", self.version.as_ref().unwrap().as_str());
+        build_args.insert(
+            "EXTENSION_NAME",
+            if name.is_empty() {
+                self.name.as_ref().unwrap().as_str()
+            } else {
+                name
+            },
+        );
+        build_args.insert(
+            "EXTENSION_VERSION",
+            if version.is_empty() {
+                self.version.as_ref().unwrap().as_str()
+            } else {
+                version
+            },
+        );
         build_args.insert("PG_VERSION", self.pg_version_string());
         build_args.insert("PG_RELEASE", self.pg_release_tag());
         for arg in &self.build_args {

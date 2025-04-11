@@ -69,13 +69,13 @@ pub async fn build_generic(
     path: &Path,
     _task: Task,
 ) -> Result<(), GenericBuildError> {
-    let name = build_settings.name.clone().unwrap();
-    let extension_version = build_settings.version.clone().unwrap();
-    println!("Building with name {}", &name);
-    println!("Building with version {}", &extension_version);
+    let name = build_settings.name.as_ref().unwrap();
+    let extension_version = build_settings.version.as_ref().unwrap();
+    println!("Building with name {}", name);
+    println!("Building with version {}", extension_version);
     println!("Building for PostgreSQL {}", build_settings.pg_version);
 
-    let build_args = build_settings.get_docker_build_args()?;
+    let build_args = build_settings.get_docker_build_args("", "")?;
     let image_name_prefix = "make_builder_".to_string();
 
     let docker = Docker::connect_with_local_defaults()?;
@@ -100,7 +100,7 @@ pub async fn build_generic(
     .await?;
 
     if build_settings.should_test {
-        let extension_name = &build_settings.extension_name.as_deref().unwrap_or(&name);
+        let extension_name = &build_settings.extension_name.as_deref().unwrap_or(name);
         // Check if there are extensions to run
         run_tests(&docker, &temp_container.id, extension_name).await?;
     }
@@ -144,22 +144,7 @@ pub async fn build_generic(
 
     // output_path is the locally output path
     fs::create_dir_all(&build_settings.output_path)?;
-
-    package_installed_extension_files(
-        docker.clone(),
-        &temp_container.id,
-        &build_settings.output_path,
-        build_settings.system_dependencies.clone(),
-        &name,
-        build_settings.extension_name.clone(),
-        &extension_version,
-        build_settings.extension_dependencies.clone(),
-        &build_settings.glob_patterns_to_include,
-        build_settings.configurations.clone(),
-        build_settings.loadable_libraries.clone(),
-        build_settings.pg_version,
-    )
-    .await?;
+    package_installed_extension_files(build_settings, docker.clone(), &temp_container.id).await?;
 
     Ok(())
 }

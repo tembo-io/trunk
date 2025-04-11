@@ -16,12 +16,11 @@ use std::fs::File;
 use std::io::Cursor;
 use std::path::{Path, PathBuf};
 
+use crate::commands::build::BuildSettings;
 use crate::commands::generic_build::GenericBuildError;
-use crate::config::{ExtensionConfiguration, LoadableLibrary};
 use crate::control_file::ControlFile;
 use crate::manifest::Manifest;
 use crate::sync_utils::{ByteStreamSyncReceiver, ByteStreamSyncSender};
-use crate::trunk_toml::SystemDependencies;
 use futures_util::stream::StreamExt;
 use hyper::Body;
 use rand::Rng;
@@ -416,21 +415,12 @@ pub async fn build_image(
 // Package these files into a Trunk package.
 #[allow(clippy::too_many_arguments)]
 pub async fn package_installed_extension_files(
+    build_settings: &BuildSettings,
     docker: Docker,
     container_id: &str,
-    package_path: &str,
-    system_dependencies: Option<SystemDependencies>,
-    name: &str,
-    mut extension_name: Option<String>,
-    extension_version: &str,
-    extension_dependencies: Option<Vec<String>>,
-    inclusion_patterns: &[glob::Pattern],
-    configurations: Option<Vec<ExtensionConfiguration>>,
-    loadable_libraries: Option<Vec<LoadableLibrary>>,
-    pg_version: u8,
 ) -> Result<(), anyhow::Error> {
-    let name = name.to_owned();
-    let extension_version = extension_version.to_owned();
+    let name = build_settings.version.clone().unwrap();
+    let extension_version = build_settings.version.clone().unwrap();
 
     let target_arch =
         exec_in_container(&docker, container_id, vec!["uname", "-m"], None, None).await?;
@@ -456,8 +446,12 @@ pub async fn package_installed_extension_files(
     .await?;
     let pkglibdir = pkglibdir.trim();
 
-    let extension_files =
-        find_installed_extension_files(&docker, container_id, inclusion_patterns).await?;
+    let extension_files = find_installed_extension_files(
+        &docker,
+        container_id,
+        &build_settings.glob_patterns_to_include,
+    )
+    .await?;
     validate_extension_files(&extension_files)?;
     let license_files = find_license_files(&docker, container_id).await?;
 
@@ -470,7 +464,10 @@ pub async fn package_installed_extension_files(
     let licensedir = "/usr/licenses".to_owned();
 
     // In this function, we open and work with .tar only, then we finalize the package with a .gz in a separate call
-    let package_path = format!("{package_path}/{name}-{extension_version}-pg{pg_version}.tar.gz");
+    let package_path = format!(
+        "{}/{name}-{extension_version}-pg{}.tar.gz",
+        &build_settings.output_path, build_settings.pg_version,
+    );
     println!("Creating package at: {package_path}");
     let file = File::create(&package_path)?;
 
@@ -488,6 +485,7 @@ pub async fn package_installed_extension_files(
     // TODO: If extension_dependencies is none, check for control file and fetch 'requires' field (similar to below)
     //  example: https://github.com/paradedb/paradedb/blob/9a0b1601a9c7026e5c89eef51a422b9d284b3058/pg_search/pg_search.control#L6C1-L6C9
 
+    let mut extension_name = build_settings.extension_name.clone();
     if let Some(control) = sharedir_list.iter().find(|path| path.contains(".control")) {
         // If extension_name parameter is none, check for control file and fetch extension_name
         if extension_name.is_none() {
@@ -513,6 +511,22 @@ pub async fn package_installed_extension_files(
         extension_name = Some(name.clone())
     }
 
+    let mut manifest = Manifest {
+        name,
+        extension_name,
+        extension_version,
+        extension_dependencies: build_settings.extension_dependencies.clone(),
+        manifest_version: 2,
+        architecture: target_arch,
+        sys: "linux".to_string(),
+        files: None,
+        dependencies: build_settings.system_dependencies.clone(),
+        configurations: build_settings.configurations.clone(),
+        loadable_libraries: build_settings.loadable_libraries.clone(),
+        pg_version: build_settings.pg_version,
+    };
+    // If the docker copy command starts to stream data
+
     // Create a sync task within the tokio runtime to copy the file from docker to tar
     let tar_handle = task::spawn_blocking(move || {
         // Send ownership of the control file to the closure
@@ -522,21 +536,6 @@ pub async fn package_installed_extension_files(
             file,
             flate2::Compression::default(),
         ));
-        let mut manifest = Manifest {
-            name,
-            extension_name,
-            extension_version,
-            extension_dependencies,
-            manifest_version: 2,
-            architecture: target_arch,
-            sys: "linux".to_string(),
-            files: None,
-            dependencies: system_dependencies,
-            configurations,
-            loadable_libraries,
-            pg_version,
-        };
-        // If the docker copy command starts to stream data
         println!("Create Trunk bundle:");
         let entries = archive
             .entries()

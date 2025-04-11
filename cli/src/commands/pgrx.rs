@@ -141,7 +141,7 @@ pub async fn build_pgrx(
 
     println!("Building pgrx extension at path {}", &path.display());
 
-    let build_args = build_settings.get_docker_build_args()?;
+    let build_args = build_settings.get_docker_build_args(name, extension_version)?;
     let image_name_prefix = "pgrx_builder_".to_string();
 
     let docker = Docker::connect_with_local_defaults()?;
@@ -210,22 +210,7 @@ pub async fn build_pgrx(
 
     // output_path is the locally output path
     fs::create_dir_all(&build_settings.output_path)?;
-
-    package_installed_extension_files(
-        docker.clone(),
-        &temp_container.id,
-        &build_settings.output_path,
-        build_settings.system_dependencies.clone(),
-        name,
-        build_settings.extension_name.clone(),
-        extension_version,
-        build_settings.extension_dependencies.clone(),
-        &build_settings.glob_patterns_to_include,
-        build_settings.configurations.clone(),
-        build_settings.loadable_libraries.clone(),
-        build_settings.pg_version,
-    )
-    .await?;
+    package_installed_extension_files(build_settings, docker.clone(), &temp_container.id).await?;
 
     Ok(())
 }
