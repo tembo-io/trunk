@@ -128,6 +128,10 @@ impl BuildSettings {
         Ok(build_args)
     }
 
+    // Returns the install command to execute. Returns `default` if
+    // `self.install_command` is `None`. Otherwise it replaces PostgreSQL
+    // version numbers in `self.install_command` and returns the equivalent of
+    // `bash -c $cmd`.
     pub(crate) fn get_install_command(&self, default: &[&'static str]) -> Vec<String> {
         match &self.install_command {
             None => {
@@ -530,5 +534,53 @@ mod tests {
                 "invalid build args"
             ),
         };
+    }
+
+    #[test]
+    fn settings_get_install_command() {
+        for (name, cmd, def, exp) in [
+            (
+                "default",
+                None,
+                ["make", "install", "USE_PGXS=1"],
+                vec!["make", "install", "USE_PGXS=1"],
+            ),
+            (
+                "install command passed",
+                Some("echo yes".to_string()),
+                ["make", "install", "USE_PGXS=1"],
+                vec!["/usr/bin/bash", "-c", "echo yes"],
+            ),
+            (
+                "replace pg versions",
+                Some("cargo --pg17 postgresql/14 pg13".to_string()),
+                ["make", "install", "USE_PGXS=1"],
+                vec!["/usr/bin/bash", "-c", "cargo --pg17 postgresql/17 pg17"],
+            ),
+        ] {
+            let bs = BuildSettings {
+                install_command: cmd,
+                pg_version: 17,
+                ..Default::default()
+            };
+            let res = bs.get_install_command(&def);
+            assert_eq!(exp, res, "{name}");
+        }
+    }
+
+    #[test]
+    fn settings_version_strings() {
+        for version in [14, 15, 16, 17] {
+            let bs = BuildSettings {
+                pg_version: version,
+                ..Default::default()
+            };
+
+            assert_eq!(format!("{version}"), bs.pg_version_string(), "{version}");
+            assert!(
+                bs.pg_release_tag().starts_with(&format!("REL_{version}_")),
+                "{version} tag"
+            );
+        }
     }
 }
