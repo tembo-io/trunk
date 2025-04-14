@@ -1,0 +1,17 @@
+[extension]
+name = "pglite_fusion"
+version = "0.0.5"
+repository = "https://github.com/frectonz/pglite-fusion"
+license = "MIT"
+description = "Embed an SQLite database in your PostgreSQL table."
+documentation = "https://github.com/okbob/plpgsql_check"
+categories = ["connectors", "data_transformations"]
+
+[dependencies]
+apt = ["libc6"]
+
+[build]
+postgres_version = "17"
+platform = "linux/amd64"
+dockerfile = "Dockerfile"
+install_command = "cargo pgrx install --release"
