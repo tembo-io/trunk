@@ -8,7 +8,7 @@ ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/var/lib/postgresql/.cargo/bin:${PATH}"
 
-# Install tcdi/pgrx
+# Install pgrx
 ARG PGRX_VERSION=0.8.2
 RUN set -ex; \
     if [ "$PGRX_VERSION" = "0.13.1" ] || [ "$PGRX_VERSION" = "0.13.0" ]; then \
