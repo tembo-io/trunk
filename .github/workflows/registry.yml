@@ -173,9 +173,6 @@ jobs:
             subdirectory: dev
             branch: main
           - repository: tembo-io/app-deploy
-            subdirectory: staging
-            branch: staging-updates
-          - repository: tembo-io/app-deploy
             subdirectory: prod
             branch: prod-updates
     needs:
