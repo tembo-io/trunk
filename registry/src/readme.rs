@@ -232,7 +232,7 @@ impl<'a> GitHubProject<'a> {
             let owner = parts.next()?;
             let name = parts.next()?;
             let subdir = if let Some("tree") = parts.next() {
-                parts.last()
+                parts.next_back()
             } else {
                 None
             };
