@@ -169,9 +169,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - repository: tembo-io/app-deploy-dev
-            subdirectory: dev
-            branch: main
           - repository: tembo-io/app-deploy
             subdirectory: prod
             branch: prod-updates
