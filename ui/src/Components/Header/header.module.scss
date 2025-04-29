@@ -1,4 +1,20 @@
 @import "../../variables.scss";
+
+.sunsetBanner {
+  width: 100%;
+  padding: $spacing-s $spacing-m;
+  background-color: $black;
+  color: $white;
+  text-align: center;
+  font-family: $inter;
+  font-weight: 600;
+  font-size: 14px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
 .header {
   position: fixed;
   top: 0;
@@ -11,6 +27,7 @@
   align-items: center;
   width: 100%;
   min-width: 100vw;
+  margin-top: 40px;
 }
 
 .headerLeft {
@@ -29,6 +46,10 @@
   }
   .header {
     padding: $spacing-s $spacing-m;
+  }
+  .sunsetBanner {
+    font-size: 12px;
+    padding: $spacing-xs $spacing-s;
   }
 }
 
