@@ -2,13 +2,13 @@
 
 .sunsetBanner {
   width: 100%;
-  padding: $spacing-s $spacing-m;
+  padding: $spacing-m $spacing-m;
   background-color: $black;
   color: $white;
   text-align: center;
   font-family: $inter;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 800;
+  font-size: 16px;
   position: fixed;
   top: 0;
   left: 0;
@@ -27,7 +27,7 @@
   align-items: center;
   width: 100%;
   min-width: 100vw;
-  margin-top: 40px;
+  margin-top: 54px;
 }
 
 .headerLeft {
@@ -46,10 +46,11 @@
   }
   .header {
     padding: $spacing-s $spacing-m;
+    margin-top: 46px;
   }
   .sunsetBanner {
-    font-size: 12px;
-    padding: $spacing-xs $spacing-s;
+    font-size: 14px;
+    padding: $spacing-s $spacing-s;
   }
 }
 
