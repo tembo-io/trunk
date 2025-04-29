@@ -1,6 +1,6 @@
 [extension]
 name = "envvar"
-version = "1.0.0"
+version = "1.0.1"
 repository = "https://github.com/theory/pg-envvar"
 license = "MIT"
 description = "The envvar extension provides a function that returns the value of an environment variable set on the Postgres server"

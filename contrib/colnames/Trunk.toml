@@ -1,6 +1,6 @@
 [extension]
 name = "colnames"
-version = "1.7.0"
+version = "1.7.1"
 repository = "https://github.com/theory/colnames"
 license = "PostgreSQL"
 description = "Lists the column names in a PostgreSQL RECORD value."
