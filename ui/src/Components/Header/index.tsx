@@ -35,7 +35,7 @@ export default function Header({ white = false, search = false }: HeaderProps) {
   return (
     <>
       <div className={styles.sunsetBanner}>
-        We are sunsetting Trunk and ending active maintenance. The site and packages will stay accessible for some time.
+        ⚠️ We are sunsetting Trunk and ending active maintenance. The site and packages will stay accessible for some time.
       </div>
       <header
         style={white ? { backgroundColor: 'white' } : {}}
